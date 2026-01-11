@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="couple_mood_mobile"
+        android:label="Couple Mood"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

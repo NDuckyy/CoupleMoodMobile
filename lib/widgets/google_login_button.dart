@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-Widget GoogleLoginButton() {
+Widget googleLoginButton() {
   return SizedBox(
     width: double.infinity,
     height: 48,
     child: OutlinedButton(
       onPressed: () {
-        print("Google login UI pressed");
+        print("Đang nhập với Google");
       },
       style: OutlinedButton.styleFrom(
         backgroundColor: Colors.white,
