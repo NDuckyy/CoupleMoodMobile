@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onLogin() {
+  void _onLogin() async {
     if (_formKey.currentState?.validate() != true) return;
 
     final username = _usernameCtrl.text.trim();
@@ -33,6 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     if (username == 'user' && password == 'password') {
       showMsg(context, "Đăng nhập thành công", true);
+      await Future.delayed(const Duration(seconds: 2));
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
     }

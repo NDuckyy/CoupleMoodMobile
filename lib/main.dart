@@ -1,6 +1,8 @@
 import 'package:couple_mood_mobile/routes/app_route.dart';
+import 'package:couple_mood_mobile/routes/main_layout.dart';
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
+import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +23,8 @@ class MyApp extends StatelessWidget {
       routes: {
         AppRoutes.login: (_) => const LoginScreen(),
         AppRoutes.register: (_) => const RegisterScreen(),
+        AppRoutes.home: (_) => const MainLayout(),
+        AppRoutes.moodChoose: (_) => const ChooseMoodScreen(),
       },
     );
   }
