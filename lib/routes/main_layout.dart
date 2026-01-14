@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class _MainLayoutState extends State<MainLayout> {
     // WorldPage(),
     // CollectionPage(),
     // ProfilePage(),
+    ChatScreen(),
   ];
 
   @override
@@ -38,12 +40,12 @@ class _MainLayoutState extends State<MainLayout> {
             IconButton(
               icon: const Icon(Icons.search),
               color: Color(0xFF7B8CE4),
-              onPressed: () => setState(() => _currentIndex = 1),
+              onPressed: () => setState(() => _currentIndex = 2),
             ),
             IconButton(
               icon: const Icon(Icons.chat_outlined),
               color: Color(0xFF7B8CE4),
-              onPressed: () => setState(() => _currentIndex = 2),
+              onPressed: () => setState(() => _currentIndex = 1),
             ),
             IconButton(
               icon: const Icon(Icons.home_outlined),
