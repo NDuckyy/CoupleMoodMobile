@@ -17,6 +17,20 @@ dependencies:
   google_fonts: ^6.2.1
   cometchat_chat_uikit: ^4.3.26
   cometchat_sdk: ^4.0.14
+  
+  # Map & Location
+  vietmap_flutter_gl: ^4.1.0
+  geolocator: ^10.1.0
+  permission_handler: ^11.0.1
+  
+  # Firebase
+  firebase_core: ^3.10.0
+  firebase_database: ^11.3.4
+  firebase_auth: ^5.3.4
+  
+  # HTTP Client
+  http: ^1.2.0
+  shared_preferences: ^2.2.2
 
 
 dev_dependencies:

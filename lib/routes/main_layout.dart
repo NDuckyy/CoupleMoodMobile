@@ -1,5 +1,5 @@
-import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
+import 'package:couple_mood_mobile/screens/map/couple_map_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainLayout extends StatefulWidget {
@@ -19,7 +19,8 @@ class _MainLayoutState extends State<MainLayout> {
     // WorldPage(),
     // CollectionPage(),
     // ProfilePage(),
-    ChatScreen(),
+    // ChatScreen(),
+    CoupleMapScreen(),
   ];
 
   @override
