@@ -1,5 +1,11 @@
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/routes/app_route.dart';
+import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
+import 'package:couple_mood_mobile/widgets/google_login_button.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,160 +16,174 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onLogin() async {
+    if (_formKey.currentState?.validate() != true) return;
+
+    final email = _emailCtrl.text.trim();
+    final password = _passwordCtrl.text;
+
+    final auth = context.read<AuthProvider>();
+    print("screen");
+    final ok = await auth.login(email, password);
+    
+    if (ok) {
+      if (!mounted) return;
+      showMsg(context, "Đăng nhập thành công", true);
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } else {
+      showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: Color(0xFFF7AEF8),
-      body: Stack(
-        children: [
-          Container(color: const Color(0xFFF7AEF8)),
-
-          Positioned(
-            left: -80,
-            top: -80,
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(
-                color: const Color(0xFFB388EB).withOpacity(0.35),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          Positioned(
-            right: -90,
-            bottom: -90,
-            child: Container(
-              width: 260,
-              height: 260,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.25),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ),
-
-          SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight:
-                      MediaQuery.of(context).size.height -
-                      MediaQuery.of(context).padding.top -
-                      MediaQuery.of(context).padding.bottom,
-                ),
-                child: IntrinsicHeight(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 70,
-                          height: 70,
-                          decoration: BoxDecoration(
-                            color: Color(0xFFB388EB),
-                            borderRadius: BorderRadius.all(Radius.circular(12)),
+      body: BackgroudAuthScreen(
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Container(
+                          //   width: 70,
+                          //   height: 70,
+                          //   decoration: const BoxDecoration(
+                          //     color: Color(0xFFB388EB),
+                          //     borderRadius: BorderRadius.all(
+                          //       Radius.circular(12),
+                          //     ),
+                          //   ),
+                          //   child: const Icon(
+                          //     Icons.favorite,
+                          //     color: Colors.white,
+                          //     size: 40,
+                          //   ),
+                          // ),
+                          Image.asset(
+                            'lib/assets/images/logo.png',
+                            width: 100,
+                            height: 100,
                           ),
-                          child: Icon(
-                            Icons.favorite,
-                            color: Colors.white,
-                            size: 40,
+                          const SizedBox(height: 18),
+                          Text(
+                            'COUPLE MOOD',
+                            style: GoogleFonts.balooChettan2(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 18.0),
-                      Text(
-                        'COUPLE MOOD',
-                        style: GoogleFonts.balooChettan2(
-                          fontSize: 40.0,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      Text(
-                        'Chọn đúng mood, đi đúng chỗ',
-                        style: GoogleFonts.balooChettan2(
-                          fontSize: 18.0,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 20.0),
-                      Center(
-                        child: Container(
-                          width: 330,
-                          height: 400,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(40)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color.fromARGB(
-                                  255,
-                                  147,
-                                  146,
-                                  146,
-                                ).withOpacity(0.5),
-                                spreadRadius: 5,
-                                blurRadius: 7,
-                                offset: Offset(3, 3),
+                          Text(
+                            'Chọn đúng mood, đi đúng chỗ',
+                            style: GoogleFonts.balooChettan2(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          Container(
+                            width: 330,
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 26),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(40),
                               ),
-                            ],
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color.fromARGB(
+                                    255,
+                                    147,
+                                    146,
+                                    146,
+                                  ).withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: const Offset(3, 3),
+                                ),
+                              ],
+                            ),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                const SizedBox(height: 20.0),
-                                Text(
+                                const SizedBox(height: 20),
+                                const Text(
                                   'Chào mừng trở lại',
                                   style: TextStyle(
-                                    fontSize: 24.0,
+                                    color: Color(0xFFB388EB),
+                                    fontSize: 24,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                Text(
+                                const Text(
                                   'Đăng nhập để tiếp tục',
                                   style: TextStyle(
-                                    fontSize: 16.0,
+                                    fontSize: 16,
                                     color: Colors.grey,
                                   ),
                                 ),
-                                const SizedBox(height: 20.0),
-                                const SizedBox(height: 4.0),
-                                TextField(
+                                const SizedBox(height: 20),
+
+                                TextFormField(
+                                  controller: _emailCtrl,
                                   decoration: InputDecoration(
-                                    border: OutlineInputBorder(
+                                    border: const OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
+                                        Radius.circular(10),
                                       ),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    label: Text("Tên đăng nhập"),
+                                    label: const Text("Tên đăng nhập"),
                                     contentPadding: const EdgeInsets.symmetric(
                                       vertical: 10,
                                       horizontal: 16,
                                     ),
                                   ),
+                                  validator: (value) =>
+                                      value == null || value.isEmpty
+                                      ? 'Vui lòng nhập tên đăng nhập'
+                                      : null,
                                 ),
-                                SizedBox(height: 16.0),
-                                const SizedBox(height: 4.0),
-                                TextField(
+                                const SizedBox(height: 16),
+
+                                TextFormField(
+                                  controller: _passwordCtrl,
                                   obscureText: _obscurePassword,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(
                                       borderRadius: BorderRadius.all(
-                                        Radius.circular(10.0),
+                                        Radius.circular(10),
                                       ),
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    label: Text("Mật khẩu"),
+                                    label: const Text("Mật khẩu"),
                                     contentPadding: const EdgeInsets.symmetric(
                                       vertical: 10,
                                       horizontal: 16,
@@ -181,51 +201,110 @@ class _LoginScreenState extends State<LoginScreen> {
                                       },
                                     ),
                                   ),
+                                  validator: (value) =>
+                                      value == null || value.isEmpty
+                                      ? 'Vui lòng nhập mật khẩu'
+                                      : null,
                                 ),
-                                SizedBox(height: 24.0),
-                                Container(
+                                const SizedBox(height: 24),
+
+                                SizedBox(
                                   width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFFB388EB),
-                                        Color(0xFFF7AEF8),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      print("Login button pressed");
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.transparent,
-                                      shadowColor: Colors.transparent,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
+                                  height: 50,
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        246,
+                                        186,
+                                        247,
                                       ),
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: const Text(
-                                      'Đăng nhập',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20.0,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        _onLogin();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.transparent,
+                                        shadowColor: Colors.transparent,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Đăng nhập',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 10),
+
+                                OutlinedButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.register,
+                                    );
+                                  },
+                                  style:
+                                      OutlinedButton.styleFrom(
+                                        minimumSize: Size(double.infinity, 50),
+                                        backgroundColor: Colors.white,
+                                        side: BorderSide(
+                                          color: Color(0xFFB388EB),
+                                        ),
+                                        shadowColor: Colors.transparent,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                        ),
+                                      ).copyWith(
+                                        overlayColor: WidgetStateProperty.all(
+                                          Color(0xFFB388EB).withOpacity(0.2),
+                                        ),
+                                      ),
+                                  child: const Text(
+                                    'Đăng ký',
+                                    style: TextStyle(
+                                      color: Color(0xFFB388EB),
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+                                TextButton(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.black,
+                                  ),
+                                  onPressed: () {
+                                    print("Quên mật khẩu");
+                                  },
+                                  child: const Text("Quên mật khẩu?"),
+                                ),
+                                const SizedBox(height: 10),
+                                googleLoginButton(),
                               ],
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
-        ],
+        ),
       ),
     );
   }
