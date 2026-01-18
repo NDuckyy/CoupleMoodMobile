@@ -1,9 +1,11 @@
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,12 +17,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   final _formKey = GlobalKey<FormState>();
-  final _usernameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
 
   @override
   void dispose() {
-    _usernameCtrl.dispose();
+    _emailCtrl.dispose();
     _passwordCtrl.dispose();
     super.dispose();
   }
@@ -28,13 +30,16 @@ class _LoginScreenState extends State<LoginScreen> {
   void _onLogin() async {
     if (_formKey.currentState?.validate() != true) return;
 
-    final username = _usernameCtrl.text.trim();
+    final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text;
 
-    if (username == 'user' && password == 'password') {
-      showMsg(context, "Đăng nhập thành công", true);
-      await Future.delayed(const Duration(seconds: 2));
+    final auth = context.read<AuthProvider>();
+    print("screen");
+    final ok = await auth.login(email, password);
+    
+    if (ok) {
       if (!mounted) return;
+      showMsg(context, "Đăng nhập thành công", true);
       Navigator.pushReplacementNamed(context, AppRoutes.home);
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
@@ -145,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(height: 20),
 
                                 TextFormField(
-                                  controller: _usernameCtrl,
+                                  controller: _emailCtrl,
                                   decoration: InputDecoration(
                                     border: const OutlineInputBorder(
                                       borderRadius: BorderRadius.all(

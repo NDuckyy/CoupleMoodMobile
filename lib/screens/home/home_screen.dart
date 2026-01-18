@@ -19,9 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('Welcome to the Home Screen!'),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.moodChoose);
+                Navigator.pushNamed(context, AppRoutes.moodChooseMethod);
               },
-              child: Text('Get Started'),
+              child: Text('Choose Mood'),
             ),
           ],
         ),

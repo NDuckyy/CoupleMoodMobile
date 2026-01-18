@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+enum Gender { MALE, FEMALE }
 
 class ChooseMoodScreen extends StatefulWidget {
   const ChooseMoodScreen({super.key});
@@ -8,113 +12,101 @@ class ChooseMoodScreen extends StatefulWidget {
 }
 
 class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
+  Gender gender = Gender.FEMALE;
+  bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGender();
+  }
+
+  Future<void> _loadGender() async {
+    final prefs = await SharedPreferences.getInstance();
+    final g = prefs.getString('gender') ?? 'Nam';
+
+    setState(() {
+      gender = (g == 'Female') ? Gender.FEMALE : Gender.MALE;
+      loading = false;
+    });
+  }
+
+  String moodAsset(String moodKey) {
+    final prefix = gender == Gender.MALE ? 'nam_' : 'nu_';
+    return 'lib/assets/images/${prefix}$moodKey.png';
+  }
+
+  final moods = const [
+    ('vui', 'Vui vẻ'),
+    ('binh_tinh', 'Bình tĩnh'),
+    ('ngac_nhien', 'Ngạc nhiên'),
+    ('boi_roi', 'Bối rối'),
+    ('buon', 'Buồn'),
+    ('kinh_tom', 'Kinh tởm'),
+    ('so_hai', 'Sợ hãi'),
+    ('gian_du', 'Giận dữ'),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose Your Mood')),
+      appBar: AppBar(title: const Text('Quay lại')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Hãy chọn mood của bạn'),
-            SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // Handle Happy mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_vui.png',
+        child: loading
+            ? const CircularProgressIndicator()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    'lib/assets/images/register.png',
                     width: 70,
                     height: 70,
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle Sad mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_binh_tinh.png',
-                    width: 70,
-                    height: 70,
+                  const SizedBox(height: 20),
+                  Text(
+                    'Hãy chọn mood của bạn',
+                    style: GoogleFonts.balooChettan2(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle Sad mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_ngac_nhien.png',
-                    width: 70,
-                    height: 70,
+                  const SizedBox(height: 24),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 20,
+                    runSpacing: 20,
+                    children: [
+                      for (final m in moods)
+                        _moodItem(
+                          imagePath: moodAsset(m.$1),
+                          label: m.$2,
+                          onTap: () {},
+                        ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // Handle Angry mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_boi_roi.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle Love mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_buon.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle Sad mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_kinh_tom.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    // Handle Calm mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_so_hai.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle Excited mood selection
-                  },
-                  child: Image.asset(
-                    'lib/assets/images/nam_gian_du.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+      ),
+    );
+  }
+
+  Widget _moodItem({
+    required String imagePath,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      ),
+      onPressed: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Image.asset(imagePath, width: 70, height: 70),
+          const SizedBox(height: 6),
+          Text(label),
+        ],
       ),
     );
   }
