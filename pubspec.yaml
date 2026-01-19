@@ -19,6 +19,18 @@ dependencies:
   provider: ^6.0.0
   flutter_secure_storage: ^9.0.0
   shared_preferences: ^2.2.3
+  intl: ^0.20.2
+  cometchat_chat_uikit: ^4.3.26
+  cometchat_sdk: ^4.0.14
+  vietmap_flutter_gl: ^4.1.0
+  geolocator: ^10.1.0
+  permission_handler: ^11.0.1
+  
+  # Firebase
+  firebase_core: ^3.10.0
+  firebase_database: ^11.3.4
+  firebase_auth: ^5.3.4
+  
 
 dev_dependencies:
   flutter_test:

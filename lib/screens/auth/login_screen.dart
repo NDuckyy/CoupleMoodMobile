@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordCtrl.text;
 
     final auth = context.read<AuthProvider>();
-    print("screen");
     final ok = await auth.login(email, password);
     
     if (ok) {
@@ -159,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    label: const Text("Tên đăng nhập"),
+                                    label: const Text("Email"),
                                     contentPadding: const EdgeInsets.symmetric(
                                       vertical: 10,
                                       horizontal: 16,
@@ -167,7 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   validator: (value) =>
                                       value == null || value.isEmpty
-                                      ? 'Vui lòng nhập tên đăng nhập'
+                                      ? 'Vui lòng nhập email'
                                       : null,
                                 ),
                                 const SizedBox(height: 16),

@@ -21,7 +21,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print("provider");
       session = await AuthService.login(email, password);
       isLoading = false;
       notifyListeners();
@@ -32,5 +31,11 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> logout() async {
+    session = null;
+    await SessionStorage.clear();
+    notifyListeners();
   }
 }

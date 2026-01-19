@@ -1,6 +1,7 @@
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
 
 enum Gender { MALE, FEMALE }
 
@@ -22,11 +23,11 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
   }
 
   Future<void> _loadGender() async {
-    final prefs = await SharedPreferences.getInstance();
-    final g = prefs.getString('gender') ?? 'Nam';
+    final g =  context.read<AuthProvider>().session?.gender ?? 'MALE';
+    print('${g}');
 
     setState(() {
-      gender = (g == 'Female') ? Gender.FEMALE : Gender.MALE;
+      gender = (g == 'FEMALE' || g == 'female') ? Gender.FEMALE : Gender.MALE;
       loading = false;
     });
   }

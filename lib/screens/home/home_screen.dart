@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +24,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 Navigator.pushNamed(context, AppRoutes.moodChooseMethod);
               },
               child: Text('Choose Mood'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                context.read<AuthProvider>().logout();
+                Future.delayed(Duration(milliseconds: 1000), () {
+                  if (!mounted) return;
+                  Navigator.pushReplacementNamed(context, AppRoutes.login);
+                });
+              },
+              child: Text('Logout'),
             ),
           ],
         ),
