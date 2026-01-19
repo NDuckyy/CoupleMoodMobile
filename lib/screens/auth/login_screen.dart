@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (ok) {
       if (!mounted) return;
       showMsg(context, "Đăng nhập thành công", true);
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      Navigator.pushNamedAndRemoveUntil(context, AppRoutes.home, (route) => false);
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
     }
@@ -67,21 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Container(
-                          //   width: 70,
-                          //   height: 70,
-                          //   decoration: const BoxDecoration(
-                          //     color: Color(0xFFB388EB),
-                          //     borderRadius: BorderRadius.all(
-                          //       Radius.circular(12),
-                          //     ),
-                          //   ),
-                          //   child: const Icon(
-                          //     Icons.favorite,
-                          //     color: Colors.white,
-                          //     size: 40,
-                          //   ),
-                          // ),
                           Image.asset(
                             'lib/assets/images/logo.png',
                             width: 100,
@@ -248,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 OutlinedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(
+                                    Navigator.pushReplacementNamed(
                                       context,
                                       AppRoutes.register,
                                     );

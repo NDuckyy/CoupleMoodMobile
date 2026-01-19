@@ -11,6 +11,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  void _logout() {
+    final auth = context.read<AuthProvider>();
+    auth.logout();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                context.read<AuthProvider>().logout();
+                _logout();
                 Future.delayed(Duration(milliseconds: 1000), () {
                   if (!mounted) return;
                   Navigator.pushReplacementNamed(context, AppRoutes.login);

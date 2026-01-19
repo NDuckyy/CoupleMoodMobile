@@ -1,9 +1,12 @@
+import 'package:couple_mood_mobile/models/register_request.dart';
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -55,36 +58,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
-  void onRegister() {
+  void onRegister() async {
     if (_formKey.currentState?.validate() != true) return;
 
-    final payload = {
-      "email": _emailCtrl.text.trim(),
-      "password": _passwordCtrl.text,
-      "confirmPassword": _confirmPasswordCtrl.text,
-      "fullName": _fullNameCtrl.text.trim(),
-      "phoneNumber": _phoneNumberCtrl.text.trim(),
-      "dateOfBirth": _dateOfBirthCtrl.text.trim(),
-      "gender": _gender,
-    };
+    final req = RegisterRequest(
+      fullName: _fullNameCtrl.text.trim(),
+      email: _emailCtrl.text.trim(),
+      phoneNumber: _phoneNumberCtrl.text.trim(),
+      dateOfBirth: _dateOfBirthCtrl.text.trim(),
+      gender: _gender,
+      password: _passwordCtrl.text,
+      confirmPassword: _confirmPasswordCtrl.text,
+    );
 
-    debugPrint(payload.toString());
-
-    showMsg(context, "Đăng ký payload OK (đã in ra console).", true);
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.register(req);
+    if (ok) {
+      if (!mounted) return;
+      showMsg(context, "Đăng ký thành công. Vui lòng đăng nhập.", true);
+      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      return;
+    }
+    if (!mounted) return;
+    showMsg(context, "Đăng ký thất bại: ${auth.error}", false);
   }
 
   InputDecoration _decoration(String label) => InputDecoration(
-        filled: true,
-        fillColor: Colors.white,
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 10,
-          horizontal: 16,
-        ),
-      );
+    filled: true,
+    fillColor: Colors.white,
+    labelText: label,
+    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -120,8 +125,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderRadius: BorderRadius.circular(40),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color.fromARGB(255, 147, 146, 146)
-                                    .withOpacity(0.5),
+                                color: const Color.fromARGB(
+                                  255,
+                                  147,
+                                  146,
+                                  146,
+                                ).withOpacity(0.5),
                                 spreadRadius: 5,
                                 blurRadius: 7,
                                 offset: const Offset(3, 3),
@@ -150,8 +159,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     decoration: _decoration('Họ và tên'),
                                     validator: (value) =>
                                         (value == null || value.trim().isEmpty)
-                                            ? 'Vui lòng nhập họ và tên'
-                                            : null,
+                                        ? 'Vui lòng nhập họ và tên'
+                                        : null,
                                   ),
                                   const SizedBox(height: 16),
 
@@ -161,9 +170,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     decoration: _decoration('Email'),
                                     validator: (value) {
                                       final v = value?.trim() ?? '';
-                                      if (v.isEmpty) return 'Vui lòng nhập email';
-                                      final emailRegex =
-                                          RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+                                      if (v.isEmpty)
+                                        return 'Vui lòng nhập email';
+                                      final emailRegex = RegExp(
+                                        r'^[^@]+@[^@]+\.[^@]+$',
+                                      );
                                       if (!emailRegex.hasMatch(v)) {
                                         return 'Vui lòng nhập email hợp lệ';
                                       }
@@ -193,21 +204,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   TextFormField(
                                     controller: _dateOfBirthCtrl,
                                     readOnly: true,
-                                    decoration: _decoration('Ngày sinh (yyyy-MM-dd)')
-                                        .copyWith(
-                                      suffixIcon: IconButton(
-                                        icon: const Icon(Icons.calendar_month),
-                                        onPressed: _pickDateOfBirth,
-                                      ),
-                                    ),
+                                    decoration:
+                                        _decoration(
+                                          'Ngày sinh (yyyy-MM-dd)',
+                                        ).copyWith(
+                                          suffixIcon: IconButton(
+                                            icon: const Icon(
+                                              Icons.calendar_month,
+                                            ),
+                                            onPressed: _pickDateOfBirth,
+                                          ),
+                                        ),
                                     onTap: _pickDateOfBirth,
                                     validator: (value) {
                                       final v = value?.trim() ?? '';
                                       if (v.isEmpty) {
                                         return 'Vui lòng chọn ngày sinh';
                                       }
-                                      final dobRegex =
-                                          RegExp(r'^\d{4}-\d{2}-\d{2}$');
+                                      final dobRegex = RegExp(
+                                        r'^\d{4}-\d{2}-\d{2}$',
+                                      );
                                       if (!dobRegex.hasMatch(v)) {
                                         return 'Ngày sinh phải đúng định dạng yyyy-MM-dd';
                                       }
@@ -239,19 +255,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   TextFormField(
                                     controller: _passwordCtrl,
                                     obscureText: _obscurePassword,
-                                    decoration: _decoration('Mật khẩu').copyWith(
-                                      suffixIcon: IconButton(
-                                        icon: Icon(_obscurePassword
-                                            ? Icons.visibility_off
-                                            : Icons.visibility),
-                                        onPressed: () => setState(() {
-                                          _obscurePassword = !_obscurePassword;
-                                        }),
-                                      ),
-                                    ),
+                                    decoration: _decoration('Mật khẩu')
+                                        .copyWith(
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              _obscurePassword
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                            ),
+                                            onPressed: () => setState(() {
+                                              _obscurePassword =
+                                                  !_obscurePassword;
+                                            }),
+                                          ),
+                                        ),
                                     validator: (value) {
                                       final v = value ?? '';
-                                      if (v.isEmpty) return 'Vui lòng nhập mật khẩu';
+                                      if (v.isEmpty)
+                                        return 'Vui lòng nhập mật khẩu';
                                       if (v.length < 6) {
                                         return 'Mật khẩu tối thiểu 6 ký tự';
                                       }
@@ -263,18 +284,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   TextFormField(
                                     controller: _confirmPasswordCtrl,
                                     obscureText: _obscureConfirmPassword,
-                                    decoration:
-                                        _decoration('Xác nhận mật khẩu').copyWith(
-                                      suffixIcon: IconButton(
-                                        icon: Icon(_obscureConfirmPassword
-                                            ? Icons.visibility_off
-                                            : Icons.visibility),
-                                        onPressed: () => setState(() {
-                                          _obscureConfirmPassword =
-                                              !_obscureConfirmPassword;
-                                        }),
-                                      ),
-                                    ),
+                                    decoration: _decoration('Xác nhận mật khẩu')
+                                        .copyWith(
+                                          suffixIcon: IconButton(
+                                            icon: Icon(
+                                              _obscureConfirmPassword
+                                                  ? Icons.visibility_off
+                                                  : Icons.visibility,
+                                            ),
+                                            onPressed: () => setState(() {
+                                              _obscureConfirmPassword =
+                                                  !_obscureConfirmPassword;
+                                            }),
+                                          ),
+                                        ),
                                     validator: (value) {
                                       final v = value ?? '';
                                       if (v.isEmpty) {
@@ -309,7 +332,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           backgroundColor: Colors.transparent,
                                           shadowColor: Colors.transparent,
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
                                           ),
                                         ),
                                         child: const Text(
@@ -325,17 +350,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
 
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'Hoặc',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  googleLoginButton(),
-                                  const SizedBox(height: 16),
 
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -349,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(
+                                          Navigator.pushReplacementNamed(
                                             context,
                                             AppRoutes.login,
                                           );
