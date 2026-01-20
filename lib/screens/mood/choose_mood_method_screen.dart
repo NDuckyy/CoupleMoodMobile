@@ -79,7 +79,7 @@ class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen> {
                   color: Color(0xFF8CA9FF).withOpacity(0.7),
                 ),
                 child: TextButton(
-                  onPressed: () {Navigator.pushNamed(context, AppRoutes.moodFaceResult);},
+                  onPressed: () {Navigator.pushNamed(context, AppRoutes.emotionCamera);},
                   child: Padding(
                     padding: EdgeInsets.all(12),
                     child: Row(
