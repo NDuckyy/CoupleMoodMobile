@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
+import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 
 class MainLayout extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MainLayoutState extends State<MainLayout> {
     HomeScreen(),
     // WorldPage(),
     // CollectionPage(),
-    // ProfilePage(),
+    ProfileScreen(),
   ];
 
   @override
@@ -38,7 +39,7 @@ class _MainLayoutState extends State<MainLayout> {
             IconButton(
               icon: const Icon(Icons.search),
               color: Color(0xFF7B8CE4),
-              onPressed: () => setState(() => _currentIndex = 1),
+              onPressed: () => setState(() => _currentIndex = 6),
             ),
             IconButton(
               icon: const Icon(Icons.chat_outlined),
@@ -63,7 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
             IconButton(
               icon: const Icon(Icons.person_outline),
               color: Color(0xFF7B8CE4),
-              onPressed: () => setState(() => _currentIndex = 6),
+              onPressed: () => setState(() => _currentIndex = 1),
             ),
           ],
         ),

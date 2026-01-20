@@ -5,4 +5,6 @@ class AppRoutes {
   static const moodChooseByIcon = '/mood_choose_by_icon';
   static const moodChooseMethod = '/mood_choose_method';
   static const moodFaceResult = '/mood_face_result';
+  static const profile = '/profile';
+  static const subscriptions = '/subscriptions';
 }

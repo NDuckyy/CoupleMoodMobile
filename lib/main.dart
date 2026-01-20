@@ -6,6 +6,8 @@ import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/mood_face_result.dart';
+import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,6 +42,9 @@ class MyApp extends StatelessWidget {
         AppRoutes.moodChooseByIcon: (_) => const ChooseMoodScreen(),
         AppRoutes.moodChooseMethod: (_) => const ChooseMoodMethodScreen(),
         AppRoutes.moodFaceResult: (_) => const MoodFaceResultScreen(),
+
+        AppRoutes.profile: (_) => const ProfileScreen(),
+        AppRoutes.subscriptions: (_) => const SubscriptionsScreen(),
       },
     );
   }
