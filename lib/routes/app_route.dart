@@ -6,4 +6,5 @@ class AppRoutes {
   static const moodChooseMethod = '/mood_choose_method';
   static const moodFaceResult = '/mood_face_result';
   static const emotionCamera = '/emotion_camera';
+  static const test = '/test';
 }

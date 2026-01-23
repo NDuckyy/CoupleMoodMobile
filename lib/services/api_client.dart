@@ -12,16 +12,34 @@ class ApiClient {
     ),
   );
 
+  static bool _inited = false;
+
+  static void _init() {
+    if (_inited) return;
+    _inited = true;
+
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestHeader: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        error: true,
+      ),
+    );
+  }
+
   static Future<dynamic> request(
     String path, {
     required HttpMethod method,
     Map<String, dynamic>? data,
     Map<String, dynamic>? query,
   }) async {
+    _init();
     try {
       final session = await SessionStorage.load();
       final token = session?.accessToken;
-
       final res = await _dio.request(
         path,
         data: data,
@@ -34,7 +52,6 @@ class ApiClient {
           },
         ),
       );
-
       return res.data;
     } on DioException catch (e) {
       throw Exception(

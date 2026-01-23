@@ -54,7 +54,6 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _loading = false);
-      print(e);
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Phân tích thất bại: $e')));
@@ -70,7 +69,12 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
           ? Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: FloatingActionButton.extended(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    AppRoutes.home
+                  );
+                },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),

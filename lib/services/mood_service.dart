@@ -15,7 +15,7 @@ class MoodService {
       final res = await ApiClient.upload(
         '/Emotion/analyze',
         method: HttpMethod.post,
-        data: formData,
+        data: formData  
       );
       final root = (res as Map).cast<String, dynamic>();
       final List<dynamic> data = (root['data'] as List).cast<dynamic>();

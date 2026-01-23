@@ -31,6 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.test);
+              },
+              child: Text('Go to Test Screen'),
+            ),
+            ElevatedButton(
+              onPressed: () {
                 _logout();
                 Future.delayed(Duration(milliseconds: 1000), () {
                   if (!mounted) return;
