@@ -1,17 +1,8 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
-import 'package:couple_mood_mobile/providers/mood_provider.dart';
-import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
-import 'package:couple_mood_mobile/routes/main_layout.dart';
-import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
-import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
-import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
-import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
-import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
-import 'package:couple_mood_mobile/screens/mood/mood_face_result.dart';
-import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
@@ -22,32 +13,29 @@ void main() async {
   runApp(ChangeNotifierProvider.value(value: auth, child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late final GoRouter _router;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // tạo 1 lần
+    _router = createRouter(context);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: _router,
       title: 'Flutter Demo',
       theme: ThemeData(),
-      home: const SplashScreen(),
-      routes: {
-        AppRoutes.login: (_) => const LoginScreen(),
-        AppRoutes.register: (_) => const RegisterScreen(),
-        AppRoutes.home: (_) => const MainLayout(),
-        //Mood routes
-        AppRoutes.moodChooseByIcon: (_) => const ChooseMoodScreen(),
-        AppRoutes.moodChooseMethod: (_) => const ChooseMoodMethodScreen(),
-        AppRoutes.moodFaceResult: (_) => const MoodFaceResultScreen(),
-        AppRoutes.emotionCamera: (_) => ChangeNotifierProvider(
-          create: (_) => MoodProvider(),
-          child: const EmotionCameraScreen(),
-        ),
-        AppRoutes.test: (_) => ChangeNotifierProvider(
-          create: (_) => TestProvider(),
-          child: const TestTypeScreen(),
-        ),
-      },
     );
   }
 }

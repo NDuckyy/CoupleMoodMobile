@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -70,10 +71,7 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
               padding: const EdgeInsets.only(bottom: 24),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    AppRoutes.home
-                  );
+                  context.goNamed("listLocation");
                 },
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),

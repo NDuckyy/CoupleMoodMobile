@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ChooseMoodMethodScreen extends StatefulWidget {
@@ -12,8 +13,13 @@ class ChooseMoodMethodScreen extends StatefulWidget {
 class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen> {
   @override
   Widget build(BuildContext context) {
+    debugPrint('canPop = ${Navigator.of(context).canPop()}');
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Quay lại')),
+      appBar: AppBar(
+        title: const Text('Quay lại'),
+        leading: BackButton(onPressed: () => context.pop()),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -44,7 +50,7 @@ class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen> {
                 ),
                 child: TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, AppRoutes.moodChooseByIcon);
+                    context.pushNamed("moodChooseByIcon");
                   },
                   child: Padding(
                     padding: EdgeInsets.all(12),
@@ -79,7 +85,9 @@ class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen> {
                   color: Color(0xFF8CA9FF).withOpacity(0.7),
                 ),
                 child: TextButton(
-                  onPressed: () {Navigator.pushNamed(context, AppRoutes.emotionCamera);},
+                  onPressed: () {
+                    context.pushNamed("emotionCamera");
+                  },
                   child: Padding(
                     padding: EdgeInsets.all(12),
                     child: Row(

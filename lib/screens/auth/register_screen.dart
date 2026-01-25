@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -76,7 +77,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (ok) {
       if (!mounted) return;
       showMsg(context, "Đăng ký thành công. Vui lòng đăng nhập.", true);
-      Navigator.pushReplacementNamed(context, AppRoutes.login);
+      context.pushNamed("login");
       return;
     }
     if (!mounted) return;
@@ -363,10 +364,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       ),
                                       TextButton(
                                         onPressed: () {
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            AppRoutes.login,
-                                          );
+                                          context.pushNamed("login");
                                         },
                                         child: const Text(
                                           'Đăng nhập',

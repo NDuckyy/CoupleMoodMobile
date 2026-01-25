@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,13 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Text('Welcome to the Home Screen!'),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.moodChooseMethod);
+                context.pushNamed("moodChooseMethod");
               },
               child: Text('Choose Mood'),
             ),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.test);
+                context.pushNamed("test");
               },
               child: Text('Go to Test Screen'),
             ),
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 _logout();
                 Future.delayed(Duration(milliseconds: 1000), () {
                   if (!mounted) return;
-                  Navigator.pushReplacementNamed(context, AppRoutes.login);
+                  context.pushNamed("login");
                 });
               },
               child: Text('Logout'),

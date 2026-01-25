@@ -1,9 +1,9 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
-enum Gender { MALE, FEMALE }
 
 class ChooseMoodScreen extends StatefulWidget {
   const ChooseMoodScreen({super.key});
@@ -13,47 +13,34 @@ class ChooseMoodScreen extends StatefulWidget {
 }
 
 class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
-  Gender gender = Gender.FEMALE;
-  bool loading = false;
-
   @override
   void initState() {
     super.initState();
-    _loadGender();
-  }
-
-  Future<void> _loadGender() async {
-    final g =  context.read<AuthProvider>().session?.gender ?? 'MALE';
-    print('${g}');
-
-    setState(() {
-      gender = (g == 'FEMALE' || g == 'female') ? Gender.FEMALE : Gender.MALE;
-      loading = false;
+    final gender = context.read<AuthProvider>().session?.gender ?? 'MALE';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadMood(context.read<MoodProvider>(), gender);
     });
   }
 
-  String moodAsset(String moodKey) {
-    final prefix = gender == Gender.MALE ? 'nam_' : 'nu_';
-    return 'lib/assets/images/${prefix}$moodKey.png';
+  Future<void> _loadMood(MoodProvider moodProvider, String gender) async {
+    try {
+      await moodProvider.getMoodTypes(gender);
+      if (!mounted) return;
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lấy danh sách mood thất bại: $e')),
+      );
+    }
   }
-
-  final moods = const [
-    ('vui', 'Vui vẻ'),
-    ('binh_tinh', 'Bình tĩnh'),
-    ('ngac_nhien', 'Ngạc nhiên'),
-    ('boi_roi', 'Bối rối'),
-    ('buon', 'Buồn'),
-    ('kinh_tom', 'Kinh tởm'),
-    ('so_hai', 'Sợ hãi'),
-    ('gian_du', 'Giận dữ'),
-  ];
 
   @override
   Widget build(BuildContext context) {
+    final moodProvider = context.watch<MoodProvider>();
     return Scaffold(
       appBar: AppBar(title: const Text('Quay lại')),
       body: Center(
-        child: loading
+        child: moodProvider.isLoading
             ? const CircularProgressIndicator()
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -77,11 +64,13 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                     spacing: 20,
                     runSpacing: 20,
                     children: [
-                      for (final m in moods)
+                      for (final m in moodProvider.moodTypes)
                         _moodItem(
-                          imagePath: moodAsset(m.$1),
-                          label: m.$2,
-                          onTap: () {},
+                          iconUrl: m.iconUrl,
+                          name: m.name,
+                          onTap: () {
+                            context.goNamed("listLocation");
+                          },
                         ),
                     ],
                   ),
@@ -92,8 +81,8 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
   }
 
   Widget _moodItem({
-    required String imagePath,
-    required String label,
+    required String name,
+    required String iconUrl,
     required VoidCallback onTap,
   }) {
     return TextButton(
@@ -104,9 +93,23 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset(imagePath, width: 70, height: 70),
+          Image.network(
+            iconUrl,
+            width: 70,
+            height: 70,
+            errorBuilder: (_, __, ___) =>
+                const Icon(Icons.broken_image, size: 70),
+            loadingBuilder: (context, child, progress) {
+              if (progress == null) return child;
+              return const SizedBox(
+                width: 70,
+                height: 70,
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+              );
+            },
+          ),
           const SizedBox(height: 6),
-          Text(label),
+          Text(name),
         ],
       ),
     );
