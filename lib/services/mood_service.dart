@@ -1,11 +1,12 @@
 import 'dart:io';
 
+import 'package:couple_mood_mobile/models/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood_type.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:dio/dio.dart';
 
 class MoodService {
-  static Future<String> getCurrentMoodByCamera(File file) async {
+  static Future<MoodFace> getCurrentMoodByCamera(File file) async {
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(
         file.path,
@@ -22,8 +23,8 @@ class MoodService {
       final List<dynamic> data = (root['data'] as List).cast<dynamic>();
 
       return data.isNotEmpty
-          ? data[0]['dominantEmotion']?.toString() ?? ''
-          : '';
+          ? MoodFace.fromJson(data[0] as Map<String, dynamic>)
+          : MoodFace(dominantEmotion: '', emotionSentence: '');
     } catch (e) {
       print("Error during mood analysis: $e");
       rethrow;

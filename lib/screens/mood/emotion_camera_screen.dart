@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/models/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
   final ImagePicker _picker = ImagePicker();
 
   File? _image;
-  String? _result;
+  MoodFace? _result;
   bool _loading = false;
 
   Future<void> _takePhotoAndAnalyze() async {
@@ -44,12 +45,12 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     });
 
     try {
-      final res = await mood.getCurrentMoodByCamera(imageFile);
+      await mood.getCurrentMoodByCamera(imageFile);
 
       if (!mounted) return;
 
       setState(() {
-        _result = res;
+        _result = mood.currentMood;
         _loading = false;
       });
     } catch (e) {
@@ -66,7 +67,8 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Quay lại')),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: (_result != null && _result!.isNotEmpty)
+      floatingActionButton:
+          (_result != null && _result!.dominantEmotion.isNotEmpty)
           ? Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: FloatingActionButton.extended(
@@ -133,7 +135,9 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(
-                        color: (_result != null && _result!.isNotEmpty)
+                        color:
+                            (_result != null &&
+                                _result!.dominantEmotion.isNotEmpty)
                             ? Colors.greenAccent
                             : Colors.redAccent,
                         width: 2,
@@ -156,20 +160,29 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
 
               if (_result != null) ...[
                 const SizedBox(height: 16),
-                if (_result!.isEmpty) ...[
+                if (_result!.dominantEmotion.isEmpty) ...[
                   const Text(
                     'Không thể phân tích cảm xúc từ ảnh đã chụp.',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ] else ...[
-                  Text(
-                    'Cảm xúc của bạn là: '
-                    '$_result',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    children: [
+                      Text(
+                        'Cảm xúc của bạn là: '
+                        '${_result!.dominantEmotion}\n',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        _result!.emotionSentence,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
                   ),
                 ],
               ],

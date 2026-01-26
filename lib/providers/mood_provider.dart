@@ -1,18 +1,19 @@
 import 'dart:io';
 
+import 'package:couple_mood_mobile/models/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood_type.dart';
 import 'package:couple_mood_mobile/services/mood_service.dart';
 import 'package:flutter/foundation.dart';
 
 class MoodProvider extends ChangeNotifier {
-  String _currentMood = 'neutral';
+  MoodFace _currentMood = MoodFace(dominantEmotion: '', emotionSentence: '');
   bool isLoading = false;
   String? error;
   List<MoodType> moodTypes = [];
 
-  String get currentMood => _currentMood;
+  MoodFace get currentMood => _currentMood;
 
-  Future<String> getCurrentMoodByCamera(File file) async {
+  Future<void> getCurrentMoodByCamera(File file) async {
     isLoading = true;
     error = null;
     notifyListeners();
@@ -21,12 +22,10 @@ class MoodProvider extends ChangeNotifier {
       _currentMood = await MoodService.getCurrentMoodByCamera(file);
       isLoading = false;
       notifyListeners();
-      return _currentMood;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
       isLoading = false;
       notifyListeners();
-      return '';
     }
   }
 
