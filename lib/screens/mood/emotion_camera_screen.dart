@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:couple_mood_mobile/models/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
-import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';

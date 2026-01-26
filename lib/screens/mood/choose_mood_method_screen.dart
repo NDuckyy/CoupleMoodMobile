@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
