@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -184,7 +186,7 @@ GoRouter createRouter(BuildContext context) {
                 path: '/profile',
                 name: 'profile',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Profile')),
+                    const NoTransitionPage(child: ProfileScreen()),
               ),
             ],
           ),
@@ -221,6 +223,14 @@ GoRouter createRouter(BuildContext context) {
                 const MaterialPage(child: EmotionCameraScreen()),
           ),
         ],
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/subscriptions',
+        name: 'subscriptions',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: SubscriptionsScreen());
+        },
       ),
     ],
   );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -7,11 +8,17 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Thông tin của tôi')),
+      appBar: AppBar(
+        title: const Text('Thông tin của tôi'),
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: ListView(
           children: [
+            const SizedBox(height: 16),
             Row(
               children: [
                 const CircleAvatar(
@@ -46,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
             InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: () {
-                Navigator.pushNamed(context, AppRoutes.subscriptions);
+                context.pushNamed("subscriptions");
               },
               child: Container(
                 width: double.infinity,
@@ -86,8 +93,7 @@ class ProfileScreen extends StatelessWidget {
               leading: const Icon(Icons.lock_outline),
               title: const Text('Mật khẩu'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-              },
+              onTap: () {},
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
