@@ -49,7 +49,7 @@ GoRouter createRouter(BuildContext context) {
 
       // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
       if (isSplash) {
-        return isLoggedIn ? '/home' : '/login';
+        return null;
       }
 
       // Chưa login mà không ở auth routes => đá về login
