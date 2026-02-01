@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/routes/main_layout.dart';
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
@@ -6,6 +7,7 @@ import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/mood_face_result.dart';
+import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -15,12 +17,7 @@ void main() async {
 
   final auth = AuthProvider();
   await auth.init();
-  runApp(
-    ChangeNotifierProvider.value(
-      value: auth,
-      child: const MyApp(),
-    ),
-  );
+  runApp(ChangeNotifierProvider.value(value: auth, child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -40,6 +37,23 @@ class MyApp extends StatelessWidget {
         AppRoutes.moodChooseByIcon: (_) => const ChooseMoodScreen(),
         AppRoutes.moodChooseMethod: (_) => const ChooseMoodMethodScreen(),
         AppRoutes.moodFaceResult: (_) => const MoodFaceResultScreen(),
+      },
+      // Venue Detail (testttt venueId = 1)
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case AppRoutes.venueDetail:
+            final venueId = settings.arguments as int;
+
+            return MaterialPageRoute(
+              builder: (_) => ChangeNotifierProvider(
+                create: (_) => VenueDetailProvider(),
+                child: VenueDetailScreen(venueId: venueId),
+              ),
+            );
+
+          default:
+            return null;
+        }
       },
     );
   }
