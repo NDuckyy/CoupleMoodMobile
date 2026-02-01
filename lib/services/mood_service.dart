@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:couple_mood_mobile/models/mood_face.dart';
-import 'package:couple_mood_mobile/models/mood_type.dart';
+import 'package:couple_mood_mobile/models/mood/mood_face.dart';
+import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:dio/dio.dart';
 
@@ -43,6 +43,22 @@ class MoodService {
       return MoodType.fromJsonList(data);
     } catch (e) {
       throw Exception('Lỗi khi lấy danh sách mood type: $e');
+    }
+  }
+
+  static Future<MoodType> getMoodTypeById(int id, String gender) async {
+    final res = await ApiClient.request(
+      "/MoodType/$id",
+      method: HttpMethod.get,
+      query: {'gender': gender},
+    );
+    try {
+      final root = (res as Map).cast<String, dynamic>();
+      final Map<String, dynamic> data =
+          (root['data'] as Map).cast<String, dynamic>();
+      return MoodType.fromJson(data);
+    } catch (e) {
+      throw Exception('Lỗi khi lấy mood type với id $id: $e');
     }
   }
 }

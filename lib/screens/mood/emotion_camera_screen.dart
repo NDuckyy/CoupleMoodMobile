@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:couple_mood_mobile/models/mood_face.dart';
+import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

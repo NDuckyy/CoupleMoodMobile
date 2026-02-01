@@ -1,6 +1,8 @@
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,7 @@ import 'package:provider/provider.dart';
 
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
-import 'package:couple_mood_mobile/providers/list_location_provider.dart';
+import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
@@ -105,7 +107,7 @@ GoRouter createRouter(BuildContext context) {
                 name: 'listLocation',
                 pageBuilder: (_, __) => NoTransitionPage(
                   child: ChangeNotifierProvider(
-                    create: (_) => ListLocationProvider(),
+                    create: (_) => RecommendationProvider(),
                     child: const ListLocationScreen(),
                   ),
                 ),
@@ -231,6 +233,23 @@ GoRouter createRouter(BuildContext context) {
         pageBuilder: (_, __) {
           return const MaterialPage(child: SubscriptionsScreen());
         },
+      ),
+      GoRoute(
+        path: '/filter-location',
+        name: 'filter_location',
+        pageBuilder: (_, __) {
+          return const NoTransitionPage(child: FilterLocationScreen());
+        },
+      ),
+      GoRoute(
+        path: '/test-detail',
+        name: 'test_detail',
+        pageBuilder: (_, __) => NoTransitionPage(
+          child: ChangeNotifierProvider(
+            create: (_) => TestProvider(),
+            child: const TestDetailScreen(),
+          ),
+        ),
       ),
     ],
   );

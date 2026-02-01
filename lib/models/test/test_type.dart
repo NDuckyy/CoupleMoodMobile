@@ -1,22 +1,26 @@
-class Test {
+class TestType {
+  final String id;
   final String name;
   final String description;
   final int totalQuestions;
 
-  Test({
+  TestType({
+    required this.id,
     required this.name,
     required this.description,
     required this.totalQuestions,
   });
 
   Map<String, dynamic> toJson() => {
+    'id': id,
     'name': name,
     'description': description,
     'totalQuestions': totalQuestions,
   };
 
-  factory Test.fromJson(Map<String, dynamic> json) {
-    return Test(
+  factory TestType.fromJson(Map<String, dynamic> json) {
+    return TestType(
+      id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       totalQuestions: json['totalQuestions'] is int
@@ -24,9 +28,9 @@ class Test {
           : int.tryParse(json['totalQuestions']?.toString() ?? '') ?? 0,
     );
   }
-  static List<Test> fromJsonList(List<dynamic> jsonList) {
+  static List<TestType> fromJsonList(List<dynamic> jsonList) {
     return jsonList
-        .map((e) => Test.fromJson(e as Map<String, dynamic>))
+        .map((e) => TestType.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 }

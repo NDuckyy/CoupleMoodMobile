@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:couple_mood_mobile/models/mood_face.dart';
-import 'package:couple_mood_mobile/models/mood_type.dart';
+import 'package:couple_mood_mobile/models/mood/mood_face.dart';
+import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/mood_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -36,6 +36,20 @@ class MoodProvider extends ChangeNotifier {
       moodTypes = await MoodService.getMoodTypes(gender);
     } catch (e) {
       throw Exception('Lỗi khi lấy danh sách mood type: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getMoodTypeById(int id, String gender) async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      final moodType = await MoodService.getMoodTypeById(id, gender);
+      moodTypes = [moodType];
+    } catch (e) {
+      throw Exception('Lỗi khi lấy mood type: $e');
     } finally {
       isLoading = false;
       notifyListeners();
