@@ -33,13 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.venueDetail,
-                  arguments: 1, // venueId test
-                );
+                context.pushNamed("venue_detail", extra: {'venueId': 1});
               },
-              child: const Text('Venue Detail (Test id 1)'),
+              child: Text('Venue Detail (Test id 1)'),
             ),
 
             ElevatedButton(

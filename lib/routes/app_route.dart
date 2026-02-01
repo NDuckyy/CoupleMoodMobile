@@ -1,9 +1,11 @@
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
+import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -248,6 +250,19 @@ GoRouter createRouter(BuildContext context) {
           child: ChangeNotifierProvider(
             create: (_) => TestProvider(),
             child: const TestDetailScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/venue-detail',
+        name: 'venue_detail',
+        pageBuilder: (_, __) => NoTransitionPage(
+          child: ChangeNotifierProvider(
+            create: (_) => VenueDetailProvider(),
+            child: VenueDetailScreen(
+              venueId: 1,
+            ),
           ),
         ),
       ),
