@@ -16,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.read<AuthProvider>();
     auth.logout();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,6 +31,18 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: Text('Choose Mood'),
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.venueDetail,
+                  arguments: 1, // venueId test
+                );
+              },
+              child: const Text('Venue Detail (Test id 1)'),
+            ),
+
             ElevatedButton(
               onPressed: () {
                 context.pushNamed("test");
