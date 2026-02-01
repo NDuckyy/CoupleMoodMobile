@@ -9,42 +9,93 @@ class ApiClient {
       baseUrl: 'https://couplemood.ooguy.com/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-      headers: {'Content-Type': 'application/json'},
     ),
   );
 
-  static Future<dynamic> request(
-  String path, {
-  required HttpMethod method,
-  Map<String, dynamic>? data,
-  Map<String, dynamic>? query,
-}) async {
-  try {
-    final session = await SessionStorage.load();
-    final token = session?.accessToken;
+  static bool _inited = false;
 
-    final res = await _dio.request(
-      path,
-      data: data,
-      queryParameters: query,
-      options: Options(
-        method: method.name.toUpperCase(),
-        headers: {
-          if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-        },
+  static void _init() {
+    if (_inited) return;
+    _inited = true;
+
+    _dio.interceptors.add(
+      LogInterceptor(
+        request: true,
+        requestHeader: true,
+        requestBody: true,
+        responseHeader: false,
+        responseBody: true,
+        error: true,
       ),
     );
-
-    return res.data;
-  } on DioException catch (e) {
-    throw Exception(
-      (e.response?.data is Map && e.response?.data['message'] != null)
-          ? e.response?.data['message'].toString()
-          : (e.message ?? 'Lỗi kết nối server'),
-    );
-  } catch (e) {
-    rethrow;
   }
-}
 
+  static Future<dynamic> request(
+    String path, {
+    required HttpMethod method,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? query,
+  }) async {
+    _init();
+    try {
+      final session = await SessionStorage.load();
+      final token = session?.accessToken;
+      final res = await _dio.request(
+        path,
+        data: data,
+        queryParameters: query,
+        options: Options(
+          method: method.name.toUpperCase(),
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+      return res.data;
+    } on DioException catch (e) {
+      throw Exception(
+        (e.response?.data is Map && e.response?.data['message'] != null)
+            ? e.response?.data['message'].toString()
+            : (e.message ?? 'Lỗi kết nối server'),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> upload(
+    String path, {
+    required HttpMethod method,
+    required FormData data,
+    Map<String, dynamic>? query,
+  }) async {
+    try {
+      final session = await SessionStorage.load();
+      final token = session?.accessToken;
+
+      final res = await _dio.request(
+        path,
+        data: data,
+        queryParameters: query,
+        options: Options(
+          method: method.name.toUpperCase(),
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return res.data;
+    } on DioException catch (e) {
+      throw Exception(
+        (e.response?.data is Map && e.response?.data['message'] != null)
+            ? e.response?.data['message'].toString()
+            : (e.message ?? 'Lỗi kết nối server'),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
