@@ -1,6 +1,6 @@
-import 'package:couple_mood_mobile/models/test.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class TestTypeScreen extends StatefulWidget {
@@ -28,7 +28,8 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Danh sách bài test')),
+      appBar: AppBar(title: const Text('Danh sách bài test'), backgroundColor: Colors.white,),
+      backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.all(16),
         child: testProvider.isLoading
@@ -48,7 +49,10 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
                       onTap: () {
-
+                        context.pushNamed(
+                          'test_detail',
+                          extra: {'testId': test.id},
+                        );
                       },
                       child: Row(
                         children: [

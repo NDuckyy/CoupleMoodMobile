@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:go_router/go_router.dart';
 
 class ProfileScreen extends StatelessWidget {

@@ -1,5 +1,4 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
-import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
