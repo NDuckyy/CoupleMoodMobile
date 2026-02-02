@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../utils/currency_utils.dart';
+import '../../utils/opening_hour_utils.dart';
 import '../../providers/venue_detail_provider.dart';
+import '../../widgets/venue/venue_cover_skeleton.dart';
 import '../../widgets/venue/venue_cover_image.dart';
 import '../../widgets/venue/venue_basic_info.dart';
 
@@ -40,55 +42,175 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
       );
     }
 
+    final String? coverImage = venue.coverImages.isNotEmpty
+        ? venue.coverImages.first
+        : null;
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            VenueCoverImage(imageUrl: venue.coverImage),
+            /// COVER + BACK BUTTON
+            /// COVER + BACK BUTTON
+            Stack(
+              children: [
+                if (provider.loading)
+                  const VenueCoverSkeleton()
+                else
+                  VenueCoverImage(imageUrl: coverImage),
+
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
             VenueBasicInfo(venue: venue),
+
+            /// ĐỊA CHỈ
             VenueInfoCard(
               title: 'ĐỊA CHỈ',
               expandable: true,
               previewAlignment: CrossAxisAlignment.start,
               expandedAlignment: CrossAxisAlignment.start,
-              previewContent: Text(venue.address),
+              previewContent: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    size: 20,
+                    color: Colors.redAccent,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(venue.address)),
+                ],
+              ),
               expandedContent: venue.venueOwner == null
                   ? const Text('Không có thông tin liên hệ')
                   : Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Tên chủ địa điểm: ' + venue.venueOwner!.businessName,
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.store,
+                              size: 18,
+                              color: Colors.indigo,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(venue.venueOwner!.businessName),
+                            ),
+                          ],
                         ),
-                        Text('Số điện thoại: ' + venue.venueOwner!.phoneNumber),
-                        Text('Email: ' + venue.venueOwner!.email),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.phone,
+                              size: 18,
+                              color: Colors.green,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(venue.venueOwner!.phoneNumber),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.email,
+                              size: 18,
+                              color: Colors.blue,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(child: Text(venue.venueOwner!.email)),
+                          ],
+                        ),
                       ],
                     ),
             ),
 
+            /// THỜI GIAN
             VenueInfoCard(
               title: 'THỜI GIAN',
-              expandable: true,
-              previewAlignment: CrossAxisAlignment.center,
-              expandedAlignment: CrossAxisAlignment.start,
-              previewContent: Text(
-                venue.todayOpeningHour ?? 'Chưa xác định',
-                style: TextStyle(
-                  color: venue.todayOpeningHour != null
-                      ? Colors.green
-                      : Colors.grey,
-                ),
+              previewAlignment: CrossAxisAlignment.start,
+              previewContent: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.access_time_filled,
+                    size: 20,
+                    color: OpeningHourUtils.statusColor(venue.todayOpeningHour),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        OpeningHourUtils.statusText(venue.todayOpeningHour),
+                        style: TextStyle(
+                          color: OpeningHourUtils.statusColor(
+                            venue.todayOpeningHour,
+                          ),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      if (OpeningHourUtils.timeRange(
+                        venue.todayOpeningHour,
+                      ).isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Text(
+                            OpeningHourUtils.timeRange(venue.todayOpeningHour),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
               ),
-              expandedContent: Text(venue.openingHours ?? 'Chưa có thông tin'),
             ),
 
+            /// GIÁ CẢ
             VenueInfoCard(
               title: 'GIÁ CẢ',
               previewAlignment: CrossAxisAlignment.start,
-              previewContent: Text(
-                CurrencyUtils.formatRangeVND(venue.priceMin, venue.priceMax),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+              previewContent: Row(
+                children: [
+                  const Icon(Icons.payments, size: 20, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Text(
+                    CurrencyUtils.formatRangeVND(
+                      venue.priceMin,
+                      venue.priceMax,
+                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ],
               ),
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/location_tag_model.dart';
 import 'package:couple_mood_mobile/models/venue_owner_model.dart';
+import 'package:couple_mood_mobile/models/today_opening_hour.dart';
 
 class Venue {
   final int id;
@@ -12,15 +13,15 @@ class Venue {
   final int priceMin;
   final int priceMax;
 
-  final String? coverImage;
-  final String? interiorImage;
-  final String? fullPageMenuImage;
+  final List<String> coverImages;
+  final List<String> interiorImages;
+  final List<String> fullPageMenuImages;
 
-  final LocationTag locationTag;
+  final List<LocationTag> locationTags;
 
   final VenueOwner? venueOwner;
-  final String? todayOpeningHour;
-  final String? openingHours;
+
+  final TodayOpeningHour? todayOpeningHour;
 
   Venue({
     required this.id,
@@ -31,15 +32,12 @@ class Venue {
     required this.reviewCount,
     required this.priceMin,
     required this.priceMax,
-    required this.locationTag,
-
-    this.coverImage,
-    this.interiorImage,
-    this.fullPageMenuImage,
-
+    required this.coverImages,
+    required this.interiorImages,
+    required this.fullPageMenuImages,
+    required this.locationTags,
     this.venueOwner,
     this.todayOpeningHour,
-    this.openingHours,
   });
 
   factory Venue.fromJson(Map<String, dynamic> json) {
@@ -54,20 +52,29 @@ class Venue {
       priceMin: (json['priceMin'] as num?)?.toInt() ?? 0,
       priceMax: (json['priceMax'] as num?)?.toInt() ?? 0,
 
-      coverImage: json['coverImage']?.toString(),
-      interiorImage: json['interiorImage']?.toString(),
-      fullPageMenuImage: json['fullPageMenuImage']?.toString(),
+      coverImages: (json['coverImage'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList(),
 
-      locationTag: LocationTag.fromJson(
-        json['locationTag'] as Map<String, dynamic>,
-      ),
+      interiorImages: (json['interiorImage'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList(),
+
+      fullPageMenuImages: (json['fullPageMenuImage'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList(),
+
+      locationTags: (json['locationTags'] as List? ?? [])
+          .map((e) => LocationTag.fromJson(e))
+          .toList(),
 
       venueOwner: json['venueOwner'] != null
-          ? VenueOwner.fromJson(json['venueOwner'] as Map<String, dynamic>)
+          ? VenueOwner.fromJson(json['venueOwner'])
           : null,
 
-      todayOpeningHour: json['todayOpeningHour']?.toString(),
-      openingHours: json['openingHours']?.toString(),
+      todayOpeningHour: json['todayOpeningHour'] != null
+          ? TodayOpeningHour.fromJson(json['todayOpeningHour'])
+          : null,
     );
   }
 }

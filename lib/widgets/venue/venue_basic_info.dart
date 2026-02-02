@@ -12,6 +12,10 @@ class VenueBasicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final firstTag = venue.locationTags.isNotEmpty
+        ? venue.locationTags.first
+        : null;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -19,7 +23,10 @@ class VenueBasicInfo extends StatelessWidget {
         children: [
           VenueTitleRow(name: venue.name),
           const SizedBox(height: 6),
-          VenueTag(text: venue.locationTag.couplePersonalityType.name),
+
+          if (firstTag != null)
+            VenueTag(text: firstTag.couplePersonalityType.name),
+
           const SizedBox(height: 12),
           VenueDescription(description: venue.description),
         ],
