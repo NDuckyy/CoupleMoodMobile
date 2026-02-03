@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ElevatedButton(
               onPressed: () {
-                context.pushNamed("venue_detail", extra: {'venueId': 1});
+                context.pushNamed("venue_detail");
               },
               child: Text('Venue Detail (Test id 1)'),
             ),

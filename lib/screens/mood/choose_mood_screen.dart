@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,7 +70,22 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                           iconUrl: m.iconUrl,
                           name: m.name,
                           onTap: () {
-                            context.goNamed("listLocation");
+                            final moodProvider = context.read<MoodProvider>();
+                            moodProvider
+                                .updateMood(m.id)
+                                .then((_) {
+                                  if (!context.mounted) return;
+                                  showMsg(context, "Cập nhật mood thành công", true);
+                                  context.goNamed("listLocation");
+                                })
+                                .catchError((e) {
+                                  if (!context.mounted) return;
+                                  showMsg(
+                                    context,
+                                    'Cập nhật mood thất bại: $e',
+                                    false,
+                                  );
+                                });
                           },
                         ),
                     ],

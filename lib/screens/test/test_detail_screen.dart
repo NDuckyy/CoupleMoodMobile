@@ -163,6 +163,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
                 await provider.submitTestAnswers(testId, answers);
                 if (!context.mounted) return;
                 showMsg(context, "Nộp bài test thành công", true);
+                context.goNamed("test_result");
               } catch (e) {
                 if (!context.mounted) return;
                 showMsg(context, "Bạn chưa hoàn thành bài test", false);

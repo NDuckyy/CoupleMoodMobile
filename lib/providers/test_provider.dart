@@ -1,8 +1,8 @@
 import 'package:couple_mood_mobile/models/test/test_detail.dart';
+import 'package:couple_mood_mobile/models/test/test_result.dart';
 import 'package:couple_mood_mobile/models/test/test_submit.dart';
 import 'package:couple_mood_mobile/models/test/test_type.dart';
 import 'package:couple_mood_mobile/services/test_service.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/foundation.dart';
 
 class TestProvider extends ChangeNotifier {
@@ -11,6 +11,9 @@ class TestProvider extends ChangeNotifier {
   String? error;
   List<TestType> tests = [];
   List<TestDetail> testDetails = [];
+  TestResult? _testResult;
+
+  TestResult? get testResult => _testResult;
 
   Future<void> fetchTestList() async {
     if (isLoading) return;
@@ -53,9 +56,27 @@ class TestProvider extends ChangeNotifier {
 
   Future<void> submitTestAnswers(String testId, TestSubmit answers) async {
     try {
-      await _testService.submitTestAnswers(testId, answers);
+      if (answers.action == "SUBMIT") {
+        _testResult = await _testService.submitTestAnswersTypeSubmit(testId, answers);
+        notifyListeners();
+      } else {
+        await _testService.submitTestAnswersTypeSaveProgress(testId, answers);
+      }
     } catch (e) {
       throw Exception('Lỗi khi nộp bài test: $e');
+    }
+  }
+
+  Future<String> getUserPersonality() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      return await _testService.getUserPersonality();
+    } catch (e) {
+      throw Exception('Lỗi khi lấy tính cách người dùng: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

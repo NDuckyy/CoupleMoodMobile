@@ -10,8 +10,10 @@ class MoodProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   List<MoodType> moodTypes = [];
+  String? _userCurrentMood = '';
 
   MoodFace get currentMood => _currentMood;
+  String? get userCurrentMood => _userCurrentMood;
 
   Future<void> getCurrentMoodByCamera(File file) async {
     isLoading = true;
@@ -50,6 +52,27 @@ class MoodProvider extends ChangeNotifier {
       moodTypes = [moodType];
     } catch (e) {
       throw Exception('Lỗi khi lấy mood type: $e');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateMood(int moodTypeId) async {
+    try {
+      await MoodService.updateMood(moodTypeId);
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật mood: $e');
+    }
+  }
+
+  Future<void> getCurrentMood() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      _userCurrentMood = await MoodService.getCurrentMood();
+    } catch (e) {
+      throw Exception('Lỗi khi lấy mood hiện tại: $e');
     } finally {
       isLoading = false;
       notifyListeners();
