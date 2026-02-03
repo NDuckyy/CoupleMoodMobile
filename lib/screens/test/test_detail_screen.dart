@@ -96,7 +96,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
   Future<void> _initSelectedAnswers() async {
     selectedAnswers.clear();
 
-    for (final question in context.read<TestProvider>().testDetails) {
+    for (final question in context.read<TestProvider>().testDetails.data!) {
       for (final option in question.options) {
         if (option.isSelected == true) {
           selectedAnswers[question.questionId] = option.answerId.toString();
@@ -162,10 +162,15 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
                 final testId = extra['testId'];
                 await provider.submitTestAnswers(testId, answers);
                 if (!context.mounted) return;
+                if (provider.error != null) {
+                  showMsg(context, provider.error!, false);
+                  return;
+                }
                 showMsg(context, "Nộp bài test thành công", true);
+                context.goNamed("test_result");
               } catch (e) {
                 if (!context.mounted) return;
-                showMsg(context, "Bạn chưa hoàn thành bài test", false);
+                showMsg(context, e.toString(), false);
               }
             },
             label: const Text('Nộp bài'),
@@ -179,7 +184,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
             ? const Center(child: CircularProgressIndicator())
             : ListView(
                 children: [
-                  ...testProvider.testDetails.map((testDetail) {
+                  ...testProvider.testDetails.data!.map((testDetail) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

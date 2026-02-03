@@ -50,6 +50,7 @@ class ApiClient {
             if (token != null && token.isNotEmpty)
               'Authorization': 'Bearer $token',
           },
+          validateStatus: (status) => status != null && status < 500,
         ),
       );
       return res.data;
@@ -84,6 +85,7 @@ class ApiClient {
             if (token != null && token.isNotEmpty)
               'Authorization': 'Bearer $token',
           },
+          validateStatus: (status) => status != null && status < 500,
         ),
       );
 
