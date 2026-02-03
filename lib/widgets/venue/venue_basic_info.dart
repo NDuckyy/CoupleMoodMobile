@@ -21,7 +21,11 @@ class VenueBasicInfo extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VenueTitleRow(name: venue.name),
+          VenueTitleRow(
+            name: venue.name,
+            rating: venue.averageRating,
+            reviewCount: venue.reviewCount,
+          ),
           const SizedBox(height: 6),
 
           if (firstTag != null)

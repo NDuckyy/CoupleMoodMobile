@@ -12,6 +12,7 @@ class Venue {
   final int reviewCount;
   final int priceMin;
   final int priceMax;
+  final int averageCost;
 
   final List<String> coverImages;
   final List<String> interiorImages;
@@ -32,6 +33,7 @@ class Venue {
     required this.reviewCount,
     required this.priceMin,
     required this.priceMax,
+    required this.averageCost,
     required this.coverImages,
     required this.interiorImages,
     required this.fullPageMenuImages,
@@ -51,6 +53,7 @@ class Venue {
       reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
       priceMin: (json['priceMin'] as num?)?.toInt() ?? 0,
       priceMax: (json['priceMax'] as num?)?.toInt() ?? 0,
+      averageCost: (json['avarageCost'] as num?)?.toInt() ?? 0,
 
       coverImages: (json['coverImage'] as List? ?? [])
           .map((e) => e.toString())

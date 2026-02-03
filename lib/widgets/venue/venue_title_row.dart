@@ -1,9 +1,19 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'flying_heart.dart';
+import '../common/rating_stars.dart';
 
 class VenueTitleRow extends StatefulWidget {
   final String name;
+  final double rating;
+  final int reviewCount;
 
-  const VenueTitleRow({super.key, required this.name});
+  const VenueTitleRow({
+    super.key,
+    required this.name,
+    required this.rating,
+    required this.reviewCount,
+  });
 
   @override
   State<VenueTitleRow> createState() => _VenueTitleRowState();
@@ -16,6 +26,9 @@ class _VenueTitleRowState extends State<VenueTitleRow>
   late final AnimationController _controller;
   late final Animation<double> _scale;
   late final Animation<double> _glow;
+
+  final List<Widget> _flyingHearts = [];
+  final Random _rand = Random();
 
   @override
   void initState() {
@@ -43,6 +56,19 @@ class _VenueTitleRowState extends State<VenueTitleRow>
   void _toggle() {
     setState(() => isFavorite = !isFavorite);
     _controller.forward(from: 0);
+
+    final count = 2 + _rand.nextInt(2);
+    for (int i = 0; i < count; i++) {
+      final dx = (_rand.nextDouble() * 16) - 8;
+      final heart = FlyingHeart(dx: dx);
+      _flyingHearts.add(heart);
+
+      Future.delayed(const Duration(milliseconds: 750), () {
+        if (mounted) {
+          setState(() => _flyingHearts.remove(heart));
+        }
+      });
+    }
   }
 
   @override
@@ -53,46 +79,76 @@ class _VenueTitleRowState extends State<VenueTitleRow>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: Text(
-            widget.name,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              height: 1.2,
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: _toggle,
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              return Transform.scale(
-                scale: _scale.value,
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      if (isFavorite)
-                        BoxShadow(
-                          color: Colors.pink.withOpacity(0.45),
-                          blurRadius: _glow.value,
-                          spreadRadius: 1,
-                        ),
-                    ],
-                  ),
-                  child: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    size: 28,
-                    color: isFavorite ? Colors.pink : Colors.grey,
-                  ),
+        /// ===== TITLE + HEART ROW =====
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                widget.name,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  height: 1.2,
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+            GestureDetector(
+              onTap: _toggle,
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (_, __) {
+                  return Transform.scale(
+                    scale: _scale.value,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        ..._flyingHearts,
+                        Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              if (isFavorite)
+                                BoxShadow(
+                                  color: Colors.pink.withOpacity(0.45),
+                                  blurRadius: _glow.value,
+                                ),
+                            ],
+                          ),
+                          child: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            size: 28,
+                            color: isFavorite ? Colors.pink : Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 6),
+
+        /// ===== RATING ROW (SEPARATE) =====
+        Row(
+          children: [
+            Text(
+              widget.rating.toStringAsFixed(1),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(width: 6),
+            RatingStars(rating: widget.rating),
+            const SizedBox(width: 6),
+            Text(
+              '(${widget.reviewCount})',
+              style: const TextStyle(fontSize: 13, color: Colors.grey),
+            ),
+          ],
         ),
       ],
     );
