@@ -44,6 +44,14 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: Text('Go to Test Screen'),
             ),
+
+            ElevatedButton(
+              onPressed: () {
+                context.pushNamed("invite");
+              },
+              child: Text('Invite Screen'),
+            ),
+
             ElevatedButton(
               onPressed: () {
                 _logout();

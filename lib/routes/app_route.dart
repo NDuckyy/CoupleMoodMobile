@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
@@ -280,6 +282,17 @@ GoRouter createRouter(BuildContext context) {
           child: ChangeNotifierProvider(
             create: (_) => VenueDetailProvider(),
             child: VenueDetailScreen(venueId: 3),
+          ),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/invite',
+        name: 'invite',
+        pageBuilder: (_, __) => NoTransitionPage(
+          child: ChangeNotifierProvider(
+            create: (_) => MemberProvider(),
+            child: InviteScreen(),
           ),
         ),
       ),

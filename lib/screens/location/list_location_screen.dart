@@ -4,7 +4,7 @@ import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:rive/rive.dart' hide Image;
+// import 'package:rive/rive.dart' hide Image;
 
 class ListLocationScreen extends StatefulWidget {
   const ListLocationScreen({super.key});

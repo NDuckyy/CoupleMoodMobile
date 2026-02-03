@@ -1,13 +1,11 @@
 import 'dart:io';
+
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
-// import '../providers/auth_provider.dart';
-// import '../services/emotion_service.dart';
 
 class EmotionCameraScreen extends StatefulWidget {
   const EmotionCameraScreen({super.key});
@@ -21,10 +19,9 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
 
   File? _image;
   MoodFace? _result;
-  bool _loading = false;
 
   Future<void> _takePhotoAndAnalyze() async {
-    final mood = context.read<MoodProvider>();
+    final moodProvider = context.read<MoodProvider>();
 
     final picked = await _picker.pickImage(
       source: ImageSource.camera,
@@ -39,52 +36,57 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
 
     setState(() {
       _image = imageFile;
-      _loading = true;
       _result = null;
     });
 
-    try {
-      await mood.getCurrentMoodByCamera(imageFile);
+    await moodProvider.getCurrentMoodByCamera(imageFile);
 
-      if (!mounted) return;
+    if (!mounted) return;
 
+    if (moodProvider.error == null) {
       setState(() {
-        _result = mood.currentMood;
-        _loading = false;
+        _result = moodProvider.currentMoodCamera;
       });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Phân tích thất bại: $e')));
+    } else {
+      setState(() {
+        _result = null;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final moodProvider = context.watch<MoodProvider>();
+
+    final hasSuccess =
+        _result != null && _result!.dominantEmotion.isNotEmpty;
+    final hasError =
+        moodProvider.error != null && !moodProvider.isLoading;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Quay lại')),
+      appBar: AppBar(
+        title: const Text('Phân tích cảm xúc'),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton:
-          (_result != null && _result!.dominantEmotion.isNotEmpty)
+
+      floatingActionButton: hasSuccess
           ? Padding(
               padding: const EdgeInsets.only(bottom: 24),
               child: FloatingActionButton.extended(
                 onPressed: () {
-                  context.goNamed("listLocation");
+                  context.goNamed('listLocation');
                 },
+                backgroundColor: const Color(0xFF8CA9FF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                backgroundColor: Color(0xFF8CA9FF),
                 label: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     'Xác nhận',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
                       fontSize: 16,
+                      fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
@@ -92,23 +94,26 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
               ),
             )
           : null,
+
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
               const SizedBox(height: 16),
-              if (_result == null && !_loading)
+
+              if (_image == null && !moodProvider.isLoading)
                 const Column(
                   children: [
                     Image(
-                      image: AssetImage('lib/assets/images/camera_icon.png'),
+                      image: AssetImage(
+                          'lib/assets/images/camera_icon.png'),
                       width: 300,
                       height: 300,
                     ),
                     SizedBox(height: 16),
                     Text(
-                      'Nhấn nút "Chụp & phân tích" để chụp ảnh khuôn mặt và phân tích cảm xúc của bạn.',
+                      'Nhấn nút "Chụp & phân tích" để chụp ảnh khuôn mặt\nvà phân tích cảm xúc của bạn.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 18,
@@ -118,78 +123,87 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
                   ],
                 ),
 
-              if (_loading) ...[
-                Container(
-                  margin: EdgeInsets.only(bottom: 16),
+              if (moodProvider.isLoading) ...[
+                const SizedBox(height: 24),
+                const SizedBox(
                   width: 300,
                   height: 300,
                   child: CircularProgressIndicator(strokeWidth: 3),
                 ),
               ],
-              const SizedBox(height: 16),
 
-              if (_image != null) ...[
+              if (_image != null && !moodProvider.isLoading) ...[
                 const SizedBox(height: 16),
-                if (_result != null) ...[
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color:
-                            (_result != null &&
-                                _result!.dominantEmotion.isNotEmpty)
-                            ? Colors.greenAccent
-                            : Colors.redAccent,
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(15),
+
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: hasSuccess
+                          ? Colors.greenAccent
+                          : hasError
+                              ? Colors.redAccent
+                              : Colors.grey,
+                      width: 2,
                     ),
-                    padding: const EdgeInsets.all(8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.file(
-                        _image!,
-                        height: 300,
-                        width: 300,
-                        fit: BoxFit.cover,
-                      ),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.file(
+                      _image!,
+                      width: 300,
+                      height: 300,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                ],
-              ],
+                ),
 
-              if (_result != null) ...[
                 const SizedBox(height: 16),
-                if (_result!.dominantEmotion.isEmpty) ...[
-                  const Text(
-                    'Không thể phân tích cảm xúc từ ảnh đã chụp.',
+
+                if (hasError) ...[
+                  Text(
+                    moodProvider.error!,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ] else ...[
-                  Column(
-                    children: [
-                      Text(
-                        'Cảm xúc của bạn là: '
-                        '${_result!.dominantEmotion}\n',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        _result!.emotionSentence,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ],
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
                   ),
                 ],
-              ],
-              const SizedBox(height: 32),
+
+                if (hasSuccess) ...[
+                  Text(
+                    'Cảm xúc của bạn là:',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _result!.dominantEmotion,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _result!.emotionSentence,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ], 
+              const SizedBox(height: 24),
+
               ElevatedButton(
-                onPressed: _loading ? null : _takePhotoAndAnalyze,
+                onPressed:
+                    moodProvider.isLoading ? null : _takePhotoAndAnalyze,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF8CA9FF),
+                  backgroundColor: const Color(0xFF8CA9FF),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
                     vertical: 12,
@@ -207,6 +221,8 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 24),
             ],
           ),
         ),

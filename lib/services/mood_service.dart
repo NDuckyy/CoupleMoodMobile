@@ -1,62 +1,64 @@
 import 'dart:io';
 
+import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:dio/dio.dart';
 
 class MoodService {
-  static Future<MoodFace> getCurrentMoodByCamera(File file) async {
+  static Future<ApiResponse<List<MoodFace>>> getCurrentMoodByCamera(
+    File file,
+  ) async {
     final formData = FormData.fromMap({
       'image': await MultipartFile.fromFile(
         file.path,
         filename: file.path.split('/').last,
       ),
     });
-    try {
-      final res = await ApiClient.upload(
-        '/Emotion/analyze',
-        method: HttpMethod.post,
-        data: formData,
-      );
-      final root = (res as Map).cast<String, dynamic>();
-      final List<dynamic> data = (root['data'] as List).cast<dynamic>();
 
-      return data.isNotEmpty
-          ? MoodFace.fromJson(data[0] as Map<String, dynamic>)
-          : MoodFace(dominantEmotion: '', emotionSentence: '');
-    } catch (e) {
-      print("Error during mood analysis: $e");
-      rethrow;
-    }
+    final res = await ApiClient.upload(
+      '/Emotion/analyze',
+      method: HttpMethod.post,
+      data: formData,
+    );
+
+    return ApiResponse<List<MoodFace>>.fromJson(
+      res,
+      (json) => (json as List).map((e) => MoodFace.fromJson(e)).toList(),
+    );
   }
 
-  static Future<List<MoodType>> getMoodTypes(String gender) async {
-    final res = await ApiClient.request(
-      "/MoodType",
-      method: HttpMethod.get,
-      query: {'gender': gender},
-    );
+  static Future<ApiResponse<List<MoodType>>> getMoodTypes(String gender) async {
     try {
-      final root = (res as Map).cast<String, dynamic>();
-      final List<dynamic> data = (root['data'] as List).cast<dynamic>();
-      return MoodType.fromJsonList(data);
+      final res = await ApiClient.request(
+        "/MoodType",
+        method: HttpMethod.get,
+        query: {'gender': gender},
+      );
+      return ApiResponse<List<MoodType>>.fromJson(
+        res,
+        (json) => MoodType.fromJsonList(json),
+      );
     } catch (e) {
       throw Exception('Lỗi khi lấy danh sách mood type: $e');
     }
   }
 
-  static Future<MoodType> getMoodTypeById(int id, String gender) async {
-    final res = await ApiClient.request(
-      "/MoodType/$id",
-      method: HttpMethod.get,
-      query: {'gender': gender},
-    );
+  static Future<ApiResponse<MoodType>> getMoodTypeById(
+    int id,
+    String gender,
+  ) async {
     try {
-      final root = (res as Map).cast<String, dynamic>();
-      final Map<String, dynamic> data = (root['data'] as Map)
-          .cast<String, dynamic>();
-      return MoodType.fromJson(data);
+      final res = await ApiClient.request(
+        "/MoodType/$id",
+        method: HttpMethod.get,
+        query: {'gender': gender},
+      );
+      return ApiResponse<MoodType>.fromJson(
+        res,
+        (json) => MoodType.fromJson(json),
+      );
     } catch (e) {
       throw Exception('Lỗi khi lấy mood type với id $id: $e');
     }

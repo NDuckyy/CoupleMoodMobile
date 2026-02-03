@@ -65,7 +65,7 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                     spacing: 20,
                     runSpacing: 20,
                     children: [
-                      for (final m in moodProvider.moodTypes)
+                      for (final m in moodProvider.moodTypes.data!)
                         _moodItem(
                           iconUrl: m.iconUrl,
                           name: m.name,

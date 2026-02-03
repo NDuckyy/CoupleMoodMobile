@@ -11,6 +11,7 @@ class TestResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
     final testResult = testProvider.testResult;
+    debugPrint('Rendering TestResultScreen with testResult: ${testResult?.result.mbtiCode}');
 
     return Scaffold(
       appBar: AppBar(title: const Text('Kết quả bài test'), centerTitle: true),
@@ -20,22 +21,21 @@ class TestResultScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               children: [
                 _HeaderCard(
-                  mbtiCode: testResult.mbtiCode,
-                  name: (testResult.name ?? 'Kết quả của bạn'),
+                  mbtiCode: testResult.result.mbtiCode,
+                  name: (testResult.result.name),
                 ),
                 const SizedBox(height: 14),
 
-                if (testResult.breakdown?.percent != null) ...[
+                if (testResult.result.breakdown?.percent != null) ...[
                   _SectionTitle(title: 'Tổng quan tính cách'),
                   const SizedBox(height: 10),
-                  _BreakdownCard(percent: testResult.breakdown!.percent!),
+                  _BreakdownCard(percent: testResult.result.breakdown!.percent),
                   const SizedBox(height: 14),
                 ],
 
                 _SectionTitle(title: 'Điểm nổi bật'),
                 const SizedBox(height: 10),
-                _DescriptionCard(items: testResult.description),
-
+                _DescriptionCard(items: testResult.result.description),
                 const SizedBox(height: 18),
 
                 _ActionsRow(
