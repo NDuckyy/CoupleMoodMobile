@@ -1,17 +1,25 @@
 import 'dart:io';
 
+import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/mood_service.dart';
 import 'package:flutter/foundation.dart';
 
 class MoodProvider extends ChangeNotifier {
-  MoodFace _currentMood = MoodFace(dominantEmotion: '', emotionSentence: '');
+  ApiResponse<List<MoodFace>>? _currentMoodResponse;
   bool isLoading = false;
   String? error;
-  List<MoodType> moodTypes = [];
+  ApiResponse<List<MoodType>> moodTypes = ApiResponse(
+    message: '',
+    code: 0,
+    data: [],
+  );
+  String? _userCurrentMood = '';
 
-  MoodFace get currentMood => _currentMood;
+  String? get userCurrentMood => _userCurrentMood;
+
+  MoodFace? currentMoodCamera;
 
   Future<void> getCurrentMoodByCamera(File file) async {
     isLoading = true;
@@ -19,11 +27,20 @@ class MoodProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _currentMood = await MoodService.getCurrentMoodByCamera(file);
-      isLoading = false;
-      notifyListeners();
+      _currentMoodResponse = await MoodService.getCurrentMoodByCamera(file);
+
+      if (_currentMoodResponse!.code != 200 ||
+          _currentMoodResponse!.data == null ||
+          _currentMoodResponse!.data!.isEmpty) {
+        error = _currentMoodResponse!.message;
+        currentMoodCamera = null;
+      } else {
+        currentMoodCamera = _currentMoodResponse!.data!.first;
+      }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
+      currentMoodCamera = null;
+    } finally {
       isLoading = false;
       notifyListeners();
     }
@@ -42,14 +59,21 @@ class MoodProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> getMoodTypeById(int id, String gender) async {
+  Future<void> updateMood(int moodTypeId) async {
+    try {
+      await MoodService.updateMood(moodTypeId);
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật mood: $e');
+    }
+  }
+
+  Future<void> getCurrentMood() async {
     try {
       isLoading = true;
       notifyListeners();
-      final moodType = await MoodService.getMoodTypeById(id, gender);
-      moodTypes = [moodType];
+      _userCurrentMood = await MoodService.getCurrentMood();
     } catch (e) {
-      throw Exception('Lỗi khi lấy mood type: $e');
+      throw Exception('Lỗi khi lấy mood hiện tại: $e');
     } finally {
       isLoading = false;
       notifyListeners();

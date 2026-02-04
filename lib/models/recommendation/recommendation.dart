@@ -11,6 +11,7 @@ class Recommendation {
   final double latitude;
   final double longitude;
   final double distance;
+  final String? imageUrl;
 
   Recommendation({
     required this.venueId,
@@ -25,6 +26,7 @@ class Recommendation {
     required this.latitude,
     required this.longitude,
     required this.distance,
+    required this.imageUrl,
   });
 
   factory Recommendation.fromJson(Map<String, dynamic> json) {
@@ -41,6 +43,7 @@ class Recommendation {
       latitude: (json['latitude'] as num).toDouble(),
       longitude: (json['longitude'] as num).toDouble(),
       distance: (json['distance'] as num).toDouble(),
+      imageUrl: json['imageUrl'] as String?,
     );
   }
 }
