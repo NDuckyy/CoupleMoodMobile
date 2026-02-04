@@ -1,6 +1,8 @@
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/dateplan/date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -184,10 +186,16 @@ GoRouter createRouter(BuildContext context) {
             navigatorKey: _collectionTabNavKey,
             routes: [
               GoRoute(
-                path: '/collection',
-                name: 'collection',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Collection')),
+                path: '/date-plan',
+                name: 'datePlan',
+                pageBuilder: (_, __) => NoTransitionPage(
+                  child: MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(create: (_) => DatePlanProvider()),
+                    ],
+                    child: const DatePlanScreen(),
+                  ),
+                ),
               ),
             ],
           ),
