@@ -1,9 +1,12 @@
+import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
@@ -108,8 +111,13 @@ GoRouter createRouter(BuildContext context) {
                 path: '/list-location',
                 name: 'listLocation',
                 pageBuilder: (_, __) => NoTransitionPage(
-                  child: ChangeNotifierProvider(
-                    create: (_) => RecommendationProvider(),
+                  child: MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(
+                        create: (_) => RecommendationProvider(),
+                      ),
+                      ChangeNotifierProvider(create: (_) => MoodProvider()),
+                    ],
                     child: const ListLocationScreen(),
                   ),
                 ),
@@ -243,15 +251,28 @@ GoRouter createRouter(BuildContext context) {
           return const NoTransitionPage(child: FilterLocationScreen());
         },
       ),
-      GoRoute(
-        path: '/test-detail',
-        name: 'test_detail',
-        pageBuilder: (_, __) => NoTransitionPage(
-          child: ChangeNotifierProvider(
+      ShellRoute(
+        parentNavigatorKey: _rootNavKey,
+        builder: (context, state, child) {
+          return ChangeNotifierProvider(
             create: (_) => TestProvider(),
-            child: const TestDetailScreen(),
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/test-detail',
+            name: 'test_detail',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: TestDetailScreen()),
           ),
-        ),
+          GoRoute(
+            path: '/test-result',
+            name: 'test_result',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: TestResultScreen()),
+          ),
+        ],
       ),
       GoRoute(
         parentNavigatorKey: _rootNavKey,
@@ -260,9 +281,18 @@ GoRouter createRouter(BuildContext context) {
         pageBuilder: (_, __) => NoTransitionPage(
           child: ChangeNotifierProvider(
             create: (_) => VenueDetailProvider(),
-            child: VenueDetailScreen(
-              venueId: 1,
-            ),
+            child: VenueDetailScreen(venueId: 3),
+          ),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/invite',
+        name: 'invite',
+        pageBuilder: (_, __) => NoTransitionPage(
+          child: ChangeNotifierProvider(
+            create: (_) => MemberProvider(),
+            child: InviteScreen(),
           ),
         ),
       ),

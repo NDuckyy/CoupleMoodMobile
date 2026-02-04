@@ -1,13 +1,13 @@
 class TestState {
   final String state;
-  final String TestTypeId;
+  final String testTypeId;
   final int currentQuestionIndex;
   final int answeredCount;
   final int totalQuestions;
 
   TestState({
     required this.state,
-    required this.TestTypeId,
+    required this.testTypeId,
     required this.currentQuestionIndex,
     required this.answeredCount,
     required this.totalQuestions,
@@ -16,7 +16,7 @@ class TestState {
   factory TestState.fromJson(Map<String, dynamic> json) {
     return TestState(
       state: json['state']?.toString() ?? '',
-      TestTypeId: json['TestTypeId']?.toString() ?? '',
+      testTypeId: json['TestTypeId']?.toString() ?? '',
       currentQuestionIndex: json['currentQuestionIndex'] is int
           ? json['currentQuestionIndex'] as int
           : int.tryParse(json['currentQuestionIndex']?.toString() ?? '') ?? 0,
@@ -31,7 +31,7 @@ class TestState {
 
   Map<String, dynamic> toJson() => {
         'state': state,
-        'TestTypeId': TestTypeId,
+        'TestTypeId': testTypeId,
         'currentQuestionIndex': currentQuestionIndex,
         'answeredCount': answeredCount,
         'totalQuestions': totalQuestions,

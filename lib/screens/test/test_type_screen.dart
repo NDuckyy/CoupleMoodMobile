@@ -35,9 +35,9 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
         child: testProvider.isLoading
             ? Center(child: CircularProgressIndicator())
             : ListView.builder(
-                itemCount: testProvider.tests.length,
+                itemCount: testProvider.tests.data?.length ?? 0,
                 itemBuilder: (context, index) {
-                  final test = testProvider.tests[index];
+                  final test = testProvider.tests.data![index];
                   return Container(
                     padding: const EdgeInsets.all(16),
                     margin: const EdgeInsets.only(bottom: 12),
