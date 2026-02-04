@@ -1,7 +1,7 @@
 import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
-
+import 'package:couple_mood_mobile/services/chat_service.dart';
 import 'api_client.dart';
 
 class AuthService {
@@ -27,6 +27,7 @@ class AuthService {
       cometChatUid: data['cometChatUid']?.toString(),
       cometChatAuthToken: data['cometChatAuthToken']?.toString(),
       gender: data['gender']?.toString(),
+      avartarUrl: data['avartarUrl']?.toString() ?? data['imageUrl']?.toString(),
     );
     await SessionStorage.save(session);
 
@@ -35,6 +36,7 @@ class AuthService {
 
   static Future<void> logout() async {
     await SessionStorage.clear();
+    await ChatService().logoutUser(); // Logout khỏi CometChat
   }
 
   static Future<bool> register(RegisterRequest request) async {

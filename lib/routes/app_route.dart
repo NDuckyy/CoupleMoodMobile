@@ -6,6 +6,7 @@ import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.da
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -145,8 +146,7 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/chat',
                 name: 'chat',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Chat')),
+                pageBuilder: (_, __) => const NoTransitionPage(child: ChatScreen()),
               ),
             ],
           ),
