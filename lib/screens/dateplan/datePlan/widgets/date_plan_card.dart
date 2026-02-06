@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/widgets/status_dot.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class DatePlanCard extends StatelessWidget {
@@ -89,7 +90,10 @@ class DatePlanCard extends StatelessWidget {
               child: InkWell(
                 borderRadius: BorderRadius.circular(25),
                 onTap: () {
-                  // TODO: action
+                  context.pushNamed(
+                    'date_plan_item',
+                    extra: {'datePlanId': item.id},
+                  );
                 },
                 child: Ink(
                   decoration: const BoxDecoration(

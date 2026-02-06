@@ -1,8 +1,8 @@
-import 'package:couple_mood_mobile/screens/dateplan/widgets/date_plan_over_view.dart';
-import 'package:couple_mood_mobile/screens/dateplan/widgets/pagination_control.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/date_plan_over_view.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/pagination_control.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/date_plan_provider.dart';
+import '../../../providers/date_plan_provider.dart';
 import 'widgets/date_plan_header.dart';
 import 'widgets/date_plan_card.dart';
 

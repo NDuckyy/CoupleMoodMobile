@@ -46,7 +46,7 @@ class DatePlanResponse {
 }
 
 class DatePlanDetails {
-  final String id;
+  final int id;
   final String title;
   final int version;
   final String plannedStartAt;
@@ -66,7 +66,7 @@ class DatePlanDetails {
 
   factory DatePlanDetails.fromJson(Map<String, dynamic> json) {
     return DatePlanDetails(
-      id: json['id'].toString(),
+      id: json['id'],
       title: json['title'],
       version: json['version'],
       plannedStartAt: json['plannedStartAt'],
