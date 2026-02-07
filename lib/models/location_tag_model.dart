@@ -1,27 +1,13 @@
-import 'couple_mood_type_model.dart';
-import 'couple_personality_type_model.dart';
-
 class LocationTag {
   final int id;
-  final String tagName;
-  final CoupleMoodType coupleMoodType;
-  final CouplePersonalityType couplePersonalityType;
+  final String name;
 
-  LocationTag({
-    required this.id,
-    required this.tagName,
-    required this.coupleMoodType,
-    required this.couplePersonalityType,
-  });
+  LocationTag({required this.id, required this.name});
 
   factory LocationTag.fromJson(Map<String, dynamic> json) {
     return LocationTag(
-      id: json['id'],
-      tagName: json['tagName'],
-      coupleMoodType: CoupleMoodType.fromJson(json['coupleMoodType']),
-      couplePersonalityType: CouplePersonalityType.fromJson(
-        json['couplePersonalityType'],
-      ),
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: json['name']?.toString() ?? '',
     );
   }
 }

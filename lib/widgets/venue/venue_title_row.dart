@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'flying_heart.dart';
 import '../common/rating_stars.dart';
+import '../../providers/venue_detail_provider.dart';
 
 class VenueTitleRow extends StatefulWidget {
   final String name;
@@ -21,8 +23,6 @@ class VenueTitleRow extends StatefulWidget {
 
 class _VenueTitleRowState extends State<VenueTitleRow>
     with SingleTickerProviderStateMixin {
-  bool isFavorite = false;
-
   late final AnimationController _controller;
   late final Animation<double> _scale;
   late final Animation<double> _glow;
@@ -53,8 +53,7 @@ class _VenueTitleRowState extends State<VenueTitleRow>
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
-  void _toggle() {
-    setState(() => isFavorite = !isFavorite);
+  void _playHeartEffect() {
     _controller.forward(from: 0);
 
     final count = 2 + _rand.nextInt(2);
@@ -79,10 +78,12 @@ class _VenueTitleRowState extends State<VenueTitleRow>
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<VenueDetailProvider>();
+    final isFavorite = provider.isFavorite;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// ===== TITLE + HEART ROW =====
         Row(
           children: [
             Expanded(
@@ -96,7 +97,10 @@ class _VenueTitleRowState extends State<VenueTitleRow>
               ),
             ),
             GestureDetector(
-              onTap: _toggle,
+              onTap: () {
+                provider.toggleFavorite();
+                _playHeartEffect();
+              },
               child: AnimatedBuilder(
                 animation: _controller,
                 builder: (_, __) {
@@ -131,10 +135,7 @@ class _VenueTitleRowState extends State<VenueTitleRow>
             ),
           ],
         ),
-
         const SizedBox(height: 6),
-
-        /// ===== RATING ROW (SEPARATE) =====
         Row(
           children: [
             Text(
