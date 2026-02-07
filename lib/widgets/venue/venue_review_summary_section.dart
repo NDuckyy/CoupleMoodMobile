@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/venue_review_summary.dart';
+import '../../models/venue/venue_review_summary.dart';
 
 class VenueReviewSummarySection extends StatelessWidget {
   final VenueReviewSummary summary;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/venue_detail_provider.dart';
+import '../../providers/venue/venue_detail_provider.dart';
 import '../../utils/number_utils.dart';
 
 class VenueFavoriteInfo extends StatelessWidget {

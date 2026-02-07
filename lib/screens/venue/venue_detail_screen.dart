@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../utils/currency_utils.dart';
 import '../../utils/opening_hour_utils.dart';
-import '../../providers/venue_detail_provider.dart';
-import '../../providers/venue_review_provider.dart';
+import '../../providers/venue/venue_detail_provider.dart';
+import '../../providers/venue/venue_review_provider.dart';
 import '../../widgets/venue/venue_cover_skeleton.dart';
 import '../../widgets/venue/venue_cover_image.dart';
 import '../../widgets/venue/venue_basic_info.dart';

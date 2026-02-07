@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/venue_review_provider.dart';
+import '../../providers/venue/venue_review_provider.dart';
 import 'venue_review_summary_section.dart';
 import 'venue_review_list_section.dart';
 import '../common/pagination_bar.dart';

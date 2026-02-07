@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/venue_review.dart';
+import '../../models/venue/venue_review.dart';
 
 class VenueReviewItem extends StatelessWidget {
   final VenueReview review;
