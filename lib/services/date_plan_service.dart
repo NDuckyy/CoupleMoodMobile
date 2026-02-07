@@ -3,7 +3,6 @@ import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class DatePlanService {

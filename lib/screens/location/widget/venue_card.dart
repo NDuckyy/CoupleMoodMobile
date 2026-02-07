@@ -28,7 +28,11 @@ class VenueCard extends StatelessWidget {
           /// IMAGE
           Stack(
             children: [
-              VenueImage(imageUrl: r.coverImage != null && r.coverImage!.isNotEmpty ? r.coverImage!.first : null),
+              VenueImage(
+                imageUrl: r.coverImage != null && r.coverImage!.isNotEmpty
+                    ? r.coverImage!.first
+                    : null,
+              ),
               if (r.isOpen == true)
                 Positioned(
                   top: 12,
@@ -163,30 +167,6 @@ class VenueCard extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 12),
-
-                /// MATCH REASON (highlight box)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF7F2FF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    r.matchReason,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Color(0xFF6B5CA5),
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
 
                 /// ACTIONS
                 Row(

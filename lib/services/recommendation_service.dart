@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:couple_mood_mobile/mock/recommendation_mock.dart';
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';

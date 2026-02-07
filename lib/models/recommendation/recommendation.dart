@@ -34,7 +34,6 @@ class Recommendation {
   final double? distance;
   final String? distanceText;
 
-  final String matchReason;
   final double? averageRating;
   final int reviewCount;
 
@@ -71,7 +70,6 @@ class Recommendation {
     this.isDeleted,
     this.distance,
     this.distanceText,
-    required this.matchReason,
     this.averageRating,
     required this.reviewCount,
     this.coverImage,
@@ -116,7 +114,6 @@ class Recommendation {
       isDeleted: json['isDeleted'],
       distance: (json['distance'] as num?)?.toDouble(),
       distanceText: json['distanceText'],
-      matchReason: json['matchReason'],
       averageRating: (json['averageRating'] as num?)?.toDouble(),
       reviewCount: json['reviewCount'],
       coverImage: json['coverImage'] != null ? List<String>.from(json['coverImage']) : null,

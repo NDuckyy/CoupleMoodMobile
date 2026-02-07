@@ -30,7 +30,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
           RecommendationRequest(
             latitude: position.latitude,
             longitude: position.longitude,
-            radiusKm: 5,
+            radiusKm: 15,
             area: "79",
           ),
         );
