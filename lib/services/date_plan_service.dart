@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class DatePlanService {
@@ -24,7 +25,9 @@ class DatePlanService {
     }
   }
 
-  static Future<ApiResponse<int>> createDatePlan(DatePlanCreateRequest request) async {
+  static Future<ApiResponse<int>> createDatePlan(
+    DatePlanCreateAndUpdateRequest request,
+  ) async {
     try {
       final res = await ApiClient.request(
         '/DatePlan',
@@ -37,7 +40,9 @@ class DatePlanService {
     }
   }
 
-  static Future<ApiResponse<DatePlanItemResponse>> getDatePlanItems(int datePlanId) async {
+  static Future<ApiResponse<DatePlanItemResponse>> getDatePlanItems(
+    int datePlanId,
+  ) async {
     try {
       final res = await ApiClient.request(
         '/DatePlan/$datePlanId/items',
@@ -50,6 +55,51 @@ class DatePlanService {
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi lấy danh sách mục kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<DatePlanDetails>> getDatePlanDetails(
+    int datePlanId,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId',
+        method: HttpMethod.get,
+      );
+      return ApiResponse<DatePlanDetails>.fromJson(
+        res,
+        (json) => DatePlanDetails.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy chi tiết kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<void>> updateDatePlan(
+    int datePlanId,
+    DatePlanCreateAndUpdateRequest request,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId?version=${request.version}',
+        method: HttpMethod.patch,
+        data: request.toJson(),
+      );
+      return ApiResponse<void>.fromJson(res, (_) {});
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<void>> deleteDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId',
+        method: HttpMethod.delete,
+      );
+      return ApiResponse<void>.fromJson(res, (_) {});
+    } catch (e) {
+      throw Exception('Lỗi khi xóa kế hoạch hẹn hò: $e');
     }
   }
 }

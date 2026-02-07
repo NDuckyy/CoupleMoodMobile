@@ -19,7 +19,7 @@ class DateTimePickerSection extends StatelessWidget {
           'Thời gian hẹn hò',
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: Color(0xFFB388EB),
+            color: Colors.black87,
           ),
         ),
         const SizedBox(height: 8),
@@ -101,7 +101,7 @@ class _DateTimeFieldState extends State<DateTimeField> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Color(0xFFF7AEF8), width: 1.2),
+          border: Border.all(color: Color(0xFFB388EB), width: 1.2),
         ),
         child: Row(
           children: [

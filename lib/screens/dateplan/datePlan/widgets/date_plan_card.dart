@@ -1,13 +1,16 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/widgets/status_dot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DatePlanCard extends StatelessWidget {
   final DatePlanDetails item;
+  final VoidCallback onDelete;
 
-  const DatePlanCard({super.key, required this.item});
+  const DatePlanCard({super.key, required this.item, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -35,18 +38,49 @@ class DatePlanCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Text(
-                  item.title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    StatusDot(status: item.status),
+                  ],
                 ),
               ),
-              StatusDot(status: item.status),
+              IconButton(
+                icon: const Icon(Icons.edit_outlined, size: 20),
+                onPressed: () async {
+                  final result = await context.pushNamed(
+                    'date_plan_edit',
+                    extra: {'datePlanId': item.id},
+                  );
+
+                  if (result == true) {
+                    if (!context.mounted) return;
+                    context.read<DatePlanProvider>().fetchDatePlans(
+                      page: context.read<DatePlanProvider>().pageNumber,
+                    );
+                  }
+                },
+              ),
+              IconButton(
+                icon: const Icon(
+                  Icons.delete_outline,
+                  color: Colors.redAccent,
+                  size: 20,
+                ),
+                constraints: const BoxConstraints(),
+                onPressed: () => _showDeleteConfirm(context),
+              ),
             ],
           ),
 
@@ -117,6 +151,28 @@ class DatePlanCard extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirm(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Xóa kế hoạch hẹn hò?'),
+        content: const Text(
+          'Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?',
+        ),
+        actions: [
+          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
+          TextButton(
+            onPressed: () {
+              context.pop();
+              onDelete();
+            },
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

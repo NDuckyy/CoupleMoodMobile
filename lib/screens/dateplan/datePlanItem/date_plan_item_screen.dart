@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/date_plan_item_card.dart';
+import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +29,10 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
     });
   }
 
+  Future<void> _reload() async {
+    await _initDatePlanItems(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DatePlanProvider>();
@@ -42,14 +47,23 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : items.isEmpty
-          ? const Center(child: Text('Chưa có địa điểm nào trong lịch hẹn'))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return DatePlanItemCard(item: items[index]);
-              },
+          : RefreshIndicator(
+              onRefresh: _reload,
+              child: items.isEmpty
+                  ? EmptyStateWidget(
+                      icon: Icons.location_on_outlined,
+                      title: 'Chưa có địa điểm nào trong lịch hẹn',
+                      description:
+                          'Bạn chưa thêm địa điểm nào cho lịch hẹn này. Hãy thêm địa điểm để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
+                    )
+                  : ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(16),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        return DatePlanItemCard(item: items[index]);
+                      },
+                    ),
             ),
     );
   }

@@ -1,23 +1,24 @@
+import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
 import 'package:couple_mood_mobile/services/recommendation_service.dart';
 import 'package:flutter/material.dart';
 
 class RecommendationProvider extends ChangeNotifier {
-  RecommendationResponse? _recommendationResponse;
+  ApiResponse<RecommendationResponse>? _recommendationResponse;
   bool isLoading = false;
   String? error;
-  RecommendationResponse? get recommendationResponse => _recommendationResponse;
+  RecommendationResponse? get recommendationResponse =>
+      _recommendationResponse?.data;
 
-  Future<void> fetchRecommendations() async {
+  Future<void> fetchRecommendations(RecommendationRequest request) async {
     try {
       isLoading = true;
       notifyListeners();
-  
-      await Future.delayed(const Duration(seconds: 2));
-      _recommendationResponse = await RecommendationService.fetchRecommendations();
+      _recommendationResponse =
+          await RecommendationService.fetchRecommendations(request);
       isLoading = false;
       notifyListeners();
-      
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
       isLoading = false;

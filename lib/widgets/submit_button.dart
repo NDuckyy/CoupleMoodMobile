@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class SubmitButton extends StatelessWidget {
   final VoidCallback onPressed;
-  const SubmitButton({super.key, required this.onPressed});
+  final String label;
+  const SubmitButton({super.key, required this.onPressed, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +18,9 @@ class SubmitButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: const Text(
-          'Tạo lịch hẹn 💖',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       ),
     );

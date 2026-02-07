@@ -48,11 +48,12 @@ class DatePlanResponse {
 class DatePlanDetails {
   final int id;
   final String title;
-  final int version;
+  final int? version;
   final String plannedStartAt;
   final String plannedEndAt;
   final double estimatedBudget;
   final String status;
+  final String? note;
 
   DatePlanDetails({
     required this.id,
@@ -62,6 +63,7 @@ class DatePlanDetails {
     required this.plannedEndAt,
     required this.estimatedBudget,
     required this.status,
+    this.note,
   });
 
   factory DatePlanDetails.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class DatePlanDetails {
       plannedEndAt: json['plannedEndAt'],
       estimatedBudget: json['estimatedBudget'].toDouble(),
       status: json['status'],
+      note: json['note'],
     );
   }
 }

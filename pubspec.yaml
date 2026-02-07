@@ -33,6 +33,7 @@ dependencies:
 
   go_router: ^14.0.0
   rive: ^0.13.7
+  image_picker: ^1.2.1
   
 
 dev_dependencies:
