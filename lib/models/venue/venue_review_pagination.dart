@@ -1,4 +1,4 @@
-import 'package:couple_mood_mobile/models/venue_review.dart';
+import 'package:couple_mood_mobile/models/venue/venue_review.dart';
 
 class VenueReviewPagination {
   final List<VenueReview> items;

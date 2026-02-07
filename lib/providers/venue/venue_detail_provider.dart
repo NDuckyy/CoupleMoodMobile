@@ -1,6 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
-import 'package:couple_mood_mobile/models/venue_model.dart';
-import 'package:couple_mood_mobile/services/venue_service.dart';
+import 'package:couple_mood_mobile/models/venue/venue_model.dart';
+import 'package:couple_mood_mobile/services/venue/venue_service.dart';
 import 'package:flutter/material.dart';
 
 class VenueDetailProvider extends ChangeNotifier {

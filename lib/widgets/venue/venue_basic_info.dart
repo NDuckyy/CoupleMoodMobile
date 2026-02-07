@@ -1,4 +1,4 @@
-import 'package:couple_mood_mobile/models/venue_model.dart';
+import 'package:couple_mood_mobile/models/venue/venue_model.dart';
 import 'package:flutter/material.dart';
 
 import 'venue_title_row.dart';

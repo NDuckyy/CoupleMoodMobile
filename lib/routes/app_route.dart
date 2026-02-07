@@ -1,6 +1,6 @@
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';

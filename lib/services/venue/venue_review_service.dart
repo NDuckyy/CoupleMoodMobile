@@ -1,5 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
-import 'package:couple_mood_mobile/models/venue_review_data.dart';
+import 'package:couple_mood_mobile/models/venue/venue_review_data.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
 class VenueReviewService {

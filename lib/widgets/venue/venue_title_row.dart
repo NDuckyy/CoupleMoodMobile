@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'flying_heart.dart';
 import '../common/rating_stars.dart';
-import '../../providers/venue_detail_provider.dart';
+import '../../providers/venue/venue_detail_provider.dart';
 
 class VenueTitleRow extends StatefulWidget {
   final String name;

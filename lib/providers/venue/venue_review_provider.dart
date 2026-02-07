@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:couple_mood_mobile/models/venue_review.dart';
-import 'package:couple_mood_mobile/models/venue_review_summary.dart';
-import 'package:couple_mood_mobile/services/venue_review_service.dart';
+import 'package:couple_mood_mobile/models/venue/venue_review.dart';
+import 'package:couple_mood_mobile/models/venue/venue_review_summary.dart';
+import 'package:couple_mood_mobile/services/venue/venue_review_service.dart';
 
 class VenueReviewProvider extends ChangeNotifier {
   VenueReviewSummary? summary;

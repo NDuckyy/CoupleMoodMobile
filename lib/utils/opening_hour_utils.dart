@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/today_opening_hour.dart';
+import '../models/venue/today_opening_hour.dart';
 
 class OpeningHourUtils {
   static Color statusColor(TodayOpeningHour? hour) {
