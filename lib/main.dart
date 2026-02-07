@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,7 +10,16 @@ void main() async {
 
   final auth = AuthProvider();
   await auth.init();
-  runApp(ChangeNotifierProvider.value(value: auth, child: const MyApp()));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: auth),
+        
+        ChangeNotifierProvider(create: (_) => DatePlanProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {

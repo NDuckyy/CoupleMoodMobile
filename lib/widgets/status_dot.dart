@@ -14,7 +14,6 @@ class StatusDot extends StatelessWidget {
     return Container(
       width: 10,
       height: 10,
-      margin: const EdgeInsets.only(top: 6),
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
