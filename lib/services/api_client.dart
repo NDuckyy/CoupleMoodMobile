@@ -6,10 +6,10 @@ enum HttpMethod { get, post, put, delete }
 class ApiClient {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://couplemood.ooguy.com/api',
+      baseUrl: 'http://10.0.2.2:5224/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-    ),
+    ),  
   );
 
   static bool _inited = false;
