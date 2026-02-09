@@ -14,7 +14,7 @@ class Session {
     this.avartarUrl,
   });
 
-   Map<String, dynamic> profileToJson() => {
+  Map<String, dynamic> profileToJson() => {
         'userId': userId,
         'gender': gender,
         'avartarUrl': avartarUrl,
@@ -24,11 +24,12 @@ class Session {
     required String accessToken,
     String? refreshToken,
     Map<String, dynamic>? profile,
+    int? userIdFromToken,
   }) {
     return Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      userId: profile?['userId'] as int?,
+      userId: profile?['userId'] as int? ?? userIdFromToken,
       gender: profile?['gender']?.toString(),
       avartarUrl: profile?['avartarUrl']?.toString(),
     );

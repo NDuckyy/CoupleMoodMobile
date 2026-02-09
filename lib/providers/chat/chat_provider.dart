@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../../models/chat/conversation.dart';
 import '../../models/chat/conversation_member.dart';
 import '../../models/chat/message.dart';
-import '../../models/chat/chat_models.dart';
 import '../../services/chat/messaging_api_service.dart';
 import '../../services/chat/signalr_service.dart';
 import '../../utils/session_storage.dart';
@@ -25,13 +24,15 @@ class ChatProvider with ChangeNotifier {
   
   // Subscriptions
   StreamSubscription? _messageReceivedSub;
+  StreamSubscription? _messageSeenSub;
   StreamSubscription? _typingIndicatorSub;
   StreamSubscription? _userOnlineSub;
-  StreamSubscription? _userOfflineSub;
-  StreamSubscription? _messageReadSub;
+  StreamSubscription? _memberAddedSub;
+  StreamSubscription? _memberRemovedSub;
+  StreamSubscription? _conversationUpdatedSub;
+  StreamSubscription? _conversationDeletedSub;
   StreamSubscription? _messageDeletedSub;
   StreamSubscription? _newConversationSub;
-  StreamSubscription? _removedFromConversationSub;
 
   // Getters
   List<Conversation> get conversations => _conversations;
@@ -59,12 +60,16 @@ class ChatProvider with ChangeNotifier {
   /// Initialize chat provider
   Future<void> initialize() async {
     try {
-      // Load current user ID
+      // Load current user ID from session
       final session = await SessionStorage.load();
       _currentUserId = session?.userId;
+      print('ChatProvider initialized - currentUserId: $_currentUserId');
 
       // Connect to SignalR
       await _signalR.connect();
+      
+      // Update online status
+      await _signalR.updateOnlineStatus(true);
 
       // Setup event listeners
       _setupSignalRListeners();
@@ -72,6 +77,7 @@ class ChatProvider with ChangeNotifier {
       // Load conversations
       await loadConversations();
     } catch (e) {
+      print('ChatProvider initialization error: $e');
       _error = e.toString();
       notifyListeners();
     }
@@ -84,39 +90,49 @@ class ChatProvider with ChangeNotifier {
       _handleMessageReceived(message);
     });
 
+    // Message seen
+    _messageSeenSub = _signalR.onMessageSeen.listen((event) {
+      _handleMessageSeen(event);
+    });
+
     // Typing indicator
-    _typingIndicatorSub = _signalR.onTypingIndicator.listen((typing) {
+    _typingIndicatorSub = _signalR.onUserTyping.listen((typing) {
       _handleTypingIndicator(typing);
     });
 
     // User online
-    _userOnlineSub = _signalR.onUserOnline.listen((userId) {
-      _updateUserOnlineStatus(userId, true);
+    _userOnlineSub = _signalR.onUserOnline.listen((event) {
+      _updateUserOnlineStatus(event.userId, event.isOnline);
     });
 
-    // User offline
-    _userOfflineSub = _signalR.onUserOffline.listen((status) {
-      _updateUserOnlineStatus(status.userId, false);
+    // Member added
+    _memberAddedSub = _signalR.onMemberAdded.listen((event) {
+      _handleMemberAdded(event);
     });
 
-    // Message read
-    _messageReadSub = _signalR.onMessageRead.listen((event) {
-      _handleMessageRead(event);
+    // Member removed
+    _memberRemovedSub = _signalR.onMemberRemoved.listen((event) {
+      _handleMemberRemoved(event);
+    });
+
+    // Conversation updated
+    _conversationUpdatedSub = _signalR.onConversationUpdated.listen((conversation) {
+      _handleConversationUpdated(conversation);
+    });
+
+    // Conversation deleted
+    _conversationDeletedSub = _signalR.onConversationDeleted.listen((conversationId) {
+      _handleConversationDeleted(conversationId);
     });
 
     // Message deleted
-    _messageDeletedSub = _signalR.onMessageDeleted.listen((messageId) {
-      _handleMessageDeleted(messageId);
+    _messageDeletedSub = _signalR.onMessageDeleted.listen((event) {
+      _handleMessageDeleted(event);
     });
 
     // New conversation
-    _newConversationSub = _signalR.onNewConversation.listen((conversationId) {
-      _handleNewConversation(conversationId);
-    });
-
-    // Removed from conversation
-    _removedFromConversationSub = _signalR.onRemovedFromConversation.listen((conversationId) {
-      _handleRemovedFromConversation(conversationId);
+    _newConversationSub = _signalR.onNewConversation.listen((conversation) {
+      _handleNewConversation(conversation);
     });
   }
 
@@ -152,19 +168,15 @@ class ChatProvider with ChangeNotifier {
         pageSize: 50,
       );
 
-      final messages = messagesPage.messages
-          .map((m) => Message.fromJson(m))
-          .toList();
-
       if (loadMore) {
         // Append to existing messages
         _messagesByConversation[conversationId] = [
           ...(_messagesByConversation[conversationId] ?? []),
-          ...messages,
+          ...messagesPage.messages,
         ];
       } else {
         // Replace messages
-        _messagesByConversation[conversationId] = messages;
+        _messagesByConversation[conversationId] = messagesPage.messages;
       }
 
       _currentPage[conversationId] = page;
@@ -172,9 +184,10 @@ class ChatProvider with ChangeNotifier {
       _loadingMessages[conversationId] = false;
       notifyListeners();
 
-      // Mark as read
-      if (messages.isNotEmpty) {
-        await markAsRead(conversationId, messages.first.id);
+      // Mark latest message as read
+      if (messagesPage.messages.isNotEmpty) {
+        final latestMessage = messagesPage.messages.first;
+        await markMessageAsRead(conversationId, latestMessage.id);
       }
     } catch (e) {
       _loadingMessages[conversationId] = false;
@@ -188,7 +201,7 @@ class ChatProvider with ChangeNotifier {
     try {
       // Create optimistic message
       final optimisticMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch, // Temporary ID
+        id: DateTime.now().millisecondsSinceEpoch,
         conversationId: conversationId,
         senderId: _currentUserId ?? 0,
         senderName: 'You',
@@ -204,14 +217,41 @@ class ChatProvider with ChangeNotifier {
       _addMessageToConversation(conversationId, optimisticMessage);
 
       // Send to server
-      final sentMessage = await MessagingApiService.sendTextMessage(
+      final sentMessage = await MessagingApiService.sendMessage(
         conversationId: conversationId,
+        messageType: 'TEXT',
         content: content,
       );
 
       // Replace optimistic message with real one
       _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
 
+      return sentMessage;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Send file message
+  Future<Message?> sendFileMessage({
+    required int conversationId,
+    required String messageType,
+    required String fileUrl,
+    required String fileName,
+    required int fileSize,
+  }) async {
+    try {
+      final sentMessage = await MessagingApiService.sendMessage(
+        conversationId: conversationId,
+        messageType: messageType,
+        fileUrl: fileUrl,
+        fileName: fileName,
+        fileSize: fileSize,
+      );
+
+      _addMessageToConversation(conversationId, sentMessage);
       return sentMessage;
     } catch (e) {
       _error = e.toString();
@@ -247,10 +287,10 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  /// Mark messages as read
-  Future<void> markAsRead(int conversationId, int messageId) async {
+  /// Mark message as read
+  Future<void> markMessageAsRead(int conversationId, int messageId) async {
     try {
-      await MessagingApiService.markAsRead(
+      await MessagingApiService.markMessageAsRead(
         conversationId: conversationId,
         messageId: messageId,
       );
@@ -299,9 +339,13 @@ class ChatProvider with ChangeNotifier {
   }
 
   /// Create group conversation
-  Future<Conversation?> createGroupConversation(String name, List<int> memberIds) async {
+  Future<Conversation?> createGroupConversation({
+    required String name,
+    required List<int> memberIds,
+  }) async {
     try {
-      final conversation = await MessagingApiService.createGroupConversation(
+      final conversation = await MessagingApiService.createConversation(
+        type: 'GROUP',
         name: name,
         memberIds: memberIds,
       );
@@ -315,6 +359,59 @@ class ChatProvider with ChangeNotifier {
       notifyListeners();
       return null;
     }
+  }
+
+  /// Add members to group
+  Future<bool> addMembersToGroup(int conversationId, List<int> memberIds) async {
+    try {
+      await MessagingApiService.addMembersToGroup(
+        conversationId: conversationId,
+        memberIds: memberIds,
+      );
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Remove member from group
+  Future<bool> removeMemberFromGroup(int conversationId, int memberId) async {
+    try {
+      await MessagingApiService.removeMemberFromGroup(
+        conversationId: conversationId,
+        memberId: memberId,
+      );
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Leave conversation
+  Future<bool> leaveConversationPermanently(int conversationId) async {
+    try {
+      await MessagingApiService.leaveConversation(conversationId);
+      
+      _conversations.removeWhere((c) => c.id == conversationId);
+      _messagesByConversation.remove(conversationId);
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Clear error
+  void clearError() {
+    _error = null;
+    notifyListeners();
   }
 
   // ==================== EVENT HANDLERS ====================
@@ -339,6 +436,19 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  void _handleMessageSeen(MessageSeenEvent event) {
+    // Update message status to seen
+    final messages = _messagesByConversation[event.conversationId];
+    if (messages != null) {
+      for (var i = 0; i < messages.length; i++) {
+        if (messages[i].senderId == _currentUserId && messages[i].id <= event.messageId) {
+          messages[i] = messages[i].copyWith(status: MessageStatus.read);
+        }
+      }
+      notifyListeners();
+    }
+  }
+
   void _handleTypingIndicator(TypingIndicator typing) {
     if (typing.userId == _currentUserId) return; // Ignore own typing
 
@@ -355,8 +465,15 @@ class ChatProvider with ChangeNotifier {
   void _updateUserOnlineStatus(int userId, bool isOnline) {
     for (var i = 0; i < _conversations.length; i++) {
       final conversation = _conversations[i];
-      final memberIndex = conversation.members.indexWhere((m) => m.userId == userId);
       
+      // Update otherUser if DIRECT conversation
+      if (conversation.type == 'DIRECT' && conversation.otherUser?.userId == userId) {
+        final updatedOtherUser = conversation.otherUser!.copyWith(isOnline: isOnline);
+        _conversations[i] = conversation.copyWith(otherUser: updatedOtherUser);
+      }
+      
+      // Update in members list
+      final memberIndex = conversation.members.indexWhere((m) => m.userId == userId);
       if (memberIndex != -1) {
         final updatedMember = conversation.members[memberIndex].copyWith(isOnline: isOnline);
         final updatedMembers = List<ConversationMember>.from(conversation.members);
@@ -368,42 +485,64 @@ class ChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void _handleMessageRead(MessageReadEvent event) {
-    // Update message status to read
-    final messages = _messagesByConversation[event.conversationId];
-    if (messages != null) {
-      for (var i = 0; i < messages.length; i++) {
-        if (messages[i].id <= event.messageId && messages[i].isMine) {
-          messages[i] = messages[i].copyWith(status: MessageStatus.read);
-        }
-      }
+  void _handleMemberAdded(MemberAddedEvent event) {
+    final index = _conversations.indexWhere((c) => c.id == event.conversationId);
+    if (index != -1) {
+      final conversation = _conversations[index];
+      final updatedMembers = [...conversation.members, event.member];
+      _conversations[index] = conversation.copyWith(members: updatedMembers);
       notifyListeners();
     }
   }
 
-  void _handleMessageDeleted(int messageId) {
-    // Remove message from all conversations
-    _messagesByConversation.forEach((conversationId, messages) {
-      messages.removeWhere((m) => m.id == messageId);
-    });
+  void _handleMemberRemoved(MemberRemovedEvent event) {
+    final index = _conversations.indexWhere((c) => c.id == event.conversationId);
+    if (index != -1) {
+      final conversation = _conversations[index];
+      final updatedMembers = conversation.members.where((m) => m.userId != event.memberId).toList();
+      _conversations[index] = conversation.copyWith(members: updatedMembers);
+      notifyListeners();
+    }
+  }
+
+  void _handleConversationUpdated(Conversation conversation) {
+    final index = _conversations.indexWhere((c) => c.id == conversation.id);
+    if (index != -1) {
+      _conversations[index] = conversation;
+    } else {
+      _conversations.insert(0, conversation);
+    }
     notifyListeners();
   }
 
-  void _handleNewConversation(int conversationId) async {
-    // Load the new conversation
-    try {
-      final conversation = await MessagingApiService.getConversationById(conversationId);
-      _conversations.insert(0, conversation);
-      notifyListeners();
-    } catch (e) {
-      print('Error loading new conversation: $e');
-    }
-  }
-
-  void _handleRemovedFromConversation(int conversationId) {
+  void _handleConversationDeleted(int conversationId) {
     _conversations.removeWhere((c) => c.id == conversationId);
     _messagesByConversation.remove(conversationId);
     notifyListeners();
+  }
+
+  void _handleMessageDeleted(MessageDeletedEvent event) {
+    final messages = _messagesByConversation[event.conversationId];
+    if (messages != null) {
+      messages.removeWhere((m) => m.id == event.messageId);
+      notifyListeners();
+    }
+  }
+
+  void _handleNewConversation(Conversation conversation) {
+    // Check if conversation already exists
+    final index = _conversations.indexWhere((c) => c.id == conversation.id);
+    if (index == -1) {
+      // Add new conversation to the top of the list
+      _conversations.insert(0, conversation);
+      notifyListeners();
+      print('ChatProvider: New conversation added - ${conversation.id}');
+    } else {
+      // Update existing conversation
+      _conversations[index] = conversation;
+      notifyListeners();
+      print('ChatProvider: Conversation updated - ${conversation.id}');
+    }
   }
 
   // ==================== HELPER METHODS ====================
@@ -433,14 +572,22 @@ class ChatProvider with ChangeNotifier {
   @override
   void dispose() {
     _messageReceivedSub?.cancel();
+    _messageSeenSub?.cancel();
     _typingIndicatorSub?.cancel();
     _userOnlineSub?.cancel();
-    _userOfflineSub?.cancel();
-    _messageReadSub?.cancel();
+    _memberAddedSub?.cancel();
+    _memberRemovedSub?.cancel();
+    _conversationUpdatedSub?.cancel();
+    _conversationDeletedSub?.cancel();
     _messageDeletedSub?.cancel();
     _newConversationSub?.cancel();
-    _removedFromConversationSub?.cancel();
+    _conversationDeletedSub?.cancel();
+    _messageDeletedSub?.cancel();
+    
+    // Update online status before disconnect
+    _signalR.updateOnlineStatus(false);
     _signalR.disconnect();
+    
     super.dispose();
   }
 }

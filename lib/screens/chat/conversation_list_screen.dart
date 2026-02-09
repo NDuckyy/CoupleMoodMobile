@@ -4,6 +4,9 @@ import 'package:intl/intl.dart';
 import '../../providers/chat/chat_provider.dart';
 import '../../models/chat/conversation.dart';
 import 'chat_screen.dart';
+import 'user_search_screen.dart';
+import 'new_conversation_dialog.dart';
+import 'create_group_screen.dart';
 
 class ConversationListScreen extends StatefulWidget {
   const ConversationListScreen({super.key});
@@ -21,6 +24,33 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     });
   }
 
+  Future<void> _showNewConversationDialog() async {
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => const NewConversationDialog(),
+    );
+
+    if (!mounted) return;
+
+    if (result == 'direct') {
+      // Navigate to user search
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const UserSearchScreen(),
+        ),
+      );
+    } else if (result == 'group') {
+      // Navigate to create group
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CreateGroupScreen(),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,14 +64,17 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement search
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const UserSearchScreen(),
+                ),
+              );
             },
           ),
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              // TODO: Implement new conversation
-            },
+            onPressed: _showNewConversationDialog,
           ),
         ],
       ),
@@ -132,9 +165,15 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                     itemCount: chatProvider.conversations.length,
                     itemBuilder: (context, index) {
                       final conversation = chatProvider.conversations[index];
+                      final currentUserId = chatProvider.currentUserId ?? 0;
+                      
+                      if (currentUserId == 0) {
+                        print('WARNING: currentUserId is 0!');
+                      }
+                      
                       return _ConversationItem(
                         conversation: conversation,
-                        currentUserId: chatProvider.currentUserId ?? 0,
+                        currentUserId: currentUserId,
                         onTap: () {
                           Navigator.push(
                             context,
@@ -171,11 +210,13 @@ class _ConversationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = conversation.getDisplayName(currentUserId);
-    final displayAvatar = conversation.getDisplayAvatar(currentUserId);
-    final isOnline = conversation.getOnlineStatus(currentUserId);
+    final displayName = conversation.getDisplayName();
+    final displayAvatar = conversation.getDisplayAvatar();
+    final isOnline = conversation.getOnlineStatus();
     final lastMessage = conversation.lastMessage;
     final unreadCount = conversation.unreadCount;
+
+    print('ConversationItem - conversationId: ${conversation.id}, currentUserId: $currentUserId, displayName: $displayName');
 
     return InkWell(
       onTap: onTap,
@@ -196,6 +237,11 @@ class _ConversationItem extends StatelessWidget {
                   backgroundColor: Colors.grey[300],
                   backgroundImage: displayAvatar != null
                       ? NetworkImage(displayAvatar)
+                      : null,
+                  onBackgroundImageError: displayAvatar != null
+                      ? (exception, stackTrace) {
+                          print('Error loading avatar: $exception');
+                        }
                       : null,
                   child: displayAvatar == null
                       ? conversation.type == 'GROUP'

@@ -1,13 +1,15 @@
+import 'message.dart';
+
 class TypingIndicator {
   final int conversationId;
   final int userId;
-  final String username;
+  final String userName;
   final bool isTyping;
 
   TypingIndicator({
     required this.conversationId,
     required this.userId,
-    required this.username,
+    required this.userName,
     required this.isTyping,
   });
 
@@ -15,7 +17,7 @@ class TypingIndicator {
     return TypingIndicator(
       conversationId: json['conversationId'] as int,
       userId: json['userId'] as int,
-      username: json['username'] as String,
+      userName: json['userName'] as String,
       isTyping: json['isTyping'] as bool,
     );
   }
@@ -44,7 +46,7 @@ class OnlineStatus {
 }
 
 class MessagesPage {
-  final List<Map<String, dynamic>> messages;
+  final List<Message> messages;
   final int pageNumber;
   final int pageSize;
   final int totalPages;
@@ -61,7 +63,7 @@ class MessagesPage {
   factory MessagesPage.fromJson(Map<String, dynamic> json) {
     return MessagesPage(
       messages: (json['messages'] as List<dynamic>)
-          .map((m) => m as Map<String, dynamic>)
+          .map((m) => Message.fromJson(m as Map<String, dynamic>))
           .toList(),
       pageNumber: json['pageNumber'] as int,
       pageSize: json['pageSize'] as int,
