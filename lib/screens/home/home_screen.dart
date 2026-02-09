@@ -51,6 +51,12 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               child: Text('Invite Screen'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                context.goNamed('collection');
+              },
+              child: const Text('My Collections screen'),
+            ),
 
             ElevatedButton(
               onPressed: () {

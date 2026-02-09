@@ -1,6 +1,8 @@
+import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -186,11 +188,16 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/collection',
                 name: 'collection',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Collection')),
+                pageBuilder: (_, __) => NoTransitionPage(
+                  child: ChangeNotifierProvider(
+                    create: (_) => CollectionProvider(),
+                    child: const CollectionListScreen(),
+                  ),
+                ),
               ),
             ],
           ),
+
           StatefulShellBranch(
             navigatorKey: _profileTabNavKey,
             routes: [

@@ -38,7 +38,7 @@ class PaginationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (totalPages <= 1) return const SizedBox();
+    // if (totalPages <= 1) return const SizedBox();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
