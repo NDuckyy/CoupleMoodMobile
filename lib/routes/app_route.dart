@@ -291,12 +291,10 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/venue-detail',
         name: 'venue_detail',
-        pageBuilder: (_, __) => NoTransitionPage(
-          child: ChangeNotifierProvider(
-            create: (_) => VenueDetailProvider(),
-            child: VenueDetailScreen(venueId: 3),
-          ),
-        ),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return VenueDetailScreen(venueId: extra['venueId']);
+        },
       ),
       GoRoute(
         parentNavigatorKey: _rootNavKey,
@@ -334,7 +332,10 @@ GoRouter createRouter(BuildContext context) {
         name: 'date_plan_item_edit',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return EditDatePlanItemScreen(datePlanItemId: extra['datePlanItemId'], datePlanId: extra['datePlanId']);
+          return EditDatePlanItemScreen(
+            datePlanItemId: extra['datePlanItemId'],
+            datePlanId: extra['datePlanId'],
+          );
         },
       ),
     ],

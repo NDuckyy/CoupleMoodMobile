@@ -189,7 +189,7 @@ class VenueCard extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          context.pushNamed("venue_detail", extra: r);
+                          context.pushNamed("venue_detail", extra: {"venueId": r.venueLocationId});
                         },
                         child: const Text(
                           'Chi tiết',
