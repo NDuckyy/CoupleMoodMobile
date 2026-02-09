@@ -559,19 +559,7 @@ packages:
       sha256: "805fa86df56383000f640384b282ce0cb8431f1a7a2396de92fb66186d8c57df"
       url: "https://pub.dev"
     source: hosted
-<<<<<<< HEAD
     version: "4.10.0"
-  kdbush:
-    dependency: transitive
-    description:
-      name: kdbush
-      sha256: "7dcc5376b1e579804f48428c309d0c9dd0c4c98a9f68db18e17ca1a04561e652"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.0"
-=======
-    version: "4.9.0"
->>>>>>> 3349d6818621080ad8da3cb9b250d335dfac7568
   leak_tracker:
     dependency: transitive
     description:
@@ -648,10 +636,10 @@ packages:
     dependency: transitive
     description:
       name: meta
-      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
       url: "https://pub.dev"
     source: hosted
-    version: "1.17.0"
+    version: "1.16.0"
   mime:
     dependency: transitive
     description:
@@ -981,10 +969,10 @@ packages:
     dependency: transitive
     description:
       name: test_api
-      sha256: ab2726c1a94d3176a45960b6234466ec367179b87dd74f1611adb1f3b5fb9d55
+      sha256: "522f00f556e73044315fa4585ec3270f1808a4b186c936e612cab0b565ff1e00"
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.7"
+    version: "0.7.6"
   tuple:
     dependency: transitive
     description:

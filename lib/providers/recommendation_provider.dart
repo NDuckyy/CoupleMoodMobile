@@ -5,6 +5,8 @@ import 'package:couple_mood_mobile/services/recommendation_service.dart';
 import 'package:flutter/material.dart';
 
 class RecommendationProvider extends ChangeNotifier {
+  double? latitude;
+  double? longitude;
   ApiResponse<RecommendationResponse>? _recommendationResponse;
   bool isLoading = false;
   String? error;
