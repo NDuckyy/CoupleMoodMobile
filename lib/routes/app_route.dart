@@ -1,10 +1,12 @@
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlan/create_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/edit_date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/updateDatePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
@@ -324,6 +326,20 @@ GoRouter createRouter(BuildContext context) {
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return UpdateDatePlanScreen(datePlanId: extra['datePlanId']);
+        },
+      ),
+      GoRoute(
+        path: '/date-plan-item/create',
+        name: 'date_plan_item_create',
+        pageBuilder: (_, __) {
+          return NoTransitionPage(child: CreateDatePlanItemScreen());
+        },
+      ),
+      GoRoute(
+        path: '/choose-location',
+        name: 'choose_location',
+        pageBuilder: (_, __) {
+          return const NoTransitionPage(child: ChooseLocationScreen());
         },
       ),
       GoRoute(

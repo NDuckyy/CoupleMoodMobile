@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
-import 'package:couple_mood_mobile/widgets/status_dot.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_confirm_delete_dialog.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/status_dot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -79,7 +80,10 @@ class DatePlanCard extends StatelessWidget {
                   size: 20,
                 ),
                 constraints: const BoxConstraints(),
-                onPressed: () => _showDeleteConfirm(context),
+                onPressed: () => showConfirmDeleteDialog(
+                  context: context,
+                  onConfirm: onDelete,
+                ),
               ),
             ],
           ),
@@ -112,7 +116,18 @@ class DatePlanCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 8),
 
+          Row(
+            children: [
+              const Icon(Icons.notes, size: 14),
+              const SizedBox(width: 6),
+              Text(
+                item.note ?? 'Chưa có ghi chú',
+                style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
 
           SizedBox(
@@ -151,28 +166,6 @@ class DatePlanCard extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirm(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Xóa kế hoạch hẹn hò?'),
-        content: const Text(
-          'Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?',
-        ),
-        actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              context.pop();
-              onDelete();
-            },
-            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
