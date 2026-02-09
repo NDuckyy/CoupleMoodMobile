@@ -28,11 +28,7 @@ class VenueCard extends StatelessWidget {
           /// IMAGE
           Stack(
             children: [
-              VenueImage(
-                imageUrl: r.coverImage != null && r.coverImage!.isNotEmpty
-                    ? r.coverImage!.first
-                    : null,
-              ),
+              VenueImage(imageUrl: r.thumbnailImage),
               if (r.isOpen == true)
                 Positioned(
                   top: 12,
@@ -66,7 +62,7 @@ class VenueCard extends StatelessWidget {
               children: [
                 /// NAME
                 Text(
-                  r.name,
+                  r.displayName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -89,10 +85,10 @@ class VenueCard extends StatelessWidget {
                       bgColor: const Color(0xFFFFF1F8),
                       textColor: const Color(0xFFB388EB),
                     ),
-                    if (r.distanceText != null)
+                    if (r.displayDistance.isNotEmpty)
                       InfoChip(
                         icon: Icons.place,
-                        text: r.distanceText!,
+                        text: r.displayDistance,
                         bgColor: const Color(0xFFEFF2FF),
                         textColor: const Color(0xFF8093F1),
                       ),
@@ -113,7 +109,7 @@ class VenueCard extends StatelessWidget {
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        r.address,
+                        r.displayAddress,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.black87),
@@ -157,7 +153,7 @@ class VenueCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '≈ ${r.avarageCost?.toInt() ?? 0}đ',
+                      '≈ ${r.averageCost?.toInt() ?? 0}đ',
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF3B2E5A),

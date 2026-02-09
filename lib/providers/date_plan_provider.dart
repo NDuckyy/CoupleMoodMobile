@@ -9,7 +9,7 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<DatePlanPageResult>? datePlans;
   ApiResponse<DatePlanItemResponse>? datePlanItems;
   ApiResponse<DatePlanDetails>? selectedDatePlan;
-  bool isLoading = false;
+  bool isLoading = true;
   String? error;
 
   int pageNumber = 1;
@@ -17,8 +17,6 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> fetchDatePlans({int? page}) async {
     error = null;
-    if (isLoading) return;
-    isLoading = true;
     notifyListeners();
     try {
       pageNumber = page ?? pageNumber;
@@ -70,12 +68,10 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> fetchDatePlanItems(int datePlanId) async {
     error = null;
-    if (isLoading) return;
     isLoading = true;
     notifyListeners();
     try {
       datePlanItems = await DatePlanService.getDatePlanItems(datePlanId);
-      debugPrint('Fetched date plan items: $datePlanItems');
       if (datePlanItems?.code != 200) {
         error =
             datePlanItems?.message ??

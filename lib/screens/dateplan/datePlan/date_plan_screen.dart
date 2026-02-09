@@ -46,15 +46,15 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await context.read<DatePlanProvider>().fetchDatePlans(
-              page: provider.pageNumber,
-            );
-          },
-          child: provider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : CustomScrollView(
+        child: provider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<DatePlanProvider>().fetchDatePlans(
+                    page: provider.pageNumber,
+                  );
+                },
+                child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     const SliverToBoxAdapter(
@@ -77,12 +77,10 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                     const SliverToBoxAdapter(child: SizedBox(height: 24)),
                     if (provider.error != null) ...{
                       SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            provider.error!,
-                            style: const TextStyle(color: Colors.red),
-                          ),
+                        child: EmptyStateWidget(
+                          icon: Icons.warning_amber_outlined,
+                          title: 'Lỗi',
+                          description: provider.error!,
                         ),
                       ),
                     } else if (items.isNotEmpty) ...{
@@ -116,7 +114,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                     },
                   ],
                 ),
-        ),
+              ),
       ),
     );
   }

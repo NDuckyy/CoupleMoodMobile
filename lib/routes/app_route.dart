@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/providers/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
@@ -159,7 +160,8 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/chat',
                 name: 'chat',
-                pageBuilder: (_, __) => const NoTransitionPage(child: ConversationListScreen()),
+                pageBuilder: (_, __) =>
+                    const NoTransitionPage(child: ConversationListScreen()),
               ),
             ],
           ),
@@ -314,17 +316,25 @@ GoRouter createRouter(BuildContext context) {
             const NoTransitionPage(child: CreateDatePlanScreen()),
       ),
       GoRoute(
-        path: '/date-plan-item',
+        path: '/date-plan/date-plan-item',
         name: 'date_plan_item',
         pageBuilder: (_, __) =>
             const NoTransitionPage(child: DatePlanItemScreen()),
       ),
       GoRoute(
-        name: 'date_plan_edit',
         path: '/date-plan/edit',
+        name: 'date_plan_edit',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return UpdateDatePlanScreen(datePlanId: extra['datePlanId']);
+        },
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item/edit',
+        name: 'date_plan_item_edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditDatePlanItemScreen(datePlanItemId: extra['datePlanItemId'], datePlanId: extra['datePlanId']);
         },
       ),
     ],

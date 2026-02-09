@@ -58,7 +58,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                     )
                   : ListView.builder(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(24),
                       itemCount: items.length,
                       itemBuilder: (context, index) {
                         return DatePlanItemCard(item: items[index]);
