@@ -8,6 +8,7 @@ import '../../models/chat/message.dart';
 import '../../widgets/chat/message_bubble.dart';
 import '../../widgets/chat/typing_indicator.dart';
 import '../../widgets/chat/message_input.dart';
+import 'conversation_details_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final Conversation conversation;
@@ -146,82 +147,109 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final currentUserId = chatProvider.currentUserId ?? 0;
-    final displayName = widget.conversation.getDisplayName(currentUserId);
-    final isOnline = widget.conversation.getOnlineStatus(currentUserId);
+    final displayName = widget.conversation.getDisplayName();
+    final isOnline = widget.conversation.getOnlineStatus();
     final messages = chatProvider.getMessages(widget.conversation.id);
     final isLoading = chatProvider.isLoadingMessages(widget.conversation.id);
     final typingUsers = chatProvider.getTypingUsers(widget.conversation.id);
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: [
-            // Avatar
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.grey[300],
-              backgroundImage: widget.conversation.getDisplayAvatar(currentUserId) != null
-                  ? NetworkImage(widget.conversation.getDisplayAvatar(currentUserId)!)
-                  : null,
-              child: widget.conversation.getDisplayAvatar(currentUserId) == null
-                  ? widget.conversation.type == 'GROUP'
-                      ? const Icon(Icons.group, size: 20)
-                      : Text(
-                          displayName[0].toUpperCase(),
-                          style: const TextStyle(fontSize: 16),
-                        )
-                  : null,
-            ),
-            const SizedBox(width: 12),
-            
-            // Name and status
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    displayName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (widget.conversation.type == 'DIRECT')
-                    Text(
-                      isOnline ? 'Online' : 'Offline',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isOnline ? Colors.green : Colors.grey,
-                      ),
-                    )
-                  else
-                    Text(
-                      '${widget.conversation.members.length} members',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
+        title: InkWell(
+          onTap: widget.conversation.type == 'GROUP'
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ConversationDetailsScreen(
+                        conversation: widget.conversation,
                       ),
                     ),
-                ],
+                  );
+                }
+              : null,
+          child: Row(
+            children: [
+              // Avatar
+              CircleAvatar(
+                radius: 18,
+                backgroundColor: Colors.grey[300],
+                backgroundImage: widget.conversation.getDisplayAvatar() != null
+                    ? NetworkImage(widget.conversation.getDisplayAvatar()!)
+                    : null,
+                onBackgroundImageError: widget.conversation.getDisplayAvatar() != null
+                    ? (exception, stackTrace) {
+                        print('Error loading avatar in chat screen: $exception');
+                      }
+                    : null,
+                child: widget.conversation.getDisplayAvatar() == null
+                    ? widget.conversation.type == 'GROUP'
+                        ? const Icon(Icons.group, size: 20)
+                        : Text(
+                            displayName[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 16),
+                          )
+                    : null,
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              
+              // Name and status
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (widget.conversation.type == 'DIRECT')
+                      Text(
+                        isOnline ? 'Online' : 'Offline',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isOnline ? Colors.green : Colors.grey,
+                        ),
+                      )
+                    else
+                      Text(
+                        '${widget.conversation.members.length} members',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              // TODO: Implement search
+              // TODO: Implement message search
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              // TODO: Show menu
-            },
-          ),
+          if (widget.conversation.type == 'GROUP')
+            IconButton(
+              icon: const Icon(Icons.info_outline),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ConversationDetailsScreen(
+                      conversation: widget.conversation,
+                    ),
+                  ),
+                );
+              },
+            ),
         ],
       ),
       body: Column(

@@ -5,9 +5,12 @@ class Message {
   final String senderName;
   final String? senderAvatar;
   final String content;
-  final String messageType; // "TEXT" | "IMAGE" | "FILE" | "DATE_PLAN" | "LOCATION" | "EVENT" | "POLL" | "VOICE"
+  final String messageType; // "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE"
   final int? referenceId;
   final String? referenceType;
+  final String? fileUrl;
+  final String? fileName;
+  final int? fileSize;
   final String? metadata;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -27,6 +30,9 @@ class Message {
     required this.messageType,
     this.referenceId,
     this.referenceType,
+    this.fileUrl,
+    this.fileName,
+    this.fileSize,
     this.metadata,
     required this.createdAt,
     this.updatedAt,
@@ -42,16 +48,17 @@ class Message {
       senderId: json['senderId'] as int,
       senderName: json['senderName'] as String,
       senderAvatar: json['senderAvatar'] as String?,
-      content: json['content'] as String,
+      content: json['content'] as String? ?? '',
       messageType: json['messageType'] as String,
       referenceId: json['referenceId'] as int?,
       referenceType: json['referenceType'] as String?,
+      fileUrl: json['fileUrl'] as String?,
+      fileName: json['fileName'] as String?,
+      fileSize: json['fileSize'] as int?,
       metadata: json['metadata'] as String?,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] != null 
-          ? DateTime.parse(json['updatedAt'] as String) 
-          : null,
-      isMine: json['isMine'] as bool,
+      updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
+      isMine: json['isMine'] as bool? ?? false,
     );
   }
 
@@ -66,6 +73,9 @@ class Message {
       'messageType': messageType,
       'referenceId': referenceId,
       'referenceType': referenceType,
+      'fileUrl': fileUrl,
+      'fileName': fileName,
+      'fileSize': fileSize,
       'metadata': metadata,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
@@ -83,6 +93,9 @@ class Message {
     String? messageType,
     int? referenceId,
     String? referenceType,
+    String? fileUrl,
+    String? fileName,
+    int? fileSize,
     String? metadata,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -100,6 +113,9 @@ class Message {
       messageType: messageType ?? this.messageType,
       referenceId: referenceId ?? this.referenceId,
       referenceType: referenceType ?? this.referenceType,
+      fileUrl: fileUrl ?? this.fileUrl,
+      fileName: fileName ?? this.fileName,
+      fileSize: fileSize ?? this.fileSize,
       metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,

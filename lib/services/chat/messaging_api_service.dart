@@ -2,187 +2,299 @@ import '../../services/api_client.dart';
 import '../../models/chat/conversation.dart';
 import '../../models/chat/message.dart';
 import '../../models/chat/chat_models.dart';
+import '../../models/chat/user_search_result.dart';
 
 class MessagingApiService {
+  // ==================== USER SEARCH ====================
+  
+  /// Search users for creating conversations
+  static Future<UserSearchResponse> searchUsers({
+    required String query,
+    int page = 1,
+    int pageSize = 20,
+  }) async {
+    try {
+      final response = await ApiClient.request(
+        '/couple-invitations/search',
+        method: HttpMethod.get,
+        query: {
+          'query': query,
+          'page': page.toString(),
+          'pageSize': pageSize.toString(),
+        },
+      );
+      return UserSearchResponse.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to search users: ${e.toString()}');
+    }
+  }
+
   // ==================== CONVERSATIONS ====================
   
-  /// Create a new group conversation
-  static Future<Conversation> createGroupConversation({
-    required String name,
+  /// Get all conversations for the current user
+  /// GET /api/messaging/conversations
+  static Future<List<Conversation>> getAllConversations() async {
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations',
+        method: HttpMethod.get,
+      );
+      
+      if (response is List<dynamic>) {
+        return response
+            .map((c) => Conversation.fromJson(c as Map<String, dynamic>))
+            .toList();
+      }
+      
+      return [];
+    } catch (e) {
+      throw Exception('Failed to get conversations: ${e.toString()}');
+    }
+  }
+
+  /// Create a new conversation (DIRECT or GROUP)
+  /// POST /api/messaging/conversations
+  static Future<Conversation> createConversation({
+    required String type, // "DIRECT" | "GROUP"
+    String? name,
     required List<int> memberIds,
   }) async {
-    final response = await ApiClient.request(
-      '/messaging/conversations',
-      method: HttpMethod.post,
-      data: {
-        'type': 'GROUP',
-        'name': name,
-        'memberIds': memberIds,
-      },
-    );
-    return Conversation.fromJson(response as Map<String, dynamic>);
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations',
+        method: HttpMethod.post,
+        data: {
+          'type': type,
+          'name': name,
+          'memberIds': memberIds,
+        },
+      );
+      return Conversation.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to create conversation: ${e.toString()}');
+    }
   }
 
-  /// Get or create a direct conversation with another user
+  /// Get or create direct conversation with another user
+  /// POST /api/messaging/conversations/direct/{otherUserId}
   static Future<Conversation> getOrCreateDirectConversation(int otherUserId) async {
-    final response = await ApiClient.request(
-      '/messaging/conversations/direct/$otherUserId',
-      method: HttpMethod.post,
-    );
-    return Conversation.fromJson(response as Map<String, dynamic>);
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations/direct/$otherUserId',
+        method: HttpMethod.post,
+      );
+      return Conversation.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to get/create direct conversation: ${e.toString()}');
+    }
   }
 
-  /// Get all conversations for the current user
-  static Future<List<Conversation>> getAllConversations() async {
-    final response = await ApiClient.request(
-      '/messaging/conversations',
-      method: HttpMethod.get,
-    );
-    return (response as List<dynamic>)
-        .map((c) => Conversation.fromJson(c as Map<String, dynamic>))
-        .toList();
-  }
-
-  /// Get a specific conversation by ID
+  /// Get conversation by ID
+  /// GET /api/messaging/conversations/{conversationId}
   static Future<Conversation> getConversationById(int conversationId) async {
-    final response = await ApiClient.request(
-      '/messaging/conversations/$conversationId',
-      method: HttpMethod.get,
-    );
-    return Conversation.fromJson(response as Map<String, dynamic>);
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations/$conversationId',
+        method: HttpMethod.get,
+      );
+      return Conversation.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to get conversation: ${e.toString()}');
+    }
   }
 
-  /// Add members to a group conversation (ADMIN only)
+  /// Add members to group conversation
+  /// POST /api/messaging/conversations/{conversationId}/members
   static Future<void> addMembersToGroup({
     required int conversationId,
     required List<int> memberIds,
   }) async {
-    await ApiClient.request(
-      '/messaging/conversations/$conversationId/members',
-      method: HttpMethod.post,
-      data: {
-        'conversationId': conversationId,
-        'memberIds': memberIds,
-      },
-    );
+    try {
+      await ApiClient.request(
+        '/messaging/conversations/$conversationId/members',
+        method: HttpMethod.post,
+        data: {'memberIds': memberIds},
+      );
+    } catch (e) {
+      throw Exception('Failed to add members: ${e.toString()}');
+    }
   }
 
-  /// Remove a member from a group conversation (ADMIN only)
+  /// Remove member from group
+  /// DELETE /api/messaging/conversations/{conversationId}/members/{memberId}
   static Future<void> removeMemberFromGroup({
     required int conversationId,
-    required int userId,
+    required int memberId,
   }) async {
-    await ApiClient.request(
-      '/messaging/conversations/$conversationId/members/$userId',
-      method: HttpMethod.delete,
-    );
+    try {
+      await ApiClient.request(
+        '/messaging/conversations/$conversationId/members/$memberId',
+        method: HttpMethod.delete,
+      );
+    } catch (e) {
+      throw Exception('Failed to remove member: ${e.toString()}');
+    }
   }
 
-  /// Leave a group conversation
-  static Future<void> leaveGroup(int conversationId) async {
-    await ApiClient.request(
-      '/messaging/conversations/$conversationId/leave',
-      method: HttpMethod.post,
-    );
+  /// Leave conversation
+  /// POST /api/messaging/conversations/{conversationId}/leave
+  static Future<void> leaveConversation(int conversationId) async {
+    try {
+      await ApiClient.request(
+        '/messaging/conversations/$conversationId/leave',
+        method: HttpMethod.post,
+      );
+    } catch (e) {
+      throw Exception('Failed to leave conversation: ${e.toString()}');
+    }
   }
 
   // ==================== MESSAGES ====================
 
-  /// Send a text message
-  static Future<Message> sendTextMessage({
+  /// Send a message (text or file)
+  /// POST /api/messaging/messages
+  static Future<Message> sendMessage({
     required int conversationId,
-    required String content,
-  }) async {
-    final response = await ApiClient.request(
-      '/messaging/messages',
-      method: HttpMethod.post,
-      data: {
-        'conversationId': conversationId,
-        'content': content,
-        'messageType': 'TEXT',
-      },
-    );
-    return Message.fromJson(response as Map<String, dynamic>);
-  }
-
-  /// Send a rich message (Date Plan, Location, etc.)
-  static Future<Message> sendRichMessage({
-    required int conversationId,
-    required String content,
-    required String messageType,
-    int? referenceId,
-    String? referenceType,
+    required String messageType, // "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE"
+    String? content,
+    String? fileUrl,
+    String? fileName,
+    int? fileSize,
     String? metadata,
   }) async {
-    final response = await ApiClient.request(
-      '/messaging/messages',
-      method: HttpMethod.post,
-      data: {
+    try {
+      final data = <String, dynamic>{
         'conversationId': conversationId,
-        'content': content,
         'messageType': messageType,
-        if (referenceId != null) 'referenceId': referenceId,
-        if (referenceType != null) 'referenceType': referenceType,
-        if (metadata != null) 'metadata': metadata,
-      },
-    );
-    return Message.fromJson(response as Map<String, dynamic>);
+      };
+      
+      if (messageType == 'TEXT') {
+        if (content == null || content.isEmpty) {
+          throw Exception('Content is required for TEXT messages');
+        }
+        data['content'] = content;
+      } else {
+        // File types
+        if (fileUrl == null || fileUrl.isEmpty) {
+          throw Exception('fileUrl is required for file messages');
+        }
+        data['fileUrl'] = fileUrl;
+        data['fileName'] = fileName;
+        data['fileSize'] = fileSize;
+        data['content'] = content ?? fileName ?? '';
+      }
+      
+      if (metadata != null) {
+        data['metadata'] = metadata;
+      }
+      
+      final response = await ApiClient.request(
+        '/messaging/messages',
+        method: HttpMethod.post,
+        data: data,
+      );
+      return Message.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to send message: ${e.toString()}');
+    }
+  }
+
+  /// Upload attachment
+  /// POST /api/messaging/upload-attachment
+  static Future<Map<String, dynamic>> uploadAttachment(dynamic file) async {
+    try {
+      final response = await ApiClient.request(
+        '/messaging/upload-attachment',
+        method: HttpMethod.post,
+        data: file, // multipart/form-data
+      );
+      
+      // Returns: {fileUrl, fileName, fileSize, messageType}
+      return response as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('Failed to upload attachment: ${e.toString()}');
+    }
   }
 
   /// Get messages with pagination
+  /// GET /api/messaging/conversations/{conversationId}/messages
   static Future<MessagesPage> getMessages({
     required int conversationId,
     int pageNumber = 1,
     int pageSize = 50,
   }) async {
-    final response = await ApiClient.request(
-      '/messaging/conversations/$conversationId/messages',
-      method: HttpMethod.get,
-      query: {
-        'pageNumber': pageNumber,
-        'pageSize': pageSize,
-      },
-    );
-    return MessagesPage.fromJson(response as Map<String, dynamic>);
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations/$conversationId/messages',
+        method: HttpMethod.get,
+        query: {
+          'pageNumber': pageNumber.toString(),
+          'pageSize': pageSize.toString(),
+        },
+      );
+      return MessagesPage.fromJson(response as Map<String, dynamic>);
+    } catch (e) {
+      throw Exception('Failed to get messages: ${e.toString()}');
+    }
   }
 
-  /// Mark messages as read
-  static Future<void> markAsRead({
+  /// Mark message as read
+  /// POST /api/messaging/messages/read
+  static Future<void> markMessageAsRead({
     required int conversationId,
     required int messageId,
   }) async {
-    await ApiClient.request(
-      '/messaging/messages/read',
-      method: HttpMethod.post,
-      data: {
-        'conversationId': conversationId,
-        'messageId': messageId,
-      },
-    );
+    try {
+      await ApiClient.request(
+        '/messaging/messages/read',
+        method: HttpMethod.post,
+        data: {
+          'conversationId': conversationId,
+          'messageId': messageId,
+        },
+      );
+    } catch (e) {
+      throw Exception('Failed to mark as read: ${e.toString()}');
+    }
   }
 
   /// Delete a message
+  /// DELETE /api/messaging/messages/{messageId}
   static Future<void> deleteMessage(int messageId) async {
-    await ApiClient.request(
-      '/messaging/messages/$messageId',
-      method: HttpMethod.delete,
-    );
+    try {
+      await ApiClient.request(
+        '/messaging/messages/$messageId',
+        method: HttpMethod.delete,
+      );
+    } catch (e) {
+      throw Exception('Failed to delete message: ${e.toString()}');
+    }
   }
 
-  /// Search messages in a conversation
+  /// Search messages in conversation
+  /// GET /api/messaging/conversations/{conversationId}/messages/search
   static Future<List<Message>> searchMessages({
     required int conversationId,
     required String searchTerm,
   }) async {
-    final response = await ApiClient.request(
-      '/messaging/conversations/$conversationId/messages/search',
-      method: HttpMethod.get,
-      query: {
-        'searchTerm': searchTerm,
-      },
-    );
-    return (response as List<dynamic>)
-        .map((m) => Message.fromJson(m as Map<String, dynamic>))
-        .toList();
+    try {
+      final response = await ApiClient.request(
+        '/messaging/conversations/$conversationId/messages/search',
+        method: HttpMethod.get,
+        query: {
+          'searchTerm': searchTerm,
+        },
+      );
+      
+      if (response is List<dynamic>) {
+        return response
+            .map((m) => Message.fromJson(m as Map<String, dynamic>))
+            .toList();
+      }
+      
+      return [];
+    } catch (e) {
+      throw Exception('Failed to search messages: ${e.toString()}');
+    }
   }
 }

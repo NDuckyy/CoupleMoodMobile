@@ -7,6 +7,7 @@ class Conversation {
   final String? name;
   final int createdBy;
   final DateTime createdAt;
+  final ConversationMember? otherUser; // Only for DIRECT conversations
   final List<ConversationMember> members;
   final Message? lastMessage;
   final int unreadCount;
@@ -17,6 +18,7 @@ class Conversation {
     this.name,
     required this.createdBy,
     required this.createdAt,
+    this.otherUser,
     required this.members,
     this.lastMessage,
     required this.unreadCount,
@@ -29,9 +31,12 @@ class Conversation {
       name: json['name'] as String?,
       createdBy: json['createdBy'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
-      members: (json['members'] as List<dynamic>)
-          .map((m) => ConversationMember.fromJson(m as Map<String, dynamic>))
-          .toList(),
+      otherUser: json['otherUser'] != null
+          ? ConversationMember.fromJson(json['otherUser'] as Map<String, dynamic>)
+          : null,
+      members: (json['members'] as List<dynamic>?)
+          ?.map((m) => ConversationMember.fromJson(m as Map<String, dynamic>))
+          .toList() ?? [],
       lastMessage: json['lastMessage'] != null
           ? Message.fromJson(json['lastMessage'] as Map<String, dynamic>)
           : null,
@@ -46,6 +51,7 @@ class Conversation {
       'name': name,
       'createdBy': createdBy,
       'createdAt': createdAt.toIso8601String(),
+      'otherUser': otherUser?.toJson(),
       'members': members.map((m) => m.toJson()).toList(),
       'lastMessage': lastMessage?.toJson(),
       'unreadCount': unreadCount,
@@ -58,6 +64,7 @@ class Conversation {
     String? name,
     int? createdBy,
     DateTime? createdAt,
+    ConversationMember? otherUser,
     List<ConversationMember>? members,
     Message? lastMessage,
     int? unreadCount,
@@ -68,6 +75,7 @@ class Conversation {
       name: name ?? this.name,
       createdBy: createdBy ?? this.createdBy,
       createdAt: createdAt ?? this.createdAt,
+      otherUser: otherUser ?? this.otherUser,
       members: members ?? this.members,
       lastMessage: lastMessage ?? this.lastMessage,
       unreadCount: unreadCount ?? this.unreadCount,
@@ -75,39 +83,25 @@ class Conversation {
   }
 
   // Helper methods
-  String getDisplayName(int currentUserId) {
-    if (type == 'GROUP') {
-      return name ?? 'Group Chat';
+  String getDisplayName() {
+    if (type == 'DIRECT' && otherUser != null) {
+      return otherUser!.fullName ?? otherUser!.username ?? 'User ${otherUser!.userId}';
     }
-    // For DIRECT, return the other user's name
-    final otherMember = members.firstWhere(
-      (m) => m.userId != currentUserId,
-      orElse: () => members.first,
-    );
-    return otherMember.fullName;
+    return name ?? 'Group Chat';
   }
 
-  String? getDisplayAvatar(int currentUserId) {
-    if (type == 'GROUP') {
-      return null; // Will show group icon
+  String? getDisplayAvatar() {
+    if (type == 'DIRECT' && otherUser != null) {
+      return otherUser!.avatar;
     }
-    // For DIRECT, return the other user's avatar
-    final otherMember = members.firstWhere(
-      (m) => m.userId != currentUserId,
-      orElse: () => members.first,
-    );
-    return otherMember.avatar;
+    return null; // Will show group icon
   }
 
-  bool getOnlineStatus(int currentUserId) {
-    if (type == 'GROUP') {
-      return members.any((m) => m.userId != currentUserId && m.isOnline);
+  bool getOnlineStatus() {
+    if (type == 'DIRECT' && otherUser != null) {
+      return otherUser!.isOnline;
     }
-    // For DIRECT, return the other user's online status
-    final otherMember = members.firstWhere(
-      (m) => m.userId != currentUserId,
-      orElse: () => members.first,
-    );
-    return otherMember.isOnline;
+    // For GROUP, check if any member is online
+    return members.any((m) => m.isOnline);
   }
 }
