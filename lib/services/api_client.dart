@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../utils/session_storage.dart';
 
-enum HttpMethod { get, post, put, delete }
+enum HttpMethod { get, post, put, delete, patch }
 
 class ApiClient {
   static final Dio _dio = Dio(
@@ -9,7 +9,7 @@ class ApiClient {
       baseUrl: 'https://couplemood.ooguy.com/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-    ),
+    ),  
   );
 
   static bool _inited = false;

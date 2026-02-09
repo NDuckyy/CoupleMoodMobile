@@ -1,7 +1,6 @@
 import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
-
 import 'api_client.dart';
 
 class AuthService {
@@ -24,9 +23,9 @@ class AuthService {
     final session = Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      cometChatUid: data['cometChatUid']?.toString(),
-      cometChatAuthToken: data['cometChatAuthToken']?.toString(),
+      userId: data['userId'] as int?,
       gender: data['gender']?.toString(),
+      avartarUrl: data['avartarUrl']?.toString() ?? data['imageUrl']?.toString(),
     );
     await SessionStorage.save(session);
 

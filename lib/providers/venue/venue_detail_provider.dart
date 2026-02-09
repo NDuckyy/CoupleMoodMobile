@@ -20,7 +20,7 @@ class VenueDetailProvider extends ChangeNotifier {
 
     try {
       // TODO remove hardcode
-      venueResponse = await VenueService.getVenueDetail(1);
+      venueResponse = await VenueService.getVenueDetail(id);
 
       if (venueResponse!.code != 200 || venueResponse!.data == null) {
         error = venueResponse!.message;

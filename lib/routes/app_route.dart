@@ -1,8 +1,15 @@
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/edit_date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -11,6 +18,7 @@ import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -124,6 +132,7 @@ GoRouter createRouter(BuildContext context) {
                   ),
                 ),
               ),
+
               GoRoute(
                 path: '/test',
                 name: 'test',
@@ -156,7 +165,7 @@ GoRouter createRouter(BuildContext context) {
                 path: '/chat',
                 name: 'chat',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Chat')),
+                    const NoTransitionPage(child: ConversationListScreen()),
               ),
             ],
           ),
@@ -186,12 +195,14 @@ GoRouter createRouter(BuildContext context) {
             navigatorKey: _collectionTabNavKey,
             routes: [
               GoRoute(
-                path: '/collection',
-                name: 'collection',
+                path: '/date-plan',
+                name: 'datePlan',
                 pageBuilder: (_, __) => NoTransitionPage(
-                  child: ChangeNotifierProvider(
-                    create: (_) => CollectionProvider(),
-                    child: const CollectionListScreen(),
+                  child: MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(create: (_) => DatePlanProvider()),
+                    ],
+                    child: const DatePlanScreen(),
                   ),
                 ),
               ),
@@ -285,12 +296,10 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/venue-detail',
         name: 'venue_detail',
-        pageBuilder: (_, __) => NoTransitionPage(
-          child: ChangeNotifierProvider(
-            create: (_) => VenueDetailProvider(),
-            child: VenueDetailScreen(venueId: 3),
-          ),
-        ),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return VenueDetailScreen(venueId: extra['venueId']);
+        },
       ),
       GoRoute(
         parentNavigatorKey: _rootNavKey,
@@ -302,6 +311,72 @@ GoRouter createRouter(BuildContext context) {
             child: InviteScreen(),
           ),
         ),
+      ),
+      GoRoute(
+        path: '/create-date-plan',
+        name: 'create_date_plan',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: CreateDatePlanScreen()),
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item',
+        name: 'date_plan_item',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DatePlanItemScreen()),
+      ),
+      GoRoute(
+        path: '/date-plan/edit',
+        name: 'date_plan_edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return UpdateDatePlanScreen(datePlanId: extra['datePlanId']);
+        },
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item/edit',
+        name: 'date_plan_item_edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditDatePlanItemScreen(
+            datePlanItemId: extra['datePlanItemId'],
+            datePlanId: extra['datePlanId'],
+          );
+        },
+      ),
+
+      ShellRoute(
+        parentNavigatorKey: _rootNavKey,
+        builder: (context, state, child) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => CollectionProvider()),
+            ],
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/collections',
+            name: 'collections',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: CollectionListScreen()),
+          ),
+          GoRoute(
+            path: '/collections/detail',
+            name: 'collection_detail',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return MaterialPage(
+                child: ChangeNotifierProvider(
+                  create: (_) => CollectionDetailProvider(),
+                  child: CollectionDetailScreen(
+                    collectionId: extra['collectionId'],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     ],
   );

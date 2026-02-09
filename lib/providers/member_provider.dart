@@ -10,12 +10,15 @@ class MemberProvider extends ChangeNotifier {
 
   ApiResponse<InviteResponse>? get inviteResponse => _inviteResponse;
   Future<void> inviteMember(String inviteCode) async {
+    error = null;
     try {
       isLoading = true;
       notifyListeners();
       _inviteResponse = await MemberService.inviteMember(inviteCode);
+      if (_inviteResponse!.code != 200) {
+        error = _inviteResponse!.message;
+      }
     } catch (e) {
-      error = _inviteResponse?.message ?? '';
       throw Exception('Lỗi khi mời thành viên: $e');
     } finally {
       isLoading = false;

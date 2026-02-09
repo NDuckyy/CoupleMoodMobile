@@ -24,4 +24,16 @@ class CollectionService {
       throw Exception('Lỗi khi lấy danh sách collection: $e');
     }
   }
+
+  static Future<ApiResponse<CollectionItem>> getCollectionDetail(int id) async {
+    final res = await ApiClient.request(
+      '/Collection/$id',
+      method: HttpMethod.get,
+    );
+
+    return ApiResponse<CollectionItem>.fromJson(
+      res as Map<String, dynamic>,
+      (json) => CollectionItem.fromJson(json),
+    );
+  }
 }

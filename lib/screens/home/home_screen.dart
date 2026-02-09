@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                context.goNamed('collection');
+                context.goNamed('collections');
               },
               child: const Text('My Collections screen'),
             ),

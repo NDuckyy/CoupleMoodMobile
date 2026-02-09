@@ -2,22 +2,22 @@ class Session {
   final String accessToken;
   final String? refreshToken;
 
-  final String? cometChatUid;
-  final String? cometChatAuthToken;
+  final int? userId;
   final String? gender;
+  final String? avartarUrl;
 
   Session({
     required this.accessToken,
     this.refreshToken,
-    this.cometChatUid,
-    this.cometChatAuthToken,
+    this.userId,
     this.gender,
+    this.avartarUrl,
   });
 
    Map<String, dynamic> profileToJson() => {
-        'cometChatUid': cometChatUid,
-        'cometChatAuthToken': cometChatAuthToken,
+        'userId': userId,
         'gender': gender,
+        'avartarUrl': avartarUrl,
       };
 
   factory Session.fromTokensAndProfile({
@@ -28,9 +28,9 @@ class Session {
     return Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      cometChatUid: profile?['cometChatUid']?.toString(),
-      cometChatAuthToken: profile?['cometChatAuthToken']?.toString(),
+      userId: profile?['userId'] as int?,
       gender: profile?['gender']?.toString(),
+      avartarUrl: profile?['avartarUrl']?.toString(),
     );
   }
 }

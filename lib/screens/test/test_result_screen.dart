@@ -11,7 +11,6 @@ class TestResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
     final testResult = testProvider.testResult;
-    debugPrint('Rendering TestResultScreen with testResult: ${testResult?.result.mbtiCode}');
 
     return Scaffold(
       appBar: AppBar(title: const Text('Kết quả bài test'), centerTitle: true),
