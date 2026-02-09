@@ -1,7 +1,6 @@
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
