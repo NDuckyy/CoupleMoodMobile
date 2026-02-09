@@ -1,6 +1,11 @@
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -9,6 +14,7 @@ import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -154,7 +160,7 @@ GoRouter createRouter(BuildContext context) {
                 path: '/chat',
                 name: 'chat',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Chat')),
+                    const NoTransitionPage(child: ChatScreen()),
               ),
             ],
           ),
@@ -184,10 +190,16 @@ GoRouter createRouter(BuildContext context) {
             navigatorKey: _collectionTabNavKey,
             routes: [
               GoRoute(
-                path: '/collection',
-                name: 'collection',
-                pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Collection')),
+                path: '/date-plan',
+                name: 'datePlan',
+                pageBuilder: (_, __) => NoTransitionPage(
+                  child: MultiProvider(
+                    providers: [
+                      ChangeNotifierProvider(create: (_) => DatePlanProvider()),
+                    ],
+                    child: const DatePlanScreen(),
+                  ),
+                ),
               ),
             ],
           ),
@@ -295,6 +307,26 @@ GoRouter createRouter(BuildContext context) {
             child: InviteScreen(),
           ),
         ),
+      ),
+      GoRoute(
+        path: '/create-date-plan',
+        name: 'create_date_plan',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: CreateDatePlanScreen()),
+      ),
+      GoRoute(
+        path: '/date-plan-item',
+        name: 'date_plan_item',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DatePlanItemScreen()),
+      ),
+      GoRoute(
+        name: 'date_plan_edit',
+        path: '/date-plan/edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return UpdateDatePlanScreen(datePlanId: extra['datePlanId']);
+        },
       ),
     ],
   );

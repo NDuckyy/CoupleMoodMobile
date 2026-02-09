@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import '../utils/session_storage.dart';
 
-enum HttpMethod { get, post, put, delete }
+enum HttpMethod { get, post, put, delete, patch }
 
 class ApiClient {
   static final Dio _dio = Dio(
