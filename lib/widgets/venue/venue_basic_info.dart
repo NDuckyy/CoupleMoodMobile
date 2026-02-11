@@ -22,6 +22,7 @@ class VenueBasicInfo extends StatelessWidget {
             name: venue.name,
             rating: venue.averageRating,
             reviewCount: venue.reviewCount,
+            categories: venue.categories,
           ),
 
           const SizedBox(height: 12),

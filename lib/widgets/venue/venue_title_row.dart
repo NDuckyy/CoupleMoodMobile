@@ -9,12 +9,14 @@ class VenueTitleRow extends StatefulWidget {
   final String name;
   final double rating;
   final int reviewCount;
+  final List<String> categories;
 
   const VenueTitleRow({
     super.key,
     required this.name,
     required this.rating,
     required this.reviewCount,
+    required this.categories,
   });
 
   @override
@@ -151,6 +153,34 @@ class _VenueTitleRowState extends State<VenueTitleRow>
             ),
           ],
         ),
+        const SizedBox(height: 6),
+        if (widget.categories.isNotEmpty) ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: widget.categories.map((cat) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  cat,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
       ],
     );
   }

@@ -37,6 +37,8 @@ class Venue {
   final String status;
   final bool isOwnerVerified;
 
+  final List<String> categories;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -58,6 +60,7 @@ class Venue {
     required this.couplePersonalityTypes,
     required this.status,
     required this.isOwnerVerified,
+    required this.categories,
     this.email,
     this.phoneNumber,
     this.websiteUrl,
@@ -116,6 +119,8 @@ class Venue {
       todayDayName: json['todayDayName'],
       status: json['status'] ?? '',
       isOwnerVerified: json['isOwnerVerified'] ?? false,
+
+      categories: List<String>.from(json['category'] ?? []),
 
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
