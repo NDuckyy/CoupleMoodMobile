@@ -15,9 +15,14 @@ class ListLocationScreen extends StatefulWidget {
 }
 
 class _ListLocationScreenState extends State<ListLocationScreen> {
+  late ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final position = await LocationService.getCurrentPosition();
@@ -26,13 +31,15 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
         final recommendationProvider = context.read<RecommendationProvider>();
         recommendationProvider.latitude = position.latitude;
         recommendationProvider.longitude = position.longitude;
+        debugPrint(
+          'User location: ${position.latitude}, ${position.longitude}',
+        );
         recommendationProvider.fetchRecommendations(
           RecommendationRequest(
             latitude: position.latitude,
             longitude: position.longitude,
-            radiusKm: 15,
+            radiusKm: 1000,
             area: "79",
-            limit: 20,
           ),
         );
       } else {
@@ -46,15 +53,32 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
     });
   }
 
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      final provider = context.read<RecommendationProvider>();
+      final paged = provider.recommendationResponse?.recommendations;
+
+      if (paged?.hasNextPage == true && !provider.isLoadingMore) {
+        provider.loadMore();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   Future<void> _onRefresh(BuildContext context) async {
     final recommendationProvider = context.read<RecommendationProvider>();
     await recommendationProvider.fetchRecommendations(
       RecommendationRequest(
         latitude: recommendationProvider.latitude,
         longitude: recommendationProvider.longitude,
-        radiusKm: 15,
+        radiusKm: 1000,
         area: "79",
-        limit: 20,
       ),
     );
   }
@@ -63,14 +87,15 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
   Widget build(BuildContext context) {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final moodProvider = context.watch<MoodProvider>();
-    final recs =
-        recommendationProvider.recommendationResponse?.recommendations ?? [];
+    final page = recommendationProvider.recommendationResponse?.recommendations;
+    final recs = page?.items ?? [];
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: RefreshIndicator(
         onRefresh: () => _onRefresh(context),
         child: CustomScrollView(
+          controller: _scrollController,
           slivers: [
             SliverAppBar(
               title: const Text('Danh sách địa điểm'),
@@ -166,11 +191,20 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 sliver: SliverList.separated(
-                  itemCount: recs.length,
+                  itemCount:
+                      recs.length +
+                      (recommendationProvider.isLoadingMore ? 1 : 0),
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    final r = recs[index];
-                    return VenueCard(r: r);
+                    if (index < recs.length) {
+                      final r = recs[index];
+                      return VenueCard(r: r);
+                    } else {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
                   },
                 ),
               ),
