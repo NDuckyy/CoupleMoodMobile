@@ -1,7 +1,7 @@
-import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
+import 'package:couple_mood_mobile/models/recommendation/recommendation_page.dart';
 
 class RecommendationResponse {
-  final List<Recommendation> recommendations;
+  final RecommendationPage recommendations;
   final String? explanation;
   final String? coupleMoodType;
   final String? singleMood;
@@ -17,9 +17,7 @@ class RecommendationResponse {
 
   factory RecommendationResponse.fromJson(Map<String, dynamic> json) {
     return RecommendationResponse(
-      recommendations: (json['recommendations'] as List)
-          .map((item) => Recommendation.fromJson(item))
-          .toList(),
+      recommendations: RecommendationPage.fromJson(json['recommendations']),
       explanation: json['explanation'] as String?,
       coupleMoodType: json['coupleMoodType'] as String?,
       singleMood: json['singleMood'] as String?,

@@ -1,17 +1,23 @@
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/edit_date_plan_item_button.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/venue_address.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/venue_title.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/edit_date_plan_item_button.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/venue_address.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/venue_title.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_confirm_delete_dialog.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/note_section.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/widget/time_range_badge.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/note_section.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/time_range_badge.dart';
 import 'package:go_router/go_router.dart';
 
 class DatePlanItemCard extends StatelessWidget {
   final ListDatePlanItem item;
+  final VoidCallback onDelete;
 
-  const DatePlanItemCard({super.key, required this.item});
+  const DatePlanItemCard({
+    super.key,
+    required this.item,
+    required this.onDelete,
+  });
 
   void _onEditPressed(BuildContext context) {
     context.pushNamed(
@@ -42,9 +48,26 @@ class DatePlanItemCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VenueTitle(
-                  name: item.venueLocation.name,
-                  venueId: item.venueLocation.id,
+                Row(
+                  children: [
+                    VenueTitle(
+                      name: item.venueLocation.name,
+                      venueId: item.venueLocation.id,
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        color: Colors.redAccent,
+                        size: 20,
+                      ),
+                      constraints: const BoxConstraints(),
+                      onPressed: () => showConfirmDeleteDialog(
+                        context: context,
+                        onConfirm: onDelete,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
 

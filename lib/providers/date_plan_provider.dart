@@ -141,4 +141,21 @@ class DatePlanProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> deleteDatePlanItem(int datePlanId, int datePlanItemId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.deleteDatePlanItem(datePlanId, datePlanItemId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

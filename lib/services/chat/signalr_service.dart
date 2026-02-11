@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:signalr_netcore/signalr_client.dart';
 import '../../utils/session_storage.dart';
 import '../../models/chat/message.dart';
-import '../../models/chat/chat_models.dart';
+import '../../models/chat/conversation.dart';
+import '../../models/chat/conversation_member.dart';
 
 class SignalRService {
   static final SignalRService _instance = SignalRService._internal();
@@ -14,24 +15,28 @@ class SignalRService {
   
   // Event streams
   final _messageReceivedController = StreamController<Message>.broadcast();
-  final _typingIndicatorController = StreamController<TypingIndicator>.broadcast();
-  final _userOnlineController = StreamController<int>.broadcast();
-  final _userOfflineController = StreamController<OnlineStatus>.broadcast();
-  final _messageReadController = StreamController<MessageReadEvent>.broadcast();
-  final _messageDeletedController = StreamController<int>.broadcast();
-  final _newConversationController = StreamController<int>.broadcast();
-  final _removedFromConversationController = StreamController<int>.broadcast();
+  final _messageSeenController = StreamController<MessageSeenEvent>.broadcast();
+  final _userTypingController = StreamController<TypingIndicator>.broadcast();
+  final _userOnlineController = StreamController<UserOnlineEvent>.broadcast();
+  final _memberAddedController = StreamController<MemberAddedEvent>.broadcast();
+  final _memberRemovedController = StreamController<MemberRemovedEvent>.broadcast();
+  final _conversationUpdatedController = StreamController<Conversation>.broadcast();
+  final _conversationDeletedController = StreamController<int>.broadcast();
+  final _messageDeletedController = StreamController<MessageDeletedEvent>.broadcast();
+  final _newConversationController = StreamController<Conversation>.broadcast();
   final _connectionStateController = StreamController<HubConnectionState>.broadcast();
 
   // Getters for streams
   Stream<Message> get onMessageReceived => _messageReceivedController.stream;
-  Stream<TypingIndicator> get onTypingIndicator => _typingIndicatorController.stream;
-  Stream<int> get onUserOnline => _userOnlineController.stream;
-  Stream<OnlineStatus> get onUserOffline => _userOfflineController.stream;
-  Stream<MessageReadEvent> get onMessageRead => _messageReadController.stream;
-  Stream<int> get onMessageDeleted => _messageDeletedController.stream;
-  Stream<int> get onNewConversation => _newConversationController.stream;
-  Stream<int> get onRemovedFromConversation => _removedFromConversationController.stream;
+  Stream<MessageSeenEvent> get onMessageSeen => _messageSeenController.stream;
+  Stream<TypingIndicator> get onUserTyping => _userTypingController.stream;
+  Stream<UserOnlineEvent> get onUserOnline => _userOnlineController.stream;
+  Stream<MemberAddedEvent> get onMemberAdded => _memberAddedController.stream;
+  Stream<MemberRemovedEvent> get onMemberRemoved => _memberRemovedController.stream;
+  Stream<Conversation> get onConversationUpdated => _conversationUpdatedController.stream;
+  Stream<int> get onConversationDeleted => _conversationDeletedController.stream;
+  Stream<MessageDeletedEvent> get onMessageDeleted => _messageDeletedController.stream;
+  Stream<Conversation> get onNewConversation => _newConversationController.stream;
   Stream<HubConnectionState> get onConnectionStateChanged => _connectionStateController.stream;
 
   bool get isConnected => _isConnected;
@@ -119,13 +124,43 @@ class SignalRService {
       }
     });
 
+    // MessageSeen event
+    _hubConnection!.on('MessageSeen', (arguments) {
+      if (arguments != null && arguments.length >= 4) {
+        try {
+          final conversationId = arguments[0] as int;
+          final userId = arguments[1] as int;
+          final userName = arguments[2] as String;
+          final messageId = arguments[3] as int;
+          
+          _messageSeenController.add(MessageSeenEvent(
+            conversationId: conversationId,
+            userId: userId,
+            userName: userName,
+            messageId: messageId,
+          ));
+          print('SignalR: Message seen - $messageId by $userName');
+        } catch (e) {
+          print('SignalR: Error parsing message seen - $e');
+        }
+      }
+    });
+
     // UserTyping event
     _hubConnection!.on('UserTyping', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
+      if (arguments != null && arguments.length >= 4) {
         try {
-          final typingData = arguments[0] as Map<String, dynamic>;
-          final typing = TypingIndicator.fromJson(typingData);
-          _typingIndicatorController.add(typing);
+          final conversationId = arguments[0] as int;
+          final userId = arguments[1] as int;
+          final userName = arguments[2] as String;
+          final isTyping = arguments[3] as bool;
+          
+          _userTypingController.add(TypingIndicator(
+            conversationId: conversationId,
+            userId: userId,
+            userName: userName,
+            isTyping: isTyping,
+          ));
         } catch (e) {
           print('SignalR: Error parsing typing indicator - $e');
         }
@@ -134,61 +169,102 @@ class SignalRService {
 
     // UserOnline event
     _hubConnection!.on('UserOnline', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
+      if (arguments != null && arguments.length >= 3) {
         try {
           final userId = arguments[0] as int;
-          _userOnlineController.add(userId);
-          print('SignalR: User online - $userId');
+          final userName = arguments[1] as String;
+          final isOnline = arguments[2] as bool;
+          
+          _userOnlineController.add(UserOnlineEvent(
+            userId: userId,
+            userName: userName,
+            isOnline: isOnline,
+          ));
+          print('SignalR: User online status - $userId ($userName): $isOnline');
         } catch (e) {
           print('SignalR: Error parsing user online - $e');
         }
       }
     });
 
-    // UserOffline event
-    _hubConnection!.on('UserOffline', (arguments) {
+    // MemberAdded event
+    _hubConnection!.on('MemberAdded', (arguments) {
       if (arguments != null && arguments.length >= 2) {
         try {
-          final userId = arguments[0] as int;
-          final lastSeen = arguments[1] as String?;
-          final status = OnlineStatus(
-            userId: userId,
-            isOnline: false,
-            lastSeen: lastSeen != null ? DateTime.parse(lastSeen) : null,
-          );
-          _userOfflineController.add(status);
-          print('SignalR: User offline - $userId');
+          final conversationId = arguments[0] as int;
+          final memberData = arguments[1] as Map<String, dynamic>;
+          final member = ConversationMember.fromJson(memberData);
+          
+          _memberAddedController.add(MemberAddedEvent(
+            conversationId: conversationId,
+            member: member,
+          ));
+          print('SignalR: Member added to conversation $conversationId');
         } catch (e) {
-          print('SignalR: Error parsing user offline - $e');
+          print('SignalR: Error parsing member added - $e');
         }
       }
     });
 
-    // MessageRead event
-    _hubConnection!.on('MessageRead', (arguments) {
+    // MemberRemoved event
+    _hubConnection!.on('MemberRemoved', (arguments) {
       if (arguments != null && arguments.length >= 3) {
         try {
           final conversationId = arguments[0] as int;
-          final messageId = arguments[1] as int;
-          final userId = arguments[2] as int;
-          _messageReadController.add(MessageReadEvent(
+          final memberId = arguments[1] as int;
+          final memberName = arguments[2] as String;
+          
+          _memberRemovedController.add(MemberRemovedEvent(
             conversationId: conversationId,
-            messageId: messageId,
-            userId: userId,
+            memberId: memberId,
+            memberName: memberName,
           ));
-          print('SignalR: Message read - $messageId by user $userId');
+          print('SignalR: Member removed from conversation $conversationId');
         } catch (e) {
-          print('SignalR: Error parsing message read - $e');
+          print('SignalR: Error parsing member removed - $e');
+        }
+      }
+    });
+
+    // ConversationUpdated event
+    _hubConnection!.on('ConversationUpdated', (arguments) {
+      if (arguments != null && arguments.isNotEmpty) {
+        try {
+          final conversationData = arguments[0] as Map<String, dynamic>;
+          final conversation = Conversation.fromJson(conversationData);
+          
+          _conversationUpdatedController.add(conversation);
+          print('SignalR: Conversation updated - ${conversation.id}');
+        } catch (e) {
+          print('SignalR: Error parsing conversation updated - $e');
+        }
+      }
+    });
+
+    // ConversationDeleted event
+    _hubConnection!.on('ConversationDeleted', (arguments) {
+      if (arguments != null && arguments.isNotEmpty) {
+        try {
+          final conversationId = arguments[0] as int;
+          _conversationDeletedController.add(conversationId);
+          print('SignalR: Conversation deleted - $conversationId');
+        } catch (e) {
+          print('SignalR: Error parsing conversation deleted - $e');
         }
       }
     });
 
     // MessageDeleted event
     _hubConnection!.on('MessageDeleted', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
+      if (arguments != null && arguments.length >= 2) {
         try {
-          final messageId = arguments[0] as int;
-          _messageDeletedController.add(messageId);
+          final conversationId = arguments[0] as int;
+          final messageId = arguments[1] as int;
+          
+          _messageDeletedController.add(MessageDeletedEvent(
+            conversationId: conversationId,
+            messageId: messageId,
+          ));
           print('SignalR: Message deleted - $messageId');
         } catch (e) {
           print('SignalR: Error parsing message deleted - $e');
@@ -200,37 +276,13 @@ class SignalRService {
     _hubConnection!.on('NewConversation', (arguments) {
       if (arguments != null && arguments.isNotEmpty) {
         try {
-          final conversationId = arguments[0] as int;
-          _newConversationController.add(conversationId);
-          print('SignalR: New conversation - $conversationId');
+          final conversationData = arguments[0] as Map<String, dynamic>;
+          final conversation = Conversation.fromJson(conversationData);
+          
+          _newConversationController.add(conversation);
+          print('SignalR: New conversation received - ${conversation.id}');
         } catch (e) {
           print('SignalR: Error parsing new conversation - $e');
-        }
-      }
-    });
-
-    // AddedToConversation event
-    _hubConnection!.on('AddedToConversation', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
-        try {
-          final conversationId = arguments[0] as int;
-          _newConversationController.add(conversationId);
-          print('SignalR: Added to conversation - $conversationId');
-        } catch (e) {
-          print('SignalR: Error parsing added to conversation - $e');
-        }
-      }
-    });
-
-    // RemovedFromConversation event
-    _hubConnection!.on('RemovedFromConversation', (arguments) {
-      if (arguments != null && arguments.isNotEmpty) {
-        try {
-          final conversationId = arguments[0] as int;
-          _removedFromConversationController.add(conversationId);
-          print('SignalR: Removed from conversation - $conversationId');
-        } catch (e) {
-          print('SignalR: Error parsing removed from conversation - $e');
         }
       }
     });
@@ -278,22 +330,16 @@ class SignalRService {
     }
   }
 
-  /// Get online status of users
-  Future<List<OnlineStatus>> getOnlineStatus(List<int> userIds) async {
+  /// Update online status
+  Future<void> updateOnlineStatus(bool isOnline) async {
     if (!_isConnected || _hubConnection == null) {
-      throw Exception('SignalR not connected');
+      return;
     }
     try {
-      final result = await _hubConnection!.invoke('GetOnlineStatus', args: [userIds]);
-      if (result is List) {
-        return result
-            .map((item) => OnlineStatus.fromJson(item as Map<String, dynamic>))
-            .toList();
-      }
-      return [];
+      await _hubConnection!.invoke('UpdateOnlineStatus', args: [isOnline]);
+      print('SignalR: Updated online status - $isOnline');
     } catch (e) {
-      print('SignalR: Error getting online status - $e');
-      return [];
+      print('SignalR: Error updating online status - $e');
     }
   }
 
@@ -310,26 +356,89 @@ class SignalRService {
   /// Dispose all resources
   void dispose() {
     _messageReceivedController.close();
-    _typingIndicatorController.close();
+    _messageSeenController.close();
+    _userTypingController.close();
     _userOnlineController.close();
-    _userOfflineController.close();
-    _messageReadController.close();
+    _memberAddedController.close();
+    _memberRemovedController.close();
+    _conversationUpdatedController.close();
+    _conversationDeletedController.close();
     _messageDeletedController.close();
     _newConversationController.close();
-    _removedFromConversationController.close();
     _connectionStateController.close();
   }
 }
 
-// Helper class for message read event
-class MessageReadEvent {
+// ==================== EVENT MODELS ====================
+
+class MessageSeenEvent {
+  final int conversationId;
+  final int userId;
+  final String userName;
+  final int messageId;
+
+  MessageSeenEvent({
+    required this.conversationId,
+    required this.userId,
+    required this.userName,
+    required this.messageId,
+  });
+}
+
+class TypingIndicator {
+  final int conversationId;
+  final int userId;
+  final String userName;
+  final bool isTyping;
+
+  TypingIndicator({
+    required this.conversationId,
+    required this.userId,
+    required this.userName,
+    required this.isTyping,
+  });
+}
+
+class UserOnlineEvent {
+  final int userId;
+  final String userName;
+  final bool isOnline;
+
+  UserOnlineEvent({
+    required this.userId,
+    required this.userName,
+    required this.isOnline,
+  });
+}
+
+class MemberAddedEvent {
+  final int conversationId;
+  final ConversationMember member;
+
+  MemberAddedEvent({
+    required this.conversationId,
+    required this.member,
+  });
+}
+
+class MemberRemovedEvent {
+  final int conversationId;
+  final int memberId;
+  final String memberName;
+
+  MemberRemovedEvent({
+    required this.conversationId,
+    required this.memberId,
+    required this.memberName,
+  });
+}
+
+class MessageDeletedEvent {
   final int conversationId;
   final int messageId;
-  final int userId;
 
-  MessageReadEvent({
+  MessageDeletedEvent({
     required this.conversationId,
     required this.messageId,
-    required this.userId,
   });
 }

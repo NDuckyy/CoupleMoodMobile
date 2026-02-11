@@ -1,20 +1,20 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
-import 'package:couple_mood_mobile/screens/location/widget/venue_card.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_venue_card.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class ListLocationScreen extends StatefulWidget {
-  const ListLocationScreen({super.key});
+class ChooseLocationScreen extends StatefulWidget {
+  const ChooseLocationScreen({super.key});
 
   @override
-  State<ListLocationScreen> createState() => _ListLocationScreenState();
+  State<ChooseLocationScreen> createState() => _ChooseLocationScreenState();
 }
 
-class _ListLocationScreenState extends State<ListLocationScreen> {
+class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
   late ScrollController _scrollController;
 
   @override
@@ -140,7 +140,6 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
               ),
             ),
 
-            /// MOOD
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -166,7 +165,6 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-            /// CONTENT
             if (recommendationProvider.isLoading)
               const SliverFillRemaining(
                 hasScrollBody: false,
@@ -198,7 +196,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCard(r: r);
+                      return ChooseLocationVenueCard(r: r);
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

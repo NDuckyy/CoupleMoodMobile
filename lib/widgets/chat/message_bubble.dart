@@ -24,6 +24,7 @@ class MessageBubble extends StatelessWidget {
         bottom: 2,
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.max,
         mainAxisAlignment:
             message.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -56,6 +57,7 @@ class MessageBubble extends StatelessWidget {
                   ? () => _showMessageOptions(context)
                   : null,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: message.isMine
                     ? CrossAxisAlignment.end
                     : CrossAxisAlignment.start,

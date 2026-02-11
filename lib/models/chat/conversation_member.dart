@@ -1,16 +1,16 @@
 class ConversationMember {
   final int userId;
-  final String username;
-  final String fullName;
+  final String? username;
+  final String? fullName;
   final String? avatar;
-  final String role; // "MEMBER" | "ADMIN"
+  final String role;
   final DateTime joinedAt;
   final bool isOnline;
 
   ConversationMember({
     required this.userId,
-    required this.username,
-    required this.fullName,
+    this.username,
+    this.fullName,
     this.avatar,
     required this.role,
     required this.joinedAt,
@@ -20,8 +20,8 @@ class ConversationMember {
   factory ConversationMember.fromJson(Map<String, dynamic> json) {
     return ConversationMember(
       userId: json['userId'] as int,
-      username: json['username'] as String,
-      fullName: json['fullName'] as String,
+      username: json['username'] as String?,
+      fullName: json['fullName'] as String?,
       avatar: json['avatar'] as String?,
       role: json['role'] as String,
       joinedAt: DateTime.parse(json['joinedAt'] as String),

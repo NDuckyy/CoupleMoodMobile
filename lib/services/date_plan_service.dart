@@ -101,4 +101,19 @@ class DatePlanService {
       throw Exception('Lỗi khi xóa kế hoạch hẹn hò: $e');
     }
   }
+
+  static Future<ApiResponse<void>> deleteDatePlanItem(
+    int datePlanId,
+    int datePlanItemId,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/items/$datePlanItemId',
+        method: HttpMethod.delete,
+      );
+      return ApiResponse<void>.fromJson(res, (_) {});
+    } catch (e) {
+      throw Exception('Lỗi khi xóa mục kế hoạch hẹn hò: $e');
+    }
+  }
 }

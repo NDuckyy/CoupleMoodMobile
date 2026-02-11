@@ -1,9 +1,9 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
-import 'package:couple_mood_mobile/widgets/budget_input.dart';
-import 'package:couple_mood_mobile/widgets/note_input.dart';
-import 'package:couple_mood_mobile/widgets/submit_button.dart';
-import 'package:couple_mood_mobile/widgets/title_input.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/budget_input.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/note_input.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/submit_button.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/title_input.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/widget/date_time.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -96,7 +96,10 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text('Chỉnh sửa lịch hẹn')),
+      appBar: AppBar(
+        title: const Text('Chỉnh sửa lịch hẹn'),
+        backgroundColor: Colors.white,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Form(
