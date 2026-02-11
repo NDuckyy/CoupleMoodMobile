@@ -82,7 +82,7 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(16),
         child: Form(
           key: _formKey,

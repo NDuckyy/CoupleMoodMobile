@@ -118,9 +118,18 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                                 final orderedIds = updatedList
                                     .map((e) => e.id)
                                     .toList();
-
-                                await provider.updateOrder(widget.datePlanId, orderedIds);
-                                await provider.fetchDatePlanItems(widget.datePlanId);
+                                try {
+                                  await provider.updateOrder(
+                                    widget.datePlanId,
+                                    orderedIds,
+                                  );
+                                  await provider.fetchDatePlanItems(
+                                    widget.datePlanId,
+                                  );
+                                } catch (e) {
+                                  if (!context.mounted) return;
+                                  showMsg(context, "$e", false);
+                                }
                               },
                               itemBuilder: (context, index) {
                                 final item = items[index];
