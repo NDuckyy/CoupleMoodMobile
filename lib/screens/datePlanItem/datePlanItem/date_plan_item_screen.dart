@@ -3,22 +3,18 @@ import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 
 class DatePlanItemScreen extends StatefulWidget {
-  const DatePlanItemScreen({super.key});
+  final int datePlanId;
+  const DatePlanItemScreen({super.key, required this.datePlanId});
 
   @override
   State<DatePlanItemScreen> createState() => _DatePlanItemScreenState();
 }
 
-Future<void> _initDatePlanItems(BuildContext context) async {
-  final GoRouterState state = GoRouterState.of(context);
-  final Map<String, dynamic> extra = state.extra as Map<String, dynamic>;
-  final datePlanId = extra['datePlanId'];
-
+Future<void> _initDatePlanItems(BuildContext context, int datePlanId) async {
   await context.read<DatePlanProvider>().fetchDatePlanItems(datePlanId);
 }
 
@@ -27,12 +23,12 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initDatePlanItems(context);
+      _initDatePlanItems(context, widget.datePlanId);
     });
   }
 
   Future<void> _reload() async {
-    await _initDatePlanItems(context);
+    await _initDatePlanItems(context, widget.datePlanId);
   }
 
   void _onDeleteItem(int datePlanId, int datePlanItemId) async {
@@ -72,7 +68,18 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                     SliverToBoxAdapter(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
-                        child: DatePlanItemHeader(),
+                        child: DatePlanItemHeader(
+                          datePlanId: widget.datePlanId,
+                          onCreated: () async {
+                            await _reload();
+                            if (!context.mounted) return;
+                            showMsg(
+                              context,
+                              "Đã thêm mục lịch hẹn hò thành công",
+                              true,
+                            );
+                          },
+                        ),
                       ),
                     ),
                     items.isEmpty
@@ -91,21 +98,44 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                           )
                         : SliverPadding(
                             padding: const EdgeInsets.all(24),
-                            sliver: SliverList(
-                              delegate: SliverChildBuilderDelegate((
-                                context,
-                                index,
-                              ) {
-                                return DatePlanItemCard(
-                                  item: items[index],
-                                  onDelete: () {
-                                    _onDeleteItem(
-                                      items[index].datePlanId,
-                                      items[index].id,
-                                    );
-                                  },
+                            sliver: SliverReorderableList(
+                              itemCount: items.length,
+                              onReorder: (oldIndex, newIndex) async {
+                                if (newIndex > oldIndex) newIndex--;
+
+                                final provider = context
+                                    .read<DatePlanProvider>();
+                                final updatedList = List.of(items);
+
+                                final movedItem = updatedList.removeAt(
+                                  oldIndex,
                                 );
-                              }, childCount: items.length),
+                                updatedList.insert(newIndex, movedItem);
+
+                                provider.datePlanItems!.data!.items =
+                                    updatedList;
+                                provider.notifyListeners();
+                                final orderedIds = updatedList
+                                    .map((e) => e.id)
+                                    .toList();
+
+                                await provider.updateOrder(widget.datePlanId, orderedIds);
+                                await provider.fetchDatePlanItems(widget.datePlanId);
+                              },
+                              itemBuilder: (context, index) {
+                                final item = items[index];
+
+                                return Container(
+                                  key: ValueKey(item.id),
+                                  child: DatePlanItemCard(
+                                    item: item,
+                                    index: index,
+                                    onDelete: () {
+                                      _onDeleteItem(item.datePlanId, item.id);
+                                    },
+                                  ),
+                                );
+                              },
                             ),
                           ),
                   ],

@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
+import 'package:couple_mood_mobile/models/dateplan/date_plan_item_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/services/date_plan_service.dart';
@@ -147,9 +148,57 @@ class DatePlanProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
     try {
-      final response = await DatePlanService.deleteDatePlanItem(datePlanId, datePlanItemId);
+      final response = await DatePlanService.deleteDatePlanItem(
+        datePlanId,
+        datePlanItemId,
+      );
       if (response.code != 200) {
         error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> createDatePlanItem(
+    int datePlanId,
+    DatePlanItemRequest request,
+  ) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.createDatePlanItem(
+        datePlanId,
+        request,
+      );
+      if (response.code != 200) {
+        error = response.message;
+        return;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateOrder(int datePlanId, List<int> orderedIds) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.updateDatePlanItemOrder(
+        datePlanId,
+        orderedIds,
+      );
+      if (response.code != 200) {
+        error = response.message;
+        return;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');

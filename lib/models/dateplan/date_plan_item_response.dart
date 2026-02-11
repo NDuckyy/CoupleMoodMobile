@@ -1,7 +1,7 @@
 import 'package:couple_mood_mobile/models/dateplan/venue_location.dart';
 
 class DatePlanItemResponse {
-  final List<ListDatePlanItem> items;
+  List<ListDatePlanItem> items;
   final int pageNumber;
   final int pageSize;
   final int totalCount;

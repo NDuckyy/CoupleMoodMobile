@@ -1,7 +1,7 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
-import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_venue_card.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/widget/choose_location_venue_card.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
