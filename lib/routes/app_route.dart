@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
@@ -8,6 +9,9 @@ import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.da
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/updateDatePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -130,6 +134,7 @@ GoRouter createRouter(BuildContext context) {
                   ),
                 ),
               ),
+
               GoRoute(
                 path: '/test',
                 name: 'test',
@@ -205,6 +210,7 @@ GoRouter createRouter(BuildContext context) {
               ),
             ],
           ),
+
           StatefulShellBranch(
             navigatorKey: _profileTabNavKey,
             routes: [
@@ -355,6 +361,41 @@ GoRouter createRouter(BuildContext context) {
             datePlanId: extra['datePlanId'],
           );
         },
+      ),
+
+      ShellRoute(
+        parentNavigatorKey: _rootNavKey,
+        builder: (context, state, child) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => CollectionProvider()),
+            ],
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/collections',
+            name: 'collections',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: CollectionListScreen()),
+          ),
+          GoRoute(
+            path: '/collections/detail',
+            name: 'collection_detail',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return MaterialPage(
+                child: ChangeNotifierProvider(
+                  create: (_) => CollectionDetailProvider(),
+                  child: CollectionDetailScreen(
+                    collectionId: extra['collectionId'],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     ],
   );
