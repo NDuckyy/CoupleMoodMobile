@@ -70,18 +70,29 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     
     if (text.isNotEmpty && !_isTyping) {
       _isTyping = true;
+      print('ChatScreen: User started typing in conversation ${widget.conversation.id}');
       chatProvider.sendTypingIndicator(widget.conversation.id, true);
       
       // Auto-stop typing after 3 seconds
       _typingTimer?.cancel();
       _typingTimer = Timer(const Duration(seconds: 3), () {
         _isTyping = false;
+        print('ChatScreen: Auto-stop typing after 3 seconds');
         chatProvider.sendTypingIndicator(widget.conversation.id, false);
       });
     } else if (text.isEmpty && _isTyping) {
       _isTyping = false;
       _typingTimer?.cancel();
+      print('ChatScreen: User stopped typing (text cleared)');
       chatProvider.sendTypingIndicator(widget.conversation.id, false);
+    } else if (text.isNotEmpty && _isTyping) {
+      // Reset timer if still typing
+      _typingTimer?.cancel();
+      _typingTimer = Timer(const Duration(seconds: 3), () {
+        _isTyping = false;
+        print('ChatScreen: Auto-stop typing after 3 seconds');
+        chatProvider.sendTypingIndicator(widget.conversation.id, false);
+      });
     }
   }
 
@@ -152,6 +163,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final messages = chatProvider.getMessages(widget.conversation.id);
     final isLoading = chatProvider.isLoadingMessages(widget.conversation.id);
     final typingUsers = chatProvider.getTypingUsers(widget.conversation.id);
+
+    // Debug log
+    if (typingUsers.isNotEmpty) {
+      print('ChatScreen: Typing users updated - ${typingUsers.length} users: $typingUsers');
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -335,10 +351,20 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
 
           // Typing indicator
-          if (typingUsers.isNotEmpty)
+          if (typingUsers.isNotEmpty) ...[
             TypingIndicatorWidget(
               userCount: typingUsers.length,
             ),
+            // Debug info
+            if (true) // Set to false to hide debug
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Text(
+                  'Debug: ${typingUsers.length} users typing: ${typingUsers.join(", ")}',
+                  style: const TextStyle(fontSize: 10, color: Colors.red),
+                ),
+              ),
+          ],
 
           // Message input
           MessageInput(
@@ -372,12 +398,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   bool _shouldShowAvatar(List<Message> messages, int index, String conversationType) {
-    if (conversationType == 'DIRECT') return false;
+    // Always show avatar for the first message
     if (index == 0) return true;
 
     final currentMessage = messages[index];
     final previousMessage = messages[index - 1];
 
+    // Show avatar when sender changes
     return currentMessage.senderId != previousMessage.senderId;
   }
 
