@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -23,6 +24,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),
         ChangeNotifierProvider(create: (_) => MoodProvider()),
+        ChangeNotifierProvider(create: (_) => CoupleInvitationProvider()),
       ],
       child: const MyApp(),
     ),

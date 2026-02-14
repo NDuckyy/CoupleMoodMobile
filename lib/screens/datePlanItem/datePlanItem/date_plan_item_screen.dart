@@ -8,7 +8,8 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 
 class DatePlanItemScreen extends StatefulWidget {
   final int datePlanId;
-  const DatePlanItemScreen({super.key, required this.datePlanId});
+  final String status;
+  const DatePlanItemScreen({super.key, required this.datePlanId, required this.status});
 
   @override
   State<DatePlanItemScreen> createState() => _DatePlanItemScreenState();
@@ -70,6 +71,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                         padding: const EdgeInsets.all(16),
                         child: DatePlanItemHeader(
                           datePlanId: widget.datePlanId,
+                          status: widget.status,
                           onCreated: () async {
                             await _reload();
                             if (!context.mounted) return;
@@ -101,36 +103,20 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                             sliver: SliverReorderableList(
                               itemCount: items.length,
                               onReorder: (oldIndex, newIndex) async {
-                                if (newIndex > oldIndex) newIndex--;
-
-                                final provider = context
-                                    .read<DatePlanProvider>();
-                                final updatedList = List.of(items);
-
-                                final movedItem = updatedList.removeAt(
-                                  oldIndex,
-                                );
-                                updatedList.insert(newIndex, movedItem);
-
-                                provider.datePlanItems!.data!.items =
-                                    updatedList;
-                                provider.notifyListeners();
-                                final orderedIds = updatedList
-                                    .map((e) => e.id)
-                                    .toList();
                                 try {
-                                  await provider.updateOrder(
-                                    widget.datePlanId,
-                                    orderedIds,
-                                  );
-                                  await provider.fetchDatePlanItems(
-                                    widget.datePlanId,
-                                  );
+                                  await context
+                                      .read<DatePlanProvider>()
+                                      .reorderDatePlanItems(
+                                        widget.datePlanId,
+                                        oldIndex,
+                                        newIndex,
+                                      );
                                 } catch (e) {
                                   if (!context.mounted) return;
                                   showMsg(context, "$e", false);
                                 }
                               },
+
                               itemBuilder: (context, index) {
                                 final item = items[index];
 

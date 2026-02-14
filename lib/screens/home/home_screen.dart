@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             ElevatedButton(
               onPressed: () {
-                context.pushNamed("invite");
+                context.pushNamed("member_search");
               },
               child: Text('Invite Screen'),
             ),

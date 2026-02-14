@@ -3,10 +3,12 @@ import 'package:go_router/go_router.dart';
 
 class DatePlanItemHeader extends StatelessWidget {
   final int datePlanId;
+  final String status;
   final Function()? onCreated;
   const DatePlanItemHeader({
     super.key,
     required this.datePlanId,
+    required this.status,
     this.onCreated,
   });
 
@@ -33,6 +35,7 @@ class DatePlanItemHeader extends StatelessWidget {
         const Spacer(),
         Row(
           children: [
+            if (status == 'DRAFTED' || status == 'PENDING')
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {

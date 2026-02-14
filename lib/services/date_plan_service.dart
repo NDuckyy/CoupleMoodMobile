@@ -149,4 +149,40 @@ class DatePlanService {
       throw Exception('Lỗi khi cập nhật thứ tự mục kế hoạch hẹn hò: $e');
     }
   }
+
+  static Future<ApiResponse<int>> sendDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/send',
+        method: HttpMethod.patch,
+      );
+      return ApiResponse<int>.fromJson(res, (json) => json as int);
+    } catch (e) {
+      throw Exception('Lỗi khi gửi kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<int>> cancelDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/cancel',
+        method: HttpMethod.patch,
+      );
+      return ApiResponse<int>.fromJson(res, (json) => json as int);
+    } catch (e) {
+      throw Exception('Lỗi khi duyệt kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<int>> completeDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/complete',
+        method: HttpMethod.patch,
+      );
+      return ApiResponse<int>.fromJson(res, (json) => json as int);
+    } catch (e) {
+      throw Exception('Lỗi khi duyệt kế hoạch hẹn hò: $e');
+    }
+  }
 }

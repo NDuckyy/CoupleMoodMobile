@@ -2,6 +2,9 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/invitation_receiver_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlanItem/create_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
@@ -325,7 +328,10 @@ GoRouter createRouter(BuildContext context) {
         name: 'date_plan_item',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return DatePlanItemScreen(datePlanId: extra['datePlanId']);
+          return DatePlanItemScreen(
+            datePlanId: extra['datePlanId'],
+            status: extra['status'],
+          );
         },
       ),
       GoRoute(
@@ -360,6 +366,27 @@ GoRouter createRouter(BuildContext context) {
             datePlanItemId: extra['datePlanItemId'],
             datePlanId: extra['datePlanId'],
           );
+        },
+      ),
+      GoRoute(
+        path: '/member-search',
+        name: 'member_search',
+        pageBuilder: (_, __) => const MaterialPage(child: MemberSearchScreen()),
+      ),
+
+      GoRoute(
+        path: '/receive-invitation',
+        name: 'receive_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ReceiveInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/member-profile-match',
+        name: 'member_profile_match',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return MemberProfileMatch(userId: extra['userId']);
         },
       ),
 

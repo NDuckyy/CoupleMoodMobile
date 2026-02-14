@@ -207,4 +207,85 @@ class DatePlanProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> reorderDatePlanItems(
+    int datePlanId,
+    int oldIndex,
+    int newIndex,
+  ) async {
+    if (datePlanItems?.data?.items == null) return;
+
+    if (newIndex > oldIndex) newIndex--;
+
+    final currentList = datePlanItems!.data!.items;
+    final updatedList = List.of(currentList);
+
+    final movedItem = updatedList.removeAt(oldIndex);
+    updatedList.insert(newIndex, movedItem);
+
+    datePlanItems!.data!.items = updatedList;
+    notifyListeners();
+
+    final orderedIds = updatedList.map((e) => e.id).toList();
+
+    try {
+      await updateOrder(datePlanId, orderedIds);
+      await fetchDatePlanItems(datePlanId);
+    } catch (e) {
+      datePlanItems!.data!.items = currentList;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> sendDatePlan(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.sendDatePlan(datePlanId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> cancelDatePlan(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.cancelDatePlan(datePlanId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> completeDatePlan(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.completeDatePlan(datePlanId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
