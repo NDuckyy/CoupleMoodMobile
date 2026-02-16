@@ -36,4 +36,27 @@ class CollectionService {
       (json) => CollectionItem.fromJson(json),
     );
   }
+
+  static Future<ApiResponse<CollectionItem>> createCollection({
+    required String name,
+    required String description,
+    required String imgUrl,
+    required String status,
+  }) async {
+    final res = await ApiClient.request(
+      '/Collection',
+      method: HttpMethod.post,
+      data: {
+        "collectionName": name,
+        "description": description,
+        "img": imgUrl,
+        "status": status,
+      },
+    );
+
+    return ApiResponse<CollectionItem>.fromJson(
+      res,
+      (json) => CollectionItem.fromJson(json),
+    );
+  }
 }
