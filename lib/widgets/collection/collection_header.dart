@@ -10,11 +10,24 @@ class CollectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Image.asset(
-          'lib/assets/images/collection_placeholder.png',
+        SizedBox(
           height: 200,
           width: double.infinity,
-          fit: BoxFit.cover,
+          child: collection.img != null && collection.img!.isNotEmpty
+              ? Image.network(
+                  collection.img!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'lib/assets/images/collection_placeholder.png',
+                      fit: BoxFit.cover,
+                    );
+                  },
+                )
+              : Image.asset(
+                  'lib/assets/images/collection_placeholder.png',
+                  fit: BoxFit.cover,
+                ),
         ),
         Positioned.fill(
           child: Container(

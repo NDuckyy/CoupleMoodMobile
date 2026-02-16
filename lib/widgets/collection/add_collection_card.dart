@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 
 class AddCollectionCard extends StatelessWidget {
   const AddCollectionCard({super.key});
@@ -6,8 +9,12 @@ class AddCollectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {
-        debugPrint('Add new collection');
+      onTap: () async {
+        final result = await context.pushNamed('create_collection');
+
+        if (result == true) {
+          context.read<CollectionProvider>().getMyCollections();
+        }
       },
       borderRadius: BorderRadius.circular(16),
       child: Container(

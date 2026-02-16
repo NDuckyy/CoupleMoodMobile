@@ -12,6 +12,7 @@ import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edi
 import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -391,6 +392,12 @@ GoRouter createRouter(BuildContext context) {
                 ),
               );
             },
+          ),
+          GoRoute(
+            path: '/collections/create',
+            name: 'create_collection',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: CreateCollectionScreen()),
           ),
         ],
       ),

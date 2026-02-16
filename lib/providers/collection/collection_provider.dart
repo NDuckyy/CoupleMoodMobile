@@ -29,4 +29,32 @@ class CollectionProvider extends ChangeNotifier {
 
   List<CollectionItem> get collections =>
       collectionsResponse?.data?.items ?? [];
+
+  Future<CollectionItem> createCollection({
+    required String name,
+    required String description,
+    required String imgUrl,
+    required String status,
+  }) async {
+    try {
+      final response = await CollectionService.createCollection(
+        name: name,
+        description: description,
+        imgUrl: imgUrl,
+        status: status,
+      );
+
+      final newCollection = response.data!;
+
+      // add đầu listt nếu có list
+      if (collectionsResponse?.data?.items != null) {
+        collectionsResponse!.data!.items.insert(0, newCollection);
+        notifyListeners();
+      }
+
+      return newCollection;
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
 }

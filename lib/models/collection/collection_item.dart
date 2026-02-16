@@ -8,6 +8,7 @@ class CollectionItem {
   final String status;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String? img;
   final List<CollectionVenue> venues;
 
   CollectionItem({
@@ -19,6 +20,7 @@ class CollectionItem {
     required this.createdAt,
     required this.updatedAt,
     required this.venues,
+    this.img,
   });
 
   factory CollectionItem.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class CollectionItem {
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
+      img: json['img'],
       venues: (json['venues'] as List<dynamic>)
           .map((e) => CollectionVenue.fromJson(e))
           .toList(),

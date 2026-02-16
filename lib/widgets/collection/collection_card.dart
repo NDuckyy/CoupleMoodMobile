@@ -42,10 +42,21 @@ class CollectionCard extends StatelessWidget {
             children: [
               /// Image
               Positioned.fill(
-                child: Image.asset(
-                  'lib/assets/images/collection_placeholder.png',
-                  fit: BoxFit.cover,
-                ),
+                child: collection.img != null && collection.img!.isNotEmpty
+                    ? Image.network(
+                        collection.img!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Image.asset(
+                            'lib/assets/images/collection_placeholder.png',
+                            fit: BoxFit.cover,
+                          );
+                        },
+                      )
+                    : Image.asset(
+                        'lib/assets/images/collection_placeholder.png',
+                        fit: BoxFit.cover,
+                      ),
               ),
 
               /// Gradient overlay
