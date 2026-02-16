@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_header.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_action_row.dart';
@@ -46,7 +48,21 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                 CollectionHeader(collection: collection),
                 CollectionActionRow(
                   onShare: () => debugPrint('Share'),
-                  onEdit: () => debugPrint('Edit'),
+                  onEdit: () async {
+                    final result = await context.pushNamed(
+                      'edit_collection',
+                      extra: {'collection': collection},
+                    );
+
+                    if (result == true) {
+                      context
+                          .read<CollectionDetailProvider>()
+                          .getCollectionDetail(widget.collectionId);
+
+                      context.read<CollectionProvider>().getMyCollections();
+                    }
+                  },
+
                   onDelete: () => debugPrint('Delete'),
                 ),
                 const SizedBox(height: 12),

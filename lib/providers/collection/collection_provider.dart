@@ -57,4 +57,36 @@ class CollectionProvider extends ChangeNotifier {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+
+  Future<CollectionItem> updateCollection({
+    required int id,
+    required String name,
+    required String description,
+    required String imgUrl,
+    required String status,
+  }) async {
+    try {
+      final response = await CollectionService.updateCollection(
+        id: id,
+        name: name,
+        description: description,
+        imgUrl: imgUrl,
+        status: status,
+      );
+
+      final updatedCollection = response.data!;
+
+      // update local list nếu có
+      final index = collections.indexWhere((e) => e.id == id);
+
+      if (index != -1) {
+        collectionsResponse!.data!.items[index] = updatedCollection;
+        notifyListeners();
+      }
+
+      return updatedCollection;
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
 }

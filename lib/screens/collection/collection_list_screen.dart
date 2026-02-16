@@ -57,9 +57,17 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                       extra: {'collectionId': collection.id},
                     );
                   },
-                  onEdit: () {
-                    debugPrint('Edit ${collection.id}');
+                  onEdit: () async {
+                    final result = await context.pushNamed(
+                      'edit_collection',
+                      extra: {'collection': collection},
+                    );
+
+                    if (result == true) {
+                      context.read<CollectionProvider>().getMyCollections();
+                    }
                   },
+
                   onShare: () {
                     debugPrint('Share ${collection.id}');
                   },
