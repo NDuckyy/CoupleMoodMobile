@@ -20,17 +20,17 @@ class CollectionActionRow extends StatelessWidget {
       child: Row(
         children: [
           CollectionActionButton(
-            icon: Icons.share,
-            label: 'Chia sẻ',
-            color: Colors.pinkAccent,
-            onTap: onShare,
-          ),
-          const SizedBox(width: 12),
-          CollectionActionButton(
             icon: Icons.edit,
             label: 'Chỉnh sửa',
             color: Colors.orange,
             onTap: onEdit,
+          ),
+          const SizedBox(width: 12),
+          CollectionActionButton(
+            icon: Icons.share,
+            label: 'Chia sẻ',
+            color: Colors.pinkAccent,
+            onTap: onShare,
           ),
           const SizedBox(width: 12),
           CollectionActionButton(

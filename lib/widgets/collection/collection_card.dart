@@ -116,12 +116,12 @@ class CollectionCard extends StatelessWidget {
                   children: [
                     _ActionIcon(
                       icon: Icons.edit,
-                      color: Colors.blueGrey,
+                      color: Colors.orange,
                       onTap: onEdit,
                     ),
                     _ActionIcon(
                       icon: Icons.share,
-                      color: Colors.blueGrey,
+                      color: Colors.pinkAccent,
                       onTap: onShare,
                     ),
                     _ActionIcon(

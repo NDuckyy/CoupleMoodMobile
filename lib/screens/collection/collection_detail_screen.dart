@@ -47,7 +47,6 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
               children: [
                 CollectionHeader(collection: collection),
                 CollectionActionRow(
-                  onShare: () => debugPrint('Share'),
                   onEdit: () async {
                     final result = await context.pushNamed(
                       'edit_collection',
@@ -62,7 +61,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                       context.read<CollectionProvider>().getMyCollections();
                     }
                   },
-
+                  onShare: () => debugPrint('Share'),
                   onDelete: () => debugPrint('Delete'),
                 ),
                 const SizedBox(height: 12),

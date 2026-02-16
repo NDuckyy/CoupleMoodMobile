@@ -24,6 +24,13 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
   File? _selectedImage;
   bool _isSubmitting = false;
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -43,7 +50,7 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      String? imageUrl;
+      String imageUrl = "";
 
       if (_selectedImage != null) {
         imageUrl = await UploadUtil.uploadImage(_selectedImage!);
@@ -52,20 +59,47 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
       await context.read<CollectionProvider>().createCollection(
         name: _nameController.text.trim(),
         description: _descController.text.trim(),
-        imgUrl: imageUrl ?? "",
+        imgUrl: imageUrl,
         status: _status,
       );
 
-      if (mounted) {
-        context.pop(true); // trả về true để screen trước refresh
-      }
+      if (mounted) context.pop(true);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Widget _buildImagePicker() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Container(
+        height: 180,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.grey[200],
+        ),
+        child: _selectedImage != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Image.file(_selectedImage!, fit: BoxFit.cover),
+              )
+            : const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.add_a_photo, size: 40),
+                    SizedBox(height: 8),
+                    Text("Thêm ảnh bìa"),
+                  ],
+                ),
+              ),
+      ),
+    );
   }
 
   @override
@@ -79,35 +113,9 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  height: 180,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.grey[200],
-                  ),
-                  child: _selectedImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                        )
-                      : const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_a_photo, size: 40),
-                              SizedBox(height: 8),
-                              Text("Thêm ảnh bìa"),
-                            ],
-                          ),
-                        ),
-                ),
-              ),
+              _buildImagePicker(),
               const SizedBox(height: 20),
 
-              /// Name
               const Text("Tên bộ sưu tập *"),
               const SizedBox(height: 8),
               TextFormField(
@@ -123,7 +131,6 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
 
               const SizedBox(height: 16),
 
-              /// Description
               const Text("Mô tả"),
               const SizedBox(height: 8),
               TextFormField(
@@ -134,24 +141,19 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
 
               const SizedBox(height: 16),
 
-              /// Status
               const Text("Trạng thái"),
               Row(
                 children: [
-                  Radio(
+                  Radio<String>(
                     value: "PRIVATE",
                     groupValue: _status,
-                    onChanged: (value) {
-                      setState(() => _status = value!);
-                    },
+                    onChanged: (value) => setState(() => _status = value!),
                   ),
                   const Text("Riêng tư"),
-                  Radio(
+                  Radio<String>(
                     value: "PUBLIC",
                     groupValue: _status,
-                    onChanged: (value) {
-                      setState(() => _status = value!);
-                    },
+                    onChanged: (value) => setState(() => _status = value!),
                   ),
                   const Text("Công khai"),
                 ],
@@ -164,7 +166,11 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   child: _isSubmitting
-                      ? const CircularProgressIndicator()
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Text("Tạo bộ sưu tập"),
                 ),
               ),

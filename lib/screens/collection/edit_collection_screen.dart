@@ -39,6 +39,13 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
     _status = widget.collection.status;
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
   Future<void> _pickImage() async {
     final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
@@ -72,16 +79,86 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
         status: _status,
       );
 
-      if (mounted) {
-        context.pop(true);
-      }
+      if (mounted) context.pop(true);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e.toString())));
     } finally {
-      setState(() => _isSubmitting = false);
+      if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  Widget _buildImageSection() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Stack(
+        children: [
+          Container(
+            height: 200,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.grey[200],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: _selectedImage != null
+                  ? Image.file(_selectedImage!, fit: BoxFit.cover)
+                  : (widget.collection.img != null &&
+                        widget.collection.img!.isNotEmpty)
+                  ? Image.network(widget.collection.img!, fit: BoxFit.cover)
+                  : Container(color: Colors.grey[300]),
+            ),
+          ),
+
+          /// Gradient overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+
+          /// Text
+          const Positioned(
+            bottom: 16,
+            left: 16,
+            child: Text(
+              "Nhấn để thay ảnh",
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+
+          /// Camera icon
+          Positioned(
+            bottom: 12,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.camera_alt,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -95,65 +172,21 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// IMAGE
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  height: 180,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.grey[200],
-                  ),
-                  child: _selectedImage != null
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.file(_selectedImage!, fit: BoxFit.cover),
-                        )
-                      : (widget.collection.img != null &&
-                            widget.collection.img!.isNotEmpty)
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.network(
-                            widget.collection.img!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => const Center(
-                              child: Icon(Icons.broken_image, size: 40),
-                            ),
-                          ),
-                        )
-                      : const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.add_a_photo, size: 40),
-                              SizedBox(height: 8),
-                              Text("Thêm ảnh bìa"),
-                            ],
-                          ),
-                        ),
-                ),
-              ),
-
+              _buildImageSection(),
               const SizedBox(height: 20),
 
-              /// NAME
               const Text("Tên bộ sưu tập *"),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Vui lòng nhập tên";
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? "Vui lòng nhập tên"
+                    : null,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 16),
 
-              /// DESCRIPTION
               const Text("Mô tả"),
               const SizedBox(height: 8),
               TextFormField(
@@ -164,24 +197,19 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
 
               const SizedBox(height: 16),
 
-              /// STATUS
               const Text("Trạng thái"),
               Row(
                 children: [
-                  Radio(
+                  Radio<String>(
                     value: "PRIVATE",
                     groupValue: _status,
-                    onChanged: (value) {
-                      setState(() => _status = value!);
-                    },
+                    onChanged: (value) => setState(() => _status = value!),
                   ),
                   const Text("Riêng tư"),
-                  Radio(
+                  Radio<String>(
                     value: "PUBLIC",
                     groupValue: _status,
-                    onChanged: (value) {
-                      setState(() => _status = value!);
-                    },
+                    onChanged: (value) => setState(() => _status = value!),
                   ),
                   const Text("Công khai"),
                 ],
@@ -194,7 +222,11 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
                   child: _isSubmitting
-                      ? const CircularProgressIndicator()
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : const Text("Lưu thay đổi"),
                 ),
               ),
