@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 
 class UserSearchBar extends StatelessWidget {
   final TextEditingController controller;
-  final Function(String) onChanged;
+  final Function(String) onSearch;
 
   const UserSearchBar({
     super.key,
     required this.controller,
-    required this.onChanged,
+    required this.onSearch,
   });
+
+  void _handleSearch() {
+    onSearch(controller.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,19 +35,29 @@ class UserSearchBar extends StatelessWidget {
         ),
         child: TextField(
           controller: controller,
-          onChanged: onChanged,
+
+          onSubmitted: (_) => _handleSearch(),
+
+          textInputAction: TextInputAction.search,
+
           decoration: InputDecoration(
-            hintText: "Search by name...",
-            prefixIcon: const Icon(Icons.search),
+            hintText: "Tìm kiếm theo tên",
+
+            prefixIcon: IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: _handleSearch,
+            ),
+
+            // Clear
             suffixIcon: controller.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(Icons.close),
                     onPressed: () {
                       controller.clear();
-                      onChanged("");
                     },
                   )
                 : null,
+
             border: InputBorder.none,
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

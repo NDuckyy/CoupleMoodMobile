@@ -3,7 +3,7 @@ import 'package:couple_mood_mobile/providers/collection/collection_provider.dart
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/invitation_receiver_screen.dart';
-import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlanItem/create_date_plan_item_screen.dart';
@@ -386,7 +386,7 @@ GoRouter createRouter(BuildContext context) {
         name: 'member_profile_match',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return MemberProfileMatch(userId: extra['userId']);
+          return MemberProfileMatchScreen(userId: extra['userId']);
         },
       ),
 

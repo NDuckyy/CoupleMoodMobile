@@ -1,75 +1,104 @@
+import 'package:couple_mood_mobile/models/coupleInvitation/member_profile.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/user_data.dart';
+import 'package:couple_mood_mobile/services/couple_invitation_service.dart';
 import 'package:flutter/material.dart';
 
 class CoupleInvitationProvider extends ChangeNotifier {
-  int inviteCount = 5;
-  List<MemberResponse> users = [
-    MemberResponse(
-      userId: 1,
-      fullName: 'Nguyen Van A',
-      avatarUrl: 'https://i.pravatar.cc/150?img=1',
-      bio: 'Yêu thích du lịch và ẩm thực',
-      relationshipStatus: 'SINGLE',
-      canSendInvitation: true,
-    ),
-    MemberResponse(
-      userId: 2,
-      fullName: 'Tran Thi B',
-      avatarUrl: 'https://i.pravatar.cc/150?img=2',
-      bio: 'Thích đọc sách và nghe nhạc',
-      relationshipStatus: 'IN_RELATIONSHIP',
-      canSendInvitation: false,
-    ),
-    MemberResponse(
-      userId: 3,
-      fullName: 'Le Van C',
-      avatarUrl: 'https://i.pravatar.cc/150?img=3',
-      bio: 'Đam mê công nghệ và lập trình',
-      relationshipStatus: 'SINGLE',
-      canSendInvitation: true,
-    ),
-    MemberResponse(
-      userId: 4,
-      fullName: 'Pham Thi D',
-      avatarUrl: 'https://i.pravatar.cc/150?img=4',
-      bio: 'Yêu thích thể thao và hoạt động ngoài trời',
-      relationshipStatus: 'IN_RELATIONSHIP',
-      canSendInvitation: false,
-    ),
-    MemberResponse(
-      userId: 5,
-      fullName: 'Hoang Van E',
-      avatarUrl: 'https://i.pravatar.cc/150?img=5',
-      bio: 'Thích nấu ăn và khám phá ẩm thực mới',
-      relationshipStatus: 'SINGLE',
-      canSendInvitation: true,
-    ),
-    MemberResponse(
-      userId: 6,
-      fullName: 'Do Thi F',
-      avatarUrl: 'https://i.pravatar.cc/150?img=6',
-      bio: 'Yêu thích nghệ thuật và thiết kế',
-      relationshipStatus: 'IN_RELATIONSHIP',
-      canSendInvitation: false,
-    ),
-  ];
+  String? error;
+  int currentPage = 1;
+  bool isLoading = true;
+  bool hasMore = true;
 
-  List<MemberResponse> receivedInvitations = [
-    MemberResponse(
-      userId: 7,
-      fullName: 'Nguyen Van G',
-      avatarUrl: 'https://i.pravatar.cc/150?img=7',
-      bio: 'Thích du lịch và khám phá văn hóa mới',
-      relationshipStatus: 'SINGLE',
-      canSendInvitation: false,
-    ),
-    MemberResponse(
-      userId: 8,
-      fullName: 'Tran Thi H',
-      avatarUrl: 'https://i.pravatar.cc/150?img=8',
-      bio: 'Yêu thích âm nhạc và nghệ thuật',
-      relationshipStatus: 'IN_RELATIONSHIP',
-      canSendInvitation: false,
-    ),
-  ];
+  int inviteCount = 0;
+  List<MemberResponse> users = [];
+  List<ReceivedResponse> receivedInvitations = [];
+  UserData? userData;
+
+  Future<void> searchMembers(String? keyword, int page) async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await CoupleInvitationService.searchMembers(
+        keyword,
+        page,
+      );
+      if (page == 1) {
+        users = response.data?.data ?? [];
+      } else {
+        users.addAll(response.data?.data ?? []);
+      }
+      currentPage = page;
+      final members = response.data?.pagination.total ?? 0;
+      hasMore = members >= 6;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchReceivedInvitations(String? filter, int page) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await CoupleInvitationService.getReceivedInvitation(
+        filter,
+        page,
+      );
+      receivedInvitations = response.data?.data ?? [];
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> acceptInvitation(int memberId) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await CoupleInvitationService.acceptInvitation(memberId);
+      if (response.code != 200) {
+        error = response.message;
+      } else {
+        await fetchReceivedInvitations(null, 1);
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getMemberProfile(int memberId) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await CoupleInvitationService.getMemberProfile(memberId);
+      if (response.code != 200) {
+        error = response.message;
+      } else {
+        userData = response.data;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

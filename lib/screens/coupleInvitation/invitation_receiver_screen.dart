@@ -1,11 +1,28 @@
-import 'package:couple_mood_mobile/screens/coupleInvitation/widget/invitation_card.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/receiver/invitation_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 
-class ReceiveInvitationScreen extends StatelessWidget {
+class ReceiveInvitationScreen extends StatefulWidget {
   const ReceiveInvitationScreen({super.key});
+
+  @override
+  State<ReceiveInvitationScreen> createState() =>
+      _ReceiveInvitationScreenState();
+}
+
+class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CoupleInvitationProvider>().fetchReceivedInvitations(
+        null,
+        1,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +38,7 @@ class ReceiveInvitationScreen extends StatelessWidget {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          // await invitationProvider.fetchReceivedInvitations();
+          await invitationProvider.fetchReceivedInvitations(null, 1);
         },
         child: invitationProvider.receivedInvitations.isEmpty
             ? EmptyStateWidget(
@@ -37,7 +54,7 @@ class ReceiveInvitationScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final user = invitationProvider.receivedInvitations[index];
 
-                  return InvitationCard(user: user);
+                  return InvitationCard(invitation: user);
                 },
               ),
       ),

@@ -1,22 +1,29 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/member_profile.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/search_response.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/user_data.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:flutter/widgets.dart';
 
 class CoupleInvitationService {
-  static Future<ApiResponse<MemberResponse>> searchMember(
-    String query,
+  static Future<ApiResponse<SearchResponse<MemberResponse>>> searchMembers(
+    String? query,
     int page,
   ) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/search',
+        '/couple-invitations/search',
         method: HttpMethod.get,
-        query: {'query': query, 'page': page, 'pageSize': 20},
+        query: {'query': query, 'page': page, 'pageSize': 6},
       );
-      return ApiResponse<MemberResponse>.fromJson(
+      return ApiResponse<SearchResponse<MemberResponse>>.fromJson(
         res,
-        (json) => MemberResponse.fromJson(json),
+        (json) => SearchResponse<MemberResponse>.fromJson(
+          json,
+          MemberResponse.fromJson,
+        ),
       );
     } catch (e) {
       debugPrint(e.toString());
@@ -24,17 +31,21 @@ class CoupleInvitationService {
     }
   }
 
-  static Future<ApiResponse<void>> getReceivedInvitation(
-    String? filter,
-    int page,
-  ) async {
+  static Future<ApiResponse<SearchResponse<ReceivedResponse>>>
+  getReceivedInvitation(String? filter, int page) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/received',
+        '/couple-invitations/received',
         method: HttpMethod.get,
-        query: {'filter': filter, 'page': page, 'pageSize': 20},
+        query: {'filter': filter, 'page': page, 'pageSize': 10},
       );
-      return ApiResponse<void>.fromJson(res, (json) => null);
+      return ApiResponse<SearchResponse<ReceivedResponse>>.fromJson(
+        res,
+        (json) => SearchResponse<ReceivedResponse>.fromJson(
+          json,
+          ReceivedResponse.fromJson,
+        ),
+      );
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi nhận lời mời: $e');
@@ -47,7 +58,7 @@ class CoupleInvitationService {
   ) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/sent',
+        '/couple-invitations/sent',
         method: HttpMethod.get,
         query: {'filter': filter, 'page': page, 'pageSize': 20},
       );
@@ -61,7 +72,7 @@ class CoupleInvitationService {
   static Future<ApiResponse<void>> breakup() async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/breakup',
+        '/couple-invitations/breakup',
         method: HttpMethod.post,
       );
       return ApiResponse<void>.fromJson(res, (json) => null);
@@ -77,7 +88,7 @@ class CoupleInvitationService {
   ) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/send',
+        '/couple-invitations/send',
         method: HttpMethod.post,
         data: {'receiverMemberId': receiverMemberId, 'message': message},
       );
@@ -88,10 +99,10 @@ class CoupleInvitationService {
     }
   }
 
-  static Future<ApiResponse<void>> acceptInvitation(int invitationId) async {
+  static Future<ApiResponse<void>> acceptInvitation(int memberId) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/$invitationId/accept',
+        '/couple-invitations/$memberId/accept',
         method: HttpMethod.put,
       );
       return ApiResponse<void>.fromJson(res, (json) => null);
@@ -104,7 +115,7 @@ class CoupleInvitationService {
   static Future<ApiResponse<void>> rejectInvitation(int invitationId) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/$invitationId/reject',
+        '/couple-invitations/$invitationId/reject',
         method: HttpMethod.put,
       );
       return ApiResponse<void>.fromJson(res, (json) => null);
@@ -117,13 +128,29 @@ class CoupleInvitationService {
   static Future<ApiResponse<void>> cancelInvitation(int invitationId) async {
     try {
       final res = await ApiClient.request(
-        'couple-invitations/$invitationId/cancel',
+        '/couple-invitations/$invitationId/cancel',
         method: HttpMethod.put,
       );
       return ApiResponse<void>.fromJson(res, (json) => null);
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi hủy lời mời: $e');
+    }
+  }
+
+  static Future<ApiResponse<UserData>> getMemberProfile(int memberId) async {
+    try {
+      final res = await ApiClient.request(
+        '/Users/$memberId',
+        method: HttpMethod.get,
+      );
+      return ApiResponse<UserData>.fromJson(
+        res,
+        (json) => UserData.fromJson(json),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi lấy thông tin thành viên: $e');
     }
   }
 }
