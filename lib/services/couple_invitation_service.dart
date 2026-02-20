@@ -1,5 +1,4 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
-import 'package:couple_mood_mobile/models/coupleInvitation/member_profile.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/search_response.dart';
