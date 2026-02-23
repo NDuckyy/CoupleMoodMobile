@@ -2,7 +2,8 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/screens/coupleInvitation/invitation_receiver_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/receive_invitation_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/sent_invitation_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
@@ -379,6 +380,13 @@ GoRouter createRouter(BuildContext context) {
         name: 'receive_invitation',
         pageBuilder: (_, __) =>
             const MaterialPage(child: ReceiveInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/sent-invitation',
+        name: 'sent_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: SentInvitationScreen()),
       ),
 
       GoRoute(

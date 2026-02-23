@@ -29,7 +29,6 @@ class MemberSearchHeader extends StatelessWidget {
               },
             ),
 
-            /// Badge
             if (invitedCount > 0)
               Positioned(
                 right: 6,

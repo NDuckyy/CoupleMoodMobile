@@ -2,7 +2,9 @@ import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/member_search_header.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/user_card.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class MemberSearchScreen extends StatefulWidget {
@@ -23,6 +25,28 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
       context.read<CoupleInvitationProvider>().searchMembers(null, 1);
     });
     _scrollController.addListener(_onScroll);
+  }
+
+  void _sendInvitation(int memberProfileId, String message) async {
+    final invitationProvider = context.read<CoupleInvitationProvider>();
+    try {
+      await invitationProvider.sendInvitation(memberProfileId, message);
+      if (invitationProvider.error != null) {
+        if (!mounted) return;
+        showMsg(
+          context,
+          "${invitationProvider.error}",
+          false,
+        );
+        return;
+      }
+      if (!mounted) return;
+      showMsg(context, "Lời mời đã được gửi thành công", true);
+      invitationProvider.searchMembers(null, 1);
+      context.pop();
+    } catch (e) {
+      showMsg(context, "Lỗi khi gửi lời mời: ${e.toString()}", false);
+    }
   }
 
   void _onScroll() {
@@ -77,7 +101,10 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
                 padding: const EdgeInsets.all(16),
                 sliver: SliverGrid(
                   delegate: SliverChildBuilderDelegate((context, index) {
-                    return UserCard(user: invitationProvider.users[index]);
+                    return UserCard(
+                      user: invitationProvider.users[index],
+                      onSend: (message) => _sendInvitation(invitationProvider.users[index].memberProfileId, message),
+                    );
                   }, childCount: invitationProvider.users.length),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,

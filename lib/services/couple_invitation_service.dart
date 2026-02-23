@@ -30,7 +30,7 @@ class CoupleInvitationService {
     }
   }
 
-  static Future<ApiResponse<SearchResponse<ReceivedResponse>>>
+  static Future<ApiResponse<SearchResponse<InvitationResponse>>>
   getReceivedInvitation(String? filter, int page) async {
     try {
       final res = await ApiClient.request(
@@ -38,11 +38,11 @@ class CoupleInvitationService {
         method: HttpMethod.get,
         query: {'filter': filter, 'page': page, 'pageSize': 10},
       );
-      return ApiResponse<SearchResponse<ReceivedResponse>>.fromJson(
+      return ApiResponse<SearchResponse<InvitationResponse>>.fromJson(
         res,
-        (json) => SearchResponse<ReceivedResponse>.fromJson(
+        (json) => SearchResponse<InvitationResponse>.fromJson(
           json,
-          ReceivedResponse.fromJson,
+          InvitationResponse.fromJson,
         ),
       );
     } catch (e) {
@@ -51,17 +51,21 @@ class CoupleInvitationService {
     }
   }
 
-  static Future<ApiResponse<void>> getSentInvitation(
-    String? filter,
-    int page,
-  ) async {
+  static Future<ApiResponse<SearchResponse<InvitationResponse>>>
+  getSentInvitation(String? filter, int page) async {
     try {
       final res = await ApiClient.request(
         '/couple-invitations/sent',
         method: HttpMethod.get,
         query: {'filter': filter, 'page': page, 'pageSize': 20},
       );
-      return ApiResponse<void>.fromJson(res, (json) => null);
+      return ApiResponse<SearchResponse<InvitationResponse>>.fromJson(
+        res,
+        (json) => SearchResponse<InvitationResponse>.fromJson(
+          json,
+          InvitationResponse.fromJson,
+        ),
+      );
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi phản hồi lời mời: $e');

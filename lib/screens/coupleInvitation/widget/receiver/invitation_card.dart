@@ -1,95 +1,146 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class InvitationCard extends StatelessWidget {
-  final ReceivedResponse invitation;
+  final InvitationResponse invitation;
 
   const InvitationCard({required this.invitation, super.key});
+
   void _acceptInvitation(BuildContext context) async {
     final provider = context.read<CoupleInvitationProvider>();
     await provider.acceptInvitation(invitation.invitationId);
   }
 
+  void _rejectInvitation(BuildContext context) async {
+    final provider = context.read<CoupleInvitationProvider>();
+    await provider.rejectInvitation(invitation.invitationId);
+    if (provider.error != null) {
+      if (context.mounted) {
+        showMsg(context, provider.error!, false);
+      }
+    } else {
+      if (context.mounted) {
+        showMsg(context, "Đã từ chối lời mời", true);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          colors: [Color(0xFFFFFFFF), Color(0xFFF3EDFF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFB388EB).withOpacity(0.25)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            color: const Color(0xFFB388EB).withOpacity(0.15),
+            blurRadius: 25,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          /// Avatar + Name
           Row(
             children: [
               CircleAvatar(
-                radius: 30,
+                radius: 28,
+                backgroundColor: const Color(0xFFF7AEF8).withOpacity(0.2),
                 backgroundImage: invitation.senderAvatarUrl != null
                     ? NetworkImage(invitation.senderAvatarUrl!)
                     : null,
                 child: invitation.senderAvatarUrl == null
-                    ? const Icon(Icons.person)
+                    ? const Icon(Icons.person, color: Color(0xFFB388EB))
                     : null,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
+
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Material(
-                      clipBehavior: Clip.antiAlias,
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          context.pushNamed(
-                            "member_profile_match",
-                            extra: {'userId': invitation.senderMemberId},
-                          );
-                        },
-                        child: Ink(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 8,
-                            ),
-                            child: Text(
-                              invitation.senderName,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                child: GestureDetector(
+                  onTap: () {
+                    context.pushNamed(
+                      "member_profile_match",
+                      extra: {'userId': invitation.senderMemberId},
+                    );
+                  },
+                  child: Text(
+                    invitation.senderName,
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      invitation.message,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+
+              if (invitation.status != "PENDING") _buildStatusBadge(),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Icon(
+                      Icons.chat_bubble_outline,
+                      size: 14,
+                      color: const Color(0xFFB388EB),
                     ),
-                  ],
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    "Lời nhắn từ đối phương",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey.shade600,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F0FF),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  invitation.message,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+
+          const SizedBox(height: 18),
 
           if (invitation.status == "PENDING")
             Row(
@@ -97,55 +148,75 @@ class InvitationCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () async {
-                      // await invitationProvider
-                      //     .rejectInvitation(invitation.invitationId);
+                      _rejectInvitation(context);
                     },
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                      side: const BorderSide(color: Colors.red),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      foregroundColor: const Color(0xFFE57373),
+                      side: const BorderSide(color: Color(0xFFE57373)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
-                    child: const Text("Từ chối"),
+                    child: const Text(
+                      "Từ chối",
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => _acceptInvitation(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB388EB),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      elevation: 6,
+                      shadowColor: const Color(0xFFB388EB).withOpacity(0.4),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(16),
                       ),
                     ),
                     child: const Text(
                       "Chấp nhận",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-
-          /// Nếu không còn pending thì hiển thị trạng thái
-          if (invitation.status != "PENDING")
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(
-                invitation.status,
-                style: TextStyle(
-                  color: invitation.status == "ACCEPTED"
-                      ? Colors.green
-                      : Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildStatusBadge() {
+    Color color;
+
+    switch (invitation.status) {
+      case "ACCEPTED":
+        color = const Color(0xFF4CAF50);
+        break;
+      default:
+        color = const Color(0xFFE57373);
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        invitation.status,
+        style: TextStyle(
+          color: color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

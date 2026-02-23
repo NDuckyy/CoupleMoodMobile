@@ -1,4 +1,4 @@
-class ReceivedResponse {
+class InvitationResponse {
   final int invitationId;
   final int senderMemberId;
   final String senderName;
@@ -15,7 +15,7 @@ class ReceivedResponse {
   final DateTime sentAt;
   final DateTime? respondedAt;
 
-  ReceivedResponse({
+  InvitationResponse({
     required this.invitationId,
     required this.senderMemberId,
     required this.senderName,
@@ -30,8 +30,8 @@ class ReceivedResponse {
     this.respondedAt,
   });
 
-  factory ReceivedResponse.fromJson(Map<String, dynamic> json) {
-    return ReceivedResponse(
+  factory InvitationResponse.fromJson(Map<String, dynamic> json) {
+    return InvitationResponse(
       invitationId: json['invitationId'],
       senderMemberId: json['senderMemberId'],
       senderName: json['senderName'],

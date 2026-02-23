@@ -1,26 +1,22 @@
-import 'package:couple_mood_mobile/screens/coupleInvitation/widget/receiver/invitation_card.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/sent/sent_invitation_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 
-class ReceiveInvitationScreen extends StatefulWidget {
-  const ReceiveInvitationScreen({super.key});
+class SentInvitationScreen extends StatefulWidget {
+  const SentInvitationScreen({super.key});
 
   @override
-  State<ReceiveInvitationScreen> createState() =>
-      _ReceiveInvitationScreenState();
+  State<SentInvitationScreen> createState() => _SentInvitationScreenState();
 }
 
-class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
+class _SentInvitationScreenState extends State<SentInvitationScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CoupleInvitationProvider>().fetchReceivedInvitations(
-        null,
-        1,
-      );
+      context.read<CoupleInvitationProvider>().fetchSentInvitations(null, 1);
     });
   }
 
@@ -30,31 +26,34 @@ class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+
       appBar: AppBar(
-        title: const Text("Lời mời ghép đôi"),
+        title: const Text("Các lời mời đã gửi"),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await invitationProvider.fetchReceivedInvitations(null, 1);
+          await invitationProvider.fetchSentInvitations(null, 1);
         },
-        child: invitationProvider.receivedInvitations.isEmpty
+        child: invitationProvider.isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : invitationProvider.sentInvitations.isEmpty
             ? EmptyStateWidget(
                 icon: Icons.heart_broken,
                 title: "Chưa có lời mời nào",
                 description:
-                    "Bạn chưa nhận được lời mời ghép đôi nào từ người dùng khác.",
+                    "Bạn chưa gửi lời mời ghép đôi nào đến người dùng khác.",
               )
             : ListView.separated(
                 padding: const EdgeInsets.all(16),
-                itemCount: invitationProvider.receivedInvitations.length,
+                itemCount: invitationProvider.sentInvitations.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
-                  final user = invitationProvider.receivedInvitations[index];
+                  final user = invitationProvider.sentInvitations[index];
 
-                  return InvitationCard(invitation: user);
+                  return SentInvitationCard(invitation: user);
                 },
               ),
       ),
