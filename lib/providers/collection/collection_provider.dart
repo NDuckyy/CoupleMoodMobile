@@ -89,4 +89,20 @@ class CollectionProvider extends ChangeNotifier {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
+
+  Future<void> deleteCollection(int id) async {
+    try {
+      await CollectionService.deleteCollection(id);
+
+      // Xoá khỏi local list nếu có
+      if (collectionsResponse?.data?.items != null) {
+        collectionsResponse!.data!.items.removeWhere(
+          (element) => element.id == id,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
 }

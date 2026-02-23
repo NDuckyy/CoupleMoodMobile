@@ -83,4 +83,17 @@ class CollectionService {
       (json) => CollectionItem.fromJson(json),
     );
   }
+
+  static Future<ApiResponse<void>> deleteCollection(int id) async {
+    try {
+      final res = await ApiClient.request(
+        '/Collection/$id',
+        method: HttpMethod.delete,
+      );
+
+      return ApiResponse<void>.fromJson(res, (_) => null);
+    } catch (e) {
+      throw Exception('Lỗi khi xoá collection: $e');
+    }
+  }
 }

@@ -62,7 +62,46 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                     }
                   },
                   onShare: () => debugPrint('Share'),
-                  onDelete: () => debugPrint('Delete'),
+                  onDelete: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text("Xoá bộ sưu tập"),
+                          content: const Text(
+                            "Bạn có chắc muốn xoá bộ sưu tập này?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text("Huỷ"),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                "Xoá",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+
+                    if (confirm == true) {
+                      try {
+                        await context
+                            .read<CollectionProvider>()
+                            .deleteCollection(collection.id);
+
+                        if (mounted) context.pop(true);
+                      } catch (e) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.toString())));
+                      }
+                    }
+                  },
                 ),
                 const SizedBox(height: 12),
                 const Padding(
