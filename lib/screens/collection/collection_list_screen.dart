@@ -51,11 +51,15 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
                 return CollectionCard(
                   collection: collection,
-                  onTap: () {
-                    context.pushNamed(
+                  onTap: () async {
+                    final result = await context.pushNamed(
                       'collection_detail',
                       extra: {'collectionId': collection.id},
                     );
+
+                    if (result == true) {
+                      context.read<CollectionProvider>().getMyCollections();
+                    }
                   },
                   onEdit: () async {
                     final result = await context.pushNamed(

@@ -23,5 +23,21 @@ class CollectionDetailProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> removeVenue({
+    required int collectionId,
+    required int venueId,
+  }) async {
+    try {
+      await CollectionService.removeVenuesFromCollection(
+        collectionId: collectionId,
+        venueIds: [venueId],
+      );
+
+      await getCollectionDetail(collectionId);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   CollectionItem? get collection => response?.data;
 }

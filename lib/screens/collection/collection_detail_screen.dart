@@ -36,7 +36,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(collection?.collectionName ?? ''),
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.pop(true);
+          },
+        ),
         centerTitle: true,
       ),
       body: provider.isLoading
@@ -126,10 +131,56 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                     itemBuilder: (context, index) {
                       return CollectionVenueItem(
                         venue: collection.venues[index],
-                        onRemove: () {
-                          debugPrint(
-                            'Remove venue ${collection.venues[index].id}',
+                        onRemove: () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Xoá địa điểm"),
+                                content: const Text(
+                                  "Bạn có chắc muốn xoá địa điểm này khỏi bộ sưu tập?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text("Huỷ"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text(
+                                      "Xoá",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
                           );
+
+                          if (confirm == true) {
+                            try {
+                              await context
+                                  .read<CollectionDetailProvider>()
+                                  .removeVenue(
+                                    collectionId: collection.id,
+                                    venueId: collection.venues[index].id,
+                                  );
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Đã xoá địa điểm khỏi bộ sưu tập",
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())),
+                              );
+                            }
+                          }
                         },
                       );
                     },

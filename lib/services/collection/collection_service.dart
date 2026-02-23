@@ -96,4 +96,21 @@ class CollectionService {
       throw Exception('Lỗi khi xoá collection: $e');
     }
   }
+
+  static Future<ApiResponse<void>> removeVenuesFromCollection({
+    required int collectionId,
+    required List<int> venueIds,
+  }) async {
+    try {
+      final res = await ApiClient.request(
+        '/Collection/$collectionId/remove-venues',
+        method: HttpMethod.patch,
+        data: {"venueIds": venueIds},
+      );
+
+      return ApiResponse<void>.fromJson(res, (_) => null);
+    } catch (e) {
+      throw Exception('Lỗi khi xoá địa điểm khỏi collection: $e');
+    }
+  }
 }
