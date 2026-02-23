@@ -29,12 +29,25 @@ class CollectionVenueItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset(
-                'lib/assets/images/venue_placeholder.png',
-                width: 64,
-                height: 64,
-                fit: BoxFit.cover,
-              ),
+              child: venue.coverImage != null && venue.coverImage!.isNotEmpty
+                  ? Image.network(
+                      venue.coverImage!,
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Image.asset(
+                        'lib/assets/images/venue_placeholder.png',
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Image.asset(
+                      'lib/assets/images/venue_placeholder.png',
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.cover,
+                    ),
             ),
             const SizedBox(width: 12),
             Expanded(

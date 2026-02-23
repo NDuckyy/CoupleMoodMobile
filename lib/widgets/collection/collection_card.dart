@@ -76,6 +76,12 @@ class CollectionCard extends StatelessWidget {
                 ),
               ),
 
+              Positioned(
+                top: 10,
+                right: 10,
+                child: _StatusBadge(status: collection.status),
+              ),
+
               /// Title + count
               Positioned(
                 left: 12,
@@ -166,6 +172,53 @@ class _ActionIcon extends StatelessWidget {
           ],
         ),
         child: Icon(icon, size: 18, color: color),
+      ),
+    );
+  }
+}
+
+class _StatusBadge extends StatelessWidget {
+  final String status;
+
+  const _StatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final isPublic = status.toUpperCase() == "PUBLIC";
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: isPublic
+            ? Colors.green.withOpacity(0.9)
+            : Colors.grey.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            isPublic ? Icons.public : Icons.lock,
+            size: 14,
+            color: Colors.white,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isPublic ? "Công khai" : "Chỉ mình tôi",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
