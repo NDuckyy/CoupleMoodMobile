@@ -73,4 +73,29 @@ class RecommendationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> popularNearby() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      _recommendationResponse =
+          await RecommendationService.fetchRecommendations(
+            RecommendationRequest(
+              latitude: latitude,
+              longitude: longitude,
+              radiusKm: 1000,
+              limit: 5,
+              area: "79",
+            ),
+            page,
+            pageSize,
+          );
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

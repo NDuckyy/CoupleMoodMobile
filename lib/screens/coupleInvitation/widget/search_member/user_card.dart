@@ -171,18 +171,6 @@ class UserCard extends StatelessWidget {
                 : _buildPlaceholder(),
           ),
 
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black87],
-                ),
-              ),
-            ),
-          ),
-
           Positioned(
             top: 12,
             left: 12,

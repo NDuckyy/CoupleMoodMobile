@@ -1,4 +1,14 @@
+import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
+import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
+import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
+import 'package:couple_mood_mobile/screens/home/widget/special_event.dart';
+import 'package:couple_mood_mobile/screens/home/widget/week_selector.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/home_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -14,62 +24,150 @@ class _HomeScreenState extends State<HomeScreen> {
   void _logout() {
     final auth = context.read<AuthProvider>();
     auth.logout();
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      context.pushNamed("login");
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<MoodProvider>().getCoupleCurrentMood();
+      _getPopularNearby();
+      _getSpecialEvent();
+    });
+  }
+
+  void _getPopularNearby() async {
+    final position = await LocationService.getCurrentPosition();
+    if (position != null) {
+      if (!mounted) return;
+      final recommendationProvider = context.read<RecommendationProvider>();
+      recommendationProvider.latitude = position.latitude;
+      recommendationProvider.longitude = position.longitude;
+      debugPrint('User location: ${position.latitude}, ${position.longitude}');
+      recommendationProvider.popularNearby();
+    }
+  }
+
+  void _getSpecialEvent() {
+    context.read<AdvertisementProvider>().fetchSpecialEvents();
   }
 
   @override
   Widget build(BuildContext context) {
+    final moodProvider = context.watch<MoodProvider>();
+    final recommendationProvider = context.watch<RecommendationProvider>();
+    final advertisementProvider = context.watch<AdvertisementProvider>();
+    final recs =
+        recommendationProvider.recommendationResponse?.recommendations.items ??
+        [];
+
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome to the Home Screen!'),
-            ElevatedButton(
-              onPressed: () {
-                context.pushNamed("moodChooseMethod");
-              },
-              child: Text('Choose Mood'),
-            ),
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            floating: false,
+            snap: false,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            automaticallyImplyLeading: false,
+            titleSpacing: 12,
+            title: const HomeHeader(),
+          ),
 
-            ElevatedButton(
-              onPressed: () {
-                context.pushNamed("venue_detail");
-              },
-              child: Text('Venue Detail (Test id 1)'),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: CoupleMoodCard(
+                coupleCurrentMood: moodProvider.coupleCurrentMood,
+              ),
             ),
+          ),
 
-            ElevatedButton(
-              onPressed: () {
-                context.pushNamed("test");
-              },
-              child: Text('Go to Test Screen'),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              child: WeekSelector(
+                initialDate: DateTime.now(),
+                onDateSelected: (date) {
+                  print(date);
+                },
+              ),
             ),
+          ),
 
-            ElevatedButton(
-              onPressed: () {
-                context.pushNamed("member_search");
-              },
-              child: Text('Invite Screen'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.goNamed('collections');
-              },
-              child: const Text('My Collections screen'),
-            ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 4,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1,
+                children: [
+                  HomeIconButton(
+                    icon: Icons.mood,
+                    label: "Cảm xúc",
+                    color: const Color(0xFFF7AEF8),
+                    onTap: () {
+                      context.pushNamed("moodChooseMethod");
+                    },
+                  ),
 
-            ElevatedButton(
-              onPressed: () {
-                _logout();
-                Future.delayed(Duration(milliseconds: 1000), () {
-                  if (!mounted) return;
-                  context.pushNamed("login");
-                });
-              },
-              child: Text('Logout'),
+                  HomeIconButton(
+                    icon: Icons.science,
+                    label: "Khám phá\nbạn",
+                    color: const Color(0xFFB388EB),
+                    onTap: () {
+                      context.pushNamed("test");
+                    },
+                  ),
+
+                  HomeIconButton(
+                    icon: Icons.group_add,
+                    label: "Ghép cặp",
+                    color: const Color(0xFF8093F1),
+                    onTap: () {
+                      context.pushNamed("member_search");
+                    },
+                  ),
+
+                  HomeIconButton(
+                    icon: Icons.collections_bookmark,
+                    label: "Bộ sưu\ntập",
+                    color: const Color(0xFF72DDF7),
+                    onTap: () {
+                      context.goNamed("collections");
+                    },
+                  ),
+
+                  HomeIconButton(
+                    icon: Icons.logout,
+                    label: "Đăng xuất",
+                    color: const Color(0xFFB388EB),
+                    onTap: () {
+                      _logout();
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: SpecialEvent(
+              advertisements: advertisementProvider.advertisements,
+            ),
+          ),
+          SliverToBoxAdapter(child: SizedBox(height: 16)),
+          SliverToBoxAdapter(child: PopularNearby(recs: recs)),
+        ],
       ),
     );
   }

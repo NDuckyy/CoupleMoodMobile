@@ -449,51 +449,57 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentIndex = navigationShell.currentIndex;
+
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(0.08)),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-              icon: const Icon(Icons.local_fire_department_rounded),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(3),
-            ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(1),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chat_outlined),
-              color: const Color(0xFF7B8CE4),
-              // mở mood flow ngoài shell => ẩn bottom bar
-              onPressed: () => _onTap(2),
-            ),
-            IconButton(
-              icon: const Icon(Icons.home_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(0),
-            ),
-            IconButton(
-              icon: const Icon(Icons.south_america_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(4),
-            ),
-            IconButton(
-              icon: const Icon(Icons.collections_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(5),
-            ),
-            IconButton(
-              icon: const Icon(Icons.person_outline),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(6),
-            ),
+            _buildItem(Icons.search, 1, currentIndex),
+            _buildItem(Icons.chat_outlined, 2, currentIndex),
+            _buildItem(Icons.local_fire_department_rounded, 3, currentIndex),
+            _buildItem(Icons.home_outlined, 0, currentIndex),
+            _buildItem(Icons.south_america_outlined, 4, currentIndex),
+            _buildItem(Icons.collections_outlined, 5, currentIndex),
+            _buildItem(Icons.person_outline, 6, currentIndex),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItem(IconData icon, int index, int currentIndex) {
+    final isActive = index == currentIndex;
+
+    return GestureDetector(
+      onTap: () => _onTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: isActive
+              ? const LinearGradient(
+                  colors: [
+                    Color(0xFFB388EB),
+                    Color(0xFF8093F1),
+                  ],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color: isActive ? Colors.white : const Color(0xFF8093F1),
         ),
       ),
     );

@@ -12,7 +12,8 @@ const softGrey = Color(0xFFF5F5F7);
 
 class VenueCard extends StatelessWidget {
   final Recommendation r;
-  const VenueCard({super.key, required this.r});
+  final int maxline;
+  const VenueCard({super.key, required this.r, required this.maxline});
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +111,7 @@ class VenueCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         r.displayAddress,
-                        maxLines: 2,
+                        maxLines: maxline,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(color: Colors.black87),
                       ),
