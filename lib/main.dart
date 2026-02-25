@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -8,21 +10,25 @@ import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await initializeDateFormatting('vi');
   final auth = AuthProvider();
   await auth.init();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: auth),
-        ChangeNotifierProvider(create:  (_) => VenueDetailProvider()),
+        ChangeNotifierProvider(create: (_) => VenueDetailProvider()),
         ChangeNotifierProvider(create: (_) => DatePlanProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),
         ChangeNotifierProvider(create: (_) => MoodProvider()),
+        ChangeNotifierProvider(create: (_) => CoupleInvitationProvider()),
+        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+        ChangeNotifierProvider(create: (_) => AdvertisementProvider()),
       ],
       child: const MyApp(),
     ),

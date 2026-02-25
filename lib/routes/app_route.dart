@@ -2,8 +2,12 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/receive_invitation_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/sent_invitation_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
-import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlan/create_date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlanItem/create_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_item_screen.dart';
@@ -328,8 +332,13 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/date-plan/date-plan-item',
         name: 'date_plan_item',
-        pageBuilder: (_, __) =>
-            const NoTransitionPage(child: DatePlanItemScreen()),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return DatePlanItemScreen(
+            datePlanId: extra['datePlanId'],
+            status: extra['status'],
+          );
+        },
       ),
       GoRoute(
         path: '/date-plan/edit',
@@ -340,14 +349,15 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
       GoRoute(
-        path: '/date-plan-item/create',
+        path: '/date-plan/date-plan-item/create',
         name: 'date_plan_item_create',
-        pageBuilder: (_, __) {
-          return NoTransitionPage(child: CreateDatePlanItemScreen());
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CreateDatePlanItemScreen(datePlanId: extra['datePlanId']);
         },
       ),
       GoRoute(
-        path: '/choose-location',
+        path: '/date-plan/date-plan-item/choose-location',
         name: 'choose_location',
         pageBuilder: (_, __) {
           return const NoTransitionPage(child: ChooseLocationScreen());
@@ -362,6 +372,34 @@ GoRouter createRouter(BuildContext context) {
             datePlanItemId: extra['datePlanItemId'],
             datePlanId: extra['datePlanId'],
           );
+        },
+      ),
+      GoRoute(
+        path: '/member-search',
+        name: 'member_search',
+        pageBuilder: (_, __) => const MaterialPage(child: MemberSearchScreen()),
+      ),
+
+      GoRoute(
+        path: '/receive-invitation',
+        name: 'receive_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ReceiveInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/sent-invitation',
+        name: 'sent_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: SentInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/member-profile-match',
+        name: 'member_profile_match',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return MemberProfileMatchScreen(userId: extra['userId']);
         },
       ),
 
@@ -446,49 +484,87 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _buildCenterButton(),
+
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final currentIndex = navigationShell.currentIndex;
+
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 6,
+      height: 60,
+      child: SizedBox(
+        height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-              icon: const Icon(Icons.local_fire_department_rounded),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(3),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.chat_outlined, 2, currentIndex),               
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(1),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chat_outlined),
-              color: const Color(0xFF7B8CE4),
-              // mở mood flow ngoài shell => ẩn bottom bar
-              onPressed: () => _onTap(2),
-            ),
-            IconButton(
-              icon: const Icon(Icons.home_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(0),
-            ),
-            IconButton(
-              icon: const Icon(Icons.south_america_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(4),
-            ),
-            IconButton(
-              icon: const Icon(Icons.collections_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(5),
-            ),
-            IconButton(
-              icon: const Icon(Icons.person_outline),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(6),
+
+            const SizedBox(width: 48),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.calendar_month, 5, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.person_outline, 6, currentIndex),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return Transform.translate(
+      offset: const Offset(0, 16),
+      child: SizedBox(
+        height: 70,
+        width: 70,
+        child: FloatingActionButton(
+          shape: const CircleBorder(),
+          elevation: 8,
+          backgroundColor: const Color(0xFFB388EB),
+          onPressed: () => _onTap(0),
+          child: const Icon(Icons.home_outlined, size: 32, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItem(IconData icon, int index, int currentIndex) {
+    final isActive = index == currentIndex;
+
+    return GestureDetector(
+      onTap: () => _onTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: isActive
+              ? const LinearGradient(
+                  colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color: isActive ? Colors.white : const Color(0xFF8093F1),
         ),
       ),
     );

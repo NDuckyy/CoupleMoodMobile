@@ -24,7 +24,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     });
   }
 
-  void deleteDatePlan(int datePlanId) async {
+  void _deleteDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
     await datePlanProvider.deleteDatePlan(datePlanId);
     if (datePlanProvider.error != null) {
@@ -33,6 +33,45 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Xóa lịch hẹn thành công', true);
+      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+    }
+  }
+
+  void _sendDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    await datePlanProvider.sendDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Gửi lịch hẹn thành công', true);
+      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+    }
+  }
+
+  void _cancelDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    await datePlanProvider.cancelDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Hủy lịch hẹn thành công', true);
+      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+    }
+  }
+
+  void _completeDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    await datePlanProvider.completeDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Kết thúc lịch hẹn thành công', true);
       datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
     }
   }
@@ -91,7 +130,16 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                             child: DatePlanCard(
                               item: items[index],
                               onDelete: () {
-                                deleteDatePlan(items[index].id);
+                                _deleteDatePlan(items[index].id);
+                              },
+                              onSend: () {
+                                _sendDatePlan(items[index].id);
+                              },
+                              onCancel: () {
+                                _cancelDatePlan(items[index].id);
+                              },
+                              onComplete: () {
+                                _completeDatePlan(items[index].id);
                               },
                             ),
                           );

@@ -12,11 +12,13 @@ import 'package:go_router/go_router.dart';
 class DatePlanItemCard extends StatelessWidget {
   final ListDatePlanItem item;
   final VoidCallback onDelete;
+  final int index;
 
   const DatePlanItemCard({
     super.key,
     required this.item,
     required this.onDelete,
+    required this.index,
   });
 
   void _onEditPressed(BuildContext context) {
@@ -35,56 +37,69 @@ class DatePlanItemCard extends StatelessWidget {
       shadowColor: const Color(0x33B388EB),
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          VenueImage(
-            imageUrl: item.venueLocation.coverImage.isNotEmpty
-                ? item.venueLocation.coverImage[0]
-                : '',
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    VenueTitle(
-                      name: item.venueLocation.name,
-                      venueId: item.venueLocation.id,
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete_outline,
-                        color: Colors.redAccent,
-                        size: 20,
-                      ),
-                      constraints: const BoxConstraints(),
-                      onPressed: () => showConfirmDeleteDialog(
-                        context: context,
-                        onConfirm: onDelete,
-                      ),
-                    ),
-                  ],
+                VenueImage(
+                  imageUrl: item.venueLocation.coverImage.isNotEmpty
+                      ? item.venueLocation.coverImage[0]
+                      : '',
                 ),
-                const SizedBox(height: 12),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          VenueTitle(
+                            name: item.venueLocation.name,
+                            venueId: item.venueLocation.id,
+                          ),
+                          const Spacer(),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.delete_outline,
+                              color: Colors.redAccent,
+                              size: 20,
+                            ),
+                            constraints: const BoxConstraints(),
+                            onPressed: () => showConfirmDeleteDialog(
+                              context: context,
+                              onConfirm: onDelete,
+                            ),
+                          ),
+                          ReorderableDragStartListener(
+                            index: index,
+                            child: const Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: Icon(Icons.drag_handle),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
 
-                TimeRangeBadge(
-                  startTime: item.startTime,
-                  endTime: item.endTime,
-                ),
+                      TimeRangeBadge(
+                        startTime: item.startTime,
+                        endTime: item.endTime,
+                      ),
 
-                const SizedBox(height: 10),
-                VenueAddress(address: item.venueLocation.address),
+                      const SizedBox(height: 10),
+                      VenueAddress(address: item.venueLocation.address),
 
-                const SizedBox(height: 14),
-                NoteSection(note: item.note),
+                      const SizedBox(height: 14),
+                      NoteSection(note: item.note),
 
-                const SizedBox(height: 14),
-                EditDatePlanItemButton(
-                  onPressed: () => _onEditPressed(context),
+                      const SizedBox(height: 14),
+                      EditDatePlanItemButton(
+                        onPressed: () => _onEditPressed(context),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

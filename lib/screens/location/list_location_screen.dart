@@ -198,7 +198,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCard(r: r);
+                      return VenueCard(r: r, maxline: 2);
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

@@ -14,6 +14,10 @@ class ChooseLocationVenueCard extends StatelessWidget {
   final Recommendation r;
   const ChooseLocationVenueCard({super.key, required this.r});
 
+  void _addToDatePlan(BuildContext context) {
+    context.pop({'venueLocationId': r.venueLocationId, 'venueName': r.displayName});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -175,7 +179,9 @@ class ChooseLocationVenueCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        _addToDatePlan(context);
+                      },
                       icon: const Icon(Icons.add, size: 18),
                       label: const Text('Thêm vào lịch hẹn'),
                     ),
@@ -189,7 +195,10 @@ class ChooseLocationVenueCard extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          context.pushNamed("venue_detail", extra: {"venueId": r.venueLocationId});
+                          context.pushNamed(
+                            "venue_detail",
+                            extra: {"venueId": r.venueLocationId},
+                          );
                         },
                         child: const Text(
                           'Chi tiết',

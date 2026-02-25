@@ -2,7 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class DatePlanItemHeader extends StatelessWidget {
-  const DatePlanItemHeader({super.key});
+  final int datePlanId;
+  final String status;
+  final Function()? onCreated;
+  const DatePlanItemHeader({
+    super.key,
+    required this.datePlanId,
+    required this.status,
+    this.onCreated,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +35,17 @@ class DatePlanItemHeader extends StatelessWidget {
         const Spacer(),
         Row(
           children: [
+            if (status == 'DRAFTED' || status == 'PENDING')
             IconButton(
               icon: const Icon(Icons.add),
               onPressed: () async {
                 final created = await context.pushNamed(
                   'date_plan_item_create',
+                  extra: {'datePlanId': datePlanId},
                 );
 
-                if (created == true) {
-                  // if (!context.mounted) return;
-                  // context.read<DatePlanProvider>().fetchDatePlans(page: 1);
+                if (created == true && onCreated != null) {
+                  onCreated!();
                 }
               },
             ),

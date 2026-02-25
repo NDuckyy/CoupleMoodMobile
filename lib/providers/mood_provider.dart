@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/mood/current_mood.dart';
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/mood_service.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/foundation.dart';
 
 class MoodProvider extends ChangeNotifier {
   ApiResponse<List<MoodFace>>? _currentMoodResponse;
+  CurrentMood? coupleCurrentMood;
   bool isLoading = false;
   String? error;
   ApiResponse<List<MoodType>> moodTypes = ApiResponse(
@@ -52,7 +54,7 @@ class MoodProvider extends ChangeNotifier {
       notifyListeners();
       moodTypes = await MoodService.getMoodTypes(gender);
     } catch (e) {
-      throw Exception('Lỗi khi lấy danh sách mood type: $e');
+      error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoading = false;
       notifyListeners();
@@ -63,7 +65,7 @@ class MoodProvider extends ChangeNotifier {
     try {
       await MoodService.updateMood(moodTypeId);
     } catch (e) {
-      throw Exception('Lỗi khi cập nhật mood: $e');
+      error = e.toString().replaceFirst('Exception: ', '');
     }
   }
 
@@ -71,9 +73,35 @@ class MoodProvider extends ChangeNotifier {
     try {
       isLoading = true;
       notifyListeners();
-      _userCurrentMood = await MoodService.getCurrentMood();
+      final moodResponse = await MoodService.getCurrentMood();
+      if (moodResponse.code != 200 || moodResponse.data == null) {
+        error = moodResponse.message;
+        _userCurrentMood = null;
+      } else {
+        _userCurrentMood = moodResponse.data!.currentMood;
+      }
     } catch (e) {
-      throw Exception('Lỗi khi lấy mood hiện tại: $e');
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getCoupleCurrentMood() async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final moodResponse = await MoodService.getCurrentMood();
+      if (moodResponse.code != 200 || moodResponse.data == null) {
+        error = moodResponse.message;
+        coupleCurrentMood = null;
+      } else {
+        coupleCurrentMood = moodResponse.data;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoading = false;
       notifyListeners();

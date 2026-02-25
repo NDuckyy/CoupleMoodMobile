@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/mood/current_mood.dart';
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
@@ -76,15 +77,16 @@ class MoodService {
     }
   }
 
-  static Future<String> getCurrentMood() async {
+  static Future<ApiResponse<CurrentMood>> getCurrentMood() async {
     try {
       final res = await ApiClient.request(
         "/MoodType/current-mood",
         method: HttpMethod.get,
       );
-      final root = (res as Map).cast<String, dynamic>();
-      final Map<String, dynamic> mood = root['data'] as Map<String, dynamic>;
-      return mood['currentMood'] as String;
+      return ApiResponse<CurrentMood>.fromJson(
+        res,
+        (json) => CurrentMood.fromJson(json),
+      );
     } catch (e) {
       throw Exception('Lỗi khi lấy mood hiện tại: $e');
     }
