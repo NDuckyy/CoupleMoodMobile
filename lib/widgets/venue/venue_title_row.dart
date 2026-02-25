@@ -99,10 +99,33 @@ class _VenueTitleRowState extends State<VenueTitleRow>
               ),
             ),
             GestureDetector(
-              onTap: () {
-                provider.toggleFavorite();
-                _playHeartEffect();
-              },
+              onTap: provider.favoriteLoading
+                  ? null
+                  : () async {
+                      final success = await provider.toggleFavorite();
+
+                      if (!mounted) return;
+
+                      if (success) {
+                        if (provider.isFavorite) {
+                          _playHeartEffect();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('❤️ Đã thêm vào Mục yêu thích'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🤍 Đã xoá khỏi Mục yêu thích'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      }
+                    },
               child: AnimatedBuilder(
                 animation: _controller,
                 builder: (_, __) {
@@ -115,6 +138,7 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                         ..._flyingHearts,
                         Container(
                           decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                             boxShadow: [
                               if (isFavorite)
                                 BoxShadow(
@@ -123,11 +147,21 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                                 ),
                             ],
                           ),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            size: 28,
-                            color: isFavorite ? Colors.pink : Colors.grey,
-                          ),
+                          child: provider.favoriteLoading
+                              ? const SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  size: 28,
+                                  color: isFavorite ? Colors.pink : Colors.grey,
+                                ),
                         ),
                       ],
                     ),

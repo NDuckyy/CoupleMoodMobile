@@ -113,4 +113,28 @@ class CollectionService {
       throw Exception('Lỗi khi xoá địa điểm khỏi collection: $e');
     }
   }
+
+  static Future<ApiResponse<CollectionItem>> getCurrentCollection() async {
+    final res = await ApiClient.request(
+      '/Collection/current',
+      method: HttpMethod.get,
+    );
+
+    return ApiResponse<CollectionItem>.fromJson(
+      res,
+      (json) => CollectionItem.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<void>> addVenueToCollection({
+    required int collectionId,
+    required int venueId,
+  }) async {
+    final res = await ApiClient.request(
+      '/Collection/$collectionId/venue/$venueId',
+      method: HttpMethod.post,
+    );
+
+    return ApiResponse<void>.fromJson(res, (_) => null);
+  }
 }

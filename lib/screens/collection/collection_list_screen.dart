@@ -49,8 +49,12 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
                 final collection = provider.collections[index];
 
+                ///  CHECK DEFAULT COLLECTION
+                final isDefault = provider.defaultCollectionId == collection.id;
+
                 return CollectionCard(
                   collection: collection,
+
                   onTap: () async {
                     final result = await context.pushNamed(
                       'collection_detail',
@@ -61,62 +65,70 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                       context.read<CollectionProvider>().getMyCollections();
                     }
                   },
-                  onEdit: () async {
-                    final result = await context.pushNamed(
-                      'edit_collection',
-                      extra: {'collection': collection},
-                    );
 
-                    if (result == true) {
-                      context.read<CollectionProvider>().getMyCollections();
-                    }
-                  },
+                  ///  Nếu là default thì disable edit
+                  onEdit: isDefault
+                      ? null
+                      : () async {
+                          final result = await context.pushNamed(
+                            'edit_collection',
+                            extra: {'collection': collection},
+                          );
+
+                          if (result == true) {
+                            context
+                                .read<CollectionProvider>()
+                                .getMyCollections();
+                          }
+                        },
 
                   onShare: () {
                     debugPrint('Share ${collection.id}');
                   },
-                  onDelete: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text("Xoá bộ sưu tập"),
-                          content: const Text(
-                            "Bạn có chắc muốn xoá bộ sưu tập này?",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: const Text("Huỷ"),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: const Text(
-                                "Xoá",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
 
-                    if (confirm == true) {
-                      try {
-                        await context
-                            .read<CollectionProvider>()
-                            .deleteCollection(collection.id);
+                  ///  Nếu là default thì disable delete
+                  onDelete: isDefault
+                      ? null
+                      : () async {
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text("Xoá bộ sưu tập"),
+                                content: const Text(
+                                  "Bạn có chắc muốn xoá bộ sưu tập này?",
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text("Huỷ"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    child: const Text(
+                                      "Xoá",
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
 
-                        if (mounted && context.canPop()) {
-                          context.pop(true);
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(e.toString())));
-                      }
-                    }
-                  },
+                          if (confirm == true) {
+                            try {
+                              await context
+                                  .read<CollectionProvider>()
+                                  .deleteCollection(collection.id);
+                            } catch (e) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(e.toString())),
+                              );
+                            }
+                          }
+                        },
                 );
               },
             ),

@@ -120,21 +120,26 @@ class CollectionCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _ActionIcon(
-                      icon: Icons.edit,
-                      color: Colors.orange,
-                      onTap: onEdit,
-                    ),
-                    _ActionIcon(
-                      icon: Icons.share,
-                      color: Colors.pinkAccent,
-                      onTap: onShare,
-                    ),
-                    _ActionIcon(
-                      icon: Icons.delete,
-                      color: Colors.redAccent,
-                      onTap: onDelete,
-                    ),
+                    if (onEdit != null)
+                      _ActionIcon(
+                        icon: Icons.edit,
+                        color: Colors.orange,
+                        onTap: onEdit,
+                      ),
+
+                    if (onShare != null)
+                      _ActionIcon(
+                        icon: Icons.share,
+                        color: Colors.pinkAccent,
+                        onTap: onShare,
+                      ),
+
+                    if (onDelete != null)
+                      _ActionIcon(
+                        icon: Icons.delete,
+                        color: Colors.redAccent,
+                        onTap: onDelete,
+                      ),
                   ],
                 ),
               ),

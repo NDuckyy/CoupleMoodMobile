@@ -8,6 +8,7 @@ class CollectionProvider extends ChangeNotifier {
   ApiResponse<PaginatedResponse<CollectionItem>>? collectionsResponse;
   bool isLoading = false;
   String? error;
+  int? defaultCollectionId;
 
   Future<void> getMyCollections({int page = 1, int pageSize = 10}) async {
     isLoading = true;
@@ -15,10 +16,18 @@ class CollectionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      collectionsResponse = await CollectionService.getMyCollections(
-        page: page,
-        pageSize: pageSize,
-      );
+      // Gọi song song để check default collection
+      final results = await Future.wait([
+        CollectionService.getMyCollections(page: page, pageSize: pageSize),
+        CollectionService.getCurrentCollection(),
+      ]);
+
+      collectionsResponse =
+          results[0] as ApiResponse<PaginatedResponse<CollectionItem>>;
+
+      final currentCollection = results[1] as ApiResponse<CollectionItem>;
+
+      defaultCollectionId = currentCollection.data?.id;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
