@@ -9,6 +9,7 @@ class CollectionProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
   int? defaultCollectionId;
+  CollectionItem? currentCollection;
 
   Future<void> getMyCollections({int page = 1, int pageSize = 10}) async {
     isLoading = true;
@@ -113,5 +114,54 @@ class CollectionProvider extends ChangeNotifier {
     } catch (e) {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
+  }
+
+  Future<void> getCurrentCollection() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response = await CollectionService.getCurrentCollection();
+      currentCollection = response.data;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// REMOVE SINGLE
+  Future<void> removeVenue({
+    required int collectionId,
+    required int venueId,
+  }) async {
+    await removeVenues(collectionId: collectionId, venueIds: [venueId]);
+  }
+
+  /// REMOVE BULK
+  Future<void> removeVenues({
+    required int collectionId,
+    required List<int> venueIds,
+  }) async {
+    try {
+      await CollectionService.removeVenuesFromCollection(
+        collectionId: collectionId,
+        venueIds: venueIds,
+      );
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  Future<void> addVenuesToCollection({
+    required int collectionId,
+    required List<int> venueIds,
+  }) async {
+    await CollectionService.addVenuesToCollection(
+      collectionId: collectionId,
+      venueIds: venueIds,
+    );
   }
 }

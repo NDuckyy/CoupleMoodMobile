@@ -137,4 +137,17 @@ class CollectionService {
 
     return ApiResponse<void>.fromJson(res, (_) => null);
   }
+
+  static Future<ApiResponse<void>> addVenuesToCollection({
+    required int collectionId,
+    required List<int> venueIds,
+  }) async {
+    final res = await ApiClient.request(
+      '/Collection/$collectionId/add-venues',
+      method: HttpMethod.patch,
+      data: {"venueIds": venueIds},
+    );
+
+    return ApiResponse<void>.fromJson(res, (_) => null);
+  }
 }

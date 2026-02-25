@@ -9,12 +9,14 @@ import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.da
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/updateDatePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
+
 import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/collection/edit_collection_screen.dart';
-
 import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_screen.dart';
+
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -408,6 +410,18 @@ GoRouter createRouter(BuildContext context) {
               final extra = state.extra as Map<String, dynamic>;
               return MaterialPage(
                 child: EditCollectionScreen(collection: extra['collection']),
+              );
+            },
+          ),
+          GoRoute(
+            name: 'add_venue_to_collection',
+            path: '/collections/add-venue',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+
+              return AddVenueToCollectionScreen(
+                collectionId: extra['collectionId'],
+                existingVenueIds: List<int>.from(extra['existingIds']),
               );
             },
           ),

@@ -28,16 +28,74 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     });
   }
 
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  bool _isSelectionMode = false;
+  final Set<int> _selectedVenueIds = {};
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CollectionDetailProvider>();
     final listProvider = context.watch<CollectionProvider>();
     final CollectionItem? collection = provider.collection;
 
+    final filteredVenues = collection == null
+        ? []
+        : collection.venues.where((venue) {
+            final query = _searchQuery.toLowerCase();
+            return venue.name.toLowerCase().contains(query) ||
+                venue.address.toLowerCase().contains(query);
+          }).toList();
+
     final isDefault =
         collection != null && listProvider.defaultCollectionId == collection.id;
 
     return Scaffold(
+      bottomNavigationBar: collection == null
+          ? null
+          : SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: isDefault
+                        ? null
+                        : () async {
+                            final result = await context.pushNamed(
+                              'add_venue_to_collection',
+                              extra: {
+                                'collectionId': collection.id,
+                                'existingIds': collection.venues
+                                    .map((e) => e.id)
+                                    .toList(),
+                              },
+                            );
+
+                            if (result == true) {
+                              if (!mounted) return;
+
+                              context
+                                  .read<CollectionDetailProvider>()
+                                  .getCollectionDetail(collection.id);
+                            }
+                          },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Thêm địa điểm'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pinkAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(collection?.collectionName ?? ''),
         leading: IconButton(
@@ -90,13 +148,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                 ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
+                                    onPressed: () => context.pop(false),
                                     child: const Text("Huỷ"),
                                   ),
                                   TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
+                                    onPressed: () => context.pop(true),
                                     child: const Text(
                                       "Xoá",
                                       style: TextStyle(color: Colors.red),
@@ -137,218 +193,270 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: collection.venues.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 12),
-                    itemBuilder: (context, index) {
-                      return CollectionVenueItem(
-                        venue: collection.venues[index],
-                        onRemove: () async {
-                          final venue = collection.venues[index];
-
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                backgroundColor: Colors.white,
-                                surfaceTintColor: Colors.transparent,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Tìm địa điểm...',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.close),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchQuery = '';
+                                  });
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                if (_isSelectionMode)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('${_selectedVenueIds.length} đã chọn'),
+                        TextButton(
+                          onPressed: () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text("Xoá các địa điểm"),
+                                content: const Text(
+                                  "Bạn có chắc muốn xoá các địa điểm đã chọn?",
                                 ),
-                                titlePadding: const EdgeInsets.fromLTRB(
-                                  24,
-                                  24,
-                                  24,
-                                  0,
-                                ),
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  24,
-                                  16,
-                                  24,
-                                  8,
-                                ),
-                                actionsPadding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  0,
-                                  16,
-                                  12,
-                                ),
-                                title: const Text(
-                                  "Xoá địa điểm",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => context.pop(false),
+                                    child: const Text("Huỷ"),
                                   ),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Bạn có chắc muốn xoá địa điểm này khỏi bộ sưu tập?",
-                                      style: TextStyle(fontSize: 14),
+                                  TextButton(
+                                    onPressed: () => context.pop(true),
+                                    child: const Text(
+                                      "Xoá",
+                                      style: TextStyle(color: Colors.red),
                                     ),
-                                    const SizedBox(height: 16),
+                                  ),
+                                ],
+                              ),
+                            );
 
-                                    /// Venue Preview Card
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey.shade50,
-                                        borderRadius: BorderRadius.circular(16),
-                                        border: Border.all(
-                                          color: Colors.grey.shade200,
+                            if (confirm == true) {
+                              try {
+                                await context
+                                    .read<CollectionProvider>()
+                                    .removeVenues(
+                                      collectionId: collection!.id,
+                                      venueIds: _selectedVenueIds.toList(),
+                                    );
+
+                                await context
+                                    .read<CollectionDetailProvider>()
+                                    .getCollectionDetail(collection.id);
+
+                                setState(() {
+                                  _isSelectionMode = false;
+                                  _selectedVenueIds.clear();
+                                });
+
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Đã xoá các địa điểm đã chọn",
+                                    ),
+                                  ),
+                                );
+                              } catch (e) {
+                                if (!mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())),
+                                );
+                              }
+                            }
+                          },
+                          child: const Text(
+                            "Xoá tất cả",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: ListView.separated(
+                      padding: EdgeInsets.fromLTRB(
+                        16,
+                        0,
+                        16,
+                        MediaQuery.of(context).viewInsets.bottom + 16,
+                      ),
+                      itemCount: filteredVenues.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final venue = filteredVenues[index];
+
+                        final isSelected = _selectedVenueIds.contains(venue.id);
+
+                        return GestureDetector(
+                          onLongPress: () {
+                            setState(() {
+                              _isSelectionMode = true;
+                              _selectedVenueIds.add(venue.id);
+                            });
+                          },
+                          onTap: _isSelectionMode
+                              ? () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      _selectedVenueIds.remove(venue.id);
+                                    } else {
+                                      _selectedVenueIds.add(venue.id);
+                                    }
+
+                                    if (_selectedVenueIds.isEmpty) {
+                                      _isSelectionMode = false;
+                                    }
+                                  });
+                                }
+                              : null,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: isSelected
+                                  ? Colors.pinkAccent.withOpacity(0.08)
+                                  : Colors.transparent,
+                            ),
+                            child: Stack(
+                              children: [
+                                CollectionVenueItem(
+                                  venue: venue,
+                                  onRemove: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text("Xoá địa điểm"),
+                                        content: const Text(
+                                          "Bạn có chắc muốn xoá địa điểm này khỏi bộ sưu tập?",
                                         ),
-                                      ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                            child:
-                                                venue.coverImage != null &&
-                                                    venue.coverImage!.isNotEmpty
-                                                ? Image.network(
-                                                    venue.coverImage!,
-                                                    width: 56,
-                                                    height: 56,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder:
-                                                        (
-                                                          _,
-                                                          __,
-                                                          ___,
-                                                        ) => Image.asset(
-                                                          'lib/assets/images/venue_placeholder.png',
-                                                          width: 56,
-                                                          height: 56,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                  )
-                                                : Image.asset(
-                                                    'lib/assets/images/venue_placeholder.png',
-                                                    width: 56,
-                                                    height: 56,
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: const Text("Huỷ"),
                                           ),
-                                          const SizedBox(width: 14),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  venue.name,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 15,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  venue.address,
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey.shade600,
-                                                  ),
-                                                ),
-                                              ],
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            child: const Text(
+                                              "Xoá",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
+                                    );
+
+                                    if (confirm == true) {
+                                      try {
+                                        await context
+                                            .read<CollectionProvider>()
+                                            .removeVenue(
+                                              collectionId: collection!.id,
+                                              venueId: venue.id,
+                                            );
+
+                                        await context
+                                            .read<CollectionDetailProvider>()
+                                            .getCollectionDetail(collection.id);
+
+                                        if (!mounted) return;
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              "Đã xoá '${venue.name}' khỏi bộ sưu tập",
+                                            ),
+                                          ),
+                                        );
+                                      } catch (e) {
+                                        if (!mounted) return;
+
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(content: Text(e.toString())),
+                                        );
+                                      }
+                                    }
+                                  },
                                 ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () =>
-                                        Navigator.pop(context, false),
-                                    child: const Text(
-                                      "Huỷ",
-                                      style: TextStyle(fontSize: 14),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
-                                      foregroundColor: Colors.white,
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
+
+                                if (_isSelectionMode)
+                                  Positioned(
+                                    right: 8,
+                                    top: 8,
+                                    child: Container(
+                                      decoration: const BoxDecoration(
+                                        color: Colors.white,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Checkbox(
+                                        value: isSelected,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            if (value == true) {
+                                              _selectedVenueIds.add(venue.id);
+                                            } else {
+                                              _selectedVenueIds.remove(
+                                                venue.id,
+                                              );
+                                            }
+
+                                            if (_selectedVenueIds.isEmpty) {
+                                              _isSelectionMode = false;
+                                            }
+                                          });
+                                        },
                                       ),
                                     ),
-                                    onPressed: () =>
-                                        Navigator.pop(context, true),
-                                    child: const Text("Xoá"),
                                   ),
-                                ],
-                              );
-                            },
-                          );
-
-                          if (confirm == true) {
-                            try {
-                              await context
-                                  .read<CollectionDetailProvider>()
-                                  .removeVenue(
-                                    collectionId: collection.id,
-                                    venueId: venue.id,
-                                  );
-
-                              if (!mounted) return;
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text(
-                                    "Đã xoá '${venue.name}' khỏi bộ sưu tập",
-                                  ),
-                                ),
-                              );
-                            } catch (e) {
-                              if (!mounted) return;
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  content: Text(e.toString()),
-                                ),
-                              );
-                            }
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        debugPrint('Add venue');
+                              ],
+                            ),
+                          ),
+                        );
                       },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Thêm địa điểm'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                      ),
                     ),
                   ),
                 ),
