@@ -513,12 +513,16 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+  
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: navigationShell,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildCenterButton(),
 
-      bottomNavigationBar: _buildBottomBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: keyboardOpen ? null : _buildCenterButton(),
+
+      bottomNavigationBar: keyboardOpen ? null : _buildBottomBar(),
     );
   }
 

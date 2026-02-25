@@ -68,7 +68,6 @@ class CoupleInvitationProvider extends ChangeNotifier {
   }
 
   Future<void> acceptInvitation(int memberId) async {
-    isLoading = true;
     error = null;
     notifyListeners();
 

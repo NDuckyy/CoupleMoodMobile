@@ -22,4 +22,10 @@ class Advertisement {
       bannerUrl: json['bannerUrl'] as String?,
     );
   }
+
+  static List<Advertisement> listFromJson(List<dynamic> jsonList) {
+    return jsonList
+        .map((json) => Advertisement.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 }
