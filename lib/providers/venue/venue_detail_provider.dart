@@ -72,7 +72,7 @@ class VenueDetailProvider extends ChangeNotifier {
         );
       }
 
-      // 🔥 Reload current collection để sync đúng type
+      //  Reload current collection để sync đúng type
       final currentRes = await CollectionService.getCurrentCollection();
 
       _currentCollection = currentRes.data;

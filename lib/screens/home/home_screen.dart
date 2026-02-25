@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          
+
           SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           SliverToBoxAdapter(
@@ -147,6 +147,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: const Color(0xFF72DDF7),
                     onTap: () {
                       context.goNamed("collections");
+                    },
+                  ),
+
+                  HomeIconButton(
+                    icon: Icons.dynamic_feed,
+                    label: "Bài viết",
+                    color: const Color(0xFFFFAFCC),
+                    onTap: () {
+                      context.pushNamed("newsfeed");
                     },
                   ),
 
