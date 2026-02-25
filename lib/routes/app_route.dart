@@ -1,11 +1,21 @@
+//bầy con provider
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+
 import 'package:couple_mood_mobile/providers/member_provider.dart';
+import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+
+//Couple invatation
 import 'package:couple_mood_mobile/screens/coupleInvitation/receive_invitation_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/sent_invitation_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
+
+//Date plan
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlanItem/create_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
@@ -14,13 +24,17 @@ import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_i
 import 'package:couple_mood_mobile/screens/datePlanItem/updateDatePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
 
+//Collection
 import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
-import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/collection/edit_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_screen.dart';
 
+//news, post
+import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
+
+// lú quá Nghĩa tự sort lại đi
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -465,6 +479,23 @@ GoRouter createRouter(BuildContext context) {
           ),
         ],
       ),
+
+      ShellRoute(
+        parentNavigatorKey: _rootNavKey,
+        builder: (context, state, child) {
+          return ChangeNotifierProvider(
+            create: (_) => PostProvider(),
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/newsfeed',
+            name: 'newsfeed',
+            pageBuilder: (_, __) => const MaterialPage(child: NewsFeedScreen()),
+          ),
+        ],
+      ),
     ],
   );
 }
@@ -508,7 +539,7 @@ class MainShell extends StatelessWidget {
               children: [
                 _buildItem(Icons.local_fire_department, 3, currentIndex),
                 const SizedBox(width: 16),
-                _buildItem(Icons.chat_outlined, 2, currentIndex),               
+                _buildItem(Icons.chat_outlined, 2, currentIndex),
               ],
             ),
 

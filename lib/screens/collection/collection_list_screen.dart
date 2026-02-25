@@ -28,6 +28,16 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.goNamed("home");
+            }
+          },
+        ),
         title: const Text('Danh sách bộ sưu tập'),
         centerTitle: true,
       ),
