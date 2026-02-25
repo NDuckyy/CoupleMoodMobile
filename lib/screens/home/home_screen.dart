@@ -82,16 +82,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: CoupleMoodCard(
                 coupleCurrentMood: moodProvider.coupleCurrentMood,
               ),
             ),
           ),
+          
+          SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
               child: WeekSelector(
                 initialDate: DateTime.now(),
                 onDateSelected: (date) {
@@ -103,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: GridView.count(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

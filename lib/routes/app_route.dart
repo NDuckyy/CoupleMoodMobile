@@ -449,29 +449,64 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentIndex = navigationShell.currentIndex;
-
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(blurRadius: 20, color: Colors.black.withOpacity(0.08)),
-          ],
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _buildCenterButton(),
+
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final currentIndex = navigationShell.currentIndex;
+
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 6,
+      height: 60,
+      child: SizedBox(
+        height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _buildItem(Icons.search, 1, currentIndex),
-            _buildItem(Icons.chat_outlined, 2, currentIndex),
-            _buildItem(Icons.local_fire_department_rounded, 3, currentIndex),
-            _buildItem(Icons.home_outlined, 0, currentIndex),
-            _buildItem(Icons.south_america_outlined, 4, currentIndex),
-            _buildItem(Icons.collections_outlined, 5, currentIndex),
-            _buildItem(Icons.person_outline, 6, currentIndex),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.chat_outlined, 2, currentIndex),               
+              ],
+            ),
+
+            const SizedBox(width: 48),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.calendar_month, 5, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.person_outline, 6, currentIndex),
+              ],
+            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return Transform.translate(
+      offset: const Offset(0, 16),
+      child: SizedBox(
+        height: 70,
+        width: 70,
+        child: FloatingActionButton(
+          shape: const CircleBorder(),
+          elevation: 8,
+          backgroundColor: const Color(0xFFB388EB),
+          onPressed: () => _onTap(0),
+          child: const Icon(Icons.home_outlined, size: 32, color: Colors.white),
         ),
       ),
     );
@@ -488,10 +523,7 @@ class MainShell extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: isActive
               ? const LinearGradient(
-                  colors: [
-                    Color(0xFFB388EB),
-                    Color(0xFF8093F1),
-                  ],
+                  colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
                 )
               : null,
           borderRadius: BorderRadius.circular(14),

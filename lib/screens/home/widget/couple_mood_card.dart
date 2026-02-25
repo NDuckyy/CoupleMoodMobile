@@ -12,6 +12,7 @@ class CoupleMoodCard extends StatelessWidget {
       return Container(
         height: 140,
         decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
           gradient: const LinearGradient(
             colors: [Color(0xFFB388EB), Color(0xFF72DDF7)],
           ),
@@ -24,6 +25,7 @@ class CoupleMoodCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
           colors: [Color(0xFFB388EB), Color(0xFF72DDF7)],
           begin: Alignment.topLeft,
