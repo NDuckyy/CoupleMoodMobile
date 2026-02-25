@@ -482,12 +482,16 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+  
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: navigationShell,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildCenterButton(),
 
-      bottomNavigationBar: _buildBottomBar(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: keyboardOpen ? null : _buildCenterButton(),
+
+      bottomNavigationBar: keyboardOpen ? null : _buildBottomBar(),
     );
   }
 
@@ -508,7 +512,7 @@ class MainShell extends StatelessWidget {
               children: [
                 _buildItem(Icons.local_fire_department, 3, currentIndex),
                 const SizedBox(width: 16),
-                _buildItem(Icons.chat_outlined, 2, currentIndex),               
+                _buildItem(Icons.chat_outlined, 2, currentIndex),
               ],
             ),
 

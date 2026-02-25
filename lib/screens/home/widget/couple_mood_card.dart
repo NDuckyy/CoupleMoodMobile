@@ -46,6 +46,7 @@ class CoupleMoodCard extends StatelessWidget {
               Expanded(
                 child: _buildMember(
                   label: "Bạn",
+                  avatarUrl: coupleCurrentMood?.memberAvatarUrl ?? "",
                   mood: coupleCurrentMood?.currentMood ?? "Chưa cập nhật",
                   align: CrossAxisAlignment.center,
                 ),
@@ -56,6 +57,7 @@ class CoupleMoodCard extends StatelessWidget {
               Expanded(
                 child: _buildMember(
                   label: "Đối phương",
+                  avatarUrl: coupleCurrentMood?.partnerAvatarUrl ?? "",
                   mood: coupleCurrentMood?.partnerMood ?? "Chưa cập nhật",
                   align: CrossAxisAlignment.center,
                 ),
@@ -81,6 +83,7 @@ class CoupleMoodCard extends StatelessWidget {
 
   Widget _buildMember({
     required String label,
+    required String avatarUrl,
     required String mood,
     required CrossAxisAlignment align,
   }) {
@@ -88,10 +91,7 @@ class CoupleMoodCard extends StatelessWidget {
       crossAxisAlignment: align,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const CircleAvatar(
-          radius: 26,
-          backgroundImage: AssetImage('assets/avatar.png'),
-        ),
+        CircleAvatar(radius: 26, backgroundImage: NetworkImage(avatarUrl)),
         const SizedBox(height: 6),
         Text(
           label,
