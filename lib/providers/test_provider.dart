@@ -75,6 +75,9 @@ class TestProvider extends ChangeNotifier {
           _testResult = null;
         }
       } else {
+        if (answers.answers.isEmpty) {
+          return;
+        }
         await _testService.submitTestAnswersTypeSaveProgress(testId, answers);
       }
     } catch (e) {

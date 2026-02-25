@@ -1,16 +1,20 @@
 import 'venue_review_summary.dart';
-import 'venue_review_pagination.dart';
+import 'package:couple_mood_mobile/models/paginated_response.dart';
+import 'venue_review.dart';
 
 class VenueReviewData {
   final VenueReviewSummary summary;
-  final VenueReviewPagination reviews;
+  final PaginatedResponse<VenueReview> reviews;
 
   VenueReviewData({required this.summary, required this.reviews});
 
   factory VenueReviewData.fromJson(Map<String, dynamic> json) {
     return VenueReviewData(
       summary: VenueReviewSummary.fromJson(json['summary']),
-      reviews: VenueReviewPagination.fromJson(json['reviews']),
+      reviews: PaginatedResponse<VenueReview>.fromJson(
+        json['reviews'],
+        (e) => VenueReview.fromJson(e),
+      ),
     );
   }
 }

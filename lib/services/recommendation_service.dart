@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:couple_mood_mobile/mock/recommendation_mock.dart';
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
@@ -10,10 +7,13 @@ import 'package:flutter/material.dart';
 class RecommendationService {
   static Future<ApiResponse<RecommendationResponse>> fetchRecommendations(
     RecommendationRequest request,
+    int? page,
+    int? pageSize,
   ) async {
     try {
       final res = await ApiClient.request(
         "/Recommendation",
+        query: {'page': page, 'pageSize': pageSize},
         method: HttpMethod.post,
         data: request.toJson(),
       );

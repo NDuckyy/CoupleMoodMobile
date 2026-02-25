@@ -9,12 +9,14 @@ class VenueTitleRow extends StatefulWidget {
   final String name;
   final double rating;
   final int reviewCount;
+  final List<String> categories;
 
   const VenueTitleRow({
     super.key,
     required this.name,
     required this.rating,
     required this.reviewCount,
+    required this.categories,
   });
 
   @override
@@ -97,10 +99,33 @@ class _VenueTitleRowState extends State<VenueTitleRow>
               ),
             ),
             GestureDetector(
-              onTap: () {
-                provider.toggleFavorite();
-                _playHeartEffect();
-              },
+              onTap: provider.favoriteLoading
+                  ? null
+                  : () async {
+                      final success = await provider.toggleFavorite();
+
+                      if (!mounted) return;
+
+                      if (success) {
+                        if (provider.isFavorite) {
+                          _playHeartEffect();
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('❤️ Đã thêm vào Mục yêu thích'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('🤍 Đã xoá khỏi Mục yêu thích'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        }
+                      }
+                    },
               child: AnimatedBuilder(
                 animation: _controller,
                 builder: (_, __) {
@@ -113,6 +138,7 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                         ..._flyingHearts,
                         Container(
                           decoration: BoxDecoration(
+                            shape: BoxShape.circle,
                             boxShadow: [
                               if (isFavorite)
                                 BoxShadow(
@@ -121,11 +147,21 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                                 ),
                             ],
                           ),
-                          child: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
-                            size: 28,
-                            color: isFavorite ? Colors.pink : Colors.grey,
-                          ),
+                          child: provider.favoriteLoading
+                              ? const SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(
+                                  isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  size: 28,
+                                  color: isFavorite ? Colors.pink : Colors.grey,
+                                ),
                         ),
                       ],
                     ),
@@ -151,6 +187,34 @@ class _VenueTitleRowState extends State<VenueTitleRow>
             ),
           ],
         ),
+        const SizedBox(height: 6),
+        if (widget.categories.isNotEmpty) ...[
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: widget.categories.map((cat) {
+              return Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  cat,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.orange,
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 8),
+        ],
       ],
     );
   }

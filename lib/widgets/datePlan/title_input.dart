@@ -13,6 +13,12 @@ class TitleInput extends StatelessWidget {
       hint: 'Ví dụ: Dinner & Movie',
       icon: Icons.favorite,
       controller: controller,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Vui lòng nhập tiêu đề buổi hẹn';
+        }
+        return null;
+      },
     );
   }
 }

@@ -9,7 +9,7 @@ class ApiClient {
       baseUrl: 'https://couplemood.ooguy.com/api',
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
-    ),
+    ),  
   );
 
   static bool _inited = false;

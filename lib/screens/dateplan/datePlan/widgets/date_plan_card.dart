@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
-import 'package:couple_mood_mobile/widgets/status_dot.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_confirm_delete_dialog.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/status_dot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -9,8 +10,18 @@ import 'package:provider/provider.dart';
 class DatePlanCard extends StatelessWidget {
   final DatePlanDetails item;
   final VoidCallback onDelete;
+  final VoidCallback? onSend;
+  final VoidCallback? onCancel;
+  final VoidCallback? onComplete;
 
-  const DatePlanCard({super.key, required this.item, required this.onDelete});
+  const DatePlanCard({
+    super.key,
+    required this.item,
+    required this.onDelete,
+    this.onSend,
+    this.onCancel,
+    this.onComplete,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -44,43 +55,52 @@ class DatePlanCard extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(
-                      item.title,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                    Expanded(
+                      child: Text(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        item.title,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 10),
                     StatusDot(status: item.status),
+                    const SizedBox(width: 8),
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20),
-                onPressed: () async {
-                  final result = await context.pushNamed(
-                    'date_plan_edit',
-                    extra: {'datePlanId': item.id},
-                  );
-
-                  if (result == true) {
-                    if (!context.mounted) return;
-                    context.read<DatePlanProvider>().fetchDatePlans(
-                      page: context.read<DatePlanProvider>().pageNumber,
+              if (item.status == 'DRAFTED' || item.status == 'PENDING') ...[
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined, size: 20),
+                  onPressed: () async {
+                    final result = await context.pushNamed(
+                      'date_plan_edit',
+                      extra: {'datePlanId': item.id},
                     );
-                  }
-                },
-              ),
-              IconButton(
-                icon: const Icon(
-                  Icons.delete_outline,
-                  color: Colors.redAccent,
-                  size: 20,
+
+                    if (result == true) {
+                      if (!context.mounted) return;
+                      context.read<DatePlanProvider>().fetchDatePlans(
+                        page: context.read<DatePlanProvider>().pageNumber,
+                      );
+                    }
+                  },
                 ),
-                constraints: const BoxConstraints(),
-                onPressed: () => _showDeleteConfirm(context),
-              ),
+
+                IconButton(
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.redAccent,
+                  ),
+                  constraints: const BoxConstraints(),
+                  onPressed: () => showConfirmDeleteDialog(
+                    context: context,
+                    onConfirm: onDelete,
+                  ),
+                ),
+              ],
             ],
           ),
 
@@ -112,7 +132,20 @@ class DatePlanCard extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 8),
 
+          Row(
+            children: [
+              const Icon(Icons.notes, size: 14),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  item.note ?? 'Chưa có ghi chú',
+                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
 
           SizedBox(
@@ -126,7 +159,7 @@ class DatePlanCard extends StatelessWidget {
                 onTap: () {
                   context.pushNamed(
                     'date_plan_item',
-                    extra: {'datePlanId': item.id},
+                    extra: {'datePlanId': item.id, 'status': item.status},
                   );
                 },
                 child: Ink(
@@ -152,28 +185,78 @@ class DatePlanCard extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteConfirm(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Xóa kế hoạch hẹn hò?'),
-        content: const Text(
-          'Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa?',
-        ),
-        actions: [
-          TextButton(onPressed: () => context.pop(), child: const Text('Hủy')),
-          TextButton(
-            onPressed: () {
-              context.pop();
-              onDelete();
-            },
-            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
-          ),
+          if (item.status == 'DRAFTED') ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFB388EB)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onPressed: onSend,
+                child: Text(
+                  'Gửi duyệt',
+                  style: TextStyle(
+                    color: Color(0xFFB388EB),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          if (item.status == 'SCHEDULED') ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.pinkAccent),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onPressed: onCancel,
+                child: Text(
+                  'Hủy buổi hẹn',
+                  style: TextStyle(
+                    color: Colors.pinkAccent,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+          if (item.status == 'IN_PROGRESS') ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: OutlinedButton(
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.green),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                onPressed: onComplete,
+                child: Text(
+                  'Kết thúc buổi hẹn',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

@@ -1,11 +1,26 @@
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/receive_invitation_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/sent_invitation_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_profile_match_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/member_search_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/choose_location_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/createDatePlanItem/create_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/create_date_plan_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/date_plan_screen.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/date_plan_item_screen.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/updateDatePlanItem/edit_date_plan_item_screen.dart';
 import 'package:couple_mood_mobile/screens/dateplan/updateDatePlan/date_plan_edit_screen.dart';
+
+import 'package:couple_mood_mobile/screens/collection/collection_list_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/collection/edit_collection_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_screen.dart';
+
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
@@ -14,7 +29,7 @@ import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
-import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -128,6 +143,7 @@ GoRouter createRouter(BuildContext context) {
                   ),
                 ),
               ),
+
               GoRoute(
                 path: '/test',
                 name: 'test',
@@ -160,7 +176,7 @@ GoRouter createRouter(BuildContext context) {
                 path: '/chat',
                 name: 'chat',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: ChatScreen()),
+                    const NoTransitionPage(child: ConversationListScreen()),
               ),
             ],
           ),
@@ -203,6 +219,7 @@ GoRouter createRouter(BuildContext context) {
               ),
             ],
           ),
+
           StatefulShellBranch(
             navigatorKey: _profileTabNavKey,
             routes: [
@@ -290,12 +307,10 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/venue-detail',
         name: 'venue_detail',
-        pageBuilder: (_, __) => NoTransitionPage(
-          child: ChangeNotifierProvider(
-            create: (_) => VenueDetailProvider(),
-            child: VenueDetailScreen(venueId: 3),
-          ),
-        ),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return VenueDetailScreen(venueId: extra['venueId']);
+        },
       ),
       GoRoute(
         parentNavigatorKey: _rootNavKey,
@@ -315,18 +330,140 @@ GoRouter createRouter(BuildContext context) {
             const NoTransitionPage(child: CreateDatePlanScreen()),
       ),
       GoRoute(
-        path: '/date-plan-item',
+        path: '/date-plan/date-plan-item',
         name: 'date_plan_item',
-        pageBuilder: (_, __) =>
-            const NoTransitionPage(child: DatePlanItemScreen()),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return DatePlanItemScreen(
+            datePlanId: extra['datePlanId'],
+            status: extra['status'],
+          );
+        },
       ),
       GoRoute(
-        name: 'date_plan_edit',
         path: '/date-plan/edit',
+        name: 'date_plan_edit',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return UpdateDatePlanScreen(datePlanId: extra['datePlanId']);
         },
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item/create',
+        name: 'date_plan_item_create',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CreateDatePlanItemScreen(datePlanId: extra['datePlanId']);
+        },
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item/choose-location',
+        name: 'choose_location',
+        pageBuilder: (_, __) {
+          return const NoTransitionPage(child: ChooseLocationScreen());
+        },
+      ),
+      GoRoute(
+        path: '/date-plan/date-plan-item/edit',
+        name: 'date_plan_item_edit',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditDatePlanItemScreen(
+            datePlanItemId: extra['datePlanItemId'],
+            datePlanId: extra['datePlanId'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/member-search',
+        name: 'member_search',
+        pageBuilder: (_, __) => const MaterialPage(child: MemberSearchScreen()),
+      ),
+
+      GoRoute(
+        path: '/receive-invitation',
+        name: 'receive_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ReceiveInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/sent-invitation',
+        name: 'sent_invitation',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: SentInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/member-profile-match',
+        name: 'member_profile_match',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return MemberProfileMatchScreen(userId: extra['userId']);
+        },
+      ),
+
+      ShellRoute(
+        parentNavigatorKey: _rootNavKey,
+        builder: (context, state, child) {
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => CollectionProvider()),
+            ],
+            child: child,
+          );
+        },
+        routes: [
+          GoRoute(
+            path: '/collections',
+            name: 'collections',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: CollectionListScreen()),
+          ),
+          GoRoute(
+            path: '/collections/detail',
+            name: 'collection_detail',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return MaterialPage(
+                child: ChangeNotifierProvider(
+                  create: (_) => CollectionDetailProvider(),
+                  child: CollectionDetailScreen(
+                    collectionId: extra['collectionId'],
+                  ),
+                ),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/collections/create',
+            name: 'create_collection',
+            pageBuilder: (_, __) =>
+                const MaterialPage(child: CreateCollectionScreen()),
+          ),
+          GoRoute(
+            path: '/collections/edit',
+            name: 'edit_collection',
+            pageBuilder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+              return MaterialPage(
+                child: EditCollectionScreen(collection: extra['collection']),
+              );
+            },
+          ),
+          GoRoute(
+            name: 'add_venue_to_collection',
+            path: '/collections/add-venue',
+            builder: (context, state) {
+              final extra = state.extra as Map<String, dynamic>;
+
+              return AddVenueToCollectionScreen(
+                collectionId: extra['collectionId'],
+                existingVenueIds: List<int>.from(extra['existingIds']),
+              );
+            },
+          ),
+        ],
       ),
     ],
   );
@@ -347,49 +484,87 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 6.0,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: _buildCenterButton(),
+
+      bottomNavigationBar: _buildBottomBar(),
+    );
+  }
+
+  Widget _buildBottomBar() {
+    final currentIndex = navigationShell.currentIndex;
+
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 6,
+      height: 60,
+      child: SizedBox(
+        height: 60,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            IconButton(
-              icon: const Icon(Icons.local_fire_department_rounded),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(3),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.chat_outlined, 2, currentIndex),               
+              ],
             ),
-            IconButton(
-              icon: const Icon(Icons.search),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(1),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chat_outlined),
-              color: const Color(0xFF7B8CE4),
-              // mở mood flow ngoài shell => ẩn bottom bar
-              onPressed: () => _onTap(2),
-            ),
-            IconButton(
-              icon: const Icon(Icons.home_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(0),
-            ),
-            IconButton(
-              icon: const Icon(Icons.south_america_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(4),
-            ),
-            IconButton(
-              icon: const Icon(Icons.collections_outlined),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(5),
-            ),
-            IconButton(
-              icon: const Icon(Icons.person_outline),
-              color: const Color(0xFF7B8CE4),
-              onPressed: () => _onTap(6),
+
+            const SizedBox(width: 48),
+
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildItem(Icons.calendar_month, 5, currentIndex),
+                const SizedBox(width: 16),
+                _buildItem(Icons.person_outline, 6, currentIndex),
+              ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterButton() {
+    return Transform.translate(
+      offset: const Offset(0, 16),
+      child: SizedBox(
+        height: 70,
+        width: 70,
+        child: FloatingActionButton(
+          shape: const CircleBorder(),
+          elevation: 8,
+          backgroundColor: const Color(0xFFB388EB),
+          onPressed: () => _onTap(0),
+          child: const Icon(Icons.home_outlined, size: 32, color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItem(IconData icon, int index, int currentIndex) {
+    final isActive = index == currentIndex;
+
+    return GestureDetector(
+      onTap: () => _onTap(index),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          gradient: isActive
+              ? const LinearGradient(
+                  colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
+                )
+              : null,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(
+          icon,
+          size: 22,
+          color: isActive ? Colors.white : const Color(0xFF8093F1),
         ),
       ),
     );

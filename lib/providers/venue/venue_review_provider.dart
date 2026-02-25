@@ -2,34 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review_summary.dart';
 import 'package:couple_mood_mobile/services/venue/venue_review_service.dart';
+import 'package:couple_mood_mobile/models/paginated_response.dart';
 
 class VenueReviewProvider extends ChangeNotifier {
   VenueReviewSummary? summary;
-  List<VenueReview> reviews = [];
+  PaginatedResponse<VenueReview>? pagination;
 
   bool loading = false;
+  String? error;
 
-  int currentPage = 1;
-  int totalPages = 1;
+  List<VenueReview> get reviews => pagination?.items ?? [];
+  bool get hasNextPage => pagination?.hasNextPage ?? false;
+  int get currentPage => pagination?.pageNumber ?? 1;
+  int get totalPages => pagination?.totalPages ?? 1;
 
   Future<void> loadPage({required int venueId, int page = 1}) async {
     loading = true;
+    error = null;
     notifyListeners();
 
-    final res = await VenueReviewService.getVenueReviews(
-      venueId: venueId,
-      page: page,
-    );
+    try {
+      final res = await VenueReviewService.getVenueReviews(
+        venueId: venueId,
+        page: page,
+      );
 
-    if (res.code == 200 && res.data != null) {
-      summary = res.data!.summary;
-      reviews = res.data!.reviews.items;
-
-      currentPage = res.data!.reviews.pageNumber;
-      totalPages = res.data!.reviews.totalPages;
+      if (res.code == 200 && res.data != null) {
+        summary = res.data!.summary;
+        pagination = res.data!.reviews;
+      } else {
+        error = res.message;
+      }
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      loading = false;
+      notifyListeners();
     }
-
-    loading = false;
-    notifyListeners();
   }
 }

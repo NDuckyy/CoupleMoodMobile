@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/models/dateplan/venue_location.dart';
+
 class DatePlanItemResponse {
-  final List<ListDatePlanItem> items;
+  List<ListDatePlanItem> items;
   final int pageNumber;
   final int pageSize;
   final int totalCount;
@@ -36,6 +38,7 @@ class ListDatePlanItem {
   final int id;
   final int datePlanId;
   final int venueLocationId;
+  final VenueLocation venueLocation;
   final int orderIndex;
   final String startTime;
   final String endTime;
@@ -47,6 +50,7 @@ class ListDatePlanItem {
     required this.id,
     required this.datePlanId,
     required this.venueLocationId,
+    required this.venueLocation,
     required this.orderIndex,
     required this.startTime,
     required this.endTime,
@@ -60,12 +64,13 @@ class ListDatePlanItem {
       id: json['id'],
       datePlanId: json['datePlanId'],
       venueLocationId: json['venueLocationId'],
+      venueLocation: VenueLocation.fromJson(json['venueLocation']),
       orderIndex: json['orderIndex'],
       startTime: json['startTime'],
       endTime: json['endTime'],
       note: json['note'],
       visitedAt: json['visitedAt'],
-      skippedAt: json['skippedAt']
+      skippedAt: json['skippedAt'],
     );
   }
 }
