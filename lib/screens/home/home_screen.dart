@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     label: "Bộ sưu\ntập",
                     color: const Color(0xFF72DDF7),
                     onTap: () {
-                      context.goNamed("collections");
+                      context.pushNamed("collections");
                     },
                   ),
 
