@@ -7,16 +7,30 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'services/local_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await NotificationService.requestNotificationPermission();
+  await LocalNotificationService.init();
+  NotificationService.listenNotification();
+  await NotificationService.init();
+  await NotificationService().setupInteractedMessage();
   await initializeDateFormatting('vi');
   final auth = AuthProvider();
   await auth.init();
+  LocationService.startListening();
   runApp(
     MultiProvider(
       providers: [
