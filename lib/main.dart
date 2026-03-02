@@ -19,9 +19,15 @@ import 'services/local_notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint("🔥 Firebase initialized successfully");
+  } catch (e, stack) {
+    debugPrint("❌ Firebase init failed: $e");
+    debugPrint(stack.toString());
+  }
   await NotificationService.requestNotificationPermission();
   await LocalNotificationService.init();
   NotificationService.listenNotification();
