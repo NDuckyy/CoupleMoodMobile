@@ -98,4 +98,25 @@ class RecommendationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> searchLocations(String query) async {
+    debugPrint('Searching locations with query: $query');
+    page = 1;
+    try {
+      isLoading = true;
+      notifyListeners();
+      _recommendationResponse =
+          await RecommendationService.fetchRecommendations(
+            RecommendationRequest(query: query),
+            page,
+            pageSize,
+          );
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

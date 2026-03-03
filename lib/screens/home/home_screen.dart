@@ -56,6 +56,12 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<AdvertisementProvider>().fetchSpecialEvents();
   }
 
+  Future<void> _refresh() async {
+    _getPopularNearby();
+    _getSpecialEvent();
+    context.read<MoodProvider>().getCoupleCurrentMood();
+  }
+
   @override
   Widget build(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
@@ -67,127 +73,130 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            floating: false,
-            snap: false,
-            elevation: 0,
-            backgroundColor: Colors.white,
-            automaticallyImplyLeading: false,
-            titleSpacing: 12,
-            title: const HomeHeader(),
-          ),
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              floating: false,
+              snap: false,
+              elevation: 0,
+              backgroundColor: Colors.white,
+              automaticallyImplyLeading: false,
+              titleSpacing: 12,
+              title: const HomeHeader(),
+            ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: CoupleMoodCard(
-                coupleCurrentMood: moodProvider.coupleCurrentMood,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: CoupleMoodCard(
+                  coupleCurrentMood: moodProvider.coupleCurrentMood,
+                ),
               ),
             ),
-          ),
 
-          SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: WeekSelector(
-                initialDate: DateTime.now(),
-                onDateSelected: (date) {
-                  print(date);
-                },
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: WeekSelector(
+                  initialDate: DateTime.now(),
+                  onDateSelected: (date) {
+                    print(date);
+                  },
+                ),
               ),
             ),
-          ),
 
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 4,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1,
-                children: [
-                  HomeIconButton(
-                    icon: Icons.mood,
-                    label: "Cảm xúc",
-                    color: const Color(0xFFF7AEF8),
-                    onTap: () {
-                      context.pushNamed("moodChooseMethod");
-                    },
-                  ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1,
+                  children: [
+                    HomeIconButton(
+                      icon: Icons.mood,
+                      label: "Cảm xúc",
+                      color: const Color(0xFFF7AEF8),
+                      onTap: () {
+                        context.pushNamed("moodChooseMethod");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.science,
-                    label: "Khám phá\nbạn",
-                    color: const Color(0xFFB388EB),
-                    onTap: () {
-                      context.pushNamed("test");
-                    },
-                  ),
+                    HomeIconButton(
+                      icon: Icons.science,
+                      label: "Khám phá\nbạn",
+                      color: const Color(0xFFB388EB),
+                      onTap: () {
+                        context.pushNamed("test");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.group_add,
-                    label: "Ghép cặp",
-                    color: const Color(0xFF8093F1),
-                    onTap: () {
-                      context.pushNamed("member_search");
-                    },
-                  ),
+                    HomeIconButton(
+                      icon: Icons.group_add,
+                      label: "Ghép cặp",
+                      color: const Color(0xFF8093F1),
+                      onTap: () {
+                        context.pushNamed("member_search");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.collections_bookmark,
-                    label: "Bộ sưu\ntập",
-                    color: const Color(0xFF72DDF7),
-                    onTap: () {
-                      context.pushNamed("collections");
-                    },
-                  ),
+                    HomeIconButton(
+                      icon: Icons.collections_bookmark,
+                      label: "Bộ sưu\ntập",
+                      color: const Color(0xFF72DDF7),
+                      onTap: () {
+                        context.pushNamed("collections");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.dynamic_feed,
-                    label: "Bài viết",
-                    color: const Color(0xFFFFAFCC),
-                    onTap: () {
-                      context.pushNamed("newsfeed");
-                    },
-                  ),
+                    HomeIconButton(
+                      icon: Icons.dynamic_feed,
+                      label: "Bài viết",
+                      color: const Color(0xFFFFAFCC),
+                      onTap: () {
+                        context.pushNamed("newsfeed");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.reviews,
-                    label: "Review",
-                    color: const Color(0xFFFFAFCC),
-                    onTap: () {
-                      context.pushNamed("review_venue");
-                    },
-                  ),
+                    HomeIconButton(
+                      icon: Icons.reviews,
+                      label: "Review",
+                      color: const Color(0xFFFFAFCC),
+                      onTap: () {
+                        context.pushNamed("review_venue");
+                      },
+                    ),
 
-                  HomeIconButton(
-                    icon: Icons.logout,
-                    label: "Đăng xuất",
-                    color: const Color(0xFFB388EB),
-                    onTap: () {
-                      _logout();
-                    },
-                  ),
-                ],
+                    HomeIconButton(
+                      icon: Icons.logout,
+                      label: "Đăng xuất",
+                      color: const Color(0xFFB388EB),
+                      onTap: () {
+                        _logout();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          SliverToBoxAdapter(
-            child: SpecialEvent(
-              advertisements: advertisementProvider.advertisements,
+            SliverToBoxAdapter(
+              child: SpecialEvent(
+                advertisements: advertisementProvider.advertisements,
+              ),
             ),
-          ),
-          SliverToBoxAdapter(child: SizedBox(height: 16)),
-          SliverToBoxAdapter(child: PopularNearby(recs: recs)),
-        ],
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(child: PopularNearby(recs: recs)),
+          ],
+        ),
       ),
     );
   }

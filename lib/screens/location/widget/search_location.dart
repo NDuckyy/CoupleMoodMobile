@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
 
-class UserSearchBar extends StatelessWidget {
-  final TextEditingController controller;
-  final Function(String) onSearch;
+class SearchLocation extends StatelessWidget {
+  final Function(String) onSubmitted;
 
-  const UserSearchBar({
-    super.key,
-    required this.controller,
-    required this.onSearch,
-  });
+  const SearchLocation({super.key, required this.onSubmitted});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController _controller = TextEditingController();
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
@@ -40,15 +37,15 @@ class UserSearchBar extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
-                  controller: controller,
+                  controller: _controller,
                   cursorColor: Color(0xFFB388EB),
                   decoration: const InputDecoration(
-                    hintText: "Tìm kiếm bạn bè 💕",
+                    hintText: "Tìm kiếm địa điểm hẹn hò 💕",
                     hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                     border: InputBorder.none,
                   ),
                   onSubmitted: (value) {
-                    onSearch(value.isEmpty ? "" : value);
+                    onSubmitted(value.isEmpty ? "" : value);
                   },
                 ),
               ),

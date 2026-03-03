@@ -91,7 +91,15 @@ class CoupleMoodCard extends StatelessWidget {
       crossAxisAlignment: align,
       mainAxisSize: MainAxisSize.min,
       children: [
-        CircleAvatar(radius: 26, backgroundImage: NetworkImage(avatarUrl)),
+        if (avatarUrl.isNotEmpty && avatarUrl != "null") ...[
+          CircleAvatar(radius: 26, backgroundImage: NetworkImage(avatarUrl)),
+        ] else ...[
+          CircleAvatar(
+            radius: 26,
+            backgroundColor: Colors.white54,
+            child: const Icon(Icons.person, color: Colors.white70, size: 28),
+          ),
+        ],
         const SizedBox(height: 6),
         Text(
           label,

@@ -1,5 +1,5 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
-import 'package:couple_mood_mobile/screens/location/widget/venue_card.dart';
+import 'package:couple_mood_mobile/screens/home/widget/venue_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
