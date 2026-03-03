@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/models/mood/current_mood.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
