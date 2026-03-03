@@ -117,14 +117,17 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        ///  Level 1
                         CommentItem(
                           comment: c,
                           showViewReplies: c.replyCount > 0,
                           isExpanded: provider.isExpanded(c.id),
                           loadingReplies: provider.isLoadingReplies(c.id),
                           onViewReplies: () => provider.loadReplies(c),
+                          onLike: () => provider.toggleLikeComment(c),
                         ),
 
+                        ///  Level 2
                         ...provider.getReplies(c.id).map((reply) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -138,11 +141,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 ),
                                 onViewReplies: () =>
                                     provider.loadReplies(reply),
+                                onLike: () => provider.toggleLikeComment(reply),
                               ),
 
+                              ///  Level 3
                               ...provider
                                   .getReplies(reply.id)
-                                  .map((lv3) => CommentItem(comment: lv3)),
+                                  .map(
+                                    (lv3) => CommentItem(
+                                      comment: lv3,
+                                      onLike: () =>
+                                          provider.toggleLikeComment(lv3),
+                                    ),
+                                  ),
                             ],
                           );
                         }),

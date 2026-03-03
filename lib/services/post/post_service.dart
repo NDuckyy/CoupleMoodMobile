@@ -94,4 +94,22 @@ class PostService {
 
     return ApiResponse.fromJson(res, (data) => data);
   }
+
+  static Future<ApiResponse<dynamic>> likeComment(int commentId) async {
+    final res = await ApiClient.request(
+      '/Comment/$commentId/like',
+      method: HttpMethod.post,
+    );
+
+    return ApiResponse.fromJson(res, (data) => data);
+  }
+
+  static Future<ApiResponse<dynamic>> unlikeComment(int commentId) async {
+    final res = await ApiClient.request(
+      '/Comment/$commentId/unlike',
+      method: HttpMethod.delete,
+    );
+
+    return ApiResponse.fromJson(res, (data) => data);
+  }
 }

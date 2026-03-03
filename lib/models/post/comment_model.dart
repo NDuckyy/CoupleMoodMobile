@@ -15,6 +15,8 @@ class CommentModel {
   final int likeCount;
   final int replyCount;
 
+  final bool isLikedByMe;
+
   CommentModel({
     required this.id,
     this.parentId,
@@ -27,6 +29,7 @@ class CommentModel {
     required this.createdAt,
     required this.likeCount,
     required this.replyCount,
+    this.isLikedByMe = false,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
@@ -36,17 +39,33 @@ class CommentModel {
       content: json['content'] ?? '',
       authorId: json['authorId'],
       author: AuthorModel.fromJson(json['author']),
-
       replyToMember: json['replyToMember'] != null
           ? AuthorModel.fromJson(json['replyToMember'])
           : null,
-
       rootId: json['rootId'] ?? 0,
       level: json['level'] ?? 1,
-
       createdAt: DateTime.parse(json['createdAt']),
       likeCount: json['likeCount'] ?? 0,
       replyCount: json['replyCount'] ?? 0,
+      isLikedByMe: json['isLikedByMe'] ?? false, // 👈 NEW
+    );
+  }
+
+  ///  copyWith để immutable update
+  CommentModel copyWith({int? likeCount, bool? isLikedByMe}) {
+    return CommentModel(
+      id: id,
+      parentId: parentId,
+      content: content,
+      authorId: authorId,
+      author: author,
+      replyToMember: replyToMember,
+      rootId: rootId,
+      level: level,
+      createdAt: createdAt,
+      likeCount: likeCount ?? this.likeCount,
+      replyCount: replyCount,
+      isLikedByMe: isLikedByMe ?? this.isLikedByMe,
     );
   }
 }

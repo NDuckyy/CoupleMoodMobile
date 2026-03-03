@@ -152,6 +152,31 @@ class PostDetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> toggleLikeComment(CommentModel comment) async {
+    final bool willLike = !comment.isLikedByMe;
+
+    // Optimistic update (update UI trước)
+    _updateCommentLikeLocal(comment.id, willLike);
+    notifyListeners();
+
+    try {
+      final res = willLike
+          ? await PostService.likeComment(comment.id)
+          : await PostService.unlikeComment(comment.id);
+
+      if (res.code != 200) {
+        // Rollback nếu API fail
+        _updateCommentLikeLocal(comment.id, !willLike);
+        notifyListeners();
+      }
+    } catch (e) {
+      //Rollback nếu lỗi mạng
+      _updateCommentLikeLocal(comment.id, !willLike);
+      notifyListeners();
+      debugPrint(e.toString());
+    }
+  }
+
   /// ==============================
   /// HELPERS
   /// ==============================
@@ -171,5 +196,38 @@ class PostDetailProvider extends ChangeNotifier {
 
   bool isExpanded(int commentId) {
     return expandedComments.contains(commentId);
+  }
+
+  void _updateCommentLikeLocal(int commentId, bool isLiked) {
+    // Check root comments trước
+    final rootIndex = comments.indexWhere((c) => c.id == commentId);
+    if (rootIndex != -1) {
+      final old = comments[rootIndex];
+
+      comments[rootIndex] = old.copyWith(
+        isLikedByMe: isLiked,
+        likeCount: isLiked
+            ? old.likeCount + 1
+            : (old.likeCount > 0 ? old.likeCount - 1 : 0),
+      );
+      return;
+    }
+
+    // Check replies
+    for (final entry in replies.entries) {
+      final replyIndex = entry.value.indexWhere((c) => c.id == commentId);
+
+      if (replyIndex != -1) {
+        final old = entry.value[replyIndex];
+
+        entry.value[replyIndex] = old.copyWith(
+          isLikedByMe: isLiked,
+          likeCount: isLiked
+              ? old.likeCount + 1
+              : (old.likeCount > 0 ? old.likeCount - 1 : 0),
+        );
+        return;
+      }
+    }
   }
 }

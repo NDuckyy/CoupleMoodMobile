@@ -79,7 +79,15 @@ class CommentItem extends StatelessWidget {
                       onTap: onLike,
                       child: Row(
                         children: [
-                          const Icon(Icons.favorite_border, size: 18),
+                          Icon(
+                            comment.isLikedByMe
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 18,
+                            color: comment.isLikedByMe
+                                ? Colors.red
+                                : Colors.grey,
+                          ),
                           const SizedBox(width: 4),
                           Text("${comment.likeCount}"),
                         ],

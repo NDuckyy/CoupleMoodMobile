@@ -89,7 +89,7 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            /// Level 1
+                            ///  Level 1
                             CommentItem(
                               comment: comment,
                               showViewReplies: comment.replyCount > 0,
@@ -99,9 +99,11 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                               ),
                               onViewReplies: () =>
                                   provider.loadReplies(comment),
+                              onLike: () =>
+                                  provider.toggleLikeComment(comment), // ⭐ thêm
                             ),
 
-                            /// Level 2
+                            ///  Level 2
                             ...provider.getReplies(comment.id).map((reply) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,12 +117,21 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                                     ),
                                     onViewReplies: () =>
                                         provider.loadReplies(reply),
+                                    onLike: () => provider.toggleLikeComment(
+                                      reply,
+                                    ), // ⭐ thêm
                                   ),
 
-                                  /// Level 3
+                                  ///  Level 3
                                   ...provider
                                       .getReplies(reply.id)
-                                      .map((lv3) => CommentItem(comment: lv3)),
+                                      .map(
+                                        (lv3) => CommentItem(
+                                          comment: lv3,
+                                          onLike: () => provider
+                                              .toggleLikeComment(lv3), // ⭐ thêm
+                                        ),
+                                      ),
                                 ],
                               );
                             }),
