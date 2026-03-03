@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
 import 'api_client.dart';
+import 'package:couple_mood_mobile/services/notification_service.dart';
 
 class AuthService {
   static Future<Session> login(String email, String password) async {
@@ -28,7 +29,7 @@ class AuthService {
       avartarUrl: data['avartarUrl']?.toString() ?? data['imageUrl']?.toString(),
     );
     await SessionStorage.save(session);
-
+    await NotificationService.sendTokenToServerAfterLogin();
     return session;
   }
 
