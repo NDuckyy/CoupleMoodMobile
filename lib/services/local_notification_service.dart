@@ -11,6 +11,14 @@ class LocalNotificationService {
 
     await _plugin.initialize(
       settings: settings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        print("🔔 Notification clicked");
+
+        if (response.payload == "review") {
+          print("➡️ Go to review page");
+          // điều hướng sẽ làm ở step 3
+        }
+      },
     );
   }
 
@@ -29,6 +37,7 @@ class LocalNotificationService {
       title: title,
       body: body,
       notificationDetails: details,
+      payload: "review",
     );
   }
 }

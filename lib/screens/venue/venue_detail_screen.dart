@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_info_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,21 +36,25 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   Future<void> _handleCheckIn() async {
     final venue = context.read<VenueDetailProvider>().venue;
     if (venue == null) return;
-    if (venue.latitude == null || venue.longitude == null) {
+
+    final position = await LocationService.getCurrentPosition();
+
+    if (position == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Địa điểm chưa có tọa độ")),
+        const SnackBar(content: Text("Vui lòng bật GPS để check-in 📍")),
       );
       return;
     }
+
     final payload = CheckInPayload(
       venueLocationId: venue.id,
-      latitude: venue.latitude!,
-      longitude: venue.longitude!,
+      latitude: position.latitude,
+      longitude: position.longitude,
     );
 
-    await ReviewService.triggerCheckIn(payload);
-
     CheckInSession.lastCheckIn = payload;
+
+    await ReviewService.triggerCheckIn(payload);
 
     if (!mounted) return;
 
@@ -59,7 +64,6 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
       ),
     );
   }
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VenueDetailProvider>();
