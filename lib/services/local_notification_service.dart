@@ -22,7 +22,11 @@ class LocalNotificationService {
     );
   }
 
-  static Future<void> show(String title, String body) async {
+  static Future<void> show(
+      String title,
+      String body, {
+        String? payload,
+      }) async {
     const android = AndroidNotificationDetails(
       'default_channel',
       'Default Notifications',
@@ -37,7 +41,6 @@ class LocalNotificationService {
       title: title,
       body: body,
       notificationDetails: details,
-      payload: "review",
+      payload: payload,
     );
-  }
-}
+  }}
