@@ -5,10 +5,12 @@ import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.d
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:rive/rive.dart';
 
 class ListLocationScreen extends StatefulWidget {
   const ListLocationScreen({super.key});
@@ -96,7 +98,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
-    final recs = page?.items ?? [];
+    final recs = List.of(page?.items ?? []);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -129,10 +131,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
             /// CONTENT
             if (recommendationProvider.isLoading)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CircularProgressIndicator()),
-              )
+              const SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recommendationProvider.error != null)
               SliverFillRemaining(
                 hasScrollBody: false,
