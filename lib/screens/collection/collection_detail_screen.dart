@@ -7,6 +7,7 @@ import 'package:couple_mood_mobile/models/collection/collection_item.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_header.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_action_row.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_venue_item.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class CollectionDetailScreen extends StatefulWidget {
   final int collectionId;
@@ -282,19 +283,15 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
                                 if (!mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Đã xoá các địa điểm đã chọn",
-                                    ),
-                                  ),
+                                showMsg(
+                                  context,
+                                  "Đã xoá các địa điểm đã chọn",
+                                  true,
                                 );
                               } catch (e) {
                                 if (!mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(e.toString())),
-                                );
+                                showMsg(context, e.toString(), false);
                               }
                             }
                           },
@@ -361,20 +358,24 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                   onRemove: () async {
                                     final confirm = await showDialog<bool>(
                                       context: context,
-                                      builder: (_) => AlertDialog(
+                                      builder: (dialogContext) => AlertDialog(
                                         title: const Text("Xoá địa điểm"),
                                         content: const Text(
                                           "Bạn có chắc muốn xoá địa điểm này khỏi bộ sưu tập?",
                                         ),
                                         actions: [
                                           TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, false),
+                                            onPressed: () => Navigator.pop(
+                                              dialogContext,
+                                              false,
+                                            ),
                                             child: const Text("Huỷ"),
                                           ),
                                           TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, true),
+                                            onPressed: () => Navigator.pop(
+                                              dialogContext,
+                                              true,
+                                            ),
                                             child: const Text(
                                               "Xoá",
                                               style: TextStyle(
@@ -395,29 +396,20 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                               venueId: venue.id,
                                             );
 
+                                        if (!mounted) return;
+
+                                        showMsg(
+                                          context,
+                                          "Đã xoá '${venue.name}' khỏi bộ sưu tập",
+                                          true,
+                                        );
+
                                         await context
                                             .read<CollectionDetailProvider>()
                                             .getCollectionDetail(collection.id);
-
-                                        if (!mounted) return;
-
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              "Đã xoá '${venue.name}' khỏi bộ sưu tập",
-                                            ),
-                                          ),
-                                        );
                                       } catch (e) {
                                         if (!mounted) return;
-
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(content: Text(e.toString())),
-                                        );
+                                        showMsg(context, e.toString(), false);
                                       }
                                     }
                                   },
