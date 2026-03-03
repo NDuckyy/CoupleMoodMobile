@@ -172,9 +172,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
                               if (mounted) context.pop(true);
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
+                              showMsg(context, e.toString(), false);
                             }
                           }
                         },

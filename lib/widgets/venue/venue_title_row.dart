@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'flying_heart.dart';
 import '../common/rating_stars.dart';
 import '../../providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class VenueTitleRow extends StatefulWidget {
   final String name;
@@ -110,18 +111,16 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                         if (provider.isFavorite) {
                           _playHeartEffect();
 
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('❤️ Đã thêm vào Mục yêu thích'),
-                              duration: Duration(seconds: 2),
-                            ),
+                          showMsg(
+                            context,
+                            "❤️ Đã thêm vào Mục yêu thích",
+                            true,
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('🤍 Đã xoá khỏi Mục yêu thích'),
-                              duration: Duration(seconds: 2),
-                            ),
+                          showMsg(
+                            context,
+                            "🤍 Đã xoá khỏi Mục yêu thích",
+                            true,
                           );
                         }
                       }

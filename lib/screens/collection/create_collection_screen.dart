@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/collection/collection_provider.dart';
 import '../../utils/upload_util.dart';
 
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+
 class CreateCollectionScreen extends StatefulWidget {
   const CreateCollectionScreen({super.key});
 
@@ -65,9 +67,7 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
 
       if (mounted) context.pop(true);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showMsg(context, e.toString(), false);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

@@ -57,9 +57,7 @@ class _AddVenueToCollectionScreenState
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showMsg(context, e.toString(), false);
     }
   }
 

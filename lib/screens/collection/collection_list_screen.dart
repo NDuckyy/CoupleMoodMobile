@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_card.dart';
 import 'package:couple_mood_mobile/widgets/collection/add_collection_card.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class CollectionListScreen extends StatefulWidget {
   const CollectionListScreen({super.key});
@@ -133,9 +134,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                                   .read<CollectionProvider>()
                                   .deleteCollection(collection.id);
                             } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
+                              showMsg(context, e.toString(), false);
                             }
                           }
                         },
