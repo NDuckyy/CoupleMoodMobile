@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/venue/review_request.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review_data.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
@@ -21,6 +22,31 @@ class VenueReviewService {
       );
     } catch (e) {
       throw Exception('Lỗi khi lấy review venue: $e');
+    }
+  }
+
+  static Future<ApiResponse<void>> submitVenueReview(
+    ReviewRequest request,
+  ) async {
+    try {
+      final requestBody = {
+        "venueLocationId": request.venueLocationId,
+        "checkInId": request.checkInId,
+        "content": request.content,
+        "rating": request.rating,
+        "isAnonymous": request.isAnonymous,
+        "images": request.imageUrls ?? [],
+      };
+
+      final res = await ApiClient.request(
+        '/Review/submit',
+        method: HttpMethod.post,
+        data: requestBody,
+      );
+
+      return ApiResponse.fromJson(res, (json) {});
+    } catch (e) {
+      throw Exception('Lỗi khi gửi review: $e');
     }
   }
 }

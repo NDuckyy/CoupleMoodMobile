@@ -38,6 +38,7 @@ import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
@@ -417,6 +418,17 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
 
+      GoRoute(
+        path: '/review-venue',
+        name: 'review_venue',
+        builder: (context, state) {
+          return ReviewScreen(
+            venueLocationId: 1,
+            checkInId: 1,
+          );
+        },
+      ),
+
       ShellRoute(
         parentNavigatorKey: _rootNavKey,
         builder: (context, state, child) {
@@ -514,7 +526,7 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-  
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: navigationShell,

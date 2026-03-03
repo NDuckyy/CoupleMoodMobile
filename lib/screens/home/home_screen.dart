@@ -160,6 +160,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   HomeIconButton(
+                    icon: Icons.reviews,
+                    label: "Review",
+                    color: const Color(0xFFFFAFCC),
+                    onTap: () {
+                      context.pushNamed("review_venue");
+                    },
+                  ),
+
+                  HomeIconButton(
                     icon: Icons.logout,
                     label: "Đăng xuất",
                     color: const Color(0xFFB388EB),
