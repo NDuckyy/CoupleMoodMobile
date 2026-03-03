@@ -51,4 +51,32 @@ class PostDetailModel {
       author: AuthorModel.fromJson(json['author']),
     );
   }
+
+  PostDetailModel copyWith({
+    String? content,
+    List<MediaModel>? mediaPayload,
+    String? locationName,
+    List<String>? hashTags,
+    List<String>? topic,
+    int? likeCount,
+    int? commentCount,
+    bool? isLikedByMe,
+    bool? isOwner,
+  }) {
+    return PostDetailModel(
+      id: id,
+      content: content ?? this.content,
+      mediaPayload: mediaPayload ?? this.mediaPayload,
+      locationName: locationName ?? this.locationName,
+      hashTags: hashTags ?? this.hashTags,
+      topic: topic ?? this.topic,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      createdAt: createdAt,
+      authorId: authorId,
+      isLikedByMe: isLikedByMe ?? this.isLikedByMe,
+      isOwner: isOwner ?? this.isOwner,
+      author: author,
+    );
+  }
 }

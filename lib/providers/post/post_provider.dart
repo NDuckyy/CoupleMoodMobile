@@ -50,4 +50,38 @@ class PostProvider extends ChangeNotifier {
     loadingMore = false;
     notifyListeners();
   }
+
+  Future<void> toggleLike(PostModel post) async {
+    final index = posts.indexWhere((p) => p.id == post.id);
+    if (index == -1) return;
+
+    final oldPost = posts[index];
+    final oldLiked = oldPost.isLikedByMe;
+
+    // optimistic update
+    posts[index] = oldPost.copyWith(
+      isLikedByMe: !oldLiked,
+      likeCount: oldLiked ? oldPost.likeCount - 1 : oldPost.likeCount + 1,
+    );
+
+    notifyListeners();
+
+    try {
+      final res = oldLiked
+          ? await PostService.unlikePost(post.id)
+          : await PostService.likePost(post.id);
+
+      if (res.code == 200 && res.data != null) {
+        posts[index] = posts[index].copyWith(
+          isLikedByMe: res.data['isLikedByMe'],
+          likeCount: res.data['postLikeCount'],
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      // rollback
+      posts[index] = oldPost;
+      notifyListeners();
+    }
+  }
 }

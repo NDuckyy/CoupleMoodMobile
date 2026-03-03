@@ -76,4 +76,22 @@ class PostService {
       ),
     );
   }
+
+  static Future<ApiResponse<dynamic>> likePost(int postId) async {
+    final res = await ApiClient.request(
+      '/Post/$postId/like',
+      method: HttpMethod.post,
+    );
+
+    return ApiResponse.fromJson(res, (data) => data);
+  }
+
+  static Future<ApiResponse<dynamic>> unlikePost(int postId) async {
+    final res = await ApiClient.request(
+      '/Post/$postId/unlike',
+      method: HttpMethod.delete,
+    );
+
+    return ApiResponse.fromJson(res, (data) => data);
+  }
 }
