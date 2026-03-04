@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  final String label;
+  final String? label;
   final String hint;
   final IconData icon;
   final int maxLines;
@@ -13,7 +13,7 @@ class CustomTextField extends StatelessWidget {
 
   const CustomTextField({
     super.key,
-    required this.label,
+    this.label,
     required this.hint,
     required this.icon,
     required this.controller,
@@ -28,13 +28,14 @@ class CustomTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
+        if (label != null)
+          Text(
+            label!,
+            style: const TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
           ),
-        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,

@@ -1,7 +1,8 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
-import 'package:couple_mood_mobile/screens/location/widget/venue_card.dart';
+import 'package:couple_mood_mobile/screens/home/widget/venue_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PopularNearby extends StatelessWidget {
   final List<Recommendation> recs;
@@ -30,7 +31,9 @@ class PopularNearby extends StatelessWidget {
                 "Khu vực phổ biến gần bạn",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              TextButton(onPressed: () {}, child: const Text("See all")),
+              TextButton(onPressed: () {
+                context.pushNamed('listLocation');
+              }, child: const Text("Xem tất cả")),
             ],
           ),
         ),

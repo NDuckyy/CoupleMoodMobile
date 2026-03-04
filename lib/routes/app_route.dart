@@ -38,6 +38,7 @@ import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
@@ -417,6 +418,19 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
 
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/review-venue',
+        name: 'review_venue',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return ReviewScreen(
+            venueLocationId: extra['venueLocationId'],
+            checkInId: extra['checkInId'],
+          );
+        },
+      ),
+
       ShellRoute(
         parentNavigatorKey: _rootNavKey,
         builder: (context, state, child) {
@@ -513,12 +527,16 @@ class MainShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: navigationShell,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: _buildCenterButton(),
+    final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
-      bottomNavigationBar: _buildBottomBar(),
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: navigationShell,
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: keyboardOpen ? null : _buildCenterButton(),
+
+      bottomNavigationBar: keyboardOpen ? null : _buildBottomBar(),
     );
   }
 
@@ -613,4 +631,13 @@ class _Placeholder extends StatelessWidget {
       body: Center(child: Text('$title (todo)')),
     );
   }
+}
+
+void navigateToReviewVenue({required int venueId, required int checkInId}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed(
+    'review_venue',
+    extra: {'venueLocationId': venueId, 'checkInId': checkInId},
+  );
 }

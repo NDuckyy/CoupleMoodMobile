@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,7 +29,12 @@ class ProfileScreen extends StatelessWidget {
                 ),
 
                 const SizedBox(width: 12),
-
+                ElevatedButton(
+                  onPressed: () async {
+                    await NotificationService().showTestNotification();
+                  },
+                  child: Text("Test Notification"),
+                ),
                 const Column(
                   children: [
                     Text(

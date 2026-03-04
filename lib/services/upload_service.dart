@@ -24,4 +24,30 @@ class UploadService {
 
     return ApiResponse<String>.fromJson(res, (json) => json.toString());
   }
+
+  static Future<ApiResponse<List<String>>> mediaUpload(
+    List<File> files, {
+    required UploadType type,
+  }) async {
+    final formData = FormData.fromMap({
+      'files': await Future.wait(
+        files.map((file) async {
+          final fileName = file.path.split('/').last;
+          return MultipartFile.fromFile(file.path, filename: fileName);
+        }),
+      ),
+    });
+
+    final res = await ApiClient.upload(
+      '/Media/upload',
+      method: HttpMethod.post,
+      data: formData,
+      query: {'type': type.value},
+    );
+
+    return ApiResponse<List<String>>.fromJson(
+      res,
+      (json) => List<String>.from(json as List),
+    );
+  }
 }

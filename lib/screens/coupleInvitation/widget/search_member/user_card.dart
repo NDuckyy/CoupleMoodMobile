@@ -164,6 +164,12 @@ class UserCard extends StatelessWidget {
                 ? Image.network(
                     user.avatarUrl!,
                     fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+                      return _buildPlaceholder(); 
+                    },
                     errorBuilder: (_, __, ___) {
                       return _buildPlaceholder();
                     },

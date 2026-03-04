@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/member_search_header.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/user_card.dart';
+import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,11 +34,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
       await invitationProvider.sendInvitation(memberProfileId, message);
       if (invitationProvider.error != null) {
         if (!mounted) return;
-        showMsg(
-          context,
-          "${invitationProvider.error}",
-          false,
-        );
+        showMsg(context, "${invitationProvider.error}", false);
         return;
       }
       if (!mounted) return;
@@ -96,32 +93,49 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
                   },
                 ),
               ),
-
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverGrid(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    return UserCard(
-                      user: invitationProvider.users[index],
-                      onSend: (message) => _sendInvitation(invitationProvider.users[index].memberProfileId, message),
-                    );
-                  }, childCount: invitationProvider.users.length),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.75,
+              if (invitationProvider.users.isEmpty &&
+                  !invitationProvider.isLoading) ...[
+                const SliverFillRemaining(
+                  child: Center(
+                    child: EmptyStateWidget(
+                      icon: Icons.no_accounts,
+                      title: "Không tìm thấy người dùng",
+                      description:
+                          "Không có người dùng nào phù hợp với từ khóa tìm kiếm của bạn.",
+                    ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: invitationProvider.isLoading
-                    ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                    : const SizedBox(),
-              ),
+              ] else ...[
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return UserCard(
+                        user: invitationProvider.users[index],
+                        onSend: (message) => _sendInvitation(
+                          invitationProvider.users[index].memberProfileId,
+                          message,
+                        ),
+                      );
+                    }, childCount: invitationProvider.users.length),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.75,
+                        ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: invitationProvider.isLoading
+                      ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : const SizedBox(),
+                ),
+              ],
             ],
           ),
         ),

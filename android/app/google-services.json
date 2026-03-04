@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "1058244642671",
+    "project_id": "couplemood-firebase",
+    "storage_bucket": "couplemood-firebase.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058244642671:android:75355d6d577dea979eca9a",
+        "android_client_info": {
+          "package_name": "com.capstone.couplemood"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZONrredxPQKaIb1E01ql5JtG5vf58KQY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058244642671:android:e294524e385ea0b59eca9a",
+        "android_client_info": {
+          "package_name": "com.example.couple_mood_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZONrredxPQKaIb1E01ql5JtG5vf58KQY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058244642671:android:94fb08ca58cf48ad9eca9a",
+        "android_client_info": {
+          "package_name": "com.example.testing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZONrredxPQKaIb1E01ql5JtG5vf58KQY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

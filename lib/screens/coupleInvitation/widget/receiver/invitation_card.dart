@@ -1,33 +1,13 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
-import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class InvitationCard extends StatelessWidget {
+  final VoidCallback onAccept;
+  final VoidCallback onReject;
   final InvitationResponse invitation;
 
-  const InvitationCard({required this.invitation, super.key});
-
-  void _acceptInvitation(BuildContext context) async {
-    final provider = context.read<CoupleInvitationProvider>();
-    await provider.acceptInvitation(invitation.invitationId);
-  }
-
-  void _rejectInvitation(BuildContext context) async {
-    final provider = context.read<CoupleInvitationProvider>();
-    await provider.rejectInvitation(invitation.invitationId);
-    if (provider.error != null) {
-      if (context.mounted) {
-        showMsg(context, provider.error!, false);
-      }
-    } else {
-      if (context.mounted) {
-        showMsg(context, "Đã từ chối lời mời", true);
-      }
-    }
-  }
+  const InvitationCard({required this.onAccept, required this.onReject, required this.invitation, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +128,7 @@ class InvitationCard extends StatelessWidget {
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () async {
-                      _rejectInvitation(context);
+                      onReject();
                     },
                     style: OutlinedButton.styleFrom(
                       foregroundColor: const Color(0xFFE57373),
@@ -167,7 +147,7 @@ class InvitationCard extends StatelessWidget {
                 const SizedBox(width: 14),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () => _acceptInvitation(context),
+                    onPressed: () => onAccept(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFB388EB),
                       elevation: 6,

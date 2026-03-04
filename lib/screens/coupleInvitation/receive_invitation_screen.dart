@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/receiver/invitation_card.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/receiver/receive_header.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
@@ -14,6 +15,34 @@ class ReceiveInvitationScreen extends StatefulWidget {
 }
 
 class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
+  void _acceptInvitation(BuildContext context, int invitationId) async {
+    final provider = context.read<CoupleInvitationProvider>();
+     await provider.acceptInvitation(invitationId);
+    if (provider.error != null) {
+      if (context.mounted) {
+        showMsg(context, provider.error!, false);
+      }
+    } else {
+      if (context.mounted) {
+        showMsg(context, "Đã chấp nhận lời mời", true);
+      }
+    }
+  }
+
+  void _rejectInvitation(BuildContext context, int invitationId) async {
+    final provider = context.read<CoupleInvitationProvider>();
+    await provider.rejectInvitation(invitationId);
+    if (provider.error != null) {
+      if (context.mounted) {
+        showMsg(context, provider.error!, false);
+      }
+    } else {
+      if (context.mounted) {
+        showMsg(context, "Đã từ chối lời mời", true);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -72,7 +101,17 @@ class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: InvitationCard(invitation: invitation),
+                          child: InvitationCard(
+                            invitation: invitation,
+                            onAccept: () => _acceptInvitation(
+                              context,
+                              invitation.invitationId,
+                            ),
+                            onReject: () => _rejectInvitation(
+                              context,
+                              invitation.invitationId,
+                            ),
+                          ),
                         );
                       },
                       childCount: invitationProvider.receivedInvitations.length,
