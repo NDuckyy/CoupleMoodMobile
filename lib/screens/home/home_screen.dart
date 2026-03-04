@@ -105,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: WeekSelector(
                   initialDate: DateTime.now(),
                   onDateSelected: (date) {
-                    print(date);
+                    debugPrint(date.toString());
                   },
                 ),
               ),
