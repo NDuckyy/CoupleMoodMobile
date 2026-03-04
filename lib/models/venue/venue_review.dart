@@ -58,34 +58,38 @@ class VenueReview {
 class VenueReviewMember {
   final int id;
   final int userId;
-  final String fullName;
-  final String displayName;
-  final String gender;
+  final String? fullName;
+  final String? displayName;
+  final String? gender;
   final String? bio;
-  final String avatarUrl;
-  final String email;
+  final String? avatarUrl;
+  final String? email;
 
   VenueReviewMember({
     required this.id,
     required this.userId,
-    required this.fullName,
-    required this.displayName,
-    required this.gender,
-    required this.bio,
-    required this.avatarUrl,
-    required this.email,
+    this.fullName,
+    this.displayName,
+    this.gender,
+    this.bio,
+    this.avatarUrl,
+    this.email,
   });
 
-  factory VenueReviewMember.fromJson(Map<String, dynamic> json) {
+  factory VenueReviewMember.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return VenueReviewMember(id: 0, userId: 0);
+    }
+
     return VenueReviewMember(
-      id: json['id'],
-      userId: json['userId'],
-      fullName: json['fullName'] ?? '',
-      displayName: json['displayName'] ?? '',
-      gender: json['gender'] ?? '',
+      id: json['id'] ?? 0,
+      userId: json['userId'] ?? 0,
+      fullName: json['fullName'],
+      displayName: json['displayName'],
+      gender: json['gender'],
       bio: json['bio'],
-      avatarUrl: json['avatarUrl'] ?? '',
-      email: json['email'] ?? '',
+      avatarUrl: json['avatarUrl'],
+      email: json['email'],
     );
   }
 }

@@ -8,6 +8,16 @@ class VenueReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAnonymous = review.isAnonymous;
+
+    final displayName = isAnonymous
+        ? "Người Dùng Ẩn Danh"
+        : (review.member.displayName ?? review.member.fullName ?? "Người dùng");
+
+    final avatarUrl = (!isAnonymous && review.member.avatarUrl != null)
+        ? review.member.avatarUrl!
+        : null;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -21,23 +31,25 @@ class VenueReviewItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// Header: Avatar + Name + Time
+          /// HEADER
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// Avatar
               CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.grey[200],
-                backgroundImage: review.member.avatarUrl.isNotEmpty
-                    ? NetworkImage(review.member.avatarUrl)
+                backgroundImage: avatarUrl != null
+                    ? NetworkImage(avatarUrl)
                     : null,
-                child: review.member.avatarUrl.isEmpty
+                child: avatarUrl == null
                     ? const Icon(Icons.person, size: 18)
                     : null,
               ),
+
               const SizedBox(width: 8),
 
-              /// Name + rating + badge
+              /// Name + Rating + Tag
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,23 +58,24 @@ class VenueReviewItem extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          review.member.displayName,
+                          displayName,
                           style: const TextStyle(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(width: 4),
 
-                        if (review.member.gender == "FEMALE")
+                        if (!isAnonymous && review.member.gender == "FEMALE")
                           const Icon(Icons.female, size: 14, color: Colors.pink)
-                        else if (review.member.gender == "MALE")
+                        else if (!isAnonymous && review.member.gender == "MALE")
                           const Icon(Icons.male, size: 14, color: Colors.blue),
                       ],
                     ),
 
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
 
-                    ///  Rating
+                    /// Rating + Tag
                     Row(
                       children: [
+                        /// Stars
                         Row(
                           children: List.generate(
                             review.rating,
@@ -73,28 +86,11 @@ class VenueReviewItem extends StatelessWidget {
                             ),
                           ),
                         ),
+
                         const SizedBox(width: 6),
 
-                        /// Matched badge
                         if (review.matchedTag != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              review.matchedTag!,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: Colors.green,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
+                          _buildTag(review.matchedTag!),
                       ],
                     ),
                   ],
@@ -123,20 +119,30 @@ class VenueReviewItem extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 itemCount: review.imageUrls.length,
                 itemBuilder: (_, index) {
+                  final url = review.imageUrls[index];
+
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        review.imageUrls[index],
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => _FullScreenImageViewer(imageUrl: url),
+                        ),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          url,
                           width: 80,
                           height: 80,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.broken_image),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 80,
+                            height: 80,
+                            color: Colors.grey[300],
+                            child: const Icon(Icons.broken_image),
+                          ),
                         ),
                       ),
                     ),
@@ -164,7 +170,40 @@ class VenueReviewItem extends StatelessWidget {
     );
   }
 
-  /// Format time
+  Widget _buildTag(String tag) {
+    final isNegative = tag.toLowerCase().contains("không");
+
+    final bgColor = isNegative
+        ? Colors.red.withOpacity(0.1)
+        : Colors.green.withOpacity(0.1);
+
+    final textColor = isNegative ? Colors.red : Colors.green;
+
+    final icon = isNegative ? Icons.cancel : Icons.check_circle;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 12, color: textColor),
+          const SizedBox(width: 4),
+          Text(
+            tag,
+            style: TextStyle(
+              fontSize: 11,
+              color: textColor,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     final now = DateTime.now();
@@ -174,5 +213,31 @@ class VenueReviewItem extends StatelessWidget {
     if (diff.inHours > 0) return "${diff.inHours} giờ trước";
     if (diff.inMinutes > 0) return "${diff.inMinutes} phút trước";
     return "Vừa xong";
+  }
+}
+
+class _FullScreenImageViewer extends StatelessWidget {
+  final String imageUrl;
+
+  const _FullScreenImageViewer({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(child: InteractiveViewer(child: Image.network(imageUrl))),
+          Positioned(
+            top: 40,
+            left: 16,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.white),
+              onPressed: () => Navigator.pop(context),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
