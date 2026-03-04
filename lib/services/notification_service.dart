@@ -88,6 +88,7 @@ class NotificationService {
       print('🔔 User clicked notification');
     });
 
+
     // App bị kill và mở từ notification
     RemoteMessage? initialMessage =
     await FirebaseMessaging.instance.getInitialMessage();
