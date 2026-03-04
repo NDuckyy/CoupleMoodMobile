@@ -16,6 +16,9 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _controller = TextEditingController();
 
+  int? _replyingToCommentId;
+  String? _replyingToName;
+
   @override
   void initState() {
     super.initState();
@@ -92,6 +95,12 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                             ///  Level 1
                             CommentItem(
                               comment: comment,
+                              onReply: () {
+                                setState(() {
+                                  _replyingToCommentId = comment.id;
+                                  _replyingToName = comment.author.fullName;
+                                });
+                              },
                               showViewReplies: comment.replyCount > 0,
                               isExpanded: provider.isExpanded(comment.id),
                               loadingReplies: provider.isLoadingReplies(
@@ -99,8 +108,7 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                               ),
                               onViewReplies: () =>
                                   provider.loadReplies(comment),
-                              onLike: () =>
-                                  provider.toggleLikeComment(comment), // ⭐ thêm
+                              onLike: () => provider.toggleLikeComment(comment),
                             ),
 
                             ///  Level 2
@@ -110,6 +118,13 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                                 children: [
                                   CommentItem(
                                     comment: reply,
+                                    onReply: () {
+                                      setState(() {
+                                        _replyingToCommentId = reply.id;
+                                        _replyingToName =
+                                            comment.author.fullName;
+                                      });
+                                    },
                                     showViewReplies: reply.replyCount > 0,
                                     isExpanded: provider.isExpanded(reply.id),
                                     loadingReplies: provider.isLoadingReplies(
@@ -117,9 +132,8 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                                     ),
                                     onViewReplies: () =>
                                         provider.loadReplies(reply),
-                                    onLike: () => provider.toggleLikeComment(
-                                      reply,
-                                    ), // ⭐ thêm
+                                    onLike: () =>
+                                        provider.toggleLikeComment(reply),
                                   ),
 
                                   ///  Level 3
@@ -128,8 +142,15 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                                       .map(
                                         (lv3) => CommentItem(
                                           comment: lv3,
-                                          onLike: () => provider
-                                              .toggleLikeComment(lv3), // ⭐ thêm
+                                          onReply: () {
+                                            setState(() {
+                                              _replyingToCommentId = lv3.id;
+                                              _replyingToName =
+                                                  lv3.author.fullName;
+                                            });
+                                          },
+                                          onLike: () =>
+                                              provider.toggleLikeComment(lv3),
                                         ),
                                       ),
                                 ],
@@ -147,23 +168,66 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
               decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: Colors.grey)),
               ),
-              child: Row(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: "Viết bình luận...",
-                        border: InputBorder.none,
+                  if (_replyingToCommentId != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              "Đang trả lời $_replyingToName",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _replyingToCommentId = null;
+                                _replyingToName = null;
+                              });
+                            },
+                            child: const Icon(Icons.close, size: 16),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: () {
-                      // TODO: Gọi API post comment
-                      _controller.clear();
-                    },
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: const InputDecoration(
+                            hintText: "Viết bình luận...",
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: () async {
+                          if (_controller.text.trim().isEmpty) return;
+
+                          await provider.createComment(
+                            content: _controller.text.trim(),
+                            parentId: _replyingToCommentId,
+                          );
+
+                          _controller.clear();
+
+                          setState(() {
+                            _replyingToCommentId = null;
+                            _replyingToName = null;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),

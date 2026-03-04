@@ -112,4 +112,52 @@ class PostService {
 
     return ApiResponse.fromJson(res, (data) => data);
   }
+
+  static Future<ApiResponse<CommentModel>> createComment({
+    required int postId,
+    required String content,
+    int? parentId,
+  }) async {
+    final res = await ApiClient.request(
+      '/Post/$postId/comment',
+      method: HttpMethod.post,
+      data: {
+        "content": content,
+        "parentId":
+            parentId, // khỏi truyền cho nó là null nếu là comment level 1 cũng được
+      },
+    );
+
+    return ApiResponse<CommentModel>.fromJson(
+      res,
+      (json) => CommentModel.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<CommentModel>> updateComment({
+    required int commentId,
+    required String content,
+  }) async {
+    final res = await ApiClient.request(
+      '/Comment/$commentId',
+      method: HttpMethod.put,
+      data: {"content": content},
+    );
+
+    return ApiResponse<CommentModel>.fromJson(
+      res,
+      (json) => CommentModel.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<bool>> deleteComment({
+    required int commentId,
+  }) async {
+    final res = await ApiClient.request(
+      '/Comment/$commentId',
+      method: HttpMethod.delete,
+    );
+
+    return ApiResponse<bool>.fromJson(res, (_) => true);
+  }
 }

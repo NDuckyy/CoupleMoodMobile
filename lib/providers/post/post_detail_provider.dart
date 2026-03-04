@@ -177,6 +177,47 @@ class PostDetailProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> createComment({required String content, int? parentId}) async {
+    if (post == null) return;
+
+    try {
+      final res = await PostService.createComment(
+        postId: post!.id,
+        content: content,
+        parentId: parentId,
+      );
+
+      if (res.code == 200 && res.data != null) {
+        final newComment = res.data!;
+
+        if (parentId == null) {
+          /// LEVEL 1
+          comments.insert(0, newComment);
+        } else {
+          /// Tìm comment đang reply
+          final replyingComment = _findCommentById(parentId);
+
+          if (replyingComment == null) return;
+
+          /// Nếu reply vào level 3 -> phải insert vào cha của nó
+          final int insertParentId =
+              replyingComment.level >= 3 && replyingComment.parentId != null
+              ? replyingComment.parentId!
+              : parentId;
+
+          replies[insertParentId] ??= [];
+          replies[insertParentId]!.insert(0, newComment);
+
+          expandedComments.add(insertParentId);
+        }
+
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
   /// ==============================
   /// HELPERS
   /// ==============================
@@ -229,5 +270,21 @@ class PostDetailProvider extends ChangeNotifier {
         return;
       }
     }
+  }
+
+  CommentModel? _findCommentById(int id) {
+    // Check root comments
+    for (final c in comments) {
+      if (c.id == id) return c;
+    }
+
+    // Check replies
+    for (final entry in replies.entries) {
+      for (final c in entry.value) {
+        if (c.id == id) return c;
+      }
+    }
+
+    return null;
   }
 }

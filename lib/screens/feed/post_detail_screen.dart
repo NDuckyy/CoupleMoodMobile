@@ -16,6 +16,10 @@ class PostDetailScreen extends StatefulWidget {
 
 class _PostDetailScreenState extends State<PostDetailScreen> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _controller = TextEditingController();
+
+  int? _replyingToCommentId;
+  String? _replyingToName;
 
   @override
   void initState() {
@@ -120,6 +124,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                         ///  Level 1
                         CommentItem(
                           comment: c,
+                          onReply: () {
+                            setState(() {
+                              _replyingToCommentId = c.id;
+                              _replyingToName = c.author.fullName;
+                            });
+                          },
                           showViewReplies: c.replyCount > 0,
                           isExpanded: provider.isExpanded(c.id),
                           loadingReplies: provider.isLoadingReplies(c.id),
@@ -134,6 +144,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             children: [
                               CommentItem(
                                 comment: reply,
+                                onReply: () {
+                                  setState(() {
+                                    _replyingToCommentId = reply.id;
+                                    _replyingToName = c.author.fullName;
+                                  });
+                                },
                                 showViewReplies: reply.replyCount > 0,
                                 isExpanded: provider.isExpanded(reply.id),
                                 loadingReplies: provider.isLoadingReplies(
@@ -150,6 +166,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                   .map(
                                     (lv3) => CommentItem(
                                       comment: lv3,
+                                      onReply: () {
+                                        setState(() {
+                                          _replyingToCommentId = lv3.id;
+                                          _replyingToName = lv3.author.fullName;
+                                        });
+                                      },
                                       onLike: () =>
                                           provider.toggleLikeComment(lv3),
                                     ),
@@ -177,14 +199,66 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             decoration: const BoxDecoration(
               border: Border(top: BorderSide(color: Colors.grey)),
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(hintText: "Viết bình luận..."),
+                if (_replyingToCommentId != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            "Đang trả lời $_replyingToName",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _replyingToCommentId = null;
+                              _replyingToName = null;
+                            });
+                          },
+                          child: const Icon(Icons.close, size: 16),
+                        ),
+                      ],
+                    ),
                   ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: "Viết bình luận...",
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () async {
+                        if (_controller.text.trim().isEmpty) return;
+
+                        await provider.createComment(
+                          content: _controller.text.trim(),
+                          parentId: _replyingToCommentId,
+                        );
+
+                        _controller.clear();
+
+                        setState(() {
+                          _replyingToCommentId = null;
+                          _replyingToName = null;
+                        });
+                      },
+                    ),
+                  ],
                 ),
-                IconButton(icon: const Icon(Icons.send), onPressed: () {}),
               ],
             ),
           ),
