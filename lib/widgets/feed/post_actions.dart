@@ -14,8 +14,9 @@ class PostActions extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (_) => ChangeNotifierProvider(
-        create: (_) => PostDetailProvider()..init(post.id),
+      builder: (ctx) => ChangeNotifierProvider(
+        create: (_) =>
+            PostDetailProvider(ctx.read<PostProvider>())..init(post.id),
         child: PostCommentBottomSheet(postId: post.id),
       ),
     );

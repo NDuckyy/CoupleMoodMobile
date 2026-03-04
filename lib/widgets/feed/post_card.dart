@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/post/post_model.dart';
@@ -27,8 +28,9 @@ class PostCard extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ChangeNotifierProvider(
-          create: (_) => PostDetailProvider(),
+        builder: (ctx) => ChangeNotifierProvider(
+          create: (_) =>
+              PostDetailProvider(ctx.read<PostProvider>())..init(post.id),
           child: PostDetailScreen(postId: post.id),
         ),
       ),

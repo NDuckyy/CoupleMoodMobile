@@ -84,4 +84,33 @@ class PostProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void increaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(commentCount: old.commentCount + 1);
+
+    notifyListeners();
+  }
+
+  void decreaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(
+      commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+    );
+
+    notifyListeners();
+  }
+
+  void toggleLikeById(int postId) {
+    final post = posts.firstWhere((p) => p.id == postId);
+    toggleLike(post);
+  }
 }
