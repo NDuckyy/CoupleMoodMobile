@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_info_card.dart';
 import 'package:flutter/material.dart';
@@ -13,8 +14,7 @@ import '../../widgets/venue/venue_basic_info.dart';
 import '../../widgets/venue/venue_image_slider.dart';
 import '../../widgets/venue/venue_review_section.dart';
 import '../../services/review_service.dart';
-import '../../models/checkin_payload.dart';
-import '../../services/checkin_session.dart';
+import '../../models/checkin/checkin_payload.dart';
 class VenueDetailScreen extends StatefulWidget {
   final int venueId;
 

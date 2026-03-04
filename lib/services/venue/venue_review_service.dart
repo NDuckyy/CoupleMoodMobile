@@ -29,19 +29,10 @@ class VenueReviewService {
     ReviewRequest request,
   ) async {
     try {
-      final requestBody = {
-        "venueLocationId": request.venueLocationId,
-        "checkInId": request.checkInId,
-        "content": request.content,
-        "rating": request.rating,
-        "isAnonymous": request.isAnonymous,
-        "images": request.imageUrls ?? [],
-      };
-
       final res = await ApiClient.request(
         '/Review/submit',
         method: HttpMethod.post,
-        data: requestBody,
+        data: request.toJson(),
       );
 
       return ApiResponse.fromJson(res, (json) {});

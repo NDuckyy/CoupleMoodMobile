@@ -15,4 +15,17 @@ class UploadUtil {
 
     throw Exception(response.message);
   }
+
+  static Future<List<String>> mediaUpload(List<File> files) async {
+    final response = await UploadService.mediaUpload(
+      files,
+      type: UploadType.image,
+    );
+
+    if (response.code == 200 && response.data != null) {
+      return response.data!;
+    }
+
+    throw Exception(response.message);
+  }
 }

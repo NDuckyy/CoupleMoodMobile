@@ -1,8 +1,9 @@
+import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
 
   static Future<void> init() async {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -12,21 +13,18 @@ class LocalNotificationService {
     await _plugin.initialize(
       settings: settings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
-        print("🔔 Notification clicked");
-
-        if (response.payload == "review") {
-          print("➡️ Go to review page");
-          // điều hướng sẽ làm ở step 3
+        if (response.payload != null) {
+          final parts = response.payload!.split("|");
+          final venueId = int.parse(parts[0]);
+          final checkInId = int.parse(parts[1]);
+          print("Notification clicked with payload: venueId=$venueId, checkInId=$checkInId");
+          navigateToReviewVenue(venueId: venueId, checkInId: checkInId);
         }
       },
     );
   }
 
-  static Future<void> show(
-      String title,
-      String body, {
-        String? payload,
-      }) async {
+  static Future<void> show(String title, String body, {String? payload}) async {
     const android = AndroidNotificationDetails(
       'default_channel',
       'Default Notifications',
@@ -43,4 +41,5 @@ class LocalNotificationService {
       notificationDetails: details,
       payload: payload,
     );
-  }}
+  }
+}

@@ -49,7 +49,7 @@ class VenueReviewProvider extends ChangeNotifier {
 
     try {
       final res = await VenueReviewService.submitVenueReview(request);
-
+      
       if (res.code != 200) {
         error = res.message;
       }

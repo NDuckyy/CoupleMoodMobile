@@ -101,8 +101,10 @@ class NotificationService {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       final title = message.notification?.title ?? "No title";
       final body = message.notification?.body ?? "No body";
+      final checkinId = message.data['refId'] ?? "";
+      final venueLocationId = message.data['venueLocationId'] ?? "";
 
-      LocalNotificationService.show(title, body);
+      LocalNotificationService.show(title, body, payload: "$venueLocationId|$checkinId");
     });
   }
 

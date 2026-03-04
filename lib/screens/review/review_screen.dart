@@ -1,16 +1,21 @@
 import 'dart:io';
 
+import 'package:couple_mood_mobile/models/checkin/validate_condition.dart';
 import 'package:couple_mood_mobile/models/venue/review_request.dart';
+import 'package:couple_mood_mobile/providers/notification_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/venue/venue_review_provider.dart';
 import 'package:couple_mood_mobile/screens/review/widget/anonymous_switch.dart';
 import 'package:couple_mood_mobile/screens/review/widget/header_card.dart';
 import 'package:couple_mood_mobile/screens/review/widget/rating_section.dart';
 import 'package:couple_mood_mobile/screens/review/widget/review_content_field.dart';
 import 'package:couple_mood_mobile/screens/review/widget/review_image_picker.dart';
 import 'package:couple_mood_mobile/screens/review/widget/submit_button.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/utils/upload_util.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -50,6 +55,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   void _submitReview() async {
+    final reviewProvider = context.read<VenueReviewProvider>();
+    final notificationProvider = context.read<NotificationProvider>();
     if (!_formKey.currentState!.validate()) return;
     uploadedImageUrls.clear();
     if (rating == 0) {
@@ -58,10 +65,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
 
     try {
-      for (var imagePath in images) {
-        final res = await UploadUtil.uploadImage(File(imagePath));
-        uploadedImageUrls.add(res);
-      }
+        final res = await UploadUtil.mediaUpload(images.map((path) => File(path)).toList());
+        uploadedImageUrls = res;
     } catch (e) {
       debugPrint("Error uploading image: $e");
     }
@@ -74,9 +79,40 @@ class _ReviewScreenState extends State<ReviewScreen> {
       isAnonymous: isAnonymous,
       imageUrls: uploadedImageUrls,
     );
-
-    debugPrint("Request body: ${request.toJson()}");
-    // TODO: call API
+    try {
+      final position = await LocationService.getCurrentPosition();
+      if (position == null) {
+        if (!mounted) return;
+        showMsg(context, "Không thể lấy vị trí hiện tại", false);
+        return;
+      } else {
+        final res = await notificationProvider.validateCheckIn(
+          widget.checkInId,
+          ValidateCondition(
+            venueLocationId: widget.venueLocationId,
+            latitude: position.latitude,
+            longitude: position.longitude,
+          ),
+        );
+        if (!res) {
+          if (!mounted) return;
+          showMsg(context, "Bạn không ở gần địa điểm này để đánh giá", false);
+        } else {
+          await reviewProvider.submitReview(request);
+          if (reviewProvider.error != null) {
+            if (!mounted) return;
+            showMsg(context, reviewProvider.error!, false);
+          }
+          if (!mounted) return;
+          showMsg(context, "Đánh giá đã được gửi", true);
+          context.pop();
+        }
+      }
+    } catch (e) {
+      debugPrint("Error submitting review: $e");
+      if (!mounted) return;
+      showMsg(context, "Gửi đánh giá thất bại", false);
+    }
   }
 
   @override

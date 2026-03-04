@@ -1,7 +1,7 @@
 import 'dart:math';
+import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
 import 'package:couple_mood_mobile/services/review_service.dart';
-import 'package:couple_mood_mobile/services/checkin_session.dart';
-import 'package:couple_mood_mobile/models/checkin_payload.dart';
+import 'package:couple_mood_mobile/models/checkin/checkin_payload.dart';
 
 class CheckInWatcher {
 

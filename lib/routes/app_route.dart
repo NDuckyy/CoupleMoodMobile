@@ -419,12 +419,14 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        parentNavigatorKey: _rootNavKey,
         path: '/review-venue',
         name: 'review_venue',
         builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
           return ReviewScreen(
-            venueLocationId: 1,
-            checkInId: 1,
+            venueLocationId: extra['venueLocationId'],
+            checkInId: extra['checkInId'],
           );
         },
       ),
@@ -629,4 +631,13 @@ class _Placeholder extends StatelessWidget {
       body: Center(child: Text('$title (todo)')),
     );
   }
+}
+
+void navigateToReviewVenue({required int venueId, required int checkInId}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed(
+    'review_venue',
+    extra: {'venueLocationId': venueId, 'checkInId': checkInId},
+  );
 }

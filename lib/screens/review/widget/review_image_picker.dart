@@ -22,20 +22,25 @@ class _ReviewImagePickerState extends State<ReviewImagePicker> {
   Future<void> _pickImage() async {
     if (widget.images.length >= 3) return;
 
-    final XFile? pickedFile =
-        await _picker.pickImage(source: ImageSource.gallery);
+    final List<XFile> pickedFiles = await _picker.pickMultiImage();
 
-    if (pickedFile != null) {
+    if (pickedFiles.isNotEmpty) {
+      final remainingSlots = 3 - widget.images.length;
+
+      final selectedPaths = pickedFiles
+          .take(remainingSlots)
+          .map((file) => file.path)
+          .toList();
+
       final updatedList = List<String>.from(widget.images)
-        ..add(pickedFile.path);
+        ..addAll(selectedPaths);
 
       widget.onChanged(updatedList);
     }
   }
 
   void _removeImage(int index) {
-    final updatedList = List<String>.from(widget.images)
-      ..removeAt(index);
+    final updatedList = List<String>.from(widget.images)..removeAt(index);
 
     widget.onChanged(updatedList);
   }
