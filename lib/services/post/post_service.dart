@@ -1,9 +1,12 @@
 import 'package:couple_mood_mobile/models/paginated_response.dart';
 import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/models/post/media_model.dart';
 import 'package:couple_mood_mobile/models/post/post_detail_model.dart';
+import 'package:couple_mood_mobile/models/post/post_model.dart';
 
 import '../../models/api_response.dart';
 import '../../models/post/feed_response.dart';
+import '../../models/post/post_topic_model.dart';
 import '../api_client.dart';
 
 class PostService {
@@ -159,5 +162,72 @@ class PostService {
     );
 
     return ApiResponse<bool>.fromJson(res, (_) => true);
+  }
+
+  static Future<ApiResponse<PostModel>> createPost({
+    required String content,
+    required List<MediaModel> mediaPayload,
+    String? locationName,
+    required String visibility,
+    List<String>? hashTags,
+    List<String>? topic,
+  }) async {
+    final res = await ApiClient.request(
+      '/Post',
+      method: HttpMethod.post,
+      data: {
+        "content": content,
+        "mediaPayload": mediaPayload.map((m) => m.toJson()).toList(),
+        "locationName": locationName,
+        "visibility": visibility,
+        "hashTags": hashTags,
+        "topic": topic,
+      },
+    );
+
+    return ApiResponse.fromJson(res, (data) => PostModel.fromJson(data));
+  }
+
+  static Future<ApiResponse<PostModel>> updatePost({
+    required int postId,
+    required String content,
+    required List<MediaModel> mediaPayload,
+    String? locationName,
+    required String visibility,
+    List<String>? hashTags,
+    List<String>? topic,
+  }) async {
+    final res = await ApiClient.request(
+      '/Post/$postId',
+      method: HttpMethod.put,
+      data: {
+        "content": content,
+        "mediaPayload": mediaPayload.map((m) => m.toJson()).toList(),
+        "locationName": locationName,
+        "visibility": visibility,
+        "hashTags": hashTags,
+        "topic": topic,
+      },
+    );
+
+    return ApiResponse.fromJson(res, (data) => PostModel.fromJson(data));
+  }
+
+  static Future<ApiResponse<bool>> deletePost(int postId) async {
+    final res = await ApiClient.request(
+      '/Post/$postId',
+      method: HttpMethod.delete,
+    );
+
+    return ApiResponse.fromJson(res, (_) => true);
+  }
+
+  static Future<ApiResponse<List<PostTopic>>> getTopics() async {
+    final res = await ApiClient.request("/Post/topics", method: HttpMethod.get);
+
+    return ApiResponse.fromJson(
+      res,
+      (json) => (json as List).map((e) => PostTopic.fromJson(e)).toList(),
+    );
   }
 }

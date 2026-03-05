@@ -7,4 +7,8 @@ class MediaModel {
   factory MediaModel.fromJson(Map<String, dynamic> json) {
     return MediaModel(url: json['url'] ?? '', type: json['type'] ?? '');
   }
+
+  Map<String, dynamic> toJson() {
+    return {"url": url, "type": type};
+  }
 }
