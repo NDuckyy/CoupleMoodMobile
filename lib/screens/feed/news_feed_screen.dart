@@ -56,13 +56,17 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                   /// Create Post Box
                   if (index == 0) {
                     return CreatePostBox(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final created = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const CreateEditPostScreen(),
                           ),
                         );
+
+                        if (created == true) {
+                          context.read<PostProvider>().loadFeeds();
+                        }
                       },
                     );
                   }

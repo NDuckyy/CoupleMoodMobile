@@ -273,6 +273,21 @@ class PostDetailProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> deletePost(int postId) async {
+    try {
+      await PostService.deletePost(postId);
+
+      /// remove khỏi feed
+      postProvider.posts.removeWhere((p) => p.id == postId);
+      postProvider.notifyListeners();
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
+    }
+  }
+
   /// ==============================
   /// HELPERS
   /// ==============================

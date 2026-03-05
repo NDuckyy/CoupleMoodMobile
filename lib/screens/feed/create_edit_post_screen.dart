@@ -12,11 +12,6 @@ import '../../models/post/post_model.dart';
 import '../../models/post/media_model.dart';
 import '../../providers/post/post_provider.dart';
 
-import '../../widgets/feed/post_image_grid.dart';
-import '../../widgets/feed/topic_selector.dart';
-import '../../widgets/feed/visibility_selector.dart';
-import '../../widgets/feed/hashtag_input.dart';
-
 class CreateEditPostScreen extends StatefulWidget {
   final PostModel? post;
 
@@ -50,6 +45,10 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
       _contentController.text = widget.post!.content;
       oldMedia = List.from(widget.post!.mediaPayload);
       selectedTopics = List.from(widget.post!.topic);
+
+      _hashtagController.text = widget.post!.hashTags
+          .map((e) => "#$e")
+          .join(" ");
     }
   }
 
@@ -94,6 +93,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
         ? null
         : _hashtagController.text
               .split(" ")
+              .where((e) => e.trim().isNotEmpty)
               .map((e) => e.replaceAll("#", ""))
               .toList();
 

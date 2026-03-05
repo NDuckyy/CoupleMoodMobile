@@ -1,8 +1,10 @@
+import 'package:couple_mood_mobile/models/post/post_detail_model.dart';
+
 import 'author_model.dart';
 import 'media_model.dart';
 
 class PostModel {
-  final double totalScore;
+  final double? totalScore;
   final int id;
   final String content;
   final List<MediaModel> mediaPayload;
@@ -18,7 +20,7 @@ class PostModel {
   final AuthorModel author;
 
   PostModel({
-    required this.totalScore,
+    this.totalScore,
     required this.id,
     required this.content,
     required this.mediaPayload,
@@ -86,6 +88,24 @@ class PostModel {
       isLikedByMe: isLikedByMe ?? this.isLikedByMe,
       isOwner: isOwner ?? this.isOwner,
       author: author ?? this.author,
+    );
+  }
+
+  factory PostModel.fromDetail(PostDetailModel detail) {
+    return PostModel(
+      id: detail.id,
+      content: detail.content,
+      mediaPayload: detail.mediaPayload,
+      locationName: detail.locationName,
+      hashTags: detail.hashTags,
+      topic: detail.topic,
+      likeCount: detail.likeCount,
+      commentCount: detail.commentCount,
+      createdAt: detail.createdAt,
+      authorId: detail.authorId,
+      isLikedByMe: detail.isLikedByMe,
+      isOwner: detail.isOwner,
+      author: detail.author,
     );
   }
 }

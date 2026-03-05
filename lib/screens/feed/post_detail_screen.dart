@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/models/post/post_model.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -103,6 +105,91 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+  void _showPostOptions() {
+    final provider = context.read<PostDetailProvider>();
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text("Chỉnh sửa bài viết"),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final updated = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CreateEditPostScreen(
+                        post: PostModel.fromDetail(provider.post!),
+                      ),
+                    ),
+                  );
+
+                  if (updated == true) {
+                    await provider.loadPostDetail(provider.post!.id);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text(
+                  "Xoá bài viết",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text("Xoá bài viết?"),
+                      content: const Text("Hành động này không thể hoàn tác."),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text("Huỷ"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text(
+                            "Xoá",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    final success = await context
+                        .read<PostDetailProvider>()
+                        .deletePost(widget.postId);
+
+                    if (!mounted) return;
+
+                    showMsg(
+                      context,
+                      success ? "Đã xoá bài viết" : "Xoá thất bại",
+                      success,
+                    );
+
+                    if (success) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -130,7 +217,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final post = provider.post!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Chi tiết bài viết")),
+      appBar: AppBar(
+        title: const Text("Chi tiết bài viết"),
+        actions: [
+          if (post.isOwner)
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: _showPostOptions,
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -192,9 +288,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                 Consumer<PostProvider>(
                   builder: (context, postProvider, _) {
-                    final updatedPost = postProvider.posts.firstWhere(
-                      (p) => p.id == post.id,
-                    );
+                    final updatedPost =
+                        postProvider.posts
+                            .where((p) => p.id == post.id)
+                            .isNotEmpty
+                        ? postProvider.posts.firstWhere((p) => p.id == post.id)
+                        : null;
+
+                    if (updatedPost == null) {
+                      return const SizedBox();
+                    }
 
                     return Row(
                       children: [

@@ -13,6 +13,15 @@ class HashtagInput extends StatefulWidget {
 class _HashtagInputState extends State<HashtagInput> {
   List<String> tags = [];
 
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.controller.text.isNotEmpty) {
+      parseTags(widget.controller.text);
+    }
+  }
+
   void parseTags(String text) {
     final raw = text
         .replaceAll(",", " ")
