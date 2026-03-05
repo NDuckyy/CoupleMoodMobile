@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item.dart';
+import 'package:couple_mood_mobile/models/collection/collection_item_summary.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
@@ -149,5 +150,24 @@ class CollectionService {
     );
 
     return ApiResponse<void>.fromJson(res, (_) => null);
+  }
+
+  static Future<ApiResponse<List<CollectionItemSummary>>>
+  getCollectionSummaries() async {
+    try {
+      final res = await ApiClient.request(
+        '/Collection/summaries',
+        method: HttpMethod.get,
+      );
+
+      return ApiResponse<List<CollectionItemSummary>>.fromJson(
+        res,
+        (json) => (json as List)
+            .map((e) => CollectionItemSummary.fromJson(e))
+            .toList(),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy collection summaries: $e');
+    }
   }
 }

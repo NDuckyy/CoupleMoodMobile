@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:couple_mood_mobile/widgets/venue/collection_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'flying_heart.dart';
@@ -108,20 +109,28 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                       if (!mounted) return;
 
                       if (success) {
-                        if (provider.isFavorite) {
-                          _playHeartEffect();
+                        if (success && provider.isFavorite) {
+                          await provider.loadCollectionSummaries();
 
-                          showMsg(
-                            context,
-                            "❤️ Đã thêm vào Mục yêu thích",
-                            true,
-                          );
+                          final collections = provider.collections;
+
+                          if (collections.length <= 1) {
+                            showMsg(
+                              context,
+                              "❤️ Đã thêm vào Mục yêu thích",
+                              true,
+                            );
+                          } else {
+                            _playHeartEffect();
+
+                            showCollectionPicker(
+                              context,
+                              collections,
+                              provider,
+                            );
+                          }
                         } else {
-                          showMsg(
-                            context,
-                            "🤍 Đã xoá khỏi Mục yêu thích",
-                            true,
-                          );
+                          showMsg(context, "Đã xoá khỏi Mục yêu thích", true);
                         }
                       }
                     },
@@ -135,33 +144,29 @@ class _VenueTitleRowState extends State<VenueTitleRow>
                       clipBehavior: Clip.none,
                       children: [
                         ..._flyingHearts,
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              if (isFavorite)
-                                BoxShadow(
-                                  color: Colors.pink.withOpacity(0.45),
-                                  blurRadius: _glow.value,
+                        provider.favoriteLoading
+                            ? const SizedBox(
+                                width: 28,
+                                height: 28,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                            ],
-                          ),
-                          child: provider.favoriteLoading
-                              ? const SizedBox(
-                                  width: 28,
-                                  height: 28,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Icon(
-                                  isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  size: 28,
-                                  color: isFavorite ? Colors.pink : Colors.grey,
-                                ),
-                        ),
+                              )
+                            : Icon(
+                                isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                size: 28,
+                                color: isFavorite ? Colors.pink : Colors.grey,
+                                shadows: isFavorite
+                                    ? [
+                                        Shadow(
+                                          color: Colors.pink.withOpacity(0.7),
+                                          blurRadius: _glow.value,
+                                        ),
+                                      ]
+                                    : null,
+                              ),
                       ],
                     ),
                   );

@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/collection/collection_item_summary.dart';
 import 'package:couple_mood_mobile/models/venue/venue_model.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item.dart';
 import 'package:couple_mood_mobile/services/venue/venue_service.dart';
@@ -18,6 +19,8 @@ class VenueDetailProvider extends ChangeNotifier {
   CollectionItem? _currentCollection;
 
   Venue? get venue => venueResponse?.data;
+
+  List<CollectionItemSummary> collections = [];
 
   /// ================= LOAD VENUE =================
   Future<void> loadVenue(int id) async {
@@ -92,5 +95,22 @@ class VenueDetailProvider extends ChangeNotifier {
       favoriteLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<void> loadCollectionSummaries() async {
+    final res = await CollectionService.getCollectionSummaries();
+
+    if (res.code == 200 && res.data != null) {
+      collections = res.data!;
+    }
+  }
+
+  Future<void> addVenueToOtherCollection(int collectionId) async {
+    if (venue == null) return;
+
+    await CollectionService.addVenueToCollection(
+      collectionId: collectionId,
+      venueId: venue!.id,
+    );
   }
 }
