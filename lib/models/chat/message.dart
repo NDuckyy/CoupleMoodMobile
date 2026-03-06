@@ -11,7 +11,7 @@ class Message {
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
-  final String? metadata;
+  final dynamic metadata;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final bool isMine;
@@ -96,7 +96,7 @@ class Message {
     String? fileUrl,
     String? fileName,
     int? fileSize,
-    String? metadata,
+    dynamic metadata,
     DateTime? createdAt,
     DateTime? updatedAt,
     bool? isMine,
