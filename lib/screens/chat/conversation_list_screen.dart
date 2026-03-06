@@ -40,7 +40,9 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text(
           'Nhắn tin',
           style: TextStyle(fontWeight: FontWeight.bold),
@@ -336,17 +338,17 @@ class _ConversationItem extends StatelessWidget {
     final difference = now.difference(timestamp);
 
     if (difference.inMinutes < 1) {
-      return 'Now';
+      return 'Bây giờ';
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m';
+      return '${difference.inMinutes} phút trước';
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h';
+      return '${difference.inHours} giờ trước';
     } else if (difference.inDays < 7) {
-      return DateFormat('EEE').format(timestamp);
+      return DateFormat('EEEE', 'vi').format(timestamp);
     } else if (difference.inDays < 365) {
-      return DateFormat('MMM d').format(timestamp);
+      return DateFormat('d MMMM', 'vi').format(timestamp);
     } else {
-      return DateFormat('M/d/yy').format(timestamp);
+      return DateFormat('d/M/yy', 'vi').format(timestamp);
     }
   }
 }

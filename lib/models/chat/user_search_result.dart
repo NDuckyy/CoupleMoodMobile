@@ -1,5 +1,6 @@
 class UserSearchResult {
-  final int userId;  // Changed from memberId to userId
+  final int memberProfileId;
+  final int userId; // Changed from memberId to userId
   final String fullName;
   final String? avatarUrl;
   final String? bio;
@@ -7,6 +8,7 @@ class UserSearchResult {
   final bool canSendInvitation;
 
   UserSearchResult({
+    required this.memberProfileId,
     required this.userId,
     required this.fullName,
     this.avatarUrl,
@@ -17,7 +19,8 @@ class UserSearchResult {
 
   factory UserSearchResult.fromJson(Map<String, dynamic> json) {
     return UserSearchResult(
-      userId: json['userId'] as int,  // Changed from memberId
+      memberProfileId: json['memberProfileId'] as int,
+      userId: json['userId'] as int, // Changed from memberId
       fullName: json['fullName'] as String,
       avatarUrl: json['avatarUrl'] as String?,
       bio: json['bio'] as String?,
@@ -28,7 +31,8 @@ class UserSearchResult {
 
   Map<String, dynamic> toJson() {
     return {
-      'userId': userId,  // Changed from memberId
+      'memberProfileId': memberProfileId,
+      'userId': userId, // Changed from memberId
       'fullName': fullName,
       'avatarUrl': avatarUrl,
       'bio': bio,
@@ -39,24 +43,21 @@ class UserSearchResult {
 }
 
 class UserSearchResponse {
-  final bool success;
   final List<UserSearchResult> data;
   final SearchPagination pagination;
 
-  UserSearchResponse({
-    required this.success,
-    required this.data,
-    required this.pagination,
-  });
+  UserSearchResponse({required this.data, required this.pagination});
 
   factory UserSearchResponse.fromJson(Map<String, dynamic> json) {
-    return UserSearchResponse(
-      success: json['success'] as bool,
-      data: (json['data'] as List<dynamic>)
-          .map((item) => UserSearchResult.fromJson(item as Map<String, dynamic>))
-          .toList(),
-      pagination: SearchPagination.fromJson(json['pagination'] as Map<String, dynamic>),
-    );
+    final dataJson = json['data'] as Map<String, dynamic>;
+
+    final users = (dataJson['data'] as List)
+        .map((item) => UserSearchResult.fromJson(item))
+        .toList();
+
+    final pagination = SearchPagination.fromJson(dataJson['pagination']);
+
+    return UserSearchResponse(data: users, pagination: pagination);
   }
 }
 

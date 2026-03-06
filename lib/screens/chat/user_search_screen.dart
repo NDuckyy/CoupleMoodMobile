@@ -1,3 +1,5 @@
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
+import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chat/user_search_result.dart';
@@ -28,15 +30,6 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     super.dispose();
   }
 
-  void _onSearchChanged(String query) {
-    if (query.trim().isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _hasSearched = false;
-        _error = null;
-      });
-    }
-  }
 
   Future<void> _performSearch(String query, {bool loadMore = false}) async {
     if (query.trim().isEmpty) return;
@@ -86,7 +79,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   Future<void> _onUserTap(UserSearchResult user) async {
     // Prevent multiple taps
     if (_isShowingDialog) return;
-    
+
     setState(() {
       _isShowingDialog = true;
     });
@@ -97,15 +90,15 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       barrierDismissible: false,
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
 
     try {
       final chatProvider = context.read<ChatProvider>();
-      final conversation = await chatProvider.getOrCreateDirectConversation(user.userId);
+      final conversation = await chatProvider.getOrCreateDirectConversation(
+        user.userId,
+      );
 
       // Close loading dialog
       if (mounted && _isShowingDialog) {
@@ -129,7 +122,9 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(chatProvider.error ?? 'Failed to create conversation'),
+              content: Text(
+                chatProvider.error ?? 'Failed to create conversation',
+              ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 3),
             ),
@@ -144,7 +139,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           _isShowingDialog = false;
         });
       }
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -160,146 +155,105 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Search Users'),
+        backgroundColor: Colors.white,
+        title: const Text('Tìm kiếm'),
         elevation: 0,
       ),
       body: Column(
         children: [
-          // Search bar
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.05),
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'Search by name...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearchChanged('');
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onSubmitted: (query) {
-                if (query.trim().isNotEmpty) {
-                  _performSearch(query);
-                }
-              },
-            ),
+          UserSearchBar(
+            controller: _searchController,
+            onSearch: (value) {
+              _performSearch(value);
+            },
           ),
-
+          const SizedBox(height: 16),
           // Results
           Expanded(
             child: _isSearching && _searchResults.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error: $_error',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                final query = _searchController.text.trim();
-                                if (query.isNotEmpty) {
-                                  _performSearch(query);
-                                }
-                              },
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
                         ),
-                      )
-                    : !_hasSearched
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.search,
-                                  size: 64,
-                                  color: Colors.grey[400],
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $_error',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            final query = _searchController.text.trim();
+                            if (query.isNotEmpty) {
+                              _performSearch(query);
+                            }
+                          },
+                          child: const Text('Thử lại'),
+                        ),
+                      ],
+                    ),
+                  )
+                : !_hasSearched
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search, size: 64, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Tìm kiếm bạn bè để bắt đầu trò chuyện!',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : _searchResults.isEmpty
+                ? EmptyStateWidget(
+                    icon: Icons.person_off,
+                    title: "Không tìm thấy người dùng",
+                    description: "Hãy thử tên người dùng khác",
+                  )
+                : ListView.builder(
+                    itemCount: _searchResults.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _searchResults.length) {
+                        // Load more indicator
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: _isSearching
+                              ? const Center(child: CircularProgressIndicator())
+                              : TextButton(
+                                  onPressed: () {
+                                    final query = _searchController.text.trim();
+                                    if (query.isNotEmpty) {
+                                      _performSearch(query, loadMore: true);
+                                    }
+                                  },
+                                  child: const Text('Tải thêm'),
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Search for users to start a conversation',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _searchResults.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.person_off,
-                                      size: 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'No users found',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : ListView.builder(
-                                itemCount: _searchResults.length + (_hasMore ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == _searchResults.length) {
-                                    // Load more indicator
-                                    return Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: _isSearching
-                                          ? const Center(child: CircularProgressIndicator())
-                                          : TextButton(
-                                              onPressed: () {
-                                                final query = _searchController.text.trim();
-                                                if (query.isNotEmpty) {
-                                                  _performSearch(query, loadMore: true);
-                                                }
-                                              },
-                                              child: const Text('Load More'),
-                                            ),
-                                    );
-                                  }
+                        );
+                      }
 
-                                  final user = _searchResults[index];
-                                  return _UserTile(
-                                    user: user,
-                                    onTap: () => _onUserTap(user),
-                                  );
-                                },
-                              ),
+                      final user = _searchResults[index];
+                      return _UserTile(
+                        user: user,
+                        onTap: () => _onUserTap(user),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -311,10 +265,7 @@ class _UserTile extends StatelessWidget {
   final UserSearchResult user;
   final VoidCallback onTap;
 
-  const _UserTile({
-    required this.user,
-    required this.onTap,
-  });
+  const _UserTile({required this.user, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +279,10 @@ class _UserTile extends StatelessWidget {
         child: user.avatarUrl == null || user.avatarUrl!.isEmpty
             ? Text(
                 user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : '?',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               )
             : null,
       ),
@@ -337,10 +291,7 @@ class _UserTile extends StatelessWidget {
           Expanded(
             child: Text(
               user.fullName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
           if (user.relationshipStatus == 'IN_RELATIONSHIP')
@@ -369,11 +320,7 @@ class _UserTile extends StatelessWidget {
         ],
       ),
       subtitle: user.bio != null && user.bio!.isNotEmpty
-          ? Text(
-              user.bio!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
+          ? Text(user.bio!, maxLines: 1, overflow: TextOverflow.ellipsis)
           : null,
       trailing: const Icon(Icons.chat_bubble_outline),
     );

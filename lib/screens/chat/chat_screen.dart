@@ -13,10 +13,7 @@ import 'conversation_details_screen.dart';
 class ChatScreen extends StatefulWidget {
   final Conversation conversation;
 
-  const ChatScreen({
-    super.key,
-    required this.conversation,
-  });
+  const ChatScreen({super.key, required this.conversation});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -39,16 +36,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _initialize() async {
     final chatProvider = context.read<ChatProvider>();
-    
+
     // Join conversation room
     await chatProvider.joinConversation(widget.conversation.id);
-    
+
     // Load messages
     await chatProvider.loadMessages(widget.conversation.id);
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       _loadMoreMessages();
     }
@@ -56,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _loadMoreMessages() async {
     if (_isLoadingMore) return;
-    
+
     final chatProvider = context.read<ChatProvider>();
     if (!chatProvider.hasMoreMessages(widget.conversation.id)) return;
 
@@ -67,12 +64,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _handleTextChanged(String text) {
     final chatProvider = context.read<ChatProvider>();
-    
+
     if (text.isNotEmpty && !_isTyping) {
       _isTyping = true;
-      print('ChatScreen: User started typing in conversation ${widget.conversation.id}');
+      print(
+        'ChatScreen: User started typing in conversation ${widget.conversation.id}',
+      );
       chatProvider.sendTypingIndicator(widget.conversation.id, true);
-      
+
       // Auto-stop typing after 3 seconds
       _typingTimer?.cancel();
       _typingTimer = Timer(const Duration(seconds: 3), () {
@@ -104,7 +103,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_isTyping) {
       _isTyping = false;
       _typingTimer?.cancel();
-      context.read<ChatProvider>().sendTypingIndicator(widget.conversation.id, false);
+      context.read<ChatProvider>().sendTypingIndicator(
+        widget.conversation.id,
+        false,
+      );
     }
 
     // Clear input
@@ -131,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final chatProvider = context.read<ChatProvider>();
-    
+
     if (state == AppLifecycleState.paused) {
       // App going to background
       chatProvider.leaveConversation(widget.conversation.id);
@@ -147,10 +149,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _scrollController.dispose();
     _textController.dispose();
     _typingTimer?.cancel();
-    
+
     // Leave conversation
     context.read<ChatProvider>().leaveConversation(widget.conversation.id);
-    
+
     super.dispose();
   }
 
@@ -166,11 +168,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     // Debug log
     if (typingUsers.isNotEmpty) {
-      print('ChatScreen: Typing users updated - ${typingUsers.length} users: $typingUsers');
+      print(
+        'ChatScreen: Typing users updated - ${typingUsers.length} users: $typingUsers',
+      );
     }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: InkWell(
           onTap: widget.conversation.type == 'GROUP'
               ? () {
@@ -193,22 +199,25 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 backgroundImage: widget.conversation.getDisplayAvatar() != null
                     ? NetworkImage(widget.conversation.getDisplayAvatar()!)
                     : null,
-                onBackgroundImageError: widget.conversation.getDisplayAvatar() != null
+                onBackgroundImageError:
+                    widget.conversation.getDisplayAvatar() != null
                     ? (exception, stackTrace) {
-                        print('Error loading avatar in chat screen: $exception');
+                        print(
+                          'Error loading avatar in chat screen: $exception',
+                        );
                       }
                     : null,
                 child: widget.conversation.getDisplayAvatar() == null
                     ? widget.conversation.type == 'GROUP'
-                        ? const Icon(Icons.group, size: 20)
-                        : Text(
-                            displayName[0].toUpperCase(),
-                            style: const TextStyle(fontSize: 16),
-                          )
+                          ? const Icon(Icons.group, size: 20)
+                          : Text(
+                              displayName[0].toUpperCase(),
+                              style: const TextStyle(fontSize: 16),
+                            )
                     : null,
               ),
               const SizedBox(width: 12),
-              
+
               // Name and status
               Expanded(
                 child: Column(
@@ -275,90 +284,91 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             child: isLoading && messages.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : messages.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.chat_bubble_outline,
-                              size: 64,
-                              color: Colors.grey[400],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Chua có tin nhắn nào',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Gửi một tin nhắn để bắt đầu cuộc trò chuyện',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 64,
+                          color: Colors.grey[400],
                         ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        reverse: true,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
+                        const SizedBox(height: 16),
+                        Text(
+                          'Chua có tin nhắn nào',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
                         ),
-                        itemCount: messages.length + (_isLoadingMore ? 1 : 0),
-                        itemBuilder: (context, index) {
-                          if (_isLoadingMore && index == messages.length) {
-                            return const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(16),
-                                child: CircularProgressIndicator(),
-                              ),
-                            );
-                          }
+                        const SizedBox(height: 8),
+                        Text(
+                          'Gửi một tin nhắn để bắt đầu cuộc trò chuyện',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    reverse: true,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    itemCount: messages.length + (_isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (_isLoadingMore && index == messages.length) {
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: CircularProgressIndicator(),
+                          ),
+                        );
+                      }
 
-                          final message = messages[index];
-                          final showDateHeader = _shouldShowDateHeader(
-                            messages,
-                            index,
-                          );
-                          final showAvatar = _shouldShowAvatar(
-                            messages,
-                            index,
-                            widget.conversation.type,
-                          );
+                      final message = messages[index];
+                      final showDateHeader = _shouldShowDateHeader(
+                        messages,
+                        index,
+                      );
+                      final showAvatar = _shouldShowAvatar(
+                        messages,
+                        index,
+                        widget.conversation.type,
+                      );
 
-                          return Column(
-                            children: [
-                              if (showDateHeader)
-                                _DateHeader(date: message.createdAt),
-                              MessageBubble(
-                                message: message,
-                                showAvatar: showAvatar,
-                                isGroupChat: widget.conversation.type == 'GROUP',
-                                onDelete: message.isMine
-                                    ? () => _deleteMessage(message.id)
-                                    : null,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
+                      return Column(
+                        children: [
+                          if (showDateHeader)
+                            _DateHeader(date: message.createdAt),
+                          MessageBubble(
+                            message: message,
+                            showAvatar: showAvatar,
+                            isGroupChat: widget.conversation.type == 'GROUP',
+                            onDelete: message.isMine
+                                ? () => _deleteMessage(message.id)
+                                : null,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
           ),
 
           // Typing indicator
           if (typingUsers.isNotEmpty) ...[
-            TypingIndicatorWidget(
-              userCount: typingUsers.length,
-            ),
+            TypingIndicatorWidget(userCount: typingUsers.length),
             // Debug info
             if (true) // Set to false to hide debug
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
                 child: Text(
                   'Debug: ${typingUsers.length} users typing: ${typingUsers.join(", ")}',
                   style: const TextStyle(fontSize: 10, color: Colors.red),
@@ -397,7 +407,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     return currentDate != nextDate;
   }
 
-  bool _shouldShowAvatar(List<Message> messages, int index, String conversationType) {
+  bool _shouldShowAvatar(
+    List<Message> messages,
+    int index,
+    String conversationType,
+  ) {
     // Always show avatar for the first message
     if (index == 0) return true;
 
@@ -421,10 +435,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Xóa',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -475,15 +486,15 @@ class _DateHeader extends StatelessWidget {
     final messageDate = DateTime(date.year, date.month, date.day);
 
     if (messageDate == today) {
-      return 'Today';
+      return 'Hôm nay';
     } else if (messageDate == yesterday) {
-      return 'Yesterday';
+      return 'Hôm qua';
     } else if (now.difference(date).inDays < 7) {
-      return DateFormat('EEEE').format(date);
+      return DateFormat('EEEE', 'vi').format(date);
     } else if (date.year == now.year) {
-      return DateFormat('MMMM d').format(date);
+      return DateFormat('d MMMM', 'vi').format(date);
     } else {
-      return DateFormat('MMMM d, yyyy').format(date);
+      return DateFormat('d MMMM, yyyy', 'vi').format(date);
     }
   }
 }

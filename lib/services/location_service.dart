@@ -1,6 +1,5 @@
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-import 'package:geolocator/geolocator.dart';
 import 'checkin_watcher.dart';
 
 class LocationService {
