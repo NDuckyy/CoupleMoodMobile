@@ -279,21 +279,23 @@ class SignalRService {
 
     // MessageDeleted event
     _hubConnection!.on('MessageDeleted', (arguments) {
-      if (arguments != null && arguments.length >= 2) {
-        try {
-          final conversationId = arguments[0] as int;
-          final messageId = arguments[1] as int;
-          
-          _messageDeletedController.add(MessageDeletedEvent(
-            conversationId: conversationId,
-            messageId: messageId,
-          ));
-          print('SignalR: Message deleted - $messageId');
-        } catch (e) {
-          print('SignalR: Error parsing message deleted - $e');
-        }
-      }
-    });
+  if (arguments != null && arguments.isNotEmpty) {
+    try {
+      final data = arguments[0] as Map<String, dynamic>;
+      final messageId = data['messageId'] as int;
+      final conversationId = data['conversationId'] as int;
+      
+      _messageDeletedController.add(MessageDeletedEvent(
+        conversationId: conversationId,
+        messageId: messageId,
+      ));
+      print('SignalR: Message deleted - messageId: $messageId, conversationId: $conversationId');
+    } catch (e) {
+      print('SignalR: Error parsing message deleted - $e');
+      print('SignalR: Arguments structure: $arguments');
+    }
+  }
+});
 
     // NewConversation event
     _hubConnection!.on('NewConversation', (arguments) {
