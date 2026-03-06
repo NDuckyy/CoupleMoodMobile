@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../utils/session_storage.dart';
+import '../../utils/text_utils.dart';
 
 class CreatePostBox extends StatefulWidget {
   final VoidCallback? onTap;
@@ -12,6 +13,7 @@ class CreatePostBox extends StatefulWidget {
 
 class _CreatePostBoxState extends State<CreatePostBox> {
   String? avatar;
+  String? firstName;
 
   @override
   void initState() {
@@ -22,7 +24,8 @@ class _CreatePostBoxState extends State<CreatePostBox> {
   Future<void> _loadSession() async {
     final session = await SessionStorage.load();
     setState(() {
-      avatar = session?.avartarUrl;
+      avatar = session?.avatarUrl;
+      firstName = getVietnameseFirstName(session?.fullName);
     });
   }
 
@@ -63,9 +66,11 @@ class _CreatePostBoxState extends State<CreatePostBox> {
                   borderRadius: BorderRadius.circular(25),
                   color: Colors.grey[200],
                 ),
-                child: const Text(
-                  "Bạn đang nghĩ gì?",
-                  style: TextStyle(color: Colors.grey),
+                child: Text(
+                  firstName != null
+                      ? "$firstName ơi, bạn đang nghĩ gì?"
+                      : "Bạn đang nghĩ gì?",
+                  style: const TextStyle(color: Colors.grey),
                 ),
               ),
             ),

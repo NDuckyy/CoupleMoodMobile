@@ -24,9 +24,11 @@ class AuthService {
     final session = Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      userId: data['userId'] as int?,
       gender: data['gender']?.toString(),
-      avartarUrl: data['avartarUrl']?.toString() ?? data['imageUrl']?.toString(),
+      avatarUrl: data['avatarUrl']?.toString(),
+      fullName: data['fullName']?.toString(),
+      dateOfBirth: data['dateOfBirth']?.toString(),
+      inviteCode: data['inviteCode']?.toString(),
     );
     await SessionStorage.save(session);
     await NotificationService.sendTokenToServerAfterLogin();
