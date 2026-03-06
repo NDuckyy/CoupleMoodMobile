@@ -55,7 +55,7 @@ class Message {
       fileUrl: json['fileUrl'] as String?,
       fileName: json['fileName'] as String?,
       fileSize: json['fileSize'] as int?,
-      metadata: json['metadata'] as String?,
+      metadata: json['metadata'] as dynamic != null ? json['metadata'].toString() : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
       isMine: json['isMine'] as bool? ?? false,
