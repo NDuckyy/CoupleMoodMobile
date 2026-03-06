@@ -29,24 +29,12 @@ class MessageBubble extends StatelessWidget {
             message.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Avatar (for group chat, other users only)
-          if (!message.isMine && isGroupChat)
+          // Avatar (for other users only)
+          if (!message.isMine)
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: showAvatar
-                  ? CircleAvatar(
-                      radius: 16,
-                      backgroundColor: Colors.grey[300],
-                      backgroundImage: message.senderAvatar != null
-                          ? NetworkImage(message.senderAvatar!)
-                          : null,
-                      child: message.senderAvatar == null
-                          ? Text(
-                              message.senderName[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 12),
-                            )
-                          : null,
-                    )
+                  ? _buildAvatar()
                   : const SizedBox(width: 32),
             ),
 
@@ -348,6 +336,50 @@ class MessageBubble extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    final hasAvatar = message.senderAvatar != null && message.senderAvatar!.isNotEmpty;
+    final initial = message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?';
+
+    return CircleAvatar(
+      radius: 16,
+      backgroundColor: Colors.grey[300],
+      child: hasAvatar
+          ? ClipOval(
+              child: Image.network(
+                message.senderAvatar!,
+                width: 32,
+                height: 32,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Fallback to initial if image fails to load
+                  return Text(
+                    initial,
+                    style: const TextStyle(fontSize: 12, color: Colors.black87),
+                  );
+                },
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
+          : Text(
+              initial,
+              style: const TextStyle(fontSize: 12, color: Colors.black87),
+            ),
     );
   }
 }

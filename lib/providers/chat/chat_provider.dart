@@ -76,11 +76,24 @@ class ChatProvider with ChangeNotifier {
 
       // Load conversations
       await loadConversations();
+      
+      // Start periodic refresh for online status (every 30 seconds)
+      _startOnlineStatusRefresh();
     } catch (e) {
       print('ChatProvider initialization error: $e');
       _error = e.toString();
       notifyListeners();
     }
+  }
+
+  Timer? _onlineStatusRefreshTimer;
+  
+  void _startOnlineStatusRefresh() {
+    _onlineStatusRefreshTimer?.cancel();
+    _onlineStatusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      print('ChatProvider: Refreshing online status...');
+      loadConversations(); // Reload to get updated online status
+    });
   }
 
   /// Setup SignalR event listeners
@@ -144,6 +157,14 @@ class ChatProvider with ChangeNotifier {
 
     try {
       _conversations = await MessagingApiService.getAllConversations();
+      
+      // Log online status for debugging
+      for (var conv in _conversations) {
+        if (conv.type == 'DIRECT' && conv.otherUser != null) {
+          print('ChatProvider: Conversation ${conv.id} - ${conv.otherUser!.fullName} isOnline: ${conv.otherUser!.isOnline}');
+        }
+      }
+      
       _isLoadingConversations = false;
       notifyListeners();
     } catch (e) {
@@ -273,6 +294,10 @@ class ChatProvider with ChangeNotifier {
   Future<void> joinConversation(int conversationId) async {
     try {
       await _signalR.joinConversation(conversationId);
+      
+      // Request online status update for all members
+      // This might trigger UserOnline events
+      print('ChatProvider: Joined conversation $conversationId, requesting online status updates');
     } catch (e) {
       print('Error joining conversation: $e');
     }
@@ -450,39 +475,63 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _handleTypingIndicator(TypingIndicator typing) {
-    if (typing.userId == _currentUserId) return; // Ignore own typing
+    print('ChatProvider: Handling typing indicator - conversationId: ${typing.conversationId}, userId: ${typing.userId}, isTyping: ${typing.isTyping}, currentUserId: $_currentUserId');
+    
+    if (typing.userId == _currentUserId) {
+      print('ChatProvider: Ignoring own typing indicator');
+      return; // Ignore own typing
+    }
 
-    final users = _typingUsers[typing.conversationId] ?? {};
+    // Create a new Set to ensure UI updates
+    final users = Set<int>.from(_typingUsers[typing.conversationId] ?? <int>{});
     if (typing.isTyping) {
       users.add(typing.userId);
+      print('ChatProvider: Added user ${typing.userId} to typing users. Total: ${users.length}');
     } else {
       users.remove(typing.userId);
+      print('ChatProvider: Removed user ${typing.userId} from typing users. Total: ${users.length}');
     }
-    _typingUsers[typing.conversationId] = users;
+    
+    // Always create new Set to trigger rebuild
+    _typingUsers[typing.conversationId] = Set<int>.from(users);
+    print('ChatProvider: Updated typing users for conversation ${typing.conversationId}: $users');
     notifyListeners();
   }
 
   void _updateUserOnlineStatus(int userId, bool isOnline) {
+    print('ChatProvider: Updating online status - userId: $userId, isOnline: $isOnline');
+    bool updated = false;
+    
     for (var i = 0; i < _conversations.length; i++) {
       final conversation = _conversations[i];
       
       // Update otherUser if DIRECT conversation
       if (conversation.type == 'DIRECT' && conversation.otherUser?.userId == userId) {
+        print('ChatProvider: Updating DIRECT conversation ${conversation.id} - otherUser ${userId} to $isOnline');
         final updatedOtherUser = conversation.otherUser!.copyWith(isOnline: isOnline);
         _conversations[i] = conversation.copyWith(otherUser: updatedOtherUser);
+        updated = true;
       }
       
       // Update in members list
       final memberIndex = conversation.members.indexWhere((m) => m.userId == userId);
       if (memberIndex != -1) {
+        print('ChatProvider: Updating member in conversation ${conversation.id} - userId ${userId} to $isOnline');
         final updatedMember = conversation.members[memberIndex].copyWith(isOnline: isOnline);
         final updatedMembers = List<ConversationMember>.from(conversation.members);
         updatedMembers[memberIndex] = updatedMember;
         
         _conversations[i] = conversation.copyWith(members: updatedMembers);
+        updated = true;
       }
     }
-    notifyListeners();
+    
+    if (updated) {
+      print('ChatProvider: Online status updated, notifying listeners');
+      notifyListeners();
+    } else {
+      print('ChatProvider: No conversations found for userId $userId');
+    }
   }
 
   void _handleMemberAdded(MemberAddedEvent event) {
