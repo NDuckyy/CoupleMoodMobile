@@ -87,22 +87,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final groupName = _groupNameController.text.trim();
 
     if (groupName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a group name'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please enter a group name", false);
       return;
     }
 
     if (_selectedMembers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one member'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please add at least a member", false);
       return;
     }
 
@@ -113,6 +103,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     try {
       final chatProvider = context.read<ChatProvider>();
       final memberIds = _selectedMembers.map((m) => m.userId).toList();
+
 
       final conversation = await chatProvider.createGroupConversation(
         name: groupName,
@@ -134,17 +125,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       setState(() {
         _isCreating = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, e.toString(), false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final canCreate =
+        _groupNameController.text.trim().isNotEmpty &&
+        _selectedMembers.isNotEmpty &&
+        !_isCreating;
     final canCreate =
         _groupNameController.text.trim().isNotEmpty &&
         _selectedMembers.isNotEmpty &&
@@ -295,6 +285,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           ],
           // Search results
           Expanded(child: _buildSearchResults()),
+          Expanded(child: _buildSearchResults()),
         ],
       ),
     );
@@ -374,8 +365,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           leading: CircleAvatar(
             backgroundImage:
                 user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            backgroundImage:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
+            onBackgroundImageError:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
             onBackgroundImageError:
                 user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {

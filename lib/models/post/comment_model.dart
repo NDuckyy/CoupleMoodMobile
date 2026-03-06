@@ -16,6 +16,7 @@ class CommentModel {
   final int replyCount;
 
   final bool isLikedByMe;
+  final bool isOwner;
 
   CommentModel({
     required this.id,
@@ -30,6 +31,7 @@ class CommentModel {
     required this.likeCount,
     required this.replyCount,
     this.isLikedByMe = false,
+    this.isOwner = false,
   });
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
@@ -47,16 +49,21 @@ class CommentModel {
       createdAt: DateTime.parse(json['createdAt']),
       likeCount: json['likeCount'] ?? 0,
       replyCount: json['replyCount'] ?? 0,
-      isLikedByMe: json['isLikedByMe'] ?? false, // 👈 NEW
+      isLikedByMe: json['isLikedByMe'] ?? false,
+      isOwner: json['isOwner'] ?? false,
     );
   }
 
-  ///  copyWith để immutable update
-  CommentModel copyWith({int? likeCount, bool? isLikedByMe}) {
+  CommentModel copyWith({
+    String? content,
+    int? likeCount,
+    bool? isLikedByMe,
+    int? replyCount,
+  }) {
     return CommentModel(
       id: id,
       parentId: parentId,
-      content: content,
+      content: content ?? this.content,
       authorId: authorId,
       author: author,
       replyToMember: replyToMember,
@@ -64,8 +71,9 @@ class CommentModel {
       level: level,
       createdAt: createdAt,
       likeCount: likeCount ?? this.likeCount,
-      replyCount: replyCount,
+      replyCount: replyCount ?? this.replyCount,
       isLikedByMe: isLikedByMe ?? this.isLikedByMe,
+      isOwner: isOwner,
     );
   }
 }

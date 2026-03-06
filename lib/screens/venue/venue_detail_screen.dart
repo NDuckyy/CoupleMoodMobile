@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_info_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 import '../../utils/currency_utils.dart';
 import '../../utils/opening_hour_utils.dart';
@@ -15,6 +16,7 @@ import '../../widgets/venue/venue_image_slider.dart';
 import '../../widgets/venue/venue_review_section.dart';
 import '../../services/review_service.dart';
 import '../../models/checkin/checkin_payload.dart';
+
 class VenueDetailScreen extends StatefulWidget {
   final int venueId;
 
@@ -40,9 +42,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
     final position = await LocationService.getCurrentPosition();
 
     if (position == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui lòng bật GPS để check-in 📍")),
-      );
+      showMsg(context, "Vui lòng bật GPS để check-in 📍", false);
       return;
     }
 
@@ -58,12 +58,13 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Check-in thành công! Hãy ở lại 10 phút để có thể review 📍"),
-      ),
+    showMsg(
+      context,
+      "Check-in thành công! Hãy ở lại 10 phút để có thể review 📍",
+      true,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<VenueDetailProvider>();
@@ -134,7 +135,10 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
 
                 VenueBasicInfo(venue: venue),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(

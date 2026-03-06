@@ -11,13 +11,11 @@ import '../../services/chat/messaging_api_service.dart';
 class ConversationDetailsScreen extends StatefulWidget {
   final Conversation conversation;
 
-  const ConversationDetailsScreen({
-    super.key,
-    required this.conversation,
-  });
+  const ConversationDetailsScreen({super.key, required this.conversation});
 
   @override
-  State<ConversationDetailsScreen> createState() => _ConversationDetailsScreenState();
+  State<ConversationDetailsScreen> createState() =>
+      _ConversationDetailsScreenState();
 }
 
 class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
@@ -51,7 +49,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     );
 
     final chatProvider = context.read<ChatProvider>();
-    
+
     // Add all members at once
     final memberIds = users.map((u) => u.userId).toList();
     final success = await chatProvider.addMembersToGroup(
@@ -65,13 +63,13 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     if (success) {
       // Reload conversations to get updated member list
       await chatProvider.loadConversations();
-      
+
       // Find updated conversation
       final updated = chatProvider.conversations.firstWhere(
         (c) => c.id == _conversation.id,
         orElse: () => _conversation,
       );
-      
+
       setState(() {
         _conversation = updated;
       });
@@ -84,14 +82,9 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
 
   Future<void> _removeMember(ConversationMember member) async {
     final currentUserId = context.read<ChatProvider>().currentUserId;
-    
+
     if (member.userId == currentUserId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Use "Leave Group" to remove yourself'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, 'Use "Leave Group" to remove yourself', false);
       return;
     }
 
@@ -137,7 +130,9 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     if (success) {
       setState(() {
         _conversation = _conversation.copyWith(
-          members: _conversation.members.where((m) => m.userId != member.userId).toList(),
+          members: _conversation.members
+              .where((m) => m.userId != member.userId)
+              .toList(),
         );
       });
       
@@ -181,7 +176,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     final chatProvider = context.read<ChatProvider>();
     final currentUserId = chatProvider.currentUserId;
     if (currentUserId == null) return;
-    
+
     final success = await chatProvider.removeMemberFromGroup(
       _conversation.id,
       currentUserId,
@@ -227,9 +222,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                   backgroundImage: _conversation.getDisplayAvatar() != null
                       ? NetworkImage(_conversation.getDisplayAvatar()!)
                       : null,
-                  onBackgroundImageError: _conversation.getDisplayAvatar() != null
+                  onBackgroundImageError:
+                      _conversation.getDisplayAvatar() != null
                       ? (exception, stackTrace) {
-                          print('Error loading conversation avatar: $exception');
+                          print(
+                            'Error loading conversation avatar: $exception',
+                          );
                         }
                       : null,
                   child: _conversation.getDisplayAvatar() == null
@@ -287,7 +285,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 ],
               ),
             ),
-            
+
             // Member list
             ..._conversation.members.map((member) {
               final isSelf = member.userId == currentUserId;
@@ -295,10 +293,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 leading: Stack(
                   children: [
                     CircleAvatar(
-                      backgroundImage: member.avatar != null && member.avatar!.isNotEmpty
+                      backgroundImage:
+                          member.avatar != null && member.avatar!.isNotEmpty
                           ? NetworkImage(member.avatar!)
                           : null,
-                      onBackgroundImageError: member.avatar != null && member.avatar!.isNotEmpty
+                      onBackgroundImageError:
+                          member.avatar != null && member.avatar!.isNotEmpty
                           ? (exception, stackTrace) {
                               print('Error loading member avatar: $exception');
                             }
@@ -334,7 +334,10 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                     : null,
                 trailing: !isSelf
                     ? IconButton(
-                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          color: Colors.red,
+                        ),
                         onPressed: () => _removeMember(member),
                       )
                     : null,
@@ -361,7 +364,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
-    
+
     if (difference.inMinutes < 1) {
       return 'Truy cập gần đây';
     } else if (difference.inHours < 1) {
@@ -380,9 +383,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
 class _AddMembersDialog extends StatefulWidget {
   final List<int> existingMemberIds;
 
-  const _AddMembersDialog({
-    required this.existingMemberIds,
-  });
+  const _AddMembersDialog({required this.existingMemberIds});
 
   @override
   State<_AddMembersDialog> createState() => _AddMembersDialogState();
@@ -424,7 +425,9 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
       setState(() {
         _searchResults.clear();
         _searchResults.addAll(
-          response.data.where((user) => !widget.existingMemberIds.contains(user.userId)),
+          response.data.where(
+            (user) => !widget.existingMemberIds.contains(user.userId),
+          ),
         );
         _isSearching = false;
       });
@@ -500,9 +503,7 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
             ],
 
             // Search results
-            Expanded(
-              child: _buildSearchResults(),
-            ),
+            Expanded(child: _buildSearchResults()),
 
             // Add button
             SizedBox(
@@ -526,7 +527,12 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
     }
 
     if (_error != null) {
-      return Center(child: Text('Error: $_error', style: const TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(
+          'Error: $_error',
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
     }
 
     if (_searchResults.isEmpty && _searchController.text.isEmpty) {
@@ -545,10 +551,12 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
 
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            backgroundImage:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
-            onBackgroundImageError: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            onBackgroundImageError:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {
                     print('Error loading add member avatar: $exception');
                   }

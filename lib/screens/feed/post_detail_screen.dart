@@ -1,9 +1,15 @@
+import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/models/post/post_model.dart';
+import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/post/post_detail_provider.dart';
 import '../../widgets/feed/post_media.dart';
 import '../../widgets/feed/hashtag_wrap.dart';
 import '../../widgets/feed/comment_item.dart';
+import '../../utils/time_utils.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final int postId;
@@ -18,8 +24,172 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _controller = TextEditingController();
 
+  CommentModel? _editingComment;
   int? _replyingToCommentId;
   String? _replyingToName;
+
+  void _showCommentOptions(CommentModel comment) {
+    if (!comment.isOwner) return;
+
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text("Chỉnh sửa"),
+                onTap: () {
+                  Navigator.pop(context);
+
+                  setState(() {
+                    _editingComment = comment;
+
+                    _replyingToCommentId = null;
+                    _replyingToName = null;
+
+                    _controller.text = comment.content;
+                    _controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _controller.text.length),
+                    );
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text("Xoá", style: TextStyle(color: Colors.red)),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text("Xoá bình luận?"),
+                      content: const Text("Hành động này không thể hoàn tác."),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text("Huỷ"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text(
+                            "Xoá",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    final success = await context
+                        .read<PostDetailProvider>()
+                        .deleteComment(comment.id);
+
+                    if (mounted) {
+                      showMsg(
+                        context,
+                        success ? "Đã xoá bình luận" : "Xoá thất bại",
+                        success,
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPostOptions() {
+    final provider = context.read<PostDetailProvider>();
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text("Chỉnh sửa bài viết"),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final updated = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CreateEditPostScreen(
+                        post: PostModel.fromDetail(provider.post!),
+                      ),
+                    ),
+                  );
+
+                  if (updated == true) {
+                    await provider.loadPostDetail(provider.post!.id);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text(
+                  "Xoá bài viết",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (dialogContext) => AlertDialog(
+                      title: const Text("Xoá bài viết?"),
+                      content: const Text("Hành động này không thể hoàn tác."),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, false),
+                          child: const Text("Huỷ"),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(dialogContext, true),
+                          child: const Text(
+                            "Xoá",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirm == true) {
+                    final success = await context
+                        .read<PostDetailProvider>()
+                        .deletePost(widget.postId);
+
+                    if (!mounted) return;
+
+                    showMsg(
+                      context,
+                      success ? "Đã xoá bài viết" : "Xoá thất bại",
+                      success,
+                    );
+
+                    if (success) {
+                      Navigator.pop(context);
+                    }
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   void initState() {
@@ -48,7 +218,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     final post = provider.post!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Chi tiết bài viết")),
+      appBar: AppBar(
+        title: const Text("Chi tiết bài viết"),
+        actions: [
+          if (post.isOwner)
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: _showPostOptions,
+            ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
@@ -80,7 +259,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             ),
                           ),
                           Text(
-                            _timeAgo(post.createdAt),
+                            timeAgo(post.createdAt),
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -106,6 +285,67 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   const SizedBox(height: 12),
                   HashTagWrap(tags: post.hashTags),
                 ],
+                const SizedBox(height: 16),
+
+                Consumer<PostProvider>(
+                  builder: (context, postProvider, _) {
+                    final updatedPost =
+                        postProvider.posts
+                            .where((p) => p.id == post.id)
+                            .isNotEmpty
+                        ? postProvider.posts.firstWhere((p) => p.id == post.id)
+                        : null;
+
+                    if (updatedPost == null) {
+                      return const SizedBox();
+                    }
+
+                    return Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () =>
+                              postProvider.toggleLikeById(updatedPost.id),
+                          child: Row(
+                            children: [
+                              Icon(
+                                updatedPost.isLikedByMe
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: updatedPost.isLikedByMe
+                                    ? Colors.red
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                updatedPost.likeCount.toString(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        const SizedBox(width: 24),
+
+                        Row(
+                          children: [
+                            const Icon(Icons.comment_outlined),
+                            const SizedBox(width: 6),
+                            Text(
+                              updatedPost.commentCount.toString(),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
+                ),
+
+                const Divider(height: 32),
 
                 const SizedBox(height: 20),
 
@@ -126,10 +366,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           comment: c,
                           onReply: () {
                             setState(() {
+                              _editingComment = null;
                               _replyingToCommentId = c.id;
                               _replyingToName = c.author.fullName;
                             });
                           },
+                          onLongPress: () => _showCommentOptions(c),
+
                           showViewReplies: c.replyCount > 0,
                           isExpanded: provider.isExpanded(c.id),
                           loadingReplies: provider.isLoadingReplies(c.id),
@@ -146,10 +389,12 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 comment: reply,
                                 onReply: () {
                                   setState(() {
+                                    _editingComment = null;
                                     _replyingToCommentId = reply.id;
                                     _replyingToName = c.author.fullName;
                                   });
                                 },
+                                onLongPress: () => _showCommentOptions(reply),
                                 showViewReplies: reply.replyCount > 0,
                                 isExpanded: provider.isExpanded(reply.id),
                                 loadingReplies: provider.isLoadingReplies(
@@ -168,10 +413,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                       comment: lv3,
                                       onReply: () {
                                         setState(() {
+                                          _editingComment = null;
                                           _replyingToCommentId = lv3.id;
                                           _replyingToName = lv3.author.fullName;
                                         });
                                       },
+                                      onLongPress: () =>
+                                          _showCommentOptions(lv3),
                                       onLike: () =>
                                           provider.toggleLikeComment(lv3),
                                     ),
@@ -202,56 +450,105 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (_replyingToCommentId != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            "Đang trả lời $_replyingToName",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _replyingToCommentId = null;
-                              _replyingToName = null;
-                            });
-                          },
-                          child: const Icon(Icons.close, size: 16),
-                        ),
-                      ],
-                    ),
-                  ),
-
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: const InputDecoration(
-                          hintText: "Viết bình luận...",
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_replyingToCommentId != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      "Đang trả lời $_replyingToName",
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _replyingToCommentId = null;
+                                        _replyingToName = null;
+                                      });
+                                    },
+                                    child: const Icon(Icons.close, size: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          if (_editingComment != null)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    "Đang chỉnh sửa bình luận",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.orange,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _editingComment = null;
+                                        _replyingToCommentId = null;
+                                        _replyingToName = null;
+                                        _controller.clear();
+                                      });
+                                    },
+                                    child: const Icon(Icons.close, size: 16),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: _editingComment != null
+                                  ? "Chỉnh sửa bình luận..."
+                                  : "Viết bình luận...",
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.send),
+                      icon: Icon(
+                        _editingComment != null ? Icons.check : Icons.send,
+                      ),
                       onPressed: () async {
-                        if (_controller.text.trim().isEmpty) return;
+                        final text = _controller.text.trim();
+                        if (text.isEmpty) return;
 
-                        await provider.createComment(
-                          content: _controller.text.trim(),
-                          parentId: _replyingToCommentId,
-                        );
+                        if (_editingComment != null) {
+                          await context.read<PostDetailProvider>().editComment(
+                            commentId: _editingComment!.id,
+                            newContent: text,
+                          );
+                        } else {
+                          await context
+                              .read<PostDetailProvider>()
+                              .createComment(
+                                content: text,
+                                parentId: _replyingToCommentId,
+                              );
+                        }
 
+                        // Reset toàn bộ state sau khi gửi
                         _controller.clear();
 
                         setState(() {
+                          _editingComment = null;
                           _replyingToCommentId = null;
                           _replyingToName = null;
                         });
@@ -266,13 +563,4 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
-}
-
-String _timeAgo(DateTime dateTime) {
-  final difference = DateTime.now().difference(dateTime);
-
-  if (difference.inMinutes < 1) return "Vừa xong";
-  if (difference.inMinutes < 60) return "${difference.inMinutes} phút trước";
-  if (difference.inHours < 24) return "${difference.inHours} giờ trước";
-  return "${difference.inDays} ngày trước";
 }

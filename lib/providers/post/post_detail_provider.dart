@@ -1,9 +1,13 @@
+import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/comment_model.dart';
 import '../../models/post/post_detail_model.dart';
 import '../../services/post/post_service.dart';
 
 class PostDetailProvider extends ChangeNotifier {
+  final PostProvider postProvider;
+
+  PostDetailProvider(this.postProvider);
   PostDetailModel? post;
 
   /// ==============================
@@ -193,6 +197,7 @@ class PostDetailProvider extends ChangeNotifier {
         if (parentId == null) {
           /// LEVEL 1
           comments.insert(0, newComment);
+          postProvider.increaseCommentCount(post!.id);
         } else {
           /// Tìm comment đang reply
           final replyingComment = _findCommentById(parentId);
@@ -215,6 +220,71 @@ class PostDetailProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint(e.toString());
+    }
+  }
+
+  Future<void> editComment({
+    required int commentId,
+    required String newContent,
+  }) async {
+    final target = _findCommentById(commentId);
+    if (target == null) return;
+
+    final oldContent = target.content;
+
+    /// Optimistic update
+    _updateCommentContent(commentId, newContent);
+    notifyListeners();
+
+    try {
+      final res = await PostService.updateComment(
+        commentId: commentId,
+        content: newContent,
+      );
+
+      if (res.code != 200) {
+        _updateCommentContent(commentId, oldContent);
+        notifyListeners();
+      }
+    } catch (e) {
+      _updateCommentContent(commentId, oldContent);
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteComment(int commentId) async {
+    final removed = _removeCommentLocal(commentId);
+    notifyListeners();
+
+    try {
+      final res = await PostService.deleteComment(commentId: commentId);
+
+      if (res.code != 200) {
+        _restoreComment(removed);
+        notifyListeners();
+        return false;
+      }
+      postProvider.decreaseCommentCount(post!.id);
+      return true;
+    } catch (e) {
+      _restoreComment(removed);
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deletePost(int postId) async {
+    try {
+      await PostService.deletePost(postId);
+
+      /// remove khỏi feed
+      postProvider.posts.removeWhere((p) => p.id == postId);
+      postProvider.notifyListeners();
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+      return false;
     }
   }
 
@@ -286,5 +356,73 @@ class PostDetailProvider extends ChangeNotifier {
     }
 
     return null;
+  }
+
+  void _updateCommentContent(int id, String content) {
+    // root
+    final rootIndex = comments.indexWhere((c) => c.id == id);
+    if (rootIndex != -1) {
+      comments[rootIndex] = comments[rootIndex].copyWith(content: content);
+      return;
+    }
+
+    // replies
+    for (final entry in replies.entries) {
+      final replyIndex = entry.value.indexWhere((c) => c.id == id);
+
+      if (replyIndex != -1) {
+        entry.value[replyIndex] = entry.value[replyIndex].copyWith(
+          content: content,
+        );
+        return;
+      }
+    }
+  }
+
+  CommentModel? _removeCommentLocal(int id) {
+    // root
+    final rootIndex = comments.indexWhere((c) => c.id == id);
+    if (rootIndex != -1) {
+      final removed = comments.removeAt(rootIndex);
+
+      _clearCommentState(id);
+
+      return removed;
+    }
+
+    // replies
+    for (final entry in replies.entries) {
+      final list = entry.value;
+      final index = list.indexWhere((c) => c.id == id);
+
+      if (index != -1) {
+        final removed = list.removeAt(index);
+
+        _clearCommentState(id);
+
+        return removed;
+      }
+    }
+
+    return null;
+  }
+
+  void _restoreComment(CommentModel? comment) {
+    if (comment == null) return;
+
+    if (comment.parentId == null) {
+      comments.insert(0, comment);
+    } else {
+      replies[comment.parentId!] ??= [];
+      replies[comment.parentId!]!.insert(0, comment);
+    }
+  }
+
+  void _clearCommentState(int id) {
+    replies.remove(id);
+    repliesPage.remove(id);
+    repliesHasMore.remove(id);
+    loadingReplies.remove(id);
+    expandedComments.remove(id);
   }
 }

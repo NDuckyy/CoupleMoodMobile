@@ -74,7 +74,7 @@ class SessionStorage {
       profile: profile,
       userIdFromToken: userId,
     );
-    
+
     print('SessionStorage.load() - Session userId: ${session.userId}');
     return session;
   }
