@@ -305,7 +305,7 @@ class _UserTile extends StatelessWidget {
                   Icon(Icons.favorite, size: 12, color: Colors.pink[300]),
                   const SizedBox(width: 4),
                   Text(
-                    'In Relationship',
+                    'Đang hẹn hò',
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.pink[700],

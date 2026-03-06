@@ -281,7 +281,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           ],
           // Search results
           Expanded(child: _buildSearchResults()),
-          Expanded(child: _buildSearchResults()),
         ],
       ),
     );
