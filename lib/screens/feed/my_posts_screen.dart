@@ -1,29 +1,33 @@
+import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
-import 'package:couple_mood_mobile/widgets/feed/create_post_box.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../providers/post/post_provider.dart';
+import '../../providers/post/my_posts_provider.dart';
+import '../../widgets/feed/create_post_box.dart';
 import '../../widgets/feed/post_card.dart';
+import '../../widgets/feed/profile_summary.dart';
 
-class NewsFeedScreen extends StatefulWidget {
-  const NewsFeedScreen({super.key});
+class MyPostsScreen extends StatefulWidget {
+  const MyPostsScreen({super.key});
 
   @override
-  State<NewsFeedScreen> createState() => _NewsFeedScreenState();
+  State<MyPostsScreen> createState() => _MyPostsScreenState();
 }
 
-class _NewsFeedScreenState extends State<NewsFeedScreen> {
+class _MyPostsScreenState extends State<MyPostsScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
 
-    final provider = context.read<PostProvider>();
-    provider.loadFeeds();
+    Future.microtask(() {
+      context.read<MyPostsProvider>().loadMyPosts();
+    });
 
     _scrollController.addListener(() {
+      final provider = context.read<MyPostsProvider>();
+
       if (_scrollController.position.pixels >
           _scrollController.position.maxScrollExtent - 300) {
         provider.loadMore();
@@ -33,29 +37,27 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<PostProvider>();
+    final provider = context.watch<MyPostsProvider>();
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text("News Feed"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("My Profile"), centerTitle: true),
       body: RefreshIndicator(
-        onRefresh: () => provider.loadFeeds(),
+        onRefresh: provider.refresh,
         child: provider.loading
             ? const Center(child: CircularProgressIndicator())
             : ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 itemCount:
-                    provider.posts.length + 1 + (provider.loadingMore ? 1 : 0),
+                    provider.posts.length + 2 + (provider.loadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
-                  /// Create Post Box
+                  /// Profile Summary
                   if (index == 0) {
+                    return const ProfileSummary();
+                  }
+
+                  ///  Create Post
+                  if (index == 1) {
                     return CreatePostBox(
                       onTap: () async {
                         final created = await Navigator.push(
@@ -69,15 +71,12 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                           context.read<PostProvider>().loadFeeds();
                         }
                       },
-                      onAvatarTap: () {
-                        context.pushNamed("my_posts");
-                      },
                     );
                   }
 
-                  /// Post item
-                  final postIndex = index - 1;
+                  final postIndex = index - 2;
 
+                  /// loading more
                   if (postIndex == provider.posts.length) {
                     return const Padding(
                       padding: EdgeInsets.all(16),

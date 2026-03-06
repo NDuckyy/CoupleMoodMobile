@@ -4,8 +4,9 @@ import '../../utils/text_utils.dart';
 
 class CreatePostBox extends StatefulWidget {
   final VoidCallback? onTap;
+  final VoidCallback? onAvatarTap;
 
-  const CreatePostBox({super.key, this.onTap});
+  const CreatePostBox({super.key, this.onTap, this.onAvatarTap});
 
   @override
   State<CreatePostBox> createState() => _CreatePostBoxState();
@@ -43,15 +44,18 @@ class _CreatePostBoxState extends State<CreatePostBox> {
       ),
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 20,
-            backgroundColor: Colors.grey[200],
-            backgroundImage: avatar != null && avatar!.isNotEmpty
-                ? NetworkImage(avatar!)
-                : null,
-            child: avatar == null || avatar!.isEmpty
-                ? const Icon(Icons.person, color: Colors.grey)
-                : null,
+          GestureDetector(
+            onTap: widget.onAvatarTap,
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: avatar != null && avatar!.isNotEmpty
+                  ? NetworkImage(avatar!)
+                  : null,
+              child: avatar == null || avatar!.isEmpty
+                  ? const Icon(Icons.person, color: Colors.grey)
+                  : null,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -230,4 +230,20 @@ class PostService {
       (json) => (json as List).map((e) => PostTopic.fromJson(e)).toList(),
     );
   }
+
+  static Future<ApiResponse<List<PostModel>>> getMyPosts({
+    int pageNumber = 1,
+    int pageSize = 10,
+  }) async {
+    final res = await ApiClient.request(
+      '/Post/me',
+      method: HttpMethod.get,
+      query: {'pageNumber': pageNumber, 'pageSize': pageSize},
+    );
+
+    return ApiResponse.fromJson(
+      res,
+      (data) => (data as List).map((item) => PostModel.fromJson(item)).toList(),
+    );
+  }
 }

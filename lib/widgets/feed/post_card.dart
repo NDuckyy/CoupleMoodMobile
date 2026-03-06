@@ -1,9 +1,6 @@
-import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../models/post/post_model.dart';
-import '../../providers/post/post_detail_provider.dart';
-import '../../screens/feed/post_detail_screen.dart';
 import 'post_header.dart';
 import 'post_media.dart';
 import 'post_actions.dart';
@@ -25,15 +22,9 @@ class PostCard extends StatelessWidget {
   }
 
   void _openDetail(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (ctx) => ChangeNotifierProvider(
-          create: (_) =>
-              PostDetailProvider(ctx.read<PostProvider>())..init(post.id),
-          child: PostDetailScreen(postId: post.id),
-        ),
-      ),
+    context.pushNamed(
+      'post_detail',
+      pathParameters: {'postId': post.id.toString()},
     );
   }
 

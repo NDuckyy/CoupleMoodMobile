@@ -17,7 +17,7 @@ class PostModel {
   final int authorId;
   final bool isLikedByMe;
   final bool isOwner;
-  final AuthorModel author;
+  final AuthorModel? author;
 
   PostModel({
     this.totalScore,
@@ -33,7 +33,7 @@ class PostModel {
     required this.authorId,
     required this.isLikedByMe,
     required this.isOwner,
-    required this.author,
+    this.author,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -53,7 +53,9 @@ class PostModel {
       authorId: json['authorId'],
       isLikedByMe: json['isLikedByMe'] ?? false,
       isOwner: json['isOwner'] ?? false,
-      author: AuthorModel.fromJson(json['author'] ?? {}),
+      author: json['author'] != null
+          ? AuthorModel.fromJson(json['author'])
+          : null,
     );
   }
 

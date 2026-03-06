@@ -5,9 +5,14 @@ import 'package:couple_mood_mobile/providers/collection/collection_provider.dart
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 
 import 'package:couple_mood_mobile/providers/member_provider.dart';
+import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+
 import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/create_group_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/user_search_screen.dart';
@@ -36,6 +41,8 @@ import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_sc
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/my_posts_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_screen.dart';
 
 // lú quá Nghĩa tự sort lại đi
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
@@ -424,15 +431,13 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/direct',
         name: 'direct',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: UserSearchScreen()),
+        pageBuilder: (_, __) => const MaterialPage(child: UserSearchScreen()),
       ),
 
       GoRoute(
         path: '/group',
         name: 'group',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: CreateGroupScreen()),
+        pageBuilder: (_, __) => const MaterialPage(child: CreateGroupScreen()),
       ),
 
       GoRoute(
@@ -523,8 +528,11 @@ GoRouter createRouter(BuildContext context) {
       ShellRoute(
         parentNavigatorKey: _rootNavKey,
         builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => PostProvider(),
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => PostProvider()),
+              ChangeNotifierProvider(create: (_) => UserProvider()..fetchMe()),
+            ],
             child: child,
           );
         },
@@ -533,6 +541,31 @@ GoRouter createRouter(BuildContext context) {
             path: '/newsfeed',
             name: 'newsfeed',
             pageBuilder: (_, __) => const MaterialPage(child: NewsFeedScreen()),
+          ),
+
+          GoRoute(
+            name: "my_posts",
+            path: "/my-posts",
+            builder: (context, state) {
+              return ChangeNotifierProvider(
+                create: (_) => MyPostsProvider(),
+                child: const MyPostsScreen(),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/post/:postId',
+            name: 'post_detail',
+            builder: (context, state) {
+              final postId = int.parse(state.pathParameters['postId']!);
+
+              return ChangeNotifierProvider(
+                create: (_) =>
+                    PostDetailProvider(context.read<PostProvider>())
+                      ..init(postId),
+                child: PostDetailScreen(postId: postId),
+              );
+            },
           ),
         ],
       ),

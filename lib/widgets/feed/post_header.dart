@@ -64,10 +64,10 @@ class PostHeader extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 20,
-          backgroundImage: post.author.avatar != null
-              ? NetworkImage(post.author.avatar!)
+          backgroundImage: post.author?.avatar != null
+              ? NetworkImage(post.author!.avatar!)
               : null,
-          child: post.author.avatar == null ? const Icon(Icons.person) : null,
+          child: post.author?.avatar == null ? const Icon(Icons.person) : null,
         ),
         const SizedBox(width: 12),
 
@@ -76,7 +76,7 @@ class PostHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                post.author.fullName,
+                post.author?.fullName ?? "Bạn",
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
