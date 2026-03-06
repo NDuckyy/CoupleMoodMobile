@@ -135,10 +135,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         _groupNameController.text.trim().isNotEmpty &&
         _selectedMembers.isNotEmpty &&
         !_isCreating;
-    final canCreate =
-        _groupNameController.text.trim().isNotEmpty &&
-        _selectedMembers.isNotEmpty &&
-        !_isCreating;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -365,12 +361,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           leading: CircleAvatar(
             backgroundImage:
                 user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-            backgroundImage:
-                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
-            onBackgroundImageError:
-                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
             onBackgroundImageError:
                 user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {

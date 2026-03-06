@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chat/user_search_result.dart';
@@ -92,15 +93,11 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
         child: const Center(child: CircularProgressIndicator()),
-        child: const Center(child: CircularProgressIndicator()),
       ),
     );
 
     try {
       final chatProvider = context.read<ChatProvider>();
-      final conversation = await chatProvider.getOrCreateDirectConversation(
-        user.userId,
-      );
       final conversation = await chatProvider.getOrCreateDirectConversation(
         user.userId,
       );
@@ -144,7 +141,6 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           _isShowingDialog = false;
         });
       }
-
 
       if (mounted) {
         showMsg(context, e.toString(), false);
@@ -254,14 +250,9 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
                       );
                     },
                   ),
-                      final user = _searchResults[index];
-                      return _UserTile(
-                        user: user,
-                        onTap: () => _onUserTap(user),
-                      );
-                    },
+                      
                   ),
-          ),
+          
         ],
       ),
     );
@@ -272,7 +263,6 @@ class _UserTile extends StatelessWidget {
   final UserSearchResult user;
   final VoidCallback onTap;
 
-  const _UserTile({required this.user, required this.onTap});
   const _UserTile({required this.user, required this.onTap});
 
   @override
@@ -291,10 +281,6 @@ class _UserTile extends StatelessWidget {
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
               )
             : null,
       ),
@@ -303,7 +289,6 @@ class _UserTile extends StatelessWidget {
           Expanded(
             child: Text(
               user.fullName,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
@@ -333,7 +318,6 @@ class _UserTile extends StatelessWidget {
         ],
       ),
       subtitle: user.bio != null && user.bio!.isNotEmpty
-          ? Text(user.bio!, maxLines: 1, overflow: TextOverflow.ellipsis)
           ? Text(user.bio!, maxLines: 1, overflow: TextOverflow.ellipsis)
           : null,
       trailing: const Icon(Icons.chat_bubble_outline),
