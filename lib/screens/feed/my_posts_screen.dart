@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/post/my_posts_provider.dart';
 import '../../widgets/feed/create_post_box.dart';
@@ -40,7 +41,16 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
     final provider = context.watch<MyPostsProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("My Profile"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("Tường nhà của tôi"),
+        centerTitle: true,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.pop(),
+              )
+            : null,
+      ),
       body: RefreshIndicator(
         onRefresh: provider.refresh,
         child: provider.loading
@@ -68,7 +78,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                         );
 
                         if (created == true) {
-                          context.read<PostProvider>().loadFeeds();
+                          context.read<MyPostsProvider>().refresh();
                         }
                       },
                     );

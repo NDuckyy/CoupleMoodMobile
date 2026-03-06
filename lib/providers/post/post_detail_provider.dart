@@ -281,6 +281,7 @@ class PostDetailProvider extends ChangeNotifier {
       postProvider.posts.removeWhere((p) => p.id == postId);
       postProvider.notifyListeners();
 
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint(e.toString());

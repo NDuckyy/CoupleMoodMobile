@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
@@ -12,7 +13,8 @@ class PostHeader extends StatelessWidget {
   const PostHeader({super.key, required this.post});
 
   void _onMenuSelected(BuildContext context, String value) async {
-    final provider = context.read<PostProvider>();
+    final feedProvider = context.read<PostProvider>();
+    final myPostsProvider = context.read<MyPostsProvider>();
 
     if (value == "edit") {
       final updated = await Navigator.push(
@@ -21,7 +23,8 @@ class PostHeader extends StatelessWidget {
       );
 
       if (updated == true) {
-        provider.loadFeeds();
+        feedProvider.loadFeeds();
+        myPostsProvider.refresh();
       }
     }
 
@@ -45,7 +48,11 @@ class PostHeader extends StatelessWidget {
       );
 
       if (confirm == true) {
-        final success = await provider.deletePost(post.id);
+        final success = await feedProvider.deletePost(post.id);
+
+        if (success) {
+          myPostsProvider.refresh();
+        }
 
         if (context.mounted) {
           showMsg(
