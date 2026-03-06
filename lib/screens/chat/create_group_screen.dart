@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat/chat_provider.dart';
@@ -63,12 +64,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   void _addMember(UserSearchResult user) {
     if (_selectedMembers.any((m) => m.userId == user.userId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User already added'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "User already added ", false);
       return;
     }
 
@@ -89,22 +85,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final groupName = _groupNameController.text.trim();
 
     if (groupName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a group name'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please enter a group name", false);
       return;
     }
 
     if (_selectedMembers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one member'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please add at least a member", false);
       return;
     }
 
@@ -115,7 +101,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     try {
       final chatProvider = context.read<ChatProvider>();
       final memberIds = _selectedMembers.map((m) => m.userId).toList();
-      
+
       final conversation = await chatProvider.createGroupConversation(
         name: groupName,
         memberIds: memberIds,
@@ -135,31 +121,22 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         setState(() {
           _isCreating = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(chatProvider.error ?? 'Failed to create group'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showMsg(context, "Failed to create group", false);
       }
     } catch (e) {
       setState(() {
         _isCreating = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, e.toString(), false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final canCreate = _groupNameController.text.trim().isNotEmpty && 
-                      _selectedMembers.isNotEmpty && 
-                      !_isCreating;
+    final canCreate =
+        _groupNameController.text.trim().isNotEmpty &&
+        _selectedMembers.isNotEmpty &&
+        !_isCreating;
 
     return Scaffold(
       appBar: AppBar(
@@ -238,15 +215,23 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     children: _selectedMembers.map((member) {
                       return Chip(
                         avatar: CircleAvatar(
-                          backgroundImage: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
+                          backgroundImage:
+                              member.avatarUrl != null &&
+                                  member.avatarUrl!.isNotEmpty
                               ? NetworkImage(member.avatarUrl!)
                               : null,
-                          onBackgroundImageError: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
+                          onBackgroundImageError:
+                              member.avatarUrl != null &&
+                                  member.avatarUrl!.isNotEmpty
                               ? (exception, stackTrace) {
-                                  print('Error loading chip avatar: $exception');
+                                  print(
+                                    'Error loading chip avatar: $exception',
+                                  );
                                 }
                               : null,
-                          child: member.avatarUrl == null || member.avatarUrl!.isEmpty
+                          child:
+                              member.avatarUrl == null ||
+                                  member.avatarUrl!.isEmpty
                               ? Text(member.fullName[0].toUpperCase())
                               : null,
                         ),
@@ -295,9 +280,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           ),
 
           // Search results
-          Expanded(
-            child: _buildSearchResults(),
-          ),
+          Expanded(child: _buildSearchResults()),
         ],
       ),
     );
@@ -376,10 +359,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            backgroundImage:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
-            onBackgroundImageError: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            onBackgroundImageError:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {
                     print('Error loading search result avatar: $exception');
                   }

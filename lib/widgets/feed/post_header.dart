@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/post_model.dart';
 
@@ -27,7 +28,7 @@ class PostHeader extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               Text(
-                _timeAgo(post.createdAt),
+                timeAgo(post.createdAt),
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
@@ -36,14 +37,5 @@ class PostHeader extends StatelessWidget {
         if (post.isOwner) const Icon(Icons.more_vert),
       ],
     );
-  }
-
-  String _timeAgo(DateTime dateTime) {
-    final difference = DateTime.now().difference(dateTime);
-
-    if (difference.inMinutes < 1) return "Vừa xong";
-    if (difference.inMinutes < 60) return "${difference.inMinutes} phút trước";
-    if (difference.inHours < 24) return "${difference.inHours} giờ trước";
-    return "${difference.inDays} ngày trước";
   }
 }

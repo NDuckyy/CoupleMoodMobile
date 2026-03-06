@@ -128,9 +128,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showMsg(context, e.toString(), false);
     }
 
     if (mounted) {

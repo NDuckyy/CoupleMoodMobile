@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/chat/user_search_result.dart';
@@ -87,7 +88,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   Future<void> _onUserTap(UserSearchResult user) async {
     // Prevent multiple taps
     if (_isShowingDialog) return;
-    
+
     setState(() {
       _isShowingDialog = true;
     });
@@ -98,15 +99,15 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
       barrierDismissible: false,
       builder: (context) => WillPopScope(
         onWillPop: () async => false,
-        child: const Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
 
     try {
       final chatProvider = context.read<ChatProvider>();
-      final conversation = await chatProvider.getOrCreateDirectConversation(user.userId);
+      final conversation = await chatProvider.getOrCreateDirectConversation(
+        user.userId,
+      );
 
       // Close loading dialog
       if (mounted && _isShowingDialog) {
@@ -128,13 +129,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
         );
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(chatProvider.error ?? 'Failed to create conversation'),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+          showMsg(context, "Failed to create conversation", false);
         }
       }
     } catch (e) {
@@ -145,15 +140,9 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
           _isShowingDialog = false;
         });
       }
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
+        showMsg(context, e.toString(), false);
       }
     }
   }
@@ -161,10 +150,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search Users'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Search Users'), elevation: 0),
       body: Column(
         children: [
           // Search bar
@@ -207,100 +193,100 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
             child: _isSearching && _searchResults.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : _error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Error: $_error',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                final query = _searchController.text.trim();
-                                if (query.isNotEmpty) {
-                                  _performSearch(query);
-                                }
-                              },
-                              child: const Text('Retry'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
                         ),
-                      )
-                    : !_hasSearched
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.search,
-                                  size: 64,
-                                  color: Colors.grey[400],
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error: $_error',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () {
+                            final query = _searchController.text.trim();
+                            if (query.isNotEmpty) {
+                              _performSearch(query);
+                            }
+                          },
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : !_hasSearched
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.search, size: 64, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Search for users to start a conversation',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : _searchResults.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.person_off,
+                          size: 64,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No users found',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: _searchResults.length + (_hasMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == _searchResults.length) {
+                        // Load more indicator
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: _isSearching
+                              ? const Center(child: CircularProgressIndicator())
+                              : TextButton(
+                                  onPressed: () {
+                                    final query = _searchController.text.trim();
+                                    if (query.isNotEmpty) {
+                                      _performSearch(query, loadMore: true);
+                                    }
+                                  },
+                                  child: const Text('Load More'),
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Search for users to start a conversation',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : _searchResults.isEmpty
-                            ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.person_off,
-                                      size: 64,
-                                      color: Colors.grey[400],
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'No users found',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.grey[600],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                            : ListView.builder(
-                                itemCount: _searchResults.length + (_hasMore ? 1 : 0),
-                                itemBuilder: (context, index) {
-                                  if (index == _searchResults.length) {
-                                    // Load more indicator
-                                    return Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: _isSearching
-                                          ? const Center(child: CircularProgressIndicator())
-                                          : TextButton(
-                                              onPressed: () {
-                                                final query = _searchController.text.trim();
-                                                if (query.isNotEmpty) {
-                                                  _performSearch(query, loadMore: true);
-                                                }
-                                              },
-                                              child: const Text('Load More'),
-                                            ),
-                                    );
-                                  }
+                        );
+                      }
 
-                                  final user = _searchResults[index];
-                                  return _UserTile(
-                                    user: user,
-                                    onTap: () => _onUserTap(user),
-                                  );
-                                },
-                              ),
+                      final user = _searchResults[index];
+                      return _UserTile(
+                        user: user,
+                        onTap: () => _onUserTap(user),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -312,10 +298,7 @@ class _UserTile extends StatelessWidget {
   final UserSearchResult user;
   final VoidCallback onTap;
 
-  const _UserTile({
-    required this.user,
-    required this.onTap,
-  });
+  const _UserTile({required this.user, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +312,10 @@ class _UserTile extends StatelessWidget {
         child: user.avatarUrl == null || user.avatarUrl!.isEmpty
             ? Text(
                 user.fullName.isNotEmpty ? user.fullName[0].toUpperCase() : '?',
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
               )
             : null,
       ),
@@ -338,10 +324,7 @@ class _UserTile extends StatelessWidget {
           Expanded(
             child: Text(
               user.fullName,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
           if (user.relationshipStatus == 'IN_RELATIONSHIP')
@@ -370,11 +353,7 @@ class _UserTile extends StatelessWidget {
         ],
       ),
       subtitle: user.bio != null && user.bio!.isNotEmpty
-          ? Text(
-              user.bio!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            )
+          ? Text(user.bio!, maxLines: 1, overflow: TextOverflow.ellipsis)
           : null,
       trailing: const Icon(Icons.chat_bubble_outline),
     );

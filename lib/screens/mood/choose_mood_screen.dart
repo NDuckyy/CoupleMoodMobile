@@ -29,9 +29,7 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
       if (!mounted) return;
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lấy danh sách mood thất bại: $e')),
-      );
+      showMsg(context, "Lấy danh sách mood thất bại", false);
     }
   }
 
@@ -75,7 +73,11 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                                 .updateMood(m.id)
                                 .then((_) {
                                   if (!context.mounted) return;
-                                  showMsg(context, "Cập nhật mood thành công", true);
+                                  showMsg(
+                                    context,
+                                    "Cập nhật mood thành công",
+                                    true,
+                                  );
                                   context.goNamed("listLocation");
                                 })
                                 .catchError((e) {

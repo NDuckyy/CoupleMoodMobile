@@ -9,6 +9,7 @@ import '../../providers/post/post_detail_provider.dart';
 import '../../widgets/feed/post_media.dart';
 import '../../widgets/feed/hashtag_wrap.dart';
 import '../../widgets/feed/comment_item.dart';
+import '../../utils/time_utils.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final int postId;
@@ -258,7 +259,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             ),
                           ),
                           Text(
-                            _timeAgo(post.createdAt),
+                            timeAgo(post.createdAt),
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -562,13 +563,4 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
-}
-
-String _timeAgo(DateTime dateTime) {
-  final difference = DateTime.now().difference(dateTime);
-
-  if (difference.inMinutes < 1) return "Vừa xong";
-  if (difference.inMinutes < 60) return "${difference.inMinutes} phút trước";
-  if (difference.inHours < 24) return "${difference.inHours} giờ trước";
-  return "${difference.inDays} ngày trước";
 }
