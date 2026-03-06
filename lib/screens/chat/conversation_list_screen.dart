@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/chat/chat_provider.dart';
 import '../../models/chat/conversation.dart';
-import 'chat_screen.dart';
-import 'user_search_screen.dart';
 import 'new_conversation_dialog.dart';
-import 'create_group_screen.dart';
 
 class ConversationListScreen extends StatefulWidget {
   const ConversationListScreen({super.key});
@@ -33,21 +31,9 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     if (!mounted) return;
 
     if (result == 'direct') {
-      // Navigate to user search
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const UserSearchScreen(),
-        ),
-      );
+      context.pushNamed('direct');
     } else if (result == 'group') {
-      // Navigate to create group
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const CreateGroupScreen(),
-        ),
-      );
+      context.pushNamed('group');
     }
   }
 
@@ -56,7 +42,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Messages',
+          'Nhắn tin',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
@@ -64,12 +50,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UserSearchScreen(),
-                ),
-              );
+              context.pushNamed('direct');
             },
           ),
           IconButton(
@@ -98,7 +79,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => chatProvider.loadConversations(),
-                    child: const Text('Retry'),
+                    child: const Text('Thử lại'),
                   ),
                 ],
               ),
@@ -117,19 +98,13 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'No conversations yet',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.grey[600],
-                    ),
+                    'Chua có cuộc trò chuyện nào',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Start a new conversation',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[500],
-                    ),
+                    'Bắt đầu một cuộc trò chuyện mới',
+                    style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -152,13 +127,13 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                         Icon(Icons.cloud_off, size: 16, color: Colors.white),
                         SizedBox(width: 8),
                         Text(
-                          'Connecting...',
+                          'Kêt nối bị gián đoạn. Đang cố gắng kết nối lại...',
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
-                
+
                 // Conversation list
                 Expanded(
                   child: ListView.builder(
@@ -166,22 +141,18 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                     itemBuilder: (context, index) {
                       final conversation = chatProvider.conversations[index];
                       final currentUserId = chatProvider.currentUserId ?? 0;
-                      
+
                       if (currentUserId == 0) {
                         print('WARNING: currentUserId is 0!');
                       }
-                      
+
                       return _ConversationItem(
                         conversation: conversation,
                         currentUserId: currentUserId,
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                conversation: conversation,
-                              ),
-                            ),
+                          context.pushNamed(
+                            'chat_screen',
+                            extra: {'conversation': conversation},
                           );
                         },
                       );
@@ -216,16 +187,16 @@ class _ConversationItem extends StatelessWidget {
     final lastMessage = conversation.lastMessage;
     final unreadCount = conversation.unreadCount;
 
-    print('ConversationItem - conversationId: ${conversation.id}, currentUserId: $currentUserId, displayName: $displayName');
+    print(
+      'ConversationItem - conversationId: ${conversation.id}, currentUserId: $currentUserId, displayName: $displayName',
+    );
 
     return InkWell(
       onTap: onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.grey[200]!),
-          ),
+          border: Border(bottom: BorderSide(color: Colors.grey[200]!)),
         ),
         child: Row(
           children: [
@@ -245,14 +216,14 @@ class _ConversationItem extends StatelessWidget {
                       : null,
                   child: displayAvatar == null
                       ? conversation.type == 'GROUP'
-                          ? const Icon(Icons.group, size: 28)
-                          : Text(
-                              displayName[0].toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
+                            ? const Icon(Icons.group, size: 28)
+                            : Text(
+                                displayName[0].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
                       : null,
                 ),
                 // Online indicator
@@ -314,7 +285,7 @@ class _ConversationItem extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          lastMessage?.content ?? 'No messages yet',
+                          lastMessage?.content ?? 'Chưa có tin nhắn nào',
                           style: TextStyle(
                             fontSize: 14,
                             color: unreadCount > 0

@@ -286,7 +286,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No messages yet',
+                              'Chua có tin nhắn nào',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -294,7 +294,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Send a message to start the conversation',
+                              'Gửi một tin nhắn để bắt đầu cuộc trò chuyện',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey[500],
@@ -412,17 +412,17 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Message'),
-        content: const Text('Are you sure you want to delete this message?'),
+        title: const Text('Xác nhận'),
+        content: const Text('Bạn có chắc chắn muốn xóa tin nhắn này không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
-              'Delete',
+              'Xóa',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -431,7 +431,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
 
     if (confirm == true) {
+      if (!mounted) return;
       await context.read<ChatProvider>().deleteMessage(messageId);
+      if (!mounted) return;
+      await context.read<ChatProvider>().loadMessages(widget.conversation.id);
     }
   }
 }
