@@ -11,6 +11,7 @@ class Message {
   final String? fileUrl;
   final String? fileName;
   final int? fileSize;
+  final dynamic datePlanInfo; // For DATE_PLAN type, can be a Map<String, dynamic> or a specific DatePlan class
   final dynamic metadata;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -34,6 +35,7 @@ class Message {
     this.fileName,
     this.fileSize,
     this.metadata,
+    this.datePlanInfo,
     required this.createdAt,
     this.updatedAt,
     required this.isMine,
@@ -56,6 +58,7 @@ class Message {
       fileName: json['fileName'] as String?,
       fileSize: json['fileSize'] as int?,
       metadata: json['metadata'] as dynamic != null ? json['metadata'].toString() : null,
+      datePlanInfo: json['datePlanInfo'] as dynamic != null ? json['datePlanInfo'] : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: json['updatedAt'] != null ? DateTime.parse(json['updatedAt'] as String) : null,
       isMine: json['isMine'] as bool? ?? false,
@@ -76,6 +79,7 @@ class Message {
       'fileUrl': fileUrl,
       'fileName': fileName,
       'fileSize': fileSize,
+      'datePlanInfo': datePlanInfo,
       'metadata': metadata,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),

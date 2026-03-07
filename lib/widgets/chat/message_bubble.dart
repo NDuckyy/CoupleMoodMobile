@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../models/chat/message.dart';
@@ -19,23 +20,19 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: showAvatar ? 8 : 2,
-        bottom: 2,
-      ),
+      padding: EdgeInsets.only(top: showAvatar ? 8 : 2, bottom: 2),
       child: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment:
-            message.isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: message.isMine
+            ? MainAxisAlignment.end
+            : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           // Avatar (for other users only)
           if (!message.isMine)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: showAvatar
-                  ? _buildAvatar()
-                  : const SizedBox(width: 32),
+              child: showAvatar ? _buildAvatar() : const SizedBox(width: 32),
             ),
 
           // Message bubble
@@ -66,13 +63,17 @@ class MessageBubble extends StatelessWidget {
 
                   // Message content
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
+                    padding: message.messageType == 'DATE_PLAN'
+                        ? const EdgeInsets.all(0)
+                        : const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
                     decoration: BoxDecoration(
-                      color: message.isMine
-                          ? Theme.of(context).primaryColor
+                      color: message.isMine && message.messageType == 'TEXT'
+                          ? Color(0xFFB388EB)
+                          : message.isMine && message.messageType == 'DATE_PLAN'
+                          ? Color(0xFFB388EB)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
@@ -128,6 +129,14 @@ class MessageBubble extends StatelessWidget {
           ),
         );
 
+      case 'DATE_PLAN':
+        return DatePlanChatCard(
+          datePlanInfo: message.datePlanInfo ?? {},
+          onTap: () {
+            print("Open date plan detail");
+          },
+        );
+
       case 'IMAGE':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,9 +170,6 @@ class MessageBubble extends StatelessWidget {
               ),
           ],
         );
-
-      case 'DATE_PLAN':
-        return _buildDatePlanCard();
 
       case 'LOCATION':
         return _buildLocationCard();
@@ -289,29 +295,13 @@ class MessageBubble extends StatelessWidget {
           ),
         );
       case MessageStatus.sent:
-        return Icon(
-          Icons.check,
-          size: 14,
-          color: Colors.grey[600],
-        );
+        return Icon(Icons.check, size: 14, color: Colors.grey[600]);
       case MessageStatus.delivered:
-        return Icon(
-          Icons.done_all,
-          size: 14,
-          color: Colors.grey[600],
-        );
+        return Icon(Icons.done_all, size: 14, color: Colors.grey[600]);
       case MessageStatus.read:
-        return const Icon(
-          Icons.done_all,
-          size: 14,
-          color: Colors.blue,
-        );
+        return const Icon(Icons.done_all, size: 14, color: Colors.blue);
       case MessageStatus.failed:
-        return const Icon(
-          Icons.error_outline,
-          size: 14,
-          color: Colors.red,
-        );
+        return const Icon(Icons.error_outline, size: 14, color: Colors.red);
     }
   }
 
@@ -340,8 +330,11 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
-    final hasAvatar = message.senderAvatar != null && message.senderAvatar!.isNotEmpty;
-    final initial = message.senderName.isNotEmpty ? message.senderName[0].toUpperCase() : '?';
+    final hasAvatar =
+        message.senderAvatar != null && message.senderAvatar!.isNotEmpty;
+    final initial = message.senderName.isNotEmpty
+        ? message.senderName[0].toUpperCase()
+        : '?';
 
     return CircleAvatar(
       radius: 16,
