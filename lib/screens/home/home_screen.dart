@@ -177,6 +177,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     HomeIconButton(
+                      icon: Icons.emoji_events,
+                      label: "Thử thách",
+                      color: const Color(0xFFFFC857),
+                      onTap: () {
+                        context.pushNamed("challenge");
+                      },
+                    ),
+
+                    HomeIconButton(
                       icon: Icons.logout,
                       label: "Đăng xuất",
                       color: const Color(0xFFB388EB),

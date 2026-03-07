@@ -7,8 +7,8 @@ class ApiClient {
   static final Dio _dio = Dio(
     BaseOptions(
       baseUrl: 'https://couplemood.ooguy.com/api',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 100),
+      receiveTimeout: const Duration(seconds: 100),
     ),
   );
 

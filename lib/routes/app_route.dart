@@ -1,18 +1,38 @@
-//bầy con provider
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+//---Provider
+//auth
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
+
+//Recommendation
+import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+
+//Dateplan
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 
+//Collection
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 
-import 'package:couple_mood_mobile/providers/member_provider.dart';
+//Post
 import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 
+//test
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 
-import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
+//Member, user
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:couple_mood_mobile/providers/member_provider.dart';
 
+//mood
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
+
+//---Screen
+//Chat
 import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/create_group_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/user_search_screen.dart';
@@ -44,35 +64,36 @@ import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/my_posts_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_screen.dart';
 
-// lú quá Nghĩa tự sort lại đi
+// invitation
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
-import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
-import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
-import 'package:couple_mood_mobile/screens/review/review_screen.dart';
-import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+
+//bài test, personality
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
-import 'package:couple_mood_mobile/providers/auth_provider.dart';
-import 'package:couple_mood_mobile/providers/mood_provider.dart';
-import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+//challenge
+import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
+//auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
 
+//mood
 import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
+//home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
+import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
+import 'package:couple_mood_mobile/screens/review/review_screen.dart';
+import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -296,6 +317,14 @@ GoRouter createRouter(BuildContext context) {
         name: 'subscriptions',
         pageBuilder: (_, __) {
           return const MaterialPage(child: SubscriptionsScreen());
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/challenge',
+        name: 'challenge',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: ChallengeScreen());
         },
       ),
       GoRoute(
