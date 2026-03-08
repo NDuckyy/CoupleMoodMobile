@@ -185,4 +185,28 @@ class DatePlanService {
       throw Exception('Lỗi khi duyệt kế hoạch hẹn hò: $e');
     }
   }
+
+  Future<ApiResponse<int>> acceptDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/accept',
+        method: HttpMethod.patch,
+      );
+      return ApiResponse<int>.fromJson(res, (json) => json as int);
+    } catch (e) {
+      throw Exception('Lỗi khi chấp nhận kế hoạch hẹn hò: $e');
+    }
+  }
+
+  Future<ApiResponse<int>> rejectDatePlan(int datePlanId) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/reject',
+        method: HttpMethod.patch,
+      );
+      return ApiResponse<int>.fromJson(res, (json) => json as int);
+    } catch (e) {
+      throw Exception('Lỗi khi từ chối kế hoạch hẹn hò: $e');
+    }
+  }
 }

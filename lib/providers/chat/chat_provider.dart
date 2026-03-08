@@ -9,7 +9,7 @@ import '../../utils/session_storage.dart';
 
 class ChatProvider with ChangeNotifier {
   final SignalRService _signalR = SignalRService();
-  
+  SignalRService get signalR => _signalR;
   // State
   List<Conversation> _conversations = [];
   Map<int, List<Message>> _messagesByConversation = {};
@@ -601,6 +601,7 @@ class ChatProvider with ChangeNotifier {
     } else {
       _conversations.insert(0, conversation);
     }
+    loadMessages(conversation.id);
     notifyListeners();
   }
 

@@ -4,20 +4,37 @@ import 'package:intl/intl.dart';
 class DatePlanChatCard extends StatelessWidget {
   final Map<String, dynamic> datePlanInfo;
   final VoidCallback? onTap;
-  final VoidCallback? onAccept;
-  final VoidCallback? onReject;
+  final Function(int datePlanId) onAccept;
+  final Function(int datePlanId) onReject;
 
   const DatePlanChatCard({
     super.key,
     required this.datePlanInfo,
     this.onTap,
-    this.onAccept,
-    this.onReject,
+    required this.onAccept,
+    required this.onReject,
   });
 
   String formatDate(String iso) {
     final date = DateTime.parse(iso).toLocal();
     return DateFormat("dd/MM/yyyy").format(date);
+  }
+
+  Color getStatusColor(String status) {
+    switch (status) {
+      case 'DRAFTED':
+        return const Color.fromARGB(255, 255, 230, 0);
+      case 'PENDING':
+        return Colors.blue;
+      case 'SCHEDULED':
+        return const Color.fromARGB(255, 206, 87, 227);
+      case 'IN_PROGRESS':
+        return Colors.orange;
+      case 'CANCELLED':
+        return Colors.red;
+      default:
+        return Colors.green;
+    }
   }
 
   @override
@@ -41,7 +58,9 @@ class DatePlanChatCard extends StatelessWidget {
           InkWell(
             onTap: onTap,
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: Image.network(
                 datePlanInfo["imageDatePlanUrl"],
                 height: 120,
@@ -79,7 +98,7 @@ class DatePlanChatCard extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.pink,
+                        color: getStatusColor(datePlanInfo["status"]),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -120,7 +139,7 @@ class DatePlanChatCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: GestureDetector(
-                              onTap: onReject,
+                              onTap: () => onReject(datePlanInfo["datePlanId"]),
                               child: Container(
                                 height: 40,
                                 decoration: BoxDecoration(
@@ -141,7 +160,7 @@ class DatePlanChatCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: GestureDetector(
-                              onTap: onAccept,
+                              onTap: () => onAccept(datePlanInfo["datePlanId"]),
                               child: Container(
                                 height: 40,
                                 decoration: const BoxDecoration(

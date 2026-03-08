@@ -42,7 +42,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     final datePlanProvider = context.read<DatePlanProvider>();
     final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.sendDatePlan(datePlanId);
-    await chatProvider.sendDatePlan(32, "", datePlanId);
+    await chatProvider.sendDatePlan(36, "", datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
       showMsg(context, datePlanProvider.error!, false);

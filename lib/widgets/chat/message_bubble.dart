@@ -9,6 +9,8 @@ class MessageBubble extends StatelessWidget {
   final bool showAvatar;
   final bool isGroupChat;
   final VoidCallback? onDelete;
+  final Function(int datePlanId) onAccept;
+  final Function(int datePlanId) onReject; 
 
   const MessageBubble({
     super.key,
@@ -16,6 +18,8 @@ class MessageBubble extends StatelessWidget {
     required this.showAvatar,
     required this.isGroupChat,
     this.onDelete,
+    required this.onAccept,
+    required this.onReject,
   });
 
   @override
@@ -139,8 +143,8 @@ class MessageBubble extends StatelessWidget {
               'status': message.datePlanInfo?['status'],
             });
           },
-          onAccept: () => print("Accept date plan"),
-          onReject: () => print("Reject date plan"),
+          onAccept: (datePlanId) => onAccept(datePlanId),
+          onReject: (datePlanId) => onReject(datePlanId),
         );
 
       case 'IMAGE':
