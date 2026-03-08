@@ -8,6 +8,7 @@ import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/create_group_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/user_search_screen.dart';
@@ -424,15 +425,13 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/direct',
         name: 'direct',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: UserSearchScreen()),
+        pageBuilder: (_, __) => const MaterialPage(child: UserSearchScreen()),
       ),
 
       GoRoute(
         path: '/group',
         name: 'group',
-        pageBuilder: (_, __) =>
-            const MaterialPage(child: CreateGroupScreen()),
+        pageBuilder: (_, __) => const MaterialPage(child: CreateGroupScreen()),
       ),
 
       GoRoute(
@@ -453,6 +452,16 @@ GoRouter createRouter(BuildContext context) {
           return ReviewScreen(
             venueLocationId: extra['venueLocationId'],
             checkInId: extra['checkInId'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/advertisement-detail',
+        name: 'advertisement_detail',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return AdvertisementDetailScreen(
+            advertisementId: extra['advertisementId'],
           );
         },
       ),

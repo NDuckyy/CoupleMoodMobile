@@ -2,11 +2,30 @@ import 'package:couple_mood_mobile/models/advertisement/advertisement.dart';
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class AdvertisementCarousel extends StatelessWidget {
   final List<Advertisement> advertisements;
-  const AdvertisementCarousel({super.key, required this.advertisements});
+  final Function(int eventId) onTapSpecialEvent;
+  const AdvertisementCarousel({
+    super.key,
+    required this.advertisements,
+    required this.onTapSpecialEvent,
+  });
+
+  void _onClickAd(BuildContext context, Advertisement ad) {
+    if (ad.type == "ADVERTISEMENT") {
+      if (ad.advertisementId == null) return;
+      context.pushNamed(
+        'advertisement_detail',
+        extra: {'advertisementId': ad.advertisementId},
+      );
+    } else {
+      onTapSpecialEvent.call(ad.specialEventId!);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final advertisementProvider = context.watch<AdvertisementProvider>();
@@ -30,7 +49,8 @@ class AdvertisementCarousel extends StatelessWidget {
                 title: "Không có đề xuất nào",
                 description: "",
               )
-            : advertisements.isEmpty && advertisementProvider.isLoadingAdvertisement
+            : advertisements.isEmpty &&
+                  advertisementProvider.isLoadingAdvertisement
             ? const SizedBox(
                 height: 140,
                 child: Center(child: CircularProgressIndicator()),
@@ -54,13 +74,16 @@ class AdvertisementCarousel extends StatelessWidget {
                         child: const Placeholder(),
                       );
                     } else {
-                      return Container(
-                        width: 300,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          image: DecorationImage(
-                            image: NetworkImage(ad.bannerUrl!),
-                            fit: BoxFit.cover,
+                      return InkWell(
+                        onTap: () => _onClickAd(context, ad),
+                        child: Container(
+                          width: 300,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            image: DecorationImage(
+                              image: NetworkImage(ad.bannerUrl!),
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       );

@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/advertisement/special_event_detail.dart';
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -11,6 +12,7 @@ import 'package:couple_mood_mobile/screens/home/widget/special_event.dart';
 import 'package:couple_mood_mobile/screens/home/widget/week_selector.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/home_icon_button.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -88,6 +90,86 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<AdvertisementProvider>().fetchAdvertisement();
   }
 
+  void _showSpecialEventDialog(BuildContext context, int eventId) async {
+    await context.read<AdvertisementProvider>().fetchSpecialEventDetail(
+      eventId,
+    );
+    final event = context.read<AdvertisementProvider>().specialEventDetail;
+    if (event == null) {
+      if (!mounted) return;
+      showMsg(context, "Không thể tải thông tin sự kiện", false);
+      return;
+    }
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+                child: Image.network(
+                  event.bannerUrl,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      event.eventName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      event.description,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffB388EB),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Đóng", style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _refresh() async {
     _getPopularNearby();
     _getSpecialEvent();
@@ -135,6 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverToBoxAdapter(
               child: AdvertisementCarousel(
                 advertisements: advertisementProvider.advertisements,
+                onTapSpecialEvent: (eventId) =>
+                    _showSpecialEventDialog(context, eventId),
               ),
             ),
 

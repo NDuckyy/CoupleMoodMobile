@@ -36,7 +36,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
       showMsg(context, 'Xóa lịch hẹn thành công', true);
       datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
     }
-  }//'/
+  }
 
   void _sendDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
