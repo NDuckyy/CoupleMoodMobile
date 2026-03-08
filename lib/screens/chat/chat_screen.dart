@@ -130,6 +130,32 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _sendDatePlan() async {
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
+
+    // Stop typing indicator
+    if (_isTyping) {
+      _isTyping = false;
+      _typingTimer?.cancel();
+      context.read<ChatProvider>().sendTypingIndicator(
+        widget.conversation.id,
+        false,
+      );
+    }
+
+    // Clear input
+    _textController.clear();
+
+    // Send message
+    final chatProvider = context.read<ChatProvider>();
+    await chatProvider.sendTextMessage(widget.conversation.id, text);
+
+    // Scroll to bottom
+    _scrollToBottom();
+  }
+
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final chatProvider = context.read<ChatProvider>();

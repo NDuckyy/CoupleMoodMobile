@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class AdvertisementPopup extends StatelessWidget {
   final String bannerUrl;
@@ -18,7 +19,7 @@ class AdvertisementPopup extends StatelessWidget {
       child: Stack(
         children: [
           GestureDetector(
-            onTap: onTap,
+            onTap: () {},
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(
@@ -28,14 +29,11 @@ class AdvertisementPopup extends StatelessWidget {
             ),
           ),
 
-          /// Close button
           Positioned(
             right: 8,
             top: 8,
             child: GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
+              onTap: () => context.pop(),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.black54,

@@ -49,19 +49,23 @@ class _HomeScreenState extends State<HomeScreen> {
     await advertismentProvider.fetchAdvertisementPopup();
     if (advertismentProvider.popup == null) {
       return;
+    } else {
+      if (advertismentProvider.isLoadingPopup) {
+        return;
+      }
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AdvertisementPopup(
+            bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+            onTap: () {
+              context.pop();
+            },
+          );
+        },
+      );
     }
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (context) {
-        return AdvertisementPopup(
-          bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
-          onTap: () {
-            context.pop();
-          },
-        );
-      },
-    );
   }
 
   void _getPopularNearby() async {

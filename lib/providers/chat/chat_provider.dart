@@ -255,6 +255,46 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  Future<Message?> sendDatePlan(int conversationId, String content, int referenceId) async {
+    try {
+      // Create optimistic message
+      final optimisticMessage = Message(
+        id: DateTime.now().millisecondsSinceEpoch,
+        conversationId: conversationId,
+        senderId: _currentUserId ?? 0,
+        senderName: 'You',
+        content: content,
+        messageType: 'DATE_PLAN',
+        createdAt: DateTime.now(),
+        isMine: true,
+        status: MessageStatus.sending,
+        localId: DateTime.now().millisecondsSinceEpoch.toString(),
+      );
+
+      // Add to UI immediately
+      _addMessageToConversation(conversationId, optimisticMessage);
+
+      // Send to server
+      final sentMessage = await MessagingApiService.sendMessage(
+        conversationId: conversationId,
+        messageType: 'DATE_PLAN',
+        content: content,
+        referenceId: referenceId,
+        referenceType: "DATE_PLAN",
+      );
+
+      // Replace optimistic message with real one
+      _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
+
+      return sentMessage;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+
   /// Send file message
   Future<Message?> sendFileMessage({
     required int conversationId,
