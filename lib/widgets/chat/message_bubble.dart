@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../models/chat/message.dart';
 
@@ -73,7 +74,7 @@ class MessageBubble extends StatelessWidget {
                       color: message.isMine && message.messageType == 'TEXT'
                           ? Color(0xFFB388EB)
                           : message.isMine && message.messageType == 'DATE_PLAN'
-                          ? Color(0xFFB388EB)
+                          ? Colors.white.withOpacity(0)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(20),
@@ -86,7 +87,7 @@ class MessageBubble extends StatelessWidget {
                         ),
                       ),
                     ),
-                    child: _buildMessageContent(),
+                    child: _buildMessageContent(context),
                   ),
 
                   // Timestamp and status
@@ -118,7 +119,7 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageContent() {
+  Widget _buildMessageContent(BuildContext context) {
     switch (message.messageType) {
       case 'TEXT':
         return Text(
@@ -133,8 +134,13 @@ class MessageBubble extends StatelessWidget {
         return DatePlanChatCard(
           datePlanInfo: message.datePlanInfo ?? {},
           onTap: () {
-            print("Open date plan detail");
+            context.pushNamed('date_plan_item', extra: {
+              'datePlanId': message.datePlanInfo?['datePlanId'],
+              'status': message.datePlanInfo?['status'],
+            });
           },
+          onAccept: () => print("Accept date plan"),
+          onReject: () => print("Reject date plan"),
         );
 
       case 'IMAGE':

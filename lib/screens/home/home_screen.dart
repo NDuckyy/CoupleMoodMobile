@@ -2,6 +2,8 @@ import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
+import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
 import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
 import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
 import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
@@ -37,7 +39,29 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<MoodProvider>().getCoupleCurrentMood();
       _getPopularNearby();
       _getSpecialEvent();
+      _getAdvertisement();
+      showAdvertisement();
     });
+  }
+
+  void showAdvertisement() async {
+    final advertismentProvider = context.read<AdvertisementProvider>();
+    await advertismentProvider.fetchAdvertisementPopup();
+    if (advertismentProvider.popup == null) {
+      return;
+    }
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return AdvertisementPopup(
+          bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+          onTap: () {
+            context.pop();
+          },
+        );
+      },
+    );
   }
 
   void _getPopularNearby() async {
@@ -56,9 +80,14 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<AdvertisementProvider>().fetchSpecialEvents();
   }
 
+  void _getAdvertisement() {
+    context.read<AdvertisementProvider>().fetchAdvertisement();
+  }
+
   Future<void> _refresh() async {
     _getPopularNearby();
     _getSpecialEvent();
+    _getAdvertisement();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
@@ -98,6 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+            SliverToBoxAdapter(
+              child: AdvertisementCarousel(
+                advertisements: advertisementProvider.advertisements,
+              ),
+            ),
 
             SliverToBoxAdapter(
               child: Padding(
@@ -190,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: SpecialEvent(
-                advertisements: advertisementProvider.advertisements,
+                advertisements: advertisementProvider.specialEvents,
               ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),

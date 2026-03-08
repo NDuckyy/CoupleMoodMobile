@@ -1,14 +1,18 @@
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DatePlanChatCard extends StatelessWidget {
   final Map<String, dynamic> datePlanInfo;
   final VoidCallback? onTap;
+  final VoidCallback? onAccept;
+  final VoidCallback? onReject;
 
   const DatePlanChatCard({
     super.key,
     required this.datePlanInfo,
     this.onTap,
+    this.onAccept,
+    this.onReject,
   });
 
   String formatDate(String iso) {
@@ -27,23 +31,23 @@ class DatePlanChatCard extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(
-            blurRadius: 6,
-            color: Colors.black.withOpacity(0.08),
-          )
+          BoxShadow(blurRadius: 6, color: Colors.black.withOpacity(0.08)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           /// IMAGE
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Image.network(
-              datePlanInfo["imageUrl"],
-              height: 120,
-              width: double.infinity,
-              fit: BoxFit.cover,
+          InkWell(
+            onTap: onTap,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              child: Image.network(
+                datePlanInfo["imageDatePlanUrl"],
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
@@ -57,18 +61,23 @@ class DatePlanChatCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      child: Text(
-                        datePlanInfo["venueName"],
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                      child: InkWell(
+                        onTap: onTap,
+                        child: Text(
+                          datePlanInfo["title"],
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
 
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.pink,
                         borderRadius: BorderRadius.circular(12),
@@ -80,7 +89,7 @@ class DatePlanChatCard extends StatelessWidget {
                           fontSize: 11,
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
 
@@ -99,42 +108,89 @@ class DatePlanChatCard extends StatelessWidget {
 
                 /// BUDGET
                 Text(
-                  "Budget: ${datePlanInfo["estimatedBudget"]} VND",
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 13,
-                  ),
+                  "Ngân sách: ${datePlanInfo["estimatedBudget"]} VND",
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
 
                 const SizedBox(height: 12),
 
                 /// BUTTON
-                GestureDetector(
-                  onTap: onTap,
-                  child: Container(
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xff8093F1),
-                          Color(0xffB388EB),
+                datePlanInfo["status"] == "PENDING"
+                    ? Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: onReject,
+                              child: Container(
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: Colors.redAccent,
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  "Từ chối",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: onAccept,
+                              child: Container(
+                                height: 40,
+                                decoration: const BoxDecoration(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(10),
+                                  ),
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      Color(0xff8093F1),
+                                      Color(0xffB388EB),
+                                    ],
+                                  ),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  "Đồng ý",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
+                      )
+                    : GestureDetector(
+                        onTap: onTap,
+                        child: Container(
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            gradient: LinearGradient(
+                              colors: [Color(0xff8093F1), Color(0xffB388EB)],
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            "Xem lịch trình",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
-                    alignment: Alignment.center,
-                    child: const Text(
-                      "Xem lịch trình",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                )
               ],
             ),
-          )
+          ),
         ],
       ),
     );

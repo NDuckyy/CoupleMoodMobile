@@ -32,7 +32,7 @@ class EmptyStateWidget extends StatelessWidget {
               ),
               child: Icon(
                 icon,
-                size: 48,
+                size: 30,
                 color: Colors.white,
               ),
             ),

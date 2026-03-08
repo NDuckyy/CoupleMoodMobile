@@ -4,9 +4,9 @@ import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SpecialEvent extends StatelessWidget {
+class AdvertisementCarousel extends StatelessWidget {
   final List<Advertisement> advertisements;
-  const SpecialEvent({super.key, required this.advertisements});
+  const AdvertisementCarousel({super.key, required this.advertisements});
   @override
   Widget build(BuildContext context) {
     final advertisementProvider = context.watch<AdvertisementProvider>();
@@ -18,19 +18,19 @@ class SpecialEvent extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Sự kiện đặc biệt",
+                "Đề xuất cho bạn",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
         ),
-        advertisements.isEmpty && !advertisementProvider.isLoadingSpecialEvent
+        advertisements.isEmpty && !advertisementProvider.isLoadingAdvertisement
             ? EmptyStateWidget(
                 icon: Icons.event,
-                title: "Không có sự kiện đặc biệt nào",
+                title: "Không có đề xuất nào",
                 description: "",
               )
-            : advertisements.isEmpty && advertisementProvider.isLoadingSpecialEvent
+            : advertisements.isEmpty && advertisementProvider.isLoadingAdvertisement
             ? const SizedBox(
                 height: 140,
                 child: Center(child: CircularProgressIndicator()),

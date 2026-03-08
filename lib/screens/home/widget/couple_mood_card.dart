@@ -45,7 +45,7 @@ class CoupleMoodCard extends StatelessWidget {
             children: [
               Expanded(
                 child: _buildMember(
-                  label: "Bạn",
+                  label: coupleCurrentMood?.memberName ?? "Bạn",
                   avatarUrl: coupleCurrentMood?.memberAvatarUrl ?? "",
                   mood: coupleCurrentMood?.currentMood ?? "Chưa cập nhật",
                   align: CrossAxisAlignment.center,
@@ -56,7 +56,7 @@ class CoupleMoodCard extends StatelessWidget {
 
               Expanded(
                 child: _buildMember(
-                  label: "Đối phương",
+                  label: coupleCurrentMood?.partnerMemberName ?? "Đối phương",
                   avatarUrl: coupleCurrentMood?.partnerAvatarUrl ?? "",
                   mood: coupleCurrentMood?.partnerMood ?? "Chưa cập nhật",
                   align: CrossAxisAlignment.center,
@@ -103,9 +103,7 @@ class CoupleMoodCard extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           label,
-          textAlign: align == CrossAxisAlignment.start
-              ? TextAlign.left
-              : TextAlign.right,
+          textAlign: TextAlign.center,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
