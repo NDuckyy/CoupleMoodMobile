@@ -191,55 +191,6 @@ class MessageBubble extends StatelessWidget {
     }
   }
 
-  Widget _buildDatePlanCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: message.isMine ? Colors.white.withOpacity(0.2) : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today,
-                size: 20,
-                color: message.isMine ? Colors.white : Colors.blue,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'Date Plan',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: message.isMine ? Colors.white : Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            message.content,
-            style: TextStyle(
-              fontSize: 15,
-              color: message.isMine ? Colors.white : Colors.black87,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Tap to view details',
-            style: TextStyle(
-              fontSize: 12,
-              color: message.isMine ? Colors.white70 : Colors.grey[600],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildLocationCard() {
     return Container(
       padding: const EdgeInsets.all(12),

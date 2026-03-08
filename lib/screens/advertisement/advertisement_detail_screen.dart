@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
+import 'package:couple_mood_mobile/widgets/full_image_screen.dart';
 import 'package:couple_mood_mobile/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -40,11 +41,26 @@ class _AdvertisementDetailScreenState extends State<AdvertisementDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   /// Banner
-                  Image.network(
-                    advertisement!.bannerUrl,
-                    width: double.infinity,
-                    height: 220,
-                    fit: BoxFit.cover,
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FullImageScreen(
+                            imageUrl: advertisement.bannerUrl,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Hero(
+                      tag: advertisement.bannerUrl,
+                      child: Image.network(
+                        advertisement.bannerUrl,
+                        width: double.infinity,
+                        height: 220,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
 
                   const SizedBox(height: 16),

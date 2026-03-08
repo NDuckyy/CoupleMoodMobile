@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/models/advertisement/special_event_detail.dart';
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
