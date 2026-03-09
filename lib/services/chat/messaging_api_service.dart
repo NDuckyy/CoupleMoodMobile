@@ -305,4 +305,16 @@ class MessagingApiService {
       throw Exception('Failed to search messages: ${e.toString()}');
     }
   }
+
+  static Future<int> getCoupleConversationId() async {
+    try {
+      final response = await ApiClient.request(
+        '/Messaging/conversations/couple',
+        method: HttpMethod.get,
+      );
+    return response['id'] as int;
+    } catch (e) {
+      throw Exception('Failed to get couple conversation ID: ${e.toString()}');
+    }
+  }
 }

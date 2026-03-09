@@ -635,6 +635,10 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  Future<int> getCoupleConversationId() async{
+    return await MessagingApiService.getCoupleConversationId();
+  }
+
   // ==================== HELPER METHODS ====================
 
   void _addMessageToConversation(int conversationId, Message message) {

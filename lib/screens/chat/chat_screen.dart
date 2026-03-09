@@ -161,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _onRejectDatePlan(int datePlanId) async {
+  void _onRejectDatePlan(int datePlanId, int messageId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
     final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.rejectDatePlan(datePlanId);
@@ -171,7 +171,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     } else {
       if (!mounted) return;
       showMsg(context, 'Bạn đã từ chối lịch hẹn', true);
-      // Optionally refresh messages or date plan status
+
+      await chatProvider.deleteMessage(messageId);
       await chatProvider.loadMessages(widget.conversation.id);
     }
   }
@@ -399,7 +400,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                             onAccept: (datePlanId) =>
                                 _onAcceptDatePlan(datePlanId),
                             onReject: (datePlanId) =>
-                                _onRejectDatePlan(datePlanId),
+                                _onRejectDatePlan(datePlanId, message.id),
                           ),
                         ],
                       );

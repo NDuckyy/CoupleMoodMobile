@@ -10,7 +10,7 @@ class MessageBubble extends StatelessWidget {
   final bool isGroupChat;
   final VoidCallback? onDelete;
   final Function(int datePlanId) onAccept;
-  final Function(int datePlanId) onReject; 
+  final Function(int datePlanId) onReject;
 
   const MessageBubble({
     super.key,
@@ -43,7 +43,7 @@ class MessageBubble extends StatelessWidget {
           // Message bubble
           Flexible(
             child: GestureDetector(
-              onLongPress: onDelete != null
+              onLongPress: message.isMine
                   ? () => _showMessageOptions(context)
                   : null,
               child: Column(
@@ -135,17 +135,32 @@ class MessageBubble extends StatelessWidget {
         );
 
       case 'DATE_PLAN':
-        return DatePlanChatCard(
-          datePlanInfo: message.datePlanInfo ?? {},
-          onTap: () {
-            context.pushNamed('date_plan_item', extra: {
-              'datePlanId': message.datePlanInfo?['datePlanId'],
-              'status': message.datePlanInfo?['status'],
-            });
-          },
-          onAccept: (datePlanId) => onAccept(datePlanId),
-          onReject: (datePlanId) => onReject(datePlanId),
-        );
+        return message.datePlanInfo == null
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  "Lịch hẹn đã bị xóa",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
+            : DatePlanChatCard(
+                datePlanInfo: message.datePlanInfo ?? {},
+                onTap: () {
+                  context.pushNamed(
+                    'date_plan_item',
+                    extra: {
+                      'datePlanId': message.datePlanInfo?['datePlanId'],
+                      'status': message.datePlanInfo?['status'],
+                    },
+                  );
+                },
+                onAccept: (datePlanId) => onAccept(datePlanId),
+                onReject: (datePlanId) => onReject(datePlanId),
+              );
 
       case 'IMAGE':
         return Column(
