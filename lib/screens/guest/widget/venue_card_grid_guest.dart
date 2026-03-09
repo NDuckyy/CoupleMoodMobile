@@ -1,5 +1,5 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
-import 'package:couple_mood_mobile/screens/guestPage/widget/login_required_dialog.dart';
+import 'package:couple_mood_mobile/screens/guest/widget/login_required_dialog.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 

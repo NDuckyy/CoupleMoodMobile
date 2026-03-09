@@ -1,8 +1,8 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
-import 'package:couple_mood_mobile/screens/guestPage/widget/guest_header.dart';
-import 'package:couple_mood_mobile/screens/guestPage/widget/venue_card_grid_guest.dart';
+import 'package:couple_mood_mobile/screens/guest/widget/guest_header.dart';
+import 'package:couple_mood_mobile/screens/guest/widget/venue_card_grid_guest.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/loading.dart';
 import 'package:flutter/material.dart';

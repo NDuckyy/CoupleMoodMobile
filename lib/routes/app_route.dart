@@ -37,7 +37,7 @@ import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_sc
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
-import 'package:couple_mood_mobile/screens/guestPage/guest_screen.dart';
+import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
 
 // lú quá Nghĩa tự sort lại đi
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';

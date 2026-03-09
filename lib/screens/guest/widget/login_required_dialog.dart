@@ -70,7 +70,7 @@ class LoginRequiredDialog extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text("Tạo tài khoản mới"),
+                child: const Text("Tạo tài khoản mới", style: TextStyle(color: Colors.black)),
               ),
             ),
           ],
