@@ -37,6 +37,7 @@ import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_sc
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
+import 'package:couple_mood_mobile/screens/guestPage/guest_screen.dart';
 
 // lú quá Nghĩa tự sort lại đi
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
@@ -91,7 +92,7 @@ GoRouter createRouter(BuildContext context) {
       final loc = state.uri.toString();
 
       final isAuthRoute =
-          loc.startsWith('/login') || loc.startsWith('/register');
+          loc.startsWith('/login') || loc.startsWith('/register')  || loc.startsWith('/guest');
       final isSplash = loc == '/splash';
 
       // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
@@ -100,7 +101,7 @@ GoRouter createRouter(BuildContext context) {
       }
 
       // Chưa login mà không ở auth routes => đá về login
-      if (!isLoggedIn && !isAuthRoute) return '/login';
+      if (!isLoggedIn && !isAuthRoute) return '/guest';
 
       // Đã login mà còn ở login/register => đá về home
       if (isLoggedIn && isAuthRoute) return '/home';
@@ -464,6 +465,12 @@ GoRouter createRouter(BuildContext context) {
             advertisementId: extra['advertisementId'],
           );
         },
+      ),
+
+      GoRoute(
+        path: '/guest',
+        name: 'guest',
+        pageBuilder: (_, __) => const MaterialPage(child: GuestScreen()),
       ),
 
       ShellRoute(
