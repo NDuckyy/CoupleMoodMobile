@@ -12,7 +12,7 @@ class RecommendationService {
   ) async {
     try {
       final res = await ApiClient.request(
-        "/Recommendation",
+        "/venue-location/search",
         query: {'page': page, 'pageSize': pageSize},
         method: HttpMethod.post,
         data: request.toJson(),
