@@ -1,7 +1,8 @@
+import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
-
 import 'api_client.dart';
+import 'package:couple_mood_mobile/services/notification_service.dart';
 
 class AuthService {
   static Future<Session> login(String email, String password) async {
@@ -10,7 +11,7 @@ class AuthService {
       method: HttpMethod.post,
       data: {'email': email, 'password': password, "rememberMe": true},
     );
-    
+
     final root = (res as Map).cast<String, dynamic>();
     final data = (root['data'] as Map).cast<String, dynamic>();
 
@@ -23,13 +24,32 @@ class AuthService {
     final session = Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      cometChatUid: data['cometChatUid']?.toString(),
-      cometChatAuthToken: data['cometChatAuthToken']?.toString(),
       gender: data['gender']?.toString(),
+      avatarUrl: data['avatarUrl']?.toString(),
+      fullName: data['fullName']?.toString(),
+      dateOfBirth: data['dateOfBirth']?.toString(),
+      inviteCode: data['inviteCode']?.toString(),
     );
     await SessionStorage.save(session);
-
+    await NotificationService.sendTokenToServerAfterLogin();
     return session;
   }
-  
+
+  static Future<void> logout() async {
+    await SessionStorage.clear();
+  }
+
+  static Future<bool> register(RegisterRequest request) async {
+    final res = await ApiClient.request(
+      "/Auth/register",
+      method: HttpMethod.post,
+      data: request.toJson(),
+    );
+    final root = (res as Map).cast<String, dynamic>();
+    if (root['code'] == 200) {
+      return true;
+    } else {
+      throw Exception(root['message']?.toString() ?? 'Đăng ký thất bại');
+    }
+  }
 }

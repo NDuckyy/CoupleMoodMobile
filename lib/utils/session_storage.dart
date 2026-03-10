@@ -10,6 +10,24 @@ class SessionStorage {
   static const _kRefresh = 'refresh_token';
   static const _kProfile = 'user_profile';
 
+  /// Decode JWT token to get payload
+  static Map<String, dynamic>? _decodeJwt(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        return null;
+      }
+
+      final payload = parts[1];
+      var normalized = base64Url.normalize(payload);
+      var decoded = utf8.decode(base64Url.decode(normalized));
+      return jsonDecode(decoded) as Map<String, dynamic>;
+    } catch (e) {
+      print('Error decoding JWT: $e');
+      return null;
+    }
+  }
+
   static Future<void> save(Session s) async {
     await _secure.write(key: _kAccess, value: s.accessToken);
     if (s.refreshToken != null) {
@@ -22,7 +40,10 @@ class SessionStorage {
 
   static Future<Session?> load() async {
     final access = await _secure.read(key: _kAccess);
-    if (access == null || access.isEmpty) return null;
+    if (access == null || access.isEmpty) {
+      print('SessionStorage.load() - No access token found');
+      return null;
+    }
 
     final refresh = await _secure.read(key: _kRefresh);
 
@@ -32,13 +53,30 @@ class SessionStorage {
     Map<String, dynamic>? profile;
     if (profileStr != null && profileStr.isNotEmpty) {
       profile = jsonDecode(profileStr) as Map<String, dynamic>;
+      print('SessionStorage.load() - Profile loaded: $profile');
+    } else {
+      print('SessionStorage.load() - No profile found in SharedPreferences');
     }
 
-    return Session.fromTokensAndProfile(
+    // Decode JWT to get userId if not in profile
+    int? userId = profile?['userId'] as int?;
+    if (userId == null) {
+      final jwtPayload = _decodeJwt(access);
+      if (jwtPayload != null && jwtPayload['sub'] != null) {
+        userId = int.tryParse(jwtPayload['sub'].toString());
+        print('SessionStorage.load() - userId from JWT: $userId');
+      }
+    }
+
+    final session = Session.fromTokensAndProfile(
       accessToken: access,
       refreshToken: refresh,
       profile: profile,
+      userIdFromToken: userId,
     );
+
+    print('SessionStorage.load() - Session userId: ${session.userId}');
+    return session;
   }
 
   static Future<void> clear() async {

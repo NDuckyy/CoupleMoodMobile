@@ -1,9 +1,9 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
-import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
@@ -34,13 +34,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordCtrl.text;
 
     final auth = context.read<AuthProvider>();
-    print("screen");
     final ok = await auth.login(email, password);
-    
+
     if (ok) {
       if (!mounted) return;
       showMsg(context, "Đăng nhập thành công", true);
-      Navigator.pushReplacementNamed(context, AppRoutes.home);
+      context.goNamed("home");
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
     }
@@ -68,21 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Container(
-                          //   width: 70,
-                          //   height: 70,
-                          //   decoration: const BoxDecoration(
-                          //     color: Color(0xFFB388EB),
-                          //     borderRadius: BorderRadius.all(
-                          //       Radius.circular(12),
-                          //     ),
-                          //   ),
-                          //   child: const Icon(
-                          //     Icons.favorite,
-                          //     color: Colors.white,
-                          //     size: 40,
-                          //   ),
-                          // ),
                           Image.asset(
                             'lib/assets/images/logo.png',
                             width: 100,
@@ -159,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                     filled: true,
                                     fillColor: Colors.white,
-                                    label: const Text("Tên đăng nhập"),
+                                    label: const Text("Email"),
                                     contentPadding: const EdgeInsets.symmetric(
                                       vertical: 10,
                                       horizontal: 16,
@@ -167,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   validator: (value) =>
                                       value == null || value.isEmpty
-                                      ? 'Vui lòng nhập tên đăng nhập'
+                                      ? 'Vui lòng nhập email'
                                       : null,
                                 ),
                                 const SizedBox(height: 16),
@@ -249,10 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 OutlinedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.register,
-                                    );
+                                    context.pushNamed("register");
                                   },
                                   style:
                                       OutlinedButton.styleFrom(

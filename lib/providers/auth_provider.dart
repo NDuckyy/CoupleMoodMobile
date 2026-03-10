@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:flutter/foundation.dart';
 import '../models/session.dart';
 import '../services/auth_service.dart';
@@ -21,11 +22,34 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print("provider");
       session = await AuthService.login(email, password);
       isLoading = false;
       notifyListeners();
       return true;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> logout() async {
+    session = null;
+    await AuthService.logout();
+    notifyListeners();
+  }
+
+  Future<bool> register(RegisterRequest request) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final ok = await AuthService.register(request);
+      isLoading = false;
+      notifyListeners();
+      return ok;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
       isLoading = false;
