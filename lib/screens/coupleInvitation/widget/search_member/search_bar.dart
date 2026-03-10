@@ -10,57 +10,49 @@ class UserSearchBar extends StatelessWidget {
     required this.onSearch,
   });
 
-  void _handleSearch() {
-    onSearch(controller.text.trim());
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xFFB388EB),
-            Color(0xFF8093F1),
-          ],
-        ),
-      ),
-      padding: const EdgeInsets.all(2),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
           borderRadius: BorderRadius.circular(30),
-        ),
-        child: TextField(
-          controller: controller,
-
-          onSubmitted: (_) => _handleSearch(),
-
-          textInputAction: TextInputAction.search,
-
-          decoration: InputDecoration(
-            hintText: "Tìm kiếm theo tên",
-
-            prefixIcon: IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: _handleSearch,
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFDC5F5), Color(0xFFF7AEF8)],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFFB388EB).withOpacity(0.25),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
             ),
-
-            // Clear
-            suffixIcon: controller.text.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      controller.clear();
-                    },
-                  )
-                : null,
-
-            border: InputBorder.none,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          ],
+        ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.search, color: Color(0xFF8093F1)),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  cursorColor: Color(0xFFB388EB),
+                  decoration: const InputDecoration(
+                    hintText: "Tìm kiếm bạn bè 💕",
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    border: InputBorder.none,
+                  ),
+                  onSubmitted: (value) {
+                    onSearch(value.isEmpty ? "" : value);
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),

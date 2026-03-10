@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../models/chat/conversation.dart';
 import '../../models/chat/conversation_member.dart';
@@ -9,13 +11,11 @@ import '../../services/chat/messaging_api_service.dart';
 class ConversationDetailsScreen extends StatefulWidget {
   final Conversation conversation;
 
-  const ConversationDetailsScreen({
-    super.key,
-    required this.conversation,
-  });
+  const ConversationDetailsScreen({super.key, required this.conversation});
 
   @override
-  State<ConversationDetailsScreen> createState() => _ConversationDetailsScreenState();
+  State<ConversationDetailsScreen> createState() =>
+      _ConversationDetailsScreenState();
 }
 
 class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
@@ -49,7 +49,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     );
 
     final chatProvider = context.read<ChatProvider>();
-    
+
     // Add all members at once
     final memberIds = users.map((u) => u.userId).toList();
     final success = await chatProvider.addMembersToGroup(
@@ -63,60 +63,45 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     if (success) {
       // Reload conversations to get updated member list
       await chatProvider.loadConversations();
-      
+
       // Find updated conversation
       final updated = chatProvider.conversations.firstWhere(
         (c) => c.id == _conversation.id,
         orElse: () => _conversation,
       );
-      
+
       setState(() {
         _conversation = updated;
       });
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Members added successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      showMsg(context, "Thêm thành viên thành công", true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(chatProvider.error ?? 'Failed to add members'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, "Lỗi khi thêm thành viên", false);
     }
   }
 
   Future<void> _removeMember(ConversationMember member) async {
     final currentUserId = context.read<ChatProvider>().currentUserId;
-    
+
     if (member.userId == currentUserId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Use "Leave Group" to remove yourself'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, 'Use "Leave Group" to remove yourself', false);
       return;
     }
 
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Member'),
-        content: Text('Are you sure you want to remove ${member.fullName ?? "User"} from this group?'),
+        title: const Text('Xóa thành viên'),
+        content: Text('Bạn có chắc muốn xóa ${member.fullName ?? "User"} ra khỏi nhóm không ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
-              'Remove',
+              'Xóa',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -145,23 +130,15 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     if (success) {
       setState(() {
         _conversation = _conversation.copyWith(
-          members: _conversation.members.where((m) => m.userId != member.userId).toList(),
+          members: _conversation.members
+              .where((m) => m.userId != member.userId)
+              .toList(),
         );
       });
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Member removed successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      showMsg(context, "Xóa thành viên thành công", true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(chatProvider.error ?? 'Failed to remove member'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, "Lỗi khi xóa thành viên", false);
     }
   }
 
@@ -169,17 +146,17 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Leave Group'),
-        content: const Text('Are you sure you want to leave this group?'),
+        title: const Text('Rời nhóm'),
+        content: const Text('Bạn có chắc muốn rời khỏi nhóm này không?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text(
-              'Leave',
+              'Rời nhóm',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -199,32 +176,23 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     final chatProvider = context.read<ChatProvider>();
     final currentUserId = chatProvider.currentUserId;
     if (currentUserId == null) return;
-    
+
     final success = await chatProvider.removeMemberFromGroup(
       _conversation.id,
       currentUserId,
     );
+    await chatProvider.loadConversations();
 
     if (!mounted) return;
-    Navigator.pop(context); // Close loading
+    context.pop(); // Close loading
 
     if (success) {
       // Navigate back to conversation list
       Navigator.popUntil(context, (route) => route.isFirst);
       
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You left the group'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      showMsg(context, "Bạn đã rời khỏi nhóm", true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(chatProvider.error ?? 'Failed to leave group'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, "Lỗi khi rời khỏi nhóm", false);
     }
   }
 
@@ -234,8 +202,10 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     final isGroup = _conversation.type == 'GROUP';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Conversation Details'),
+        backgroundColor: Colors.white,
+        title: const Text('Thông tin cuộc trò chuyện'),
         elevation: 0,
       ),
       body: ListView(
@@ -252,9 +222,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                   backgroundImage: _conversation.getDisplayAvatar() != null
                       ? NetworkImage(_conversation.getDisplayAvatar()!)
                       : null,
-                  onBackgroundImageError: _conversation.getDisplayAvatar() != null
+                  onBackgroundImageError:
+                      _conversation.getDisplayAvatar() != null
                       ? (exception, stackTrace) {
-                          print('Error loading conversation avatar: $exception');
+                          print(
+                            'Error loading conversation avatar: $exception',
+                          );
                         }
                       : null,
                   child: _conversation.getDisplayAvatar() == null
@@ -277,7 +250,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 if (isGroup) ...[
                   const SizedBox(height: 8),
                   Text(
-                    '${_conversation.members.length} members',
+                    '${_conversation.members.length} thành viên',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.grey[600],
@@ -298,7 +271,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Members',
+                    'Thành viên',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -307,12 +280,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                   TextButton.icon(
                     onPressed: _showAddMembersDialog,
                     icon: const Icon(Icons.person_add),
-                    label: const Text('Add'),
+                    label: const Text('Thêm thành viên'),
                   ),
                 ],
               ),
             ),
-            
+
             // Member list
             ..._conversation.members.map((member) {
               final isSelf = member.userId == currentUserId;
@@ -320,10 +293,12 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 leading: Stack(
                   children: [
                     CircleAvatar(
-                      backgroundImage: member.avatar != null && member.avatar!.isNotEmpty
+                      backgroundImage:
+                          member.avatar != null && member.avatar!.isNotEmpty
                           ? NetworkImage(member.avatar!)
                           : null,
-                      onBackgroundImageError: member.avatar != null && member.avatar!.isNotEmpty
+                      onBackgroundImageError:
+                          member.avatar != null && member.avatar!.isNotEmpty
                           ? (exception, stackTrace) {
                               print('Error loading member avatar: $exception');
                             }
@@ -349,17 +324,20 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                   ],
                 ),
                 title: Text(
-                  isSelf ? '${member.fullName ?? "User"} (You)' : (member.fullName ?? "User ${member.userId}"),
+                  isSelf ? '${member.fullName ?? "User"} (Bạn)' : (member.fullName ?? "User ${member.userId}"),
                   style: TextStyle(
                     fontWeight: isSelf ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
                 subtitle: member.joinedAt != null && !member.isOnline
-                    ? Text('Last seen: ${_formatLastSeen(member.joinedAt!)}')
+                    ? Text('Lần cuối đăng nhập: ${_formatLastSeen(member.joinedAt!)}')
                     : null,
                 trailing: !isSelf
                     ? IconButton(
-                        icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                        icon: const Icon(
+                          Icons.remove_circle_outline,
+                          color: Colors.red,
+                        ),
                         onPressed: () => _removeMember(member),
                       )
                     : null,
@@ -372,7 +350,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
             ListTile(
               leading: const Icon(Icons.exit_to_app, color: Colors.red),
               title: const Text(
-                'Leave Group',
+                'Rời nhóm',
                 style: TextStyle(color: Colors.red),
               ),
               onTap: _leaveGroup,
@@ -386,15 +364,15 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
   String _formatLastSeen(DateTime lastSeen) {
     final now = DateTime.now();
     final difference = now.difference(lastSeen);
-    
+
     if (difference.inMinutes < 1) {
-      return 'Just now';
+      return 'Truy cập gần đây';
     } else if (difference.inHours < 1) {
-      return '${difference.inMinutes}m ago';
+      return '${difference.inMinutes} phút trước';
     } else if (difference.inDays < 1) {
-      return '${difference.inHours}h ago';
+      return '${difference.inHours} tiếng trước';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
+      return '${difference.inDays} ngày trước';
     } else {
       return '${lastSeen.day}/${lastSeen.month}/${lastSeen.year}';
     }
@@ -405,9 +383,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
 class _AddMembersDialog extends StatefulWidget {
   final List<int> existingMemberIds;
 
-  const _AddMembersDialog({
-    required this.existingMemberIds,
-  });
+  const _AddMembersDialog({required this.existingMemberIds});
 
   @override
   State<_AddMembersDialog> createState() => _AddMembersDialogState();
@@ -449,7 +425,9 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
       setState(() {
         _searchResults.clear();
         _searchResults.addAll(
-          response.data.where((user) => !widget.existingMemberIds.contains(user.userId)),
+          response.data.where(
+            (user) => !widget.existingMemberIds.contains(user.userId),
+          ),
         );
         _isSearching = false;
       });
@@ -485,7 +463,7 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Add Members',
+                  'Thêm thành viên ',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
@@ -501,7 +479,7 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
               controller: _searchController,
               onChanged: _searchUsers,
               decoration: InputDecoration(
-                hintText: 'Search users...',
+                hintText: 'Tìm kiếm bạn bè',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -525,9 +503,7 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
             ],
 
             // Search results
-            Expanded(
-              child: _buildSearchResults(),
-            ),
+            Expanded(child: _buildSearchResults()),
 
             // Add button
             SizedBox(
@@ -536,7 +512,7 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
                 onPressed: _selectedUsers.isEmpty
                     ? null
                     : () => Navigator.pop(context, _selectedUsers),
-                child: Text('Add ${_selectedUsers.length} member(s)'),
+                child: Text('Thêm ${_selectedUsers.length} thành viên'),
               ),
             ),
           ],
@@ -551,15 +527,20 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
     }
 
     if (_error != null) {
-      return Center(child: Text('Error: $_error', style: const TextStyle(color: Colors.red)));
+      return Center(
+        child: Text(
+          'Error: $_error',
+          style: const TextStyle(color: Colors.red),
+        ),
+      );
     }
 
     if (_searchResults.isEmpty && _searchController.text.isEmpty) {
-      return const Center(child: Text('Search for users to add'));
+      return const Center(child: Text('Tìm kiếm bạn bè để thêm vào nhóm'));
     }
 
     if (_searchResults.isEmpty) {
-      return const Center(child: Text('No users found'));
+      return const Center(child: Text('Không tìm thấy người bạn muốn tìm'));
     }
 
     return ListView.builder(
@@ -570,10 +551,12 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
 
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            backgroundImage:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
-            onBackgroundImageError: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            onBackgroundImageError:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {
                     print('Error loading add member avatar: $exception');
                   }

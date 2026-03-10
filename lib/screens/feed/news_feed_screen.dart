@@ -1,4 +1,7 @@
+import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
+import 'package:couple_mood_mobile/widgets/feed/create_post_box.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/post/post_provider.dart';
 import '../../widgets/feed/post_card.dart';
@@ -49,16 +52,40 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 itemCount:
-                    provider.posts.length + (provider.loadingMore ? 1 : 0),
+                    provider.posts.length + 1 + (provider.loadingMore ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == provider.posts.length) {
+                  /// Create Post Box
+                  if (index == 0) {
+                    return CreatePostBox(
+                      onTap: () async {
+                        final created = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const CreateEditPostScreen(),
+                          ),
+                        );
+
+                        if (created == true) {
+                          context.read<PostProvider>().loadFeeds();
+                        }
+                      },
+                      onAvatarTap: () {
+                        context.pushNamed("my_posts");
+                      },
+                    );
+                  }
+
+                  /// Post item
+                  final postIndex = index - 1;
+
+                  if (postIndex == provider.posts.length) {
                     return const Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
 
-                  final post = provider.posts[index];
+                  final post = provider.posts[postIndex];
 
                   return PostCard(post: post);
                 },

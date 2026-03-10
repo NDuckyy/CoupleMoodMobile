@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
 import 'api_client.dart';
+import 'package:couple_mood_mobile/services/notification_service.dart';
 
 class AuthService {
   static Future<Session> login(String email, String password) async {
@@ -23,12 +24,14 @@ class AuthService {
     final session = Session(
       accessToken: accessToken,
       refreshToken: refreshToken,
-      userId: data['userId'] as int?,
       gender: data['gender']?.toString(),
-      avartarUrl: data['avartarUrl']?.toString() ?? data['imageUrl']?.toString(),
+      avatarUrl: data['avatarUrl']?.toString(),
+      fullName: data['fullName']?.toString(),
+      dateOfBirth: data['dateOfBirth']?.toString(),
+      inviteCode: data['inviteCode']?.toString(),
     );
     await SessionStorage.save(session);
-
+    await NotificationService.sendTokenToServerAfterLogin();
     return session;
   }
 

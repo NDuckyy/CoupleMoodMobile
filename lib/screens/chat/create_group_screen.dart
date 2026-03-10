@@ -1,9 +1,12 @@
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
+import 'package:couple_mood_mobile/widgets/empty_widget.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../providers/chat/chat_provider.dart';
 import '../../models/chat/user_search_result.dart';
 import '../../services/chat/messaging_api_service.dart';
-import 'chat_screen.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -63,12 +66,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   void _addMember(UserSearchResult user) {
     if (_selectedMembers.any((m) => m.userId == user.userId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User already added'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Người này đã được thêm vào", false);
       return;
     }
 
@@ -89,22 +87,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final groupName = _groupNameController.text.trim();
 
     if (groupName.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter a group name'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please enter a group name", false);
       return;
     }
 
     if (_selectedMembers.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please add at least one member'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      showMsg(context, "Please add at least a member", false);
       return;
     }
 
@@ -115,7 +103,8 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     try {
       final chatProvider = context.read<ChatProvider>();
       final memberIds = _selectedMembers.map((m) => m.userId).toList();
-      
+
+
       final conversation = await chatProvider.createGroupConversation(
         name: groupName,
         memberIds: memberIds,
@@ -125,45 +114,33 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
       if (conversation != null) {
         // Navigate to the new group chat
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(conversation: conversation),
-          ),
-        );
+        context.pop();
       } else {
         setState(() {
           _isCreating = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(chatProvider.error ?? 'Failed to create group'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        showMsg(context, "Không thể tạo group chat bây giờ", false);
       }
     } catch (e) {
       setState(() {
         _isCreating = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      showMsg(context, e.toString(), false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final canCreate = _groupNameController.text.trim().isNotEmpty && 
-                      _selectedMembers.isNotEmpty && 
-                      !_isCreating;
+    final canCreate =
+        _groupNameController.text.trim().isNotEmpty &&
+        _selectedMembers.isNotEmpty &&
+        !_isCreating;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Create Group'),
+        backgroundColor: Colors.white,
+        title: const Text('Tạo nhóm trò chuyện'),
         elevation: 0,
         actions: [
           TextButton(
@@ -174,13 +151,13 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
                     ),
                   )
                 : Text(
-                    'Create',
+                    'Tạo nhóm',
                     style: TextStyle(
-                      color: canCreate ? Colors.white : Colors.white54,
+                      color: canCreate ? Colors.black : Colors.grey,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -189,115 +166,121 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         ],
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Group name input
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: TextField(
-              controller: _groupNameController,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                labelText: 'Group Name',
-                hintText: 'Enter group name',
-                prefixIcon: const Icon(Icons.group),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFDC5F5), Color(0xFFF7AEF8)],
                 ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFB388EB).withOpacity(0.25),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.92),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: TextField(
+                  controller: _groupNameController,
+                  onChanged: (_) => setState(() {}),
+                  cursorColor: const Color(0xFFB388EB),
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.group, color: Color(0xFF8093F1)),
+                    hintText: "Nhập tên nhóm 💕",
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
+                    border: InputBorder.none,
+                    counterText: "",
+                  ),
+                  maxLength: 100,
                 ),
               ),
-              maxLength: 100,
             ),
           ),
-
-          const Divider(height: 1),
+          const SizedBox(height: 16),
 
           // Selected members
+
+          // Search members
+          Container(
+            color: Colors.white,
+            child: UserSearchBar(
+              controller: _searchController,
+              onSearch: (value) {
+                _searchUsers(value);
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+
           if (_selectedMembers.isNotEmpty) ...[
             Container(
+              color: Colors.white,
               padding: const EdgeInsets.all(16),
-              color: Colors.grey[50],
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Members (${_selectedMembers.length})',
+                    'Thành viên (${_selectedMembers.length})',
                     style: const TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _selectedMembers.map((member) {
-                      return Chip(
-                        avatar: CircleAvatar(
-                          backgroundImage: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
-                              ? NetworkImage(member.avatarUrl!)
-                              : null,
-                          onBackgroundImageError: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
-                              ? (exception, stackTrace) {
-                                  print('Error loading chip avatar: $exception');
-                                }
-                              : null,
-                          child: member.avatarUrl == null || member.avatarUrl!.isEmpty
-                              ? Text(member.fullName[0].toUpperCase())
-                              : null,
-                        ),
-                        label: Text(member.fullName),
-                        onDeleted: () => _removeMember(member),
-                        deleteIcon: const Icon(Icons.close, size: 18),
-                      );
-                    }).toList(),
+                  const SizedBox(height: 10),
+
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: _selectedMembers.map((member) {
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Chip(
+                            backgroundColor: Color(0xFF8093F1),
+                            side: BorderSide(color: Color(0xFF8093F1), width: 1),
+                            avatar: CircleAvatar(
+                              radius: 12,
+                              backgroundImage:
+                                  member.avatarUrl != null &&
+                                      member.avatarUrl!.isNotEmpty
+                                  ? NetworkImage(member.avatarUrl!)
+                                  : null,
+                              child:
+                                  member.avatarUrl == null ||
+                                      member.avatarUrl!.isEmpty
+                                  ? Text(
+                                      member.fullName[0].toUpperCase(),
+                                      style: const TextStyle(fontSize: 12),
+                                    )
+                                  : null,
+                            ),
+                            label: Text(
+                              member.fullName,
+                              style: const TextStyle(fontSize: 13, color: Colors.white),
+                            ),
+                            deleteIcon: const Icon(Icons.close, size: 16),
+                            onDeleted: () => _removeMember(member),
+                          ),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1),
           ],
-
-          // Search members
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: Colors.white,
-            child: TextField(
-              controller: _searchController,
-              onChanged: _searchUsers,
-              decoration: InputDecoration(
-                hintText: 'Search users to add...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() {
-                            _searchResults.clear();
-                          });
-                        },
-                      )
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-              ),
-            ),
-          ),
-
           // Search results
-          Expanded(
-            child: _buildSearchResults(),
-          ),
+          Expanded(child: _buildSearchResults()),
         ],
       ),
     );
@@ -316,7 +299,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error: $_error',
+              'Lỗi: $_error',
               textAlign: TextAlign.center,
               style: const TextStyle(color: Colors.red),
             ),
@@ -329,7 +312,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                 }
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
+              label: const Text('Thử lại'),
             ),
           ],
         ),
@@ -344,7 +327,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
             Icon(Icons.person_search, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Search for users to add',
+              'Tìm kiếm bạn bè để thêm vào nhóm',
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
           ],
@@ -353,17 +336,16 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
 
     if (_searchResults.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.person_off, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'No users found',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+      return SingleChildScrollView(
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: Center(
+            child: EmptyStateWidget(
+              icon: Icons.person_off,
+              title: "Không tìm thấy người dùng",
+              description: "Hãy thử tên người dùng khác",
             ),
-          ],
+          ),
         ),
       );
     }
@@ -376,10 +358,12 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
         return ListTile(
           leading: CircleAvatar(
-            backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            backgroundImage:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? NetworkImage(user.avatarUrl!)
                 : null,
-            onBackgroundImageError: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+            onBackgroundImageError:
+                user.avatarUrl != null && user.avatarUrl!.isNotEmpty
                 ? (exception, stackTrace) {
                     print('Error loading search result avatar: $exception');
                   }

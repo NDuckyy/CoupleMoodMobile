@@ -1,8 +1,10 @@
+import 'package:couple_mood_mobile/models/post/post_detail_model.dart';
+
 import 'author_model.dart';
 import 'media_model.dart';
 
 class PostModel {
-  final double totalScore;
+  final double? totalScore;
   final int id;
   final String content;
   final List<MediaModel> mediaPayload;
@@ -15,10 +17,10 @@ class PostModel {
   final int authorId;
   final bool isLikedByMe;
   final bool isOwner;
-  final AuthorModel author;
+  final AuthorModel? author;
 
   PostModel({
-    required this.totalScore,
+    this.totalScore,
     required this.id,
     required this.content,
     required this.mediaPayload,
@@ -31,7 +33,7 @@ class PostModel {
     required this.authorId,
     required this.isLikedByMe,
     required this.isOwner,
-    required this.author,
+    this.author,
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
@@ -51,7 +53,61 @@ class PostModel {
       authorId: json['authorId'],
       isLikedByMe: json['isLikedByMe'] ?? false,
       isOwner: json['isOwner'] ?? false,
-      author: AuthorModel.fromJson(json['author'] ?? {}),
+      author: json['author'] != null
+          ? AuthorModel.fromJson(json['author'])
+          : null,
+    );
+  }
+
+  PostModel copyWith({
+    double? totalScore,
+    int? id,
+    String? content,
+    List<MediaModel>? mediaPayload,
+    String? locationName,
+    List<String>? hashTags,
+    List<String>? topic,
+    int? likeCount,
+    int? commentCount,
+    DateTime? createdAt,
+    int? authorId,
+    bool? isLikedByMe,
+    bool? isOwner,
+    AuthorModel? author,
+  }) {
+    return PostModel(
+      totalScore: totalScore ?? this.totalScore,
+      id: id ?? this.id,
+      content: content ?? this.content,
+      mediaPayload: mediaPayload ?? this.mediaPayload,
+      locationName: locationName ?? this.locationName,
+      hashTags: hashTags ?? this.hashTags,
+      topic: topic ?? this.topic,
+      likeCount: likeCount ?? this.likeCount,
+      commentCount: commentCount ?? this.commentCount,
+      createdAt: createdAt ?? this.createdAt,
+      authorId: authorId ?? this.authorId,
+      isLikedByMe: isLikedByMe ?? this.isLikedByMe,
+      isOwner: isOwner ?? this.isOwner,
+      author: author ?? this.author,
+    );
+  }
+
+  factory PostModel.fromDetail(PostDetailModel detail) {
+    return PostModel(
+      id: detail.id,
+      content: detail.content,
+      mediaPayload: detail.mediaPayload,
+      locationName: detail.locationName,
+      hashTags: detail.hashTags,
+      topic: detail.topic,
+      likeCount: detail.likeCount,
+      commentCount: detail.commentCount,
+      createdAt: detail.createdAt,
+      authorId: detail.authorId,
+      isLikedByMe: detail.isLikedByMe,
+      isOwner: detail.isOwner,
+      author: detail.author,
     );
   }
 }

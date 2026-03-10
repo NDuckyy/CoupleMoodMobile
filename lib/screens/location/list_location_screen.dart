@@ -1,9 +1,13 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
-import 'package:couple_mood_mobile/screens/location/widget/venue_card.dart';
+import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
+import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
+import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/loading.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -53,6 +57,11 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
     });
   }
 
+  void _onSearch(String query) {
+    final recommendationProvider = context.read<RecommendationProvider>();
+    recommendationProvider.searchLocations(query);
+  }
+
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -88,7 +97,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
-    final recs = page?.items ?? [];
+    final recs = List.of(page?.items ?? []);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -110,68 +119,18 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
               ],
             ),
 
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE1E1),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm địa điểm',
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
 
             /// MOOD
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4FB),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Text(
-                    'Tâm trạng cặp đôi hiện tại là: ${moodProvider.userCurrentMood ?? "Đang tải..."}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
+              child: CurrentMoodBanner(mood: moodProvider.userCurrentMood),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
             /// CONTENT
             if (recommendationProvider.isLoading)
-              const SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(child: CircularProgressIndicator()),
-              )
+              const SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recommendationProvider.error != null)
               SliverFillRemaining(
                 hasScrollBody: false,
@@ -190,15 +149,17 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             else
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                sliver: SliverList.separated(
-                  itemCount:
+                sliver: SliverMasonryGrid.count(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childCount:
                       recs.length +
                       (recommendationProvider.isLoadingMore ? 1 : 0),
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCard(r: r, maxline: 2);
+                      return VenueCardGrid(r: r, maxline: 2);
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

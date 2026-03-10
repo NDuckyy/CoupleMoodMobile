@@ -1,13 +1,41 @@
-//bầy con provider
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+//---Provider
+//auth
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
+
+//Recommendation
+import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+
+//Dateplan
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 
+//Collection
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
 
-import 'package:couple_mood_mobile/providers/member_provider.dart';
+//Post
+import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 
+//test
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+
+//Member, user
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:couple_mood_mobile/providers/member_provider.dart';
+
+//mood
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
+
+//---Screen
+//Chat
+import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/create_group_screen.dart';
+import 'package:couple_mood_mobile/screens/chat/user_search_screen.dart';
 
 //Couple invatation
 import 'package:couple_mood_mobile/screens/coupleInvitation/receive_invitation_screen.dart';
@@ -33,35 +61,43 @@ import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_sc
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/my_posts_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_screen.dart';
 
-// lú quá Nghĩa tự sort lại đi
+// invitation
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
-import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
-import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
-import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+
+//bài test, personality
 import 'package:couple_mood_mobile/screens/test/test_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_result_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
-import 'package:couple_mood_mobile/providers/auth_provider.dart';
-import 'package:couple_mood_mobile/providers/mood_provider.dart';
-import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+//challenge
+import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
+//auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
 
+//mood
 import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
+//package, advertisement, subscription..
+import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+
+//home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
+import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
+import 'package:couple_mood_mobile/screens/review/review_screen.dart';
+import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -86,7 +122,9 @@ GoRouter createRouter(BuildContext context) {
       final loc = state.uri.toString();
 
       final isAuthRoute =
-          loc.startsWith('/login') || loc.startsWith('/register');
+          loc.startsWith('/login') ||
+          loc.startsWith('/register') ||
+          loc.startsWith('/guest');
       final isSplash = loc == '/splash';
 
       // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
@@ -95,7 +133,7 @@ GoRouter createRouter(BuildContext context) {
       }
 
       // Chưa login mà không ở auth routes => đá về login
-      if (!isLoggedIn && !isAuthRoute) return '/login';
+      if (!isLoggedIn && !isAuthRoute) return '/guest';
 
       // Đã login mà còn ở login/register => đá về home
       if (isLoggedIn && isAuthRoute) return '/home';
@@ -288,6 +326,14 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
       GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/challenge',
+        name: 'challenge',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: ChallengeScreen());
+        },
+      ),
+      GoRoute(
         path: '/filter-location',
         name: 'filter_location',
         pageBuilder: (_, __) {
@@ -417,6 +463,56 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
 
+      GoRoute(
+        path: '/direct',
+        name: 'direct',
+        pageBuilder: (_, __) => const MaterialPage(child: UserSearchScreen()),
+      ),
+
+      GoRoute(
+        path: '/group',
+        name: 'group',
+        pageBuilder: (_, __) => const MaterialPage(child: CreateGroupScreen()),
+      ),
+
+      GoRoute(
+        path: '/chat-screen',
+        name: 'chat_screen',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return ChatScreen(conversation: extra['conversation']);
+        },
+      ),
+
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/review-venue',
+        name: 'review_venue',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return ReviewScreen(
+            venueLocationId: extra['venueLocationId'],
+            checkInId: extra['checkInId'],
+          );
+        },
+      ),
+      GoRoute(
+        path: '/advertisement-detail',
+        name: 'advertisement_detail',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return AdvertisementDetailScreen(
+            advertisementId: extra['advertisementId'],
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/guest',
+        name: 'guest',
+        pageBuilder: (_, __) => const MaterialPage(child: GuestScreen()),
+      ),
+
       ShellRoute(
         parentNavigatorKey: _rootNavKey,
         builder: (context, state, child) {
@@ -483,8 +579,11 @@ GoRouter createRouter(BuildContext context) {
       ShellRoute(
         parentNavigatorKey: _rootNavKey,
         builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => PostProvider(),
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => PostProvider()),
+              ChangeNotifierProvider(create: (_) => UserProvider()..fetchMe()),
+            ],
             child: child,
           );
         },
@@ -493,6 +592,31 @@ GoRouter createRouter(BuildContext context) {
             path: '/newsfeed',
             name: 'newsfeed',
             pageBuilder: (_, __) => const MaterialPage(child: NewsFeedScreen()),
+          ),
+
+          GoRoute(
+            name: "my_posts",
+            path: "/my-posts",
+            builder: (context, state) {
+              return ChangeNotifierProvider(
+                create: (_) => MyPostsProvider(),
+                child: const MyPostsScreen(),
+              );
+            },
+          ),
+          GoRoute(
+            path: '/post/:postId',
+            name: 'post_detail',
+            builder: (context, state) {
+              final postId = int.parse(state.pathParameters['postId']!);
+
+              return ChangeNotifierProvider(
+                create: (_) =>
+                    PostDetailProvider(context.read<PostProvider>())
+                      ..init(postId),
+                child: PostDetailScreen(postId: postId),
+              );
+            },
           ),
         ],
       ),
@@ -514,7 +638,7 @@ class MainShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final keyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
-  
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: navigationShell,
@@ -617,4 +741,13 @@ class _Placeholder extends StatelessWidget {
       body: Center(child: Text('$title (todo)')),
     );
   }
+}
+
+void navigateToReviewVenue({required int venueId, required int checkInId}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed(
+    'review_venue',
+    extra: {'venueLocationId': venueId, 'checkInId': checkInId},
+  );
 }

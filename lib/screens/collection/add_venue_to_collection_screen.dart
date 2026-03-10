@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class AddVenueToCollectionScreen extends StatefulWidget {
   final int collectionId;
@@ -43,16 +44,10 @@ class _AddVenueToCollectionScreenState
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          content: Text(
-            "Bạn đã thêm ${selectedIds.length} địa điểm vào \"${widget.collectionName ?? 'bộ sưu tập'}\"",
-          ),
-        ),
+      showMsg(
+        context,
+        "Bạn đã thêm ${selectedIds.length} địa điểm vào \"${widget.collectionName ?? 'bộ sưu tập'}\"",
+        true,
       );
 
       await Future.delayed(const Duration(milliseconds: 600));
@@ -62,9 +57,7 @@ class _AddVenueToCollectionScreenState
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showMsg(context, e.toString(), false);
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/date_plan_over_view.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/pagination_control.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
@@ -39,7 +40,10 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
 
   void _sendDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
+    final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.sendDatePlan(datePlanId);
+    final conversationId = await chatProvider.getCoupleConversationId();
+    await chatProvider.sendDatePlan(conversationId, "", datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
       showMsg(context, datePlanProvider.error!, false);

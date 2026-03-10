@@ -6,6 +6,7 @@ class NewConversationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -15,7 +16,7 @@ class NewConversationDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'New Conversation',
+              'Cuôc trò chuyện mới',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -26,8 +27,8 @@ class NewConversationDialog extends StatelessWidget {
             // Direct Message option
             _OptionTile(
               icon: Icons.person,
-              title: 'Direct Message',
-              subtitle: 'Start a conversation with one person',
+              title: 'Tin nhắn trực tiếp',
+              subtitle: 'Bắt đầu một cuộc trò chuyện với một người',
               onTap: () {
                 Navigator.pop(context, 'direct');
               },
@@ -38,8 +39,8 @@ class NewConversationDialog extends StatelessWidget {
             // Group Chat option
             _OptionTile(
               icon: Icons.group,
-              title: 'Group Chat',
-              subtitle: 'Create a group with multiple people',
+              title: 'Nhóm trò chuyện',
+              subtitle: 'Tạo một nhóm với nhiều người',
               onTap: () {
                 Navigator.pop(context, 'group');
               },
@@ -50,7 +51,7 @@ class NewConversationDialog extends StatelessWidget {
             // Cancel button
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
           ],
         ),

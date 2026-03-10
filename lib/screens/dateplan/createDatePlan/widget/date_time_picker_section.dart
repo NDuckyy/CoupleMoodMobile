@@ -17,10 +17,7 @@ class DateTimePickerSection extends StatelessWidget {
       children: [
         const Text(
           'Thời gian hẹn hò',
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
+          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.black87),
         ),
         const SizedBox(height: 8),
         DateTimeField(label: 'Bắt đầu', onChanged: onStartChanged),
@@ -77,8 +74,11 @@ class _DateTimeFieldState extends State<DateTimeField> {
       pickedTime.minute,
     );
 
+    final utcTime = result.toUtc();
+
     setState(() => _selectedDateTime = result);
-    widget.onChanged(result);
+
+    widget.onChanged(utcTime);
   }
 
   String _displayText() {

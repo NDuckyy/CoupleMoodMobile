@@ -36,14 +36,15 @@ class _WeekSelectorState extends State<WeekSelector> {
       _centerSelected();
     });
   }
-
-  // Generate days
+  
+  //Gen ra 30 ngày bắt đầu 3 ngày trc
   List<DateTime> _generateDays() {
-    final startOfWeek = baseDate.subtract(Duration(days: baseDate.weekday - 1));
+    final startDate = baseDate.subtract(const Duration(days: 3));
 
-    return List.generate(30, (index) => startOfWeek.add(Duration(days: index)));
+    return List.generate(30, (index) => startDate.add(Duration(days: index)));
   }
 
+  // Check xem nó có cùng ngày hôm nay ko
   bool _isSameDate(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
@@ -115,10 +116,7 @@ class _WeekSelectorState extends State<WeekSelector> {
           child: Text(
             capitalized,
             key: ValueKey(selectedDate.month),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
 

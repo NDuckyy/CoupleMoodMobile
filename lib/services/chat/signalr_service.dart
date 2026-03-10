@@ -148,12 +148,16 @@ class SignalRService {
 
     // UserTyping event
     _hubConnection!.on('UserTyping', (arguments) {
-      if (arguments != null && arguments.length >= 4) {
+      print('SignalR: UserTyping event received - arguments: $arguments');
+      if (arguments != null && arguments.isNotEmpty) {
         try {
-          final conversationId = arguments[0] as int;
-          final userId = arguments[1] as int;
-          final userName = arguments[2] as String;
-          final isTyping = arguments[3] as bool;
+          final data = arguments[0] as Map<String, dynamic>;
+          final conversationId = data['conversationId'] as int;
+          final userId = data['userId'] as int;
+          final userName = data['username'] as String;
+          final isTyping = data['isTyping'] as bool;
+          
+          print('SignalR: Typing indicator - conversationId: $conversationId, userId: $userId, userName: $userName, isTyping: $isTyping');
           
           _userTypingController.add(TypingIndicator(
             conversationId: conversationId,
@@ -163,26 +167,45 @@ class SignalRService {
           ));
         } catch (e) {
           print('SignalR: Error parsing typing indicator - $e');
+          print('SignalR: Arguments structure: $arguments');
         }
       }
     });
 
     // UserOnline event
     _hubConnection!.on('UserOnline', (arguments) {
-      if (arguments != null && arguments.length >= 3) {
+      print('SignalR: UserOnline event received - arguments: $arguments');
+      if (arguments != null && arguments.isNotEmpty) {
         try {
-          final userId = arguments[0] as int;
-          final userName = arguments[1] as String;
-          final isOnline = arguments[2] as bool;
-          
-          _userOnlineController.add(UserOnlineEvent(
-            userId: userId,
-            userName: userName,
-            isOnline: isOnline,
-          ));
-          print('SignalR: User online status - $userId ($userName): $isOnline');
+          // Try object format first
+          if (arguments[0] is Map<String, dynamic>) {
+            final data = arguments[0] as Map<String, dynamic>;
+            final userId = data['userId'] as int;
+            final userName = data['username'] as String? ?? data['userName'] as String? ?? '';
+            final isOnline = data['isOnline'] as bool;
+            
+            _userOnlineController.add(UserOnlineEvent(
+              userId: userId,
+              userName: userName,
+              isOnline: isOnline,
+            ));
+            print('SignalR: User online status - $userId ($userName): $isOnline');
+          } else if (arguments.length >= 3) {
+            // Fallback to multiple arguments format
+            final userId = arguments[0] as int;
+            final userName = arguments[1] as String;
+            final isOnline = arguments[2] as bool;
+            
+            _userOnlineController.add(UserOnlineEvent(
+              userId: userId,
+              userName: userName,
+              isOnline: isOnline,
+            ));
+            print('SignalR: User online status - $userId ($userName): $isOnline');
+          }
         } catch (e) {
           print('SignalR: Error parsing user online - $e');
+          print('SignalR: Arguments structure: $arguments');
         }
       }
     });
@@ -256,21 +279,23 @@ class SignalRService {
 
     // MessageDeleted event
     _hubConnection!.on('MessageDeleted', (arguments) {
-      if (arguments != null && arguments.length >= 2) {
-        try {
-          final conversationId = arguments[0] as int;
-          final messageId = arguments[1] as int;
-          
-          _messageDeletedController.add(MessageDeletedEvent(
-            conversationId: conversationId,
-            messageId: messageId,
-          ));
-          print('SignalR: Message deleted - $messageId');
-        } catch (e) {
-          print('SignalR: Error parsing message deleted - $e');
-        }
-      }
-    });
+  if (arguments != null && arguments.isNotEmpty) {
+    try {
+      final data = arguments[0] as Map<String, dynamic>;
+      final messageId = data['messageId'] as int;
+      final conversationId = data['conversationId'] as int;
+      
+      _messageDeletedController.add(MessageDeletedEvent(
+        conversationId: conversationId,
+        messageId: messageId,
+      ));
+      print('SignalR: Message deleted - messageId: $messageId, conversationId: $conversationId');
+    } catch (e) {
+      print('SignalR: Error parsing message deleted - $e');
+      print('SignalR: Arguments structure: $arguments');
+    }
+  }
+});
 
     // NewConversation event
     _hubConnection!.on('NewConversation', (arguments) {
@@ -321,10 +346,13 @@ class SignalRService {
   /// Send typing indicator
   Future<void> sendTypingIndicator(int conversationId, bool isTyping) async {
     if (!_isConnected || _hubConnection == null) {
+      print('SignalR: Cannot send typing indicator - not connected');
       return;
     }
     try {
+      print('SignalR: Sending typing indicator - conversationId: $conversationId, isTyping: $isTyping');
       await _hubConnection!.invoke('SendTypingIndicator', args: [conversationId, isTyping]);
+      print('SignalR: Typing indicator sent successfully');
     } catch (e) {
       print('SignalR: Error sending typing indicator - $e');
     }

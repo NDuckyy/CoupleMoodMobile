@@ -1,9 +1,6 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
-import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 class InvitationCard extends StatelessWidget {
   final VoidCallback onAccept;

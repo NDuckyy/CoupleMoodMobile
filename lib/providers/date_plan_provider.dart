@@ -288,4 +288,38 @@ class DatePlanProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> acceptDatePlan(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService().acceptDatePlan(datePlanId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> rejectDatePlan(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService().rejectDatePlan(datePlanId);
+      if (response.code != 200) {
+        error = response.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

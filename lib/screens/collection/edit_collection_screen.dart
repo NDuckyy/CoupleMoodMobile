@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../models/collection/collection_item.dart';
 import '../../providers/collection/collection_provider.dart';
 import '../../utils/upload_util.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class EditCollectionScreen extends StatefulWidget {
   final CollectionItem collection;
@@ -81,9 +82,7 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
 
       if (mounted) context.pop(true);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.toString())));
+      showMsg(context, e.toString(), false);
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

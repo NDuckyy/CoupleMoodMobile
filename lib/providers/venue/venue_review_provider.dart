@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/venue/review_request.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review_summary.dart';
@@ -31,6 +32,25 @@ class VenueReviewProvider extends ChangeNotifier {
         summary = res.data!.summary;
         pagination = res.data!.reviews;
       } else {
+        error = res.message;
+      }
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> submitReview(ReviewRequest request) async {
+    loading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final res = await VenueReviewService.submitVenueReview(request);
+      
+      if (res.code != 200) {
         error = res.message;
       }
     } catch (e) {

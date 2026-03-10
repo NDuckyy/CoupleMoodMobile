@@ -1,12 +1,15 @@
 import 'package:couple_mood_mobile/models/advertisement/advertisement.dart';
+import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SpecialEvent extends StatelessWidget {
   final List<Advertisement> advertisements;
   const SpecialEvent({super.key, required this.advertisements});
   @override
   Widget build(BuildContext context) {
+    final advertisementProvider = context.watch<AdvertisementProvider>();
     return Column(
       children: [
         Padding(
@@ -21,11 +24,16 @@ class SpecialEvent extends StatelessWidget {
             ],
           ),
         ),
-        advertisements.isEmpty
+        advertisements.isEmpty && !advertisementProvider.isLoadingSpecialEvent
             ? EmptyStateWidget(
                 icon: Icons.event,
                 title: "Không có sự kiện đặc biệt nào",
-                description: "Hãy quay lại sau để xem các sự kiện mới nhất!",
+                description: "",
+              )
+            : advertisements.isEmpty && advertisementProvider.isLoadingSpecialEvent
+            ? const SizedBox(
+                height: 140,
+                child: Center(child: CircularProgressIndicator()),
               )
             : Container(
                 height: 140,

@@ -4,6 +4,7 @@ class RecommendationRequest {
   final double? radiusKm;
   final String? area;
   final int? limit;
+  final String? query;
 
   RecommendationRequest({
     this.latitude,
@@ -11,6 +12,7 @@ class RecommendationRequest {
     this.radiusKm,
     this.area,
     this.limit,
+    this.query,
   });
 
   Map<String, dynamic> toJson() {
@@ -20,6 +22,7 @@ class RecommendationRequest {
       if (radiusKm != null) 'radiusKm': radiusKm,
       if (area != null) 'area': area,
       if (limit != null) 'limit': limit,
+      if (query != null) 'query': query,
     };
   }
 }
