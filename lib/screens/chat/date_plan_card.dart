@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -127,7 +128,7 @@ class DatePlanChatCard extends StatelessWidget {
 
                 /// BUDGET
                 Text(
-                  "Ngân sách: ${datePlanInfo["estimatedBudget"]} VND",
+                  "Ngân sách: ${CurrencyUtils.formatVND(datePlanInfo["estimatedBudget"])}",
                   style: TextStyle(color: Colors.grey[600], fontSize: 13),
                 ),
 

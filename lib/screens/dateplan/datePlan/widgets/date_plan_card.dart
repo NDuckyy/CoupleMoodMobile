@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/dialogs/show_confirm_delete_dialog.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/status_dot.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +127,7 @@ class DatePlanCard extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 item.estimatedBudget > 0
-                    ? '${item.estimatedBudget} đ'
+                    ? '${CurrencyUtils.formatVND(item.estimatedBudget)}'
                     : 'Chưa đặt ngân sách',
                 style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
               ),
