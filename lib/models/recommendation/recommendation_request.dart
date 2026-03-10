@@ -5,6 +5,8 @@ class RecommendationRequest {
   final String? area;
   final int? limit;
   final String? query;
+  final int? page;
+  final int? pageSize;
 
   RecommendationRequest({
     this.latitude,
@@ -13,6 +15,8 @@ class RecommendationRequest {
     this.area,
     this.limit,
     this.query,
+    this.page,
+    this.pageSize,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,6 +27,8 @@ class RecommendationRequest {
       if (area != null) 'area': area,
       if (limit != null) 'limit': limit,
       if (query != null) 'query': query,
+      if (page != null) 'page': page,
+      if (pageSize != null) 'pageSize': pageSize,
     };
   }
 }

@@ -46,7 +46,7 @@ class VenueCardGridGuest extends StatelessWidget {
                   child: VenueImage(imageUrl: r.thumbnailImage),
                 ),
 
-                if (r.isOpen == true)
+                if (r.isOpenNow == true)
                   Positioned(
                     top: 10,
                     right: 10,

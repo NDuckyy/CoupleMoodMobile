@@ -1,5 +1,5 @@
 class Recommendation {
-  final int? venueLocationId;
+  final int? id;
   final int? locationTagId;
   final int? venueOwnerId;
 
@@ -13,7 +13,7 @@ class Recommendation {
 
   final DateTime? openingTime;
   final DateTime? closingTime;
-  final bool? isOpen;
+  final bool? isOpenNow;
 
   final double? priceMin;
   final double? priceMax;
@@ -44,7 +44,7 @@ class Recommendation {
   final List<String>? matchedTags;
 
   const Recommendation({
-    this.venueLocationId,
+    this.id,
     this.locationTagId,
     this.venueOwnerId,
     this.name,
@@ -55,7 +55,7 @@ class Recommendation {
     this.websiteUrl,
     this.openingTime,
     this.closingTime,
-    this.isOpen,
+    this.isOpenNow,
     this.priceMin,
     this.priceMax,
     this.latitude,
@@ -86,7 +86,7 @@ class Recommendation {
         v == null ? null : List<String>.from(v);
 
     return Recommendation(
-      venueLocationId: json['venueLocationId'] as int?,
+      id: json['id'] as int?,
       locationTagId: json['locationTagId'] as int?,
       venueOwnerId: json['venueOwnerId'] as int?,
 
@@ -100,7 +100,7 @@ class Recommendation {
 
       openingTime: _parseDate(json['openingTime']),
       closingTime: _parseDate(json['closingTime']),
-      isOpen: json['isOpen'] as bool?,
+      isOpenNow: json['isOpenNow'] as bool?,
 
       priceMin: (json['priceMin'] as num?)?.toDouble(),
       priceMax: (json['priceMax'] as num?)?.toDouble(),

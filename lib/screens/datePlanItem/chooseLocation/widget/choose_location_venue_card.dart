@@ -15,7 +15,7 @@ class ChooseLocationVenueCard extends StatelessWidget {
   const ChooseLocationVenueCard({super.key, required this.r});
 
   void _addToDatePlan(BuildContext context) {
-    context.pop({'venueLocationId': r.venueLocationId, 'venueName': r.displayName});
+    context.pop({'venueLocationId': r.id, 'venueName': r.displayName});
   }
 
   @override
@@ -33,7 +33,7 @@ class ChooseLocationVenueCard extends StatelessWidget {
           Stack(
             children: [
               VenueImage(imageUrl: r.thumbnailImage),
-              if (r.isOpen == true)
+              if (r.isOpenNow == true)
                 Positioned(
                   top: 12,
                   right: 12,
@@ -197,7 +197,7 @@ class ChooseLocationVenueCard extends StatelessWidget {
                         onPressed: () {
                           context.pushNamed(
                             "venue_detail",
-                            extra: {"venueId": r.venueLocationId},
+                            extra: {"venueId": r.id},
                           );
                         },
                         child: const Text(
