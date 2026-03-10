@@ -30,7 +30,7 @@ class VenueCard extends StatelessWidget {
           Stack(
             children: [
               VenueImage(imageUrl: r.thumbnailImage),
-              if (r.isOpen == true)
+              if (r.isOpenNow == true)
                 Positioned(
                   top: 12,
                   right: 12,
@@ -190,7 +190,7 @@ class VenueCard extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          context.pushNamed("venue_detail", extra: {"venueId": r.venueLocationId});
+                          context.pushNamed("venue_detail", extra: {"venueId": r.id});
                         },
                         child: const Text(
                           'Chi tiết',

@@ -127,7 +127,7 @@ class DatePlanCard extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 item.estimatedBudget > 0
-                    ? '${CurrencyUtils.formatVND(item.estimatedBudget)}'
+                    ? CurrencyUtils.formatVND(item.estimatedBudget)
                     : 'Chưa đặt ngân sách',
                 style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
               ),
