@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
         context.goNamed("home");
         return;
       }
-      context.goNamed("login");
+      context.goNamed("guest");
     });
   }
 

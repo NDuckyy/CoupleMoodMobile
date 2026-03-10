@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +34,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _initialize();
     _scrollController.addListener(_onScroll);
+    _listenRealtimeUpdates();
   }
 
   Future<void> _initialize() async {
@@ -141,6 +144,48 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       // App coming to foreground
       chatProvider.joinConversation(widget.conversation.id);
     }
+  }
+
+  void _onAcceptDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    final chatProvider = context.read<ChatProvider>();
+    await datePlanProvider.acceptDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Bạn đã chấp nhận lịch hẹn', true);
+      // Optionally refresh messages or date plan status
+      await chatProvider.loadMessages(widget.conversation.id);
+    }
+  }
+
+  void _onRejectDatePlan(int datePlanId, int messageId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    final chatProvider = context.read<ChatProvider>();
+    await datePlanProvider.rejectDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Bạn đã từ chối lịch hẹn', true);
+
+      await chatProvider.deleteMessage(messageId);
+      await chatProvider.loadMessages(widget.conversation.id);
+    }
+  }
+
+  void _listenRealtimeUpdates() {
+    final chatProvider = context.read<ChatProvider>();
+
+    chatProvider.signalR.onConversationUpdated.listen((conversation) {
+      if (conversation.id == widget.conversation.id) {
+        /// reload messages khi conversation thay đổi
+        chatProvider.loadMessages(widget.conversation.id);
+      }
+    });
   }
 
   @override
@@ -352,6 +397,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                             onDelete: message.isMine
                                 ? () => _deleteMessage(message.id)
                                 : null,
+                            onAccept: (datePlanId) =>
+                                _onAcceptDatePlan(datePlanId),
+                            onReject: (datePlanId) =>
+                                _onRejectDatePlan(datePlanId, message.id),
                           ),
                         ],
                       );

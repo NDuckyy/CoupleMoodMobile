@@ -9,7 +9,7 @@ import '../../utils/session_storage.dart';
 
 class ChatProvider with ChangeNotifier {
   final SignalRService _signalR = SignalRService();
-  
+  SignalRService get signalR => _signalR;
   // State
   List<Conversation> _conversations = [];
   Map<int, List<Message>> _messagesByConversation = {};
@@ -254,6 +254,46 @@ class ChatProvider with ChangeNotifier {
       return null;
     }
   }
+
+  Future<Message?> sendDatePlan(int conversationId, String content, int referenceId) async {
+    try {
+      // Create optimistic message
+      final optimisticMessage = Message(
+        id: DateTime.now().millisecondsSinceEpoch,
+        conversationId: conversationId,
+        senderId: _currentUserId ?? 0,
+        senderName: 'You',
+        content: content,
+        messageType: 'DATE_PLAN',
+        createdAt: DateTime.now(),
+        isMine: true,
+        status: MessageStatus.sending,
+        localId: DateTime.now().millisecondsSinceEpoch.toString(),
+      );
+
+      // Add to UI immediately
+      _addMessageToConversation(conversationId, optimisticMessage);
+
+      // Send to server
+      final sentMessage = await MessagingApiService.sendMessage(
+        conversationId: conversationId,
+        messageType: 'DATE_PLAN',
+        content: content,
+        referenceId: referenceId,
+        referenceType: "DATE_PLAN",
+      );
+
+      // Replace optimistic message with real one
+      _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
+
+      return sentMessage;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
 
   /// Send file message
   Future<Message?> sendFileMessage({
@@ -561,6 +601,7 @@ class ChatProvider with ChangeNotifier {
     } else {
       _conversations.insert(0, conversation);
     }
+    loadMessages(conversation.id);
     notifyListeners();
   }
 
@@ -592,6 +633,10 @@ class ChatProvider with ChangeNotifier {
       notifyListeners();
       print('ChatProvider: Conversation updated - ${conversation.id}');
     }
+  }
+
+  Future<int> getCoupleConversationId() async{
+    return await MessagingApiService.getCoupleConversationId();
   }
 
   // ==================== HELPER METHODS ====================

@@ -27,11 +27,9 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
   String locationName = '';
   int venueLocationId = -1;
 
-  String formatTime(String isoString) {
-    final dateTime = DateTime.parse(isoString);
-    return "${dateTime.hour.toString().padLeft(2, '0')}:"
-        "${dateTime.minute.toString().padLeft(2, '0')}:"
-        "${dateTime.second.toString().padLeft(2, '0')}";
+  String formatTime(DateTime time) {
+    return "${time.hour.toString().padLeft(2, '0')}:"
+        "${time.minute.toString().padLeft(2, '0')}:00";
   }
 
   Future<void> _submit() async {
@@ -42,12 +40,8 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
         ItemRequest(
           venueLocationId: venueLocationId,
           note: noteCtrl.text.trim(),
-          startTime: startTime != null
-              ? formatTime(startTime!.toUtc().toIso8601String())
-              : '',
-          endTime: endTime != null
-              ? formatTime(endTime!.toUtc().toIso8601String())
-              : '',
+          startTime: startTime != null ? formatTime(startTime!) : '',
+          endTime: endTime != null ? formatTime(endTime!) : '',
         ),
       );
       if (venueLocationId == -1) {
@@ -57,6 +51,10 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
 
       if (startTime == null || endTime == null) {
         showMsg(context, "Vui lòng chọn thời gian bắt đầu và kết thúc", false);
+        return;
+      }
+      if (endTime!.isBefore(startTime!)) {
+        showMsg(context, "Giờ kết thúc phải sau giờ bắt đầu", false);
         return;
       }
       final request = DatePlanItemRequest(items: items);

@@ -66,10 +66,7 @@ class MessageInput extends StatelessWidget {
 
             // Send button
             IconButton(
-              icon: Icon(
-                Icons.send,
-                color: Theme.of(context).primaryColor,
-              ),
+              icon: Icon(Icons.send, color: Theme.of(context).primaryColor),
               onPressed: onSend,
             ),
           ],
@@ -89,10 +86,7 @@ class MessageInput extends StatelessWidget {
               padding: EdgeInsets.all(16),
               child: Text(
                 'Share',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const Divider(height: 1),
@@ -129,7 +123,10 @@ class MessageInput extends StatelessWidget {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.insert_drive_file, color: Colors.orange),
+              leading: const Icon(
+                Icons.insert_drive_file,
+                color: Colors.orange,
+              ),
               title: const Text('File'),
               onTap: () {
                 Navigator.pop(context);

@@ -2,6 +2,8 @@ import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
+import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
 import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
 import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
 import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
@@ -9,6 +11,7 @@ import 'package:couple_mood_mobile/screens/home/widget/special_event.dart';
 import 'package:couple_mood_mobile/screens/home/widget/week_selector.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/home_icon_button.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +40,33 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<MoodProvider>().getCoupleCurrentMood();
       _getPopularNearby();
       _getSpecialEvent();
+      _getAdvertisement();
+      showAdvertisement();
     });
+  }
+
+  void showAdvertisement() async {
+    final advertismentProvider = context.read<AdvertisementProvider>();
+    await advertismentProvider.fetchAdvertisementPopup();
+    if (advertismentProvider.popup == null) {
+      return;
+    } else {
+      if (advertismentProvider.isLoadingPopup) {
+        return;
+      }
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return AdvertisementPopup(
+            bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+            onTap: () {
+              context.pop();
+            },
+          );
+        },
+      );
+    }
   }
 
   void _getPopularNearby() async {
@@ -56,9 +85,94 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<AdvertisementProvider>().fetchSpecialEvents();
   }
 
+  void _getAdvertisement() {
+    context.read<AdvertisementProvider>().fetchAdvertisement();
+  }
+
+  void _showSpecialEventDialog(BuildContext context, int eventId) async {
+    await context.read<AdvertisementProvider>().fetchSpecialEventDetail(
+      eventId,
+    );
+    final event = context.read<AdvertisementProvider>().specialEventDetail;
+    if (event == null) {
+      if (!mounted) return;
+      showMsg(context, "Không thể tải thông tin sự kiện", false);
+      return;
+    }
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+                child: Image.network(
+                  event.bannerUrl,
+                  height: 180,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    Text(
+                      event.eventName,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    Text(
+                      event.description,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xffB388EB),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("Đóng", style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> _refresh() async {
     _getPopularNearby();
     _getSpecialEvent();
+    _getAdvertisement();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
@@ -98,6 +212,14 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
 
             SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+            SliverToBoxAdapter(
+              child: AdvertisementCarousel(
+                advertisements: advertisementProvider.advertisements,
+                onTapSpecialEvent: (eventId) =>
+                    _showSpecialEventDialog(context, eventId),
+              ),
+            ),
 
             SliverToBoxAdapter(
               child: Padding(
@@ -199,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(
               child: SpecialEvent(
-                advertisements: advertisementProvider.advertisements,
+                advertisements: advertisementProvider.specialEvents,
               ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),

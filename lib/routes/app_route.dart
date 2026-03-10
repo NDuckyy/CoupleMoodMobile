@@ -87,13 +87,17 @@ import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
+//package, advertisement, subscription..
+import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+
 //home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
-import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -118,7 +122,9 @@ GoRouter createRouter(BuildContext context) {
       final loc = state.uri.toString();
 
       final isAuthRoute =
-          loc.startsWith('/login') || loc.startsWith('/register');
+          loc.startsWith('/login') ||
+          loc.startsWith('/register') ||
+          loc.startsWith('/guest');
       final isSplash = loc == '/splash';
 
       // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
@@ -127,7 +133,7 @@ GoRouter createRouter(BuildContext context) {
       }
 
       // Chưa login mà không ở auth routes => đá về login
-      if (!isLoggedIn && !isAuthRoute) return '/login';
+      if (!isLoggedIn && !isAuthRoute) return '/guest';
 
       // Đã login mà còn ở login/register => đá về home
       if (isLoggedIn && isAuthRoute) return '/home';
@@ -489,6 +495,22 @@ GoRouter createRouter(BuildContext context) {
             checkInId: extra['checkInId'],
           );
         },
+      ),
+      GoRoute(
+        path: '/advertisement-detail',
+        name: 'advertisement_detail',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return AdvertisementDetailScreen(
+            advertisementId: extra['advertisementId'],
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/guest',
+        name: 'guest',
+        pageBuilder: (_, __) => const MaterialPage(child: GuestScreen()),
       ),
 
       ShellRoute(

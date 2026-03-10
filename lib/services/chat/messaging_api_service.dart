@@ -157,6 +157,8 @@ class MessagingApiService {
     required int conversationId,
     required String messageType, // "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE"
     String? content,
+    int? referenceId,
+    String? referenceType,
     String? fileUrl,
     String? fileName,
     int? fileSize,
@@ -173,6 +175,12 @@ class MessagingApiService {
           throw Exception('Content is required for TEXT messages');
         }
         data['content'] = content;
+      } else if (messageType == 'DATE_PLAN') {
+        if (referenceId ==  null || referenceType == null || referenceType.isEmpty) {
+          throw Exception('referenceId and referenceType are required for DATE_PLAN messages');
+        }
+        data['referenceId'] = referenceId;
+        data['referenceType'] = referenceType;
       } else {
         // File types
         if (fileUrl == null || fileUrl.isEmpty) {
@@ -295,6 +303,18 @@ class MessagingApiService {
       return [];
     } catch (e) {
       throw Exception('Failed to search messages: ${e.toString()}');
+    }
+  }
+
+  static Future<int> getCoupleConversationId() async {
+    try {
+      final response = await ApiClient.request(
+        '/Messaging/conversations/couple',
+        method: HttpMethod.get,
+      );
+    return response['id'] as int;
+    } catch (e) {
+      throw Exception('Failed to get couple conversation ID: ${e.toString()}');
     }
   }
 }
