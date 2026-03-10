@@ -156,7 +156,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: const Text("Đóng", style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          "Đóng",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -286,15 +289,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: const Color(0xFFFFAFCC),
                       onTap: () {
                         context.pushNamed("newsfeed");
-                      },
-                    ),
-
-                    HomeIconButton(
-                      icon: Icons.reviews,
-                      label: "Review",
-                      color: const Color(0xFFFFAFCC),
-                      onTap: () {
-                        context.pushNamed("review_venue");
                       },
                     ),
 

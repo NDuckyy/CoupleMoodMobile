@@ -1,24 +1,20 @@
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:flutter/material.dart';
 
 class BudgetCard extends StatelessWidget {
   final double min;
   final double? max;
 
-  const BudgetCard({
-    super.key,
-    required this.min,
-    required this.max,
-  });
+  const BudgetCard({super.key, required this.min, required this.max});
 
   @override
   Widget build(BuildContext context) {
     String budgetText;
 
     if (max == null) {
-      budgetText = "Từ ${min.toStringAsFixed(0)} VND";
+      budgetText = "Từ ${CurrencyUtils.formatVND(min)}";
     } else {
-      budgetText =
-          "${min.toStringAsFixed(0)} - ${max!.toStringAsFixed(0)} VND";
+      budgetText = "${CurrencyUtils.formatRangeVND(min, max!)}";
     }
 
     return Container(
