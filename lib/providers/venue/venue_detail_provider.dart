@@ -34,7 +34,7 @@ class VenueDetailProvider extends ChangeNotifier {
       if (venueResponse!.code != 200 || venueResponse!.data == null) {
         error = venueResponse!.message;
       } else {
-        favoriteCount = venue!.favoriteCount;
+        favoriteCount = venue?.favoriteCount ?? 0;
 
         //  Load current collection
         final currentRes = await CollectionService.getCurrentCollection();

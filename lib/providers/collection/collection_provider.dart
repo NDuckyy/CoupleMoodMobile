@@ -17,18 +17,27 @@ class CollectionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Gọi song song để check default collection
-      final results = await Future.wait([
-        CollectionService.getMyCollections(page: page, pageSize: pageSize),
-        CollectionService.getCurrentCollection(),
-      ]);
+      final collectionsRes = await CollectionService.getMyCollections(
+        page: page,
+        pageSize: pageSize,
+      );
 
-      collectionsResponse =
-          results[0] as ApiResponse<PaginatedResponse<CollectionItem>>;
+      final currentRes = await CollectionService.getCurrentCollection();
 
-      final currentCollection = results[1] as ApiResponse<CollectionItem>;
+      collectionsResponse = collectionsRes;
+      defaultCollectionId = currentRes.data?.id;
 
-      defaultCollectionId = currentCollection.data?.id;
+      if (defaultCollectionId != null &&
+          collectionsResponse?.data?.items != null) {
+        final items = collectionsResponse!.data!.items;
+
+        final index = items.indexWhere((e) => e.id == defaultCollectionId);
+
+        if (index > 0) {
+          final defaultItem = items.removeAt(index);
+          items.insert(0, defaultItem);
+        }
+      }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
