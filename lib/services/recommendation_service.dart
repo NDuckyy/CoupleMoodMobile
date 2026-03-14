@@ -7,13 +7,10 @@ import 'package:flutter/material.dart';
 class RecommendationService {
   static Future<ApiResponse<RecommendationResponse>> fetchRecommendations(
     RecommendationRequest request,
-    int? page,
-    int? pageSize,
   ) async {
     try {
       final res = await ApiClient.request(
         "/venue-location/search",
-        query: {'page': page, 'pageSize': pageSize},
         method: HttpMethod.post,
         data: request.toJson(),
       );
