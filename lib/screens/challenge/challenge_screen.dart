@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/providers/challenge/challenge_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
+import 'package:couple_mood_mobile/screens/challenge/challenge_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -91,6 +93,20 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                                 onLeave: (!isCheckin && !isCompleted)
                                     ? trigger
                                     : null,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ChangeNotifierProvider(
+                                        create: (_) =>
+                                            ChallengeDetailProvider(),
+                                        child: ChallengeDetailScreen(
+                                          coupleChallenge: c,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           );
@@ -128,6 +144,20 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                               return ChallengeCard.discover(
                                 c,
                                 onJoin: isCheckin ? null : trigger,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ChangeNotifierProvider(
+                                        create: (_) =>
+                                            ChallengeDetailProvider(),
+                                        child: ChallengeDetailScreen(
+                                          template: c,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
                               );
                             },
                           );
@@ -147,7 +177,22 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                             duration: const Duration(milliseconds: 250),
                             curve: Curves.easeOutBack,
                             scale: 1,
-                            child: ChallengeCard.completed(c),
+                            child: ChallengeCard(
+                              title: c.title,
+                              description: c.description,
+                              reward: c.rewardPoints,
+                              completed: true,
+                              rewardClaimed: c.isRewardClaimed ?? false,
+                              onClaimReward: () async {
+                                final success = await provider.claimReward(
+                                  c.id,
+                                );
+
+                                if (success && context.mounted) {
+                                  showMsg(context, "Đã nhận thưởng 💜", true);
+                                }
+                              },
+                            ),
                           );
                         }).toList(),
                 ),

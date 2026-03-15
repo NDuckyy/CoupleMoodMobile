@@ -162,4 +162,19 @@ class ChallengeService {
       throw Exception('Lỗi khi lấy trạng thái check-in: $e');
     }
   }
+
+  /// POST /api/couple-challenges/{coupleChallengeId}/claim-reward
+  /// Claim reward khi hoàn thành challenge
+  static Future<ApiResponse<void>> claimReward(int coupleChallengeId) async {
+    try {
+      final res = await ApiClient.request(
+        '/couple-challenges/$coupleChallengeId/claim-reward',
+        method: HttpMethod.post,
+      );
+
+      return ApiResponse<void>.fromJson(res, (_) => null);
+    } catch (e) {
+      throw Exception('Lỗi khi claim reward: $e');
+    }
+  }
 }
