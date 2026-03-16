@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/mood/current_mood.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CoupleMoodCard extends StatelessWidget {
   final CurrentMood? coupleCurrentMood;
@@ -22,61 +23,66 @@ class CoupleMoodCard extends StatelessWidget {
         ),
       );
     }
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        gradient: const LinearGradient(
-          colors: [Color(0xFFB388EB), Color(0xFF72DDF7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
+    return InkWell(
+      onTap: () {
+        context.pushNamed('couple_profile');
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: const LinearGradient(
+            colors: [Color(0xFFB388EB), Color(0xFF72DDF7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _buildMember(
-                  label: coupleCurrentMood?.memberName ?? "Bạn",
-                  avatarUrl: coupleCurrentMood?.memberAvatarUrl ?? "",
-                  mood: coupleCurrentMood?.currentMood ?? "Chưa cập nhật",
-                  align: CrossAxisAlignment.center,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.15),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _buildMember(
+                    label: coupleCurrentMood?.memberName ?? "Bạn",
+                    avatarUrl: coupleCurrentMood?.memberAvatarUrl ?? "",
+                    mood: coupleCurrentMood?.currentMood ?? "Chưa cập nhật",
+                    align: CrossAxisAlignment.center,
+                  ),
                 ),
-              ),
 
-              Expanded(child: _buildCenter()),
+                Expanded(child: _buildCenter()),
 
-              Expanded(
-                child: _buildMember(
-                  label: coupleCurrentMood?.partnerMemberName ?? "Đối phương",
-                  avatarUrl: coupleCurrentMood?.partnerAvatarUrl ?? "",
-                  mood: coupleCurrentMood?.partnerMood ?? "Chưa cập nhật",
-                  align: CrossAxisAlignment.center,
+                Expanded(
+                  child: _buildMember(
+                    label: coupleCurrentMood?.partnerMemberName ?? "Đối phương",
+                    avatarUrl: coupleCurrentMood?.partnerAvatarUrl ?? "",
+                    mood: coupleCurrentMood?.partnerMood ?? "Chưa cập nhật",
+                    align: CrossAxisAlignment.center,
+                  ),
+                ),
+              ],
+            ),
+
+            if (coupleCurrentMood?.hasCoupleMood == true &&
+                coupleCurrentMood?.description != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                coupleCurrentMood!.description!,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
-          ),
-
-          if (coupleCurrentMood?.hasCoupleMood == true &&
-              coupleCurrentMood?.description != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              coupleCurrentMood!.description!,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
           ],
-        ],
+        ),
       ),
     );
   }

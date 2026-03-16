@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -461,6 +462,12 @@ GoRouter createRouter(BuildContext context) {
           final extra = state.extra as Map<String, dynamic>;
           return MemberProfileMatchScreen(userId: extra['userId']);
         },
+      ),
+
+      GoRoute(
+        path: '/couple-profile',
+        name: 'couple_profile',
+        pageBuilder: (_, __) => const MaterialPage(child: CoupleProfilePage()),
       ),
 
       GoRoute(
