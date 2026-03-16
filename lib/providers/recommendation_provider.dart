@@ -23,9 +23,7 @@ class RecommendationProvider extends ChangeNotifier {
       isLoading = true;
       notifyListeners();
       _recommendationResponse =
-          await RecommendationService.fetchRecommendations(
-            request,
-          );
+          await RecommendationService.fetchRecommendations(request);
       isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -51,12 +49,9 @@ class RecommendationProvider extends ChangeNotifier {
         RecommendationRequest(
           latitude: latitude,
           longitude: longitude,
-          radiusKm: 1000,
-          area: "79",
           page: nextPage,
           pageSize: pageSize,
         ),
-        
       );
 
       final newData = response.data?.recommendations;
@@ -82,12 +77,9 @@ class RecommendationProvider extends ChangeNotifier {
             RecommendationRequest(
               latitude: latitude,
               longitude: longitude,
-              radiusKm: 1000,
-              limit: 5,
-              area: "79",
               page: page,
               pageSize: pageSize,
-            ),           
+            ),
           );
       isLoading = false;
       notifyListeners();
@@ -108,6 +100,22 @@ class RecommendationProvider extends ChangeNotifier {
           await RecommendationService.fetchRecommendations(
             RecommendationRequest(query: query),
           );
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchLocationsByContext() async {
+    page = 1;
+    try {
+      isLoading = true;
+      notifyListeners();
+      _recommendationResponse =
+          await RecommendationService.fetchRecommendationsByContext();
       isLoading = false;
       notifyListeners();
     } catch (e) {

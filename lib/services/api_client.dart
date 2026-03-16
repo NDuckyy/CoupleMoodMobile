@@ -100,4 +100,38 @@ class ApiClient {
       rethrow;
     }
   }
+
+  static Future<dynamic> requestForContext({
+    required HttpMethod method,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? query,
+  }) async {
+    _init();
+    try {
+      final session = await SessionStorage.load();
+      final token = session?.accessToken;
+      final res = await _dio.request(
+        "http://134.209.108.208:7700/indexes/venue_locations/search",
+        data: data,
+        queryParameters: query,
+        options: Options(
+          method: method.name.toUpperCase(),
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer couplemood123',
+          },
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      return res.data;
+    } on DioException catch (e) {
+      throw Exception(
+        (e.response?.data is Map && e.response?.data['message'] != null)
+            ? e.response?.data['message'].toString()
+            : (e.message ?? 'Lỗi kết nối server'),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

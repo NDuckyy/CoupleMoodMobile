@@ -23,4 +23,23 @@ class RecommendationService {
       throw Exception('Lỗi khi lấy gợi ý địa điểm: $e');
     }
   }
+
+  static Future<ApiResponse<RecommendationResponse>>
+  fetchRecommendationsByContext() async {
+    try {
+      final res = await ApiClient.requestForContext(
+        method: HttpMethod.post,
+        data: {
+          "personalize": {"userContext": "user  thích gái gú bar"},
+        },
+      );
+      return ApiResponse.fromJson(
+        res,
+        (json) => RecommendationResponse.fromJson(json),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi tìm kiếm địa điểm: $e');
+    }
+  }
 }

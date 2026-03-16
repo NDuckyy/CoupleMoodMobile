@@ -1,7 +1,7 @@
 class CurrentMood {
   final int memberId;
   final String memberName;
-  final String memberAvatarUrl;
+  final String? memberAvatarUrl;
   final String currentMood;
   final int currentMoodId;
   final DateTime moodUpdatedAt;
@@ -42,7 +42,7 @@ class CurrentMood {
     return CurrentMood(
       memberId: json['memberId'] as int,
       memberName: json['memberName'] as String,
-      memberAvatarUrl: json['memberAvatarUrl'] as String,
+      memberAvatarUrl: json['memberAvatarUrl'] as String?,
       currentMood: json['currentMood'] as String,
       currentMoodId: json['currentMoodId'] as int,
       moodUpdatedAt: DateTime.parse(json['moodUpdatedAt'] as String),
