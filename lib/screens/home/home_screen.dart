@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<MoodProvider>().getCoupleCurrentMood();
-      // _getPopularNearby();
+      _getPopularNearby();
       _getContextRecommendation();
       _getSpecialEvent();
       _getAdvertisement();
@@ -181,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refresh() async {
-    // _getPopularNearby();
+    _getPopularNearby();
     _getSpecialEvent();
     _getAdvertisement();
     _getContextRecommendation();

@@ -12,19 +12,23 @@ class SignalRService {
 
   HubConnection? _hubConnection;
   bool _isConnected = false;
-  
+  Timer? _heartbeatTimer;
   // Event streams
   final _messageReceivedController = StreamController<Message>.broadcast();
   final _messageSeenController = StreamController<MessageSeenEvent>.broadcast();
   final _userTypingController = StreamController<TypingIndicator>.broadcast();
   final _userOnlineController = StreamController<UserOnlineEvent>.broadcast();
   final _memberAddedController = StreamController<MemberAddedEvent>.broadcast();
-  final _memberRemovedController = StreamController<MemberRemovedEvent>.broadcast();
-  final _conversationUpdatedController = StreamController<Conversation>.broadcast();
+  final _memberRemovedController =
+      StreamController<MemberRemovedEvent>.broadcast();
+  final _conversationUpdatedController =
+      StreamController<Conversation>.broadcast();
   final _conversationDeletedController = StreamController<int>.broadcast();
-  final _messageDeletedController = StreamController<MessageDeletedEvent>.broadcast();
+  final _messageDeletedController =
+      StreamController<MessageDeletedEvent>.broadcast();
   final _newConversationController = StreamController<Conversation>.broadcast();
-  final _connectionStateController = StreamController<HubConnectionState>.broadcast();
+  final _connectionStateController =
+      StreamController<HubConnectionState>.broadcast();
 
   // Getters for streams
   Stream<Message> get onMessageReceived => _messageReceivedController.stream;
@@ -32,14 +36,21 @@ class SignalRService {
   Stream<TypingIndicator> get onUserTyping => _userTypingController.stream;
   Stream<UserOnlineEvent> get onUserOnline => _userOnlineController.stream;
   Stream<MemberAddedEvent> get onMemberAdded => _memberAddedController.stream;
-  Stream<MemberRemovedEvent> get onMemberRemoved => _memberRemovedController.stream;
-  Stream<Conversation> get onConversationUpdated => _conversationUpdatedController.stream;
-  Stream<int> get onConversationDeleted => _conversationDeletedController.stream;
-  Stream<MessageDeletedEvent> get onMessageDeleted => _messageDeletedController.stream;
-  Stream<Conversation> get onNewConversation => _newConversationController.stream;
-  Stream<HubConnectionState> get onConnectionStateChanged => _connectionStateController.stream;
+  Stream<MemberRemovedEvent> get onMemberRemoved =>
+      _memberRemovedController.stream;
+  Stream<Conversation> get onConversationUpdated =>
+      _conversationUpdatedController.stream;
+  Stream<int> get onConversationDeleted =>
+      _conversationDeletedController.stream;
+  Stream<MessageDeletedEvent> get onMessageDeleted =>
+      _messageDeletedController.stream;
+  Stream<Conversation> get onNewConversation =>
+      _newConversationController.stream;
+  Stream<HubConnectionState> get onConnectionStateChanged =>
+      _connectionStateController.stream;
 
   bool get isConnected => _isConnected;
+
 
   /// Initialize and connect to SignalR hub
   Future<void> connect() async {
@@ -66,9 +77,7 @@ class SignalRService {
               skipNegotiation: true,
             ),
           )
-          .withAutomaticReconnect(
-            retryDelays: [0, 2000, 5000, 10000, 30000],
-          )
+          .withAutomaticReconnect(retryDelays: [0, 2000, 5000, 10000, 30000])
           .build();
 
       // Setup event handlers BEFORE starting connection
@@ -78,24 +87,28 @@ class SignalRService {
       _hubConnection!.onclose(({error}) {
         print('SignalR: Connection closed - ${error?.toString()}');
         _isConnected = false;
+        _stopHeartbeat();
         _connectionStateController.add(HubConnectionState.Disconnected);
       });
 
       _hubConnection!.onreconnecting(({error}) {
         print('SignalR: Reconnecting - ${error?.toString()}');
         _isConnected = false;
+        _stopHeartbeat();
         _connectionStateController.add(HubConnectionState.Reconnecting);
       });
 
       _hubConnection!.onreconnected(({connectionId}) {
         print('SignalR: Reconnected - $connectionId');
         _isConnected = true;
+         _startHeartbeat();
         _connectionStateController.add(HubConnectionState.Connected);
       });
 
       // Start connection
       await _hubConnection!.start();
       _isConnected = true;
+      _startHeartbeat();
       _connectionStateController.add(HubConnectionState.Connected);
       print('SignalR: Connected successfully');
     } catch (e) {
@@ -132,13 +145,15 @@ class SignalRService {
           final userId = arguments[1] as int;
           final userName = arguments[2] as String;
           final messageId = arguments[3] as int;
-          
-          _messageSeenController.add(MessageSeenEvent(
-            conversationId: conversationId,
-            userId: userId,
-            userName: userName,
-            messageId: messageId,
-          ));
+
+          _messageSeenController.add(
+            MessageSeenEvent(
+              conversationId: conversationId,
+              userId: userId,
+              userName: userName,
+              messageId: messageId,
+            ),
+          );
           print('SignalR: Message seen - $messageId by $userName');
         } catch (e) {
           print('SignalR: Error parsing message seen - $e');
@@ -156,15 +171,19 @@ class SignalRService {
           final userId = data['userId'] as int;
           final userName = data['username'] as String;
           final isTyping = data['isTyping'] as bool;
-          
-          print('SignalR: Typing indicator - conversationId: $conversationId, userId: $userId, userName: $userName, isTyping: $isTyping');
-          
-          _userTypingController.add(TypingIndicator(
-            conversationId: conversationId,
-            userId: userId,
-            userName: userName,
-            isTyping: isTyping,
-          ));
+
+          print(
+            'SignalR: Typing indicator - conversationId: $conversationId, userId: $userId, userName: $userName, isTyping: $isTyping',
+          );
+
+          _userTypingController.add(
+            TypingIndicator(
+              conversationId: conversationId,
+              userId: userId,
+              userName: userName,
+              isTyping: isTyping,
+            ),
+          );
         } catch (e) {
           print('SignalR: Error parsing typing indicator - $e');
           print('SignalR: Arguments structure: $arguments');
@@ -181,27 +200,38 @@ class SignalRService {
           if (arguments[0] is Map<String, dynamic>) {
             final data = arguments[0] as Map<String, dynamic>;
             final userId = data['userId'] as int;
-            final userName = data['username'] as String? ?? data['userName'] as String? ?? '';
+            final userName =
+                data['username'] as String? ??
+                data['userName'] as String? ??
+                '';
             final isOnline = data['isOnline'] as bool;
-            
-            _userOnlineController.add(UserOnlineEvent(
-              userId: userId,
-              userName: userName,
-              isOnline: isOnline,
-            ));
-            print('SignalR: User online status - $userId ($userName): $isOnline');
+
+            _userOnlineController.add(
+              UserOnlineEvent(
+                userId: userId,
+                userName: userName,
+                isOnline: isOnline,
+              ),
+            );
+            print(
+              'SignalR: User online status - $userId ($userName): $isOnline',
+            );
           } else if (arguments.length >= 3) {
             // Fallback to multiple arguments format
             final userId = arguments[0] as int;
             final userName = arguments[1] as String;
             final isOnline = arguments[2] as bool;
-            
-            _userOnlineController.add(UserOnlineEvent(
-              userId: userId,
-              userName: userName,
-              isOnline: isOnline,
-            ));
-            print('SignalR: User online status - $userId ($userName): $isOnline');
+
+            _userOnlineController.add(
+              UserOnlineEvent(
+                userId: userId,
+                userName: userName,
+                isOnline: isOnline,
+              ),
+            );
+            print(
+              'SignalR: User online status - $userId ($userName): $isOnline',
+            );
           }
         } catch (e) {
           print('SignalR: Error parsing user online - $e');
@@ -217,11 +247,10 @@ class SignalRService {
           final conversationId = arguments[0] as int;
           final memberData = arguments[1] as Map<String, dynamic>;
           final member = ConversationMember.fromJson(memberData);
-          
-          _memberAddedController.add(MemberAddedEvent(
-            conversationId: conversationId,
-            member: member,
-          ));
+
+          _memberAddedController.add(
+            MemberAddedEvent(conversationId: conversationId, member: member),
+          );
           print('SignalR: Member added to conversation $conversationId');
         } catch (e) {
           print('SignalR: Error parsing member added - $e');
@@ -236,12 +265,14 @@ class SignalRService {
           final conversationId = arguments[0] as int;
           final memberId = arguments[1] as int;
           final memberName = arguments[2] as String;
-          
-          _memberRemovedController.add(MemberRemovedEvent(
-            conversationId: conversationId,
-            memberId: memberId,
-            memberName: memberName,
-          ));
+
+          _memberRemovedController.add(
+            MemberRemovedEvent(
+              conversationId: conversationId,
+              memberId: memberId,
+              memberName: memberName,
+            ),
+          );
           print('SignalR: Member removed from conversation $conversationId');
         } catch (e) {
           print('SignalR: Error parsing member removed - $e');
@@ -255,7 +286,7 @@ class SignalRService {
         try {
           final conversationData = arguments[0] as Map<String, dynamic>;
           final conversation = Conversation.fromJson(conversationData);
-          
+
           _conversationUpdatedController.add(conversation);
           print('SignalR: Conversation updated - ${conversation.id}');
         } catch (e) {
@@ -279,23 +310,27 @@ class SignalRService {
 
     // MessageDeleted event
     _hubConnection!.on('MessageDeleted', (arguments) {
-  if (arguments != null && arguments.isNotEmpty) {
-    try {
-      final data = arguments[0] as Map<String, dynamic>;
-      final messageId = data['messageId'] as int;
-      final conversationId = data['conversationId'] as int;
-      
-      _messageDeletedController.add(MessageDeletedEvent(
-        conversationId: conversationId,
-        messageId: messageId,
-      ));
-      print('SignalR: Message deleted - messageId: $messageId, conversationId: $conversationId');
-    } catch (e) {
-      print('SignalR: Error parsing message deleted - $e');
-      print('SignalR: Arguments structure: $arguments');
-    }
-  }
-});
+      if (arguments != null && arguments.isNotEmpty) {
+        try {
+          final data = arguments[0] as Map<String, dynamic>;
+          final messageId = data['messageId'] as int;
+          final conversationId = data['conversationId'] as int;
+
+          _messageDeletedController.add(
+            MessageDeletedEvent(
+              conversationId: conversationId,
+              messageId: messageId,
+            ),
+          );
+          print(
+            'SignalR: Message deleted - messageId: $messageId, conversationId: $conversationId',
+          );
+        } catch (e) {
+          print('SignalR: Error parsing message deleted - $e');
+          print('SignalR: Arguments structure: $arguments');
+        }
+      }
+    });
 
     // NewConversation event
     _hubConnection!.on('NewConversation', (arguments) {
@@ -303,7 +338,7 @@ class SignalRService {
         try {
           final conversationData = arguments[0] as Map<String, dynamic>;
           final conversation = Conversation.fromJson(conversationData);
-          
+
           _newConversationController.add(conversation);
           print('SignalR: New conversation received - ${conversation.id}');
         } catch (e) {
@@ -350,8 +385,13 @@ class SignalRService {
       return;
     }
     try {
-      print('SignalR: Sending typing indicator - conversationId: $conversationId, isTyping: $isTyping');
-      await _hubConnection!.invoke('SendTypingIndicator', args: [conversationId, isTyping]);
+      print(
+        'SignalR: Sending typing indicator - conversationId: $conversationId, isTyping: $isTyping',
+      );
+      await _hubConnection!.invoke(
+        'SendTypingIndicator',
+        args: [conversationId, isTyping],
+      );
       print('SignalR: Typing indicator sent successfully');
     } catch (e) {
       print('SignalR: Error sending typing indicator - $e');
@@ -373,6 +413,7 @@ class SignalRService {
 
   /// Disconnect from SignalR hub
   Future<void> disconnect() async {
+     _stopHeartbeat();
     if (_hubConnection != null) {
       await _hubConnection!.stop();
       _isConnected = false;
@@ -381,8 +422,36 @@ class SignalRService {
     }
   }
 
+  /// Start heartbeat to keep connection alive
+  void _startHeartbeat() {
+    _stopHeartbeat();
+
+    _heartbeatTimer = Timer.periodic(Duration(seconds: 10), (timer) async {
+      if (_isConnected && _hubConnection != null) {
+        try {
+          await _hubConnection!.invoke('Heartbeat');
+          print('SignalR: Heartbeat sent');
+        } catch (e) {
+          print('SignalR: Heartbeat error - $e');
+        }
+      }
+    });
+
+    print('SignalR: Heartbeat started (every 10 seconds)');
+  }
+
+  /// Stop heartbeat timer
+  void _stopHeartbeat() {
+    if (_heartbeatTimer != null) {
+      _heartbeatTimer!.cancel();
+      _heartbeatTimer = null;
+      print('SignalR: Heartbeat stopped');
+    }
+  }
+
   /// Dispose all resources
   void dispose() {
+    _stopHeartbeat(); 
     _messageReceivedController.close();
     _messageSeenController.close();
     _userTypingController.close();
@@ -443,10 +512,7 @@ class MemberAddedEvent {
   final int conversationId;
   final ConversationMember member;
 
-  MemberAddedEvent({
-    required this.conversationId,
-    required this.member,
-  });
+  MemberAddedEvent({required this.conversationId, required this.member});
 }
 
 class MemberRemovedEvent {
@@ -465,8 +531,5 @@ class MessageDeletedEvent {
   final int conversationId;
   final int messageId;
 
-  MessageDeletedEvent({
-    required this.conversationId,
-    required this.messageId,
-  });
+  MessageDeletedEvent({required this.conversationId, required this.messageId});
 }
