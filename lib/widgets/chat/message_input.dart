@@ -98,9 +98,10 @@ class MessageInput extends StatelessWidget {
               ),
             ),
             const Divider(height: 1),
+
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.blue),
-              title: const Text('Photo & Video'),
+              title: const Text('Hình ảnh'),
               onTap: () async {
                 final chatProvider = context.read<ChatProvider>();
                 Navigator.pop(context);
@@ -111,10 +112,41 @@ class MessageInput extends StatelessWidget {
                 if (image != null) {
                   final file = File(image.path);
                   final res = await UploadUtil.uploadImage(file);
-                  await chatProvider.sendImageMessage(conversationId, res);
+                  await chatProvider.sendFileMessage(
+                    conversationId: conversationId,
+                    messageType: 'IMAGE',
+                    fileUrl: res,
+                    fileName: image.name,
+                    fileSize: await file.length(),
+                  );
                 }
               },
             ),
+
+            ListTile(
+              leading: const Icon(Icons.video_call_outlined, color: Colors.blue),
+              title: const Text('Video'),
+              onTap: () async {
+                final chatProvider = context.read<ChatProvider>();
+                Navigator.pop(context);
+                final picker = ImagePicker();
+                final XFile? video = await picker.pickVideo(
+                  source: ImageSource.gallery,
+                );
+                if (video != null) {
+                  final file = File(video.path);
+                  final res = await UploadUtil.uploadImage(file);
+                  await chatProvider.sendFileMessage(
+                    conversationId: conversationId,
+                    messageType: 'VIDEO',
+                    fileUrl: res,
+                    fileName: video.name,
+                    fileSize: await file.length(),
+                  );
+                }
+              },
+            ),
+            
             ListTile(
               leading: const Icon(Icons.camera_alt, color: Colors.green),
               title: const Text('Camera'),

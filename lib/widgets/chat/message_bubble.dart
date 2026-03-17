@@ -1,4 +1,9 @@
+import 'dart:typed_data';
+
 import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
+import 'package:couple_mood_mobile/utils/create_thumbnail.dart';
+import 'package:couple_mood_mobile/widgets/chat/full_video_screen.dart';
+import 'package:couple_mood_mobile/widgets/chat/video_message_item.dart';
 import 'package:couple_mood_mobile/widgets/full_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -174,14 +179,14 @@ class MessageBubble extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => FullImageScreen(imageUrl: message.content),
+                    builder: (_) => FullImageScreen(imageUrl: message.fileUrl ?? ''),
                   ),
                 );
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  message.content,
+                  message.fileUrl ?? '',
                   width: 200,
                   fit: BoxFit.fill,
                   loadingBuilder: (context, child, progress) {
@@ -207,6 +212,9 @@ class MessageBubble extends StatelessWidget {
             ),
           ],
         );
+
+      case 'VIDEO':
+        return VideoMessageItem(videoUrl: message.fileUrl ?? '');
 
       case 'LOCATION':
         return _buildLocationCard();
