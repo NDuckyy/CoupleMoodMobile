@@ -135,7 +135,7 @@ class MessageInput extends StatelessWidget {
                 );
                 if (video != null) {
                   final file = File(video.path);
-                  final res = await UploadUtil.uploadImage(file);
+                  final res = await UploadUtil.uploadVideo(file);
                   await chatProvider.sendFileMessage(
                     conversationId: conversationId,
                     messageType: 'VIDEO',

@@ -85,7 +85,8 @@ class MessageBubble extends StatelessWidget {
                           ? Color(0xFFB388EB)
                           : message.isMine &&
                                     message.messageType == 'DATE_PLAN' ||
-                                message.messageType == 'IMAGE'
+                                message.messageType == 'IMAGE' ||
+                                message.messageType == 'VIDEO'
                           ? Colors.white.withOpacity(0)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
@@ -179,7 +180,8 @@ class MessageBubble extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => FullImageScreen(imageUrl: message.fileUrl ?? ''),
+                    builder: (_) =>
+                        FullImageScreen(imageUrl: message.fileUrl ?? ''),
                   ),
                 );
               },
