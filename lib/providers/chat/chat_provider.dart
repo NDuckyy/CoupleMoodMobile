@@ -304,6 +304,7 @@ class ChatProvider with ChangeNotifier {
         senderName: 'You',
         content: content,
         messageType: 'IMAGE',
+        fileUrl: content,
         createdAt: DateTime.now(),
         isMine: true,
         status: MessageStatus.sending,
@@ -318,6 +319,9 @@ class ChatProvider with ChangeNotifier {
         conversationId: conversationId,
         messageType: 'IMAGE',
         content: content,
+        fileUrl: content,
+        fileName: "Image",
+        fileSize: 1
       );
 
       // Replace optimistic message with real one
