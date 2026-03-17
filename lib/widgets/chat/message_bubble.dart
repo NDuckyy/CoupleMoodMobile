@@ -1,8 +1,5 @@
-import 'dart:typed_data';
 
 import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
-import 'package:couple_mood_mobile/utils/create_thumbnail.dart';
-import 'package:couple_mood_mobile/widgets/chat/full_video_screen.dart';
 import 'package:couple_mood_mobile/widgets/chat/video_message_item.dart';
 import 'package:couple_mood_mobile/widgets/full_image_screen.dart';
 import 'package:flutter/material.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:chewie/chewie.dart';
 
 class FullVideoScreen extends StatefulWidget {
   final String videoUrl;
@@ -11,21 +12,37 @@ class FullVideoScreen extends StatefulWidget {
 }
 
 class _FullVideoScreenState extends State<FullVideoScreen> {
-  late VideoPlayerController _controller;
+  late VideoPlayerController _videoController;
+  ChewieController? _chewieController;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
-      ..initialize().then((_) {
-        setState(() {});
-        _controller.play();
-      });
+
+    _videoController =
+        VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    await _videoController.initialize();
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoController,
+      autoPlay: true,
+      looping: false,
+      allowFullScreen: true,
+      allowMuting: true,
+    );
+
+    setState(() {});
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _chewieController?.dispose();
+    _videoController.dispose();
     super.dispose();
   }
 
@@ -38,24 +55,9 @@ class _FullVideoScreenState extends State<FullVideoScreen> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
-        child: _controller.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
-              )
+        child: _chewieController != null
+            ? Chewie(controller: _chewieController!)
             : const CircularProgressIndicator(color: Colors.white),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _controller.value.isPlaying
-                ? _controller.pause()
-                : _controller.play();
-          });
-        },
-        child: Icon(
-          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-        ),
       ),
     );
   }
