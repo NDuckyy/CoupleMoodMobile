@@ -1,15 +1,23 @@
+import 'dart:io';
+
+import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
+import 'package:couple_mood_mobile/utils/upload_util.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class MessageInput extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final VoidCallback onSend;
+  final int conversationId;
 
   const MessageInput({
     super.key,
     required this.controller,
     required this.onChanged,
     required this.onSend,
+    required this.conversationId,
   });
 
   @override
@@ -93,9 +101,18 @@ class MessageInput extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.blue),
               title: const Text('Photo & Video'),
-              onTap: () {
+              onTap: () async {
+                final chatProvider = context.read<ChatProvider>();
                 Navigator.pop(context);
-                // TODO: Implement photo picker
+                final picker = ImagePicker();
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.gallery,
+                );
+                if (image != null) {
+                  final file = File(image.path);
+                  final res = await UploadUtil.uploadImage(file);
+                  await chatProvider.sendImageMessage(conversationId, res);
+                }
               },
             ),
             ListTile(

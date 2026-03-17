@@ -329,8 +329,8 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                     fontWeight: isSelf ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
-                subtitle: member.joinedAt != null && !member.isOnline
-                    ? Text('Lần cuối đăng nhập: ${_formatLastSeen(member.joinedAt!)}')
+                subtitle: !member.isOnline
+                    ? Text('Lần cuối đăng nhập: ${_formatLastSeen(member.joinedAt)}')
                     : null,
                 trailing: !isSelf
                     ? IconButton(

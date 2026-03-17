@@ -77,7 +77,7 @@ class MessageBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: message.isMine && message.messageType == 'TEXT'
                           ? Color(0xFFB388EB)
-                          : message.isMine && message.messageType == 'DATE_PLAN'
+                          : message.isMine && message.messageType == 'DATE_PLAN' || message.messageType == 'IMAGE'
                           ? Colors.white.withOpacity(0)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
@@ -182,17 +182,6 @@ class MessageBubble extends StatelessWidget {
                 },
               ),
             ),
-            if (message.content.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  message.content,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: message.isMine ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
           ],
         );
 

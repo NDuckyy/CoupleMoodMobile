@@ -68,33 +68,23 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   void _handleTextChanged(String text) {
     final chatProvider = context.read<ChatProvider>();
 
-    if (text.isNotEmpty && !_isTyping) {
-      _isTyping = true;
-      print(
-        'ChatScreen: User started typing in conversation ${widget.conversation.id}',
-      );
-      chatProvider.sendTypingIndicator(widget.conversation.id, true);
+    _typingTimer?.cancel();
 
-      // Auto-stop typing after 3 seconds
-      _typingTimer?.cancel();
-      _typingTimer = Timer(const Duration(seconds: 3), () {
+    if (text.isNotEmpty) {
+      if (!_isTyping) {
+        _isTyping = true;
+        chatProvider.sendTypingIndicator(widget.conversation.id, true);
+      }
+
+      _typingTimer = Timer(const Duration(seconds: 2), () {
         _isTyping = false;
-        print('ChatScreen: Auto-stop typing after 3 seconds');
         chatProvider.sendTypingIndicator(widget.conversation.id, false);
       });
-    } else if (text.isEmpty && _isTyping) {
-      _isTyping = false;
-      _typingTimer?.cancel();
-      print('ChatScreen: User stopped typing (text cleared)');
-      chatProvider.sendTypingIndicator(widget.conversation.id, false);
-    } else if (text.isNotEmpty && _isTyping) {
-      // Reset timer if still typing
-      _typingTimer?.cancel();
-      _typingTimer = Timer(const Duration(seconds: 3), () {
+    } else {
+      if (_isTyping) {
         _isTyping = false;
-        print('ChatScreen: Auto-stop typing after 3 seconds');
         chatProvider.sendTypingIndicator(widget.conversation.id, false);
-      });
+      }
     }
   }
 
@@ -182,7 +172,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     chatProvider.signalR.onConversationUpdated.listen((conversation) {
       if (conversation.id == widget.conversation.id) {
-        /// reload messages khi conversation thay đổi
         chatProvider.loadMessages(widget.conversation.id);
       }
     });
@@ -204,7 +193,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
-    final currentUserId = chatProvider.currentUserId ?? 0;
     final displayName = widget.conversation.getDisplayName();
     final isOnline = widget.conversation.getOnlineStatus();
     final messages = chatProvider.getMessages(widget.conversation.id);
@@ -300,12 +288,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement message search
-            },
-          ),
           if (widget.conversation.type == 'GROUP')
             IconButton(
               icon: const Icon(Icons.info_outline),
@@ -430,6 +412,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             controller: _textController,
             onChanged: _handleTextChanged,
             onSend: _sendMessage,
+            conversationId: widget.conversation.id,
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
@@ -24,19 +25,16 @@ class RecommendationService {
     }
   }
 
-  static Future<ApiResponse<RecommendationResponse>>
+  static Future<ContextRecommendation>
   fetchRecommendationsByContext() async {
     try {
       final res = await ApiClient.requestForContext(
         method: HttpMethod.post,
         data: {
-          "personalize": {"userContext": "user  thích gái gú bar"},
+          "personalize": {"userContext": "thích phê"},
         },
       );
-      return ApiResponse.fromJson(
-        res,
-        (json) => RecommendationResponse.fromJson(json),
-      );
+      return ContextRecommendation.fromJson(res);
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi tìm kiếm địa điểm: $e');

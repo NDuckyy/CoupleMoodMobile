@@ -78,7 +78,7 @@ class ChatProvider with ChangeNotifier {
       await loadConversations();
       
       // Start periodic refresh for online status (every 30 seconds)
-      _startOnlineStatusRefresh();
+      // _startOnlineStatusRefresh();
     } catch (e) {
       print('ChatProvider initialization error: $e');
       _error = e.toString();
@@ -86,15 +86,15 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Timer? _onlineStatusRefreshTimer;
+  // Timer? _onlineStatusRefreshTimer;
   
-  void _startOnlineStatusRefresh() {
-    _onlineStatusRefreshTimer?.cancel();
-    _onlineStatusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      print('ChatProvider: Refreshing online status...');
-      loadConversations(); // Reload to get updated online status
-    });
-  }
+  // void _startOnlineStatusRefresh() {
+  //   _onlineStatusRefreshTimer?.cancel();
+  //   _onlineStatusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+  //     print('ChatProvider: Refreshing online status...');
+  //     loadConversations(); // Reload to get updated online status
+  //   });
+  // }
 
   /// Setup SignalR event listeners
   void _setupSignalRListeners() {
@@ -281,6 +281,43 @@ class ChatProvider with ChangeNotifier {
         content: content,
         referenceId: referenceId,
         referenceType: "DATE_PLAN",
+      );
+
+      // Replace optimistic message with real one
+      _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
+
+      return sentMessage;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<Message?> sendImageMessage(int conversationId, String content) async {
+    try {
+      // Create optimistic message
+      final optimisticMessage = Message(
+        id: DateTime.now().millisecondsSinceEpoch,
+        conversationId: conversationId,
+        senderId: _currentUserId ?? 0,
+        senderName: 'You',
+        content: content,
+        messageType: 'IMAGE',
+        createdAt: DateTime.now(),
+        isMine: true,
+        status: MessageStatus.sending,
+        localId: DateTime.now().millisecondsSinceEpoch.toString(),
+      );
+
+      // Add to UI immediately
+      _addMessageToConversation(conversationId, optimisticMessage);
+
+      // Send to server
+      final sentMessage = await MessagingApiService.sendMessage(
+        conversationId: conversationId,
+        messageType: 'IMAGE',
+        content: content,
       );
 
       // Replace optimistic message with real one

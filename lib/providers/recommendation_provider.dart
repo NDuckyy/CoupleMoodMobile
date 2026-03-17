@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
 import 'package:couple_mood_mobile/services/recommendation_service.dart';
@@ -12,10 +13,15 @@ class RecommendationProvider extends ChangeNotifier {
   double? latitude;
   double? longitude;
   ApiResponse<RecommendationResponse>? _recommendationResponse;
+  ContextRecommendation? _contextRecommendationResponse;
   bool isLoading = true;
+  bool isContextLoading = true;
   String? error;
   RecommendationResponse? get recommendationResponse =>
       _recommendationResponse?.data;
+
+  ContextRecommendation? get contextRecommendationResponse =>
+      _contextRecommendationResponse;
 
   Future<void> fetchRecommendations(RecommendationRequest request) async {
     page = 1;
@@ -112,15 +118,17 @@ class RecommendationProvider extends ChangeNotifier {
   Future<void> fetchLocationsByContext() async {
     page = 1;
     try {
-      isLoading = true;
+      isContextLoading = true;
+      _contextRecommendationResponse = null;
       notifyListeners();
-      _recommendationResponse =
+      _contextRecommendationResponse =
           await RecommendationService.fetchRecommendationsByContext();
-      isLoading = false;
-      notifyListeners();
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
-      isLoading = false;
+      isContextLoading = false;
+      notifyListeners();
+    } finally {
+      isContextLoading = false;
       notifyListeners();
     }
   }

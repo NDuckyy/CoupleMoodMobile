@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
+import 'package:couple_mood_mobile/screens/home/widget/context.dart';
 import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
 import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
 import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
@@ -37,8 +38,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<MoodProvider>().getCoupleCurrentMood();
-      _getPopularNearby();
+      await context.read<MoodProvider>().getCoupleCurrentMood();
+      // _getPopularNearby();
+      _getContextRecommendation();
       _getSpecialEvent();
       _getAdvertisement();
       showAdvertisement();
@@ -77,16 +79,22 @@ class _HomeScreenState extends State<HomeScreen> {
       recommendationProvider.latitude = position.latitude;
       recommendationProvider.longitude = position.longitude;
       debugPrint('User location: ${position.latitude}, ${position.longitude}');
-      recommendationProvider.popularNearby();
+      await recommendationProvider.popularNearby();
     }
   }
 
-  void _getSpecialEvent() {
-    context.read<AdvertisementProvider>().fetchSpecialEvents();
+  void _getContextRecommendation() async {
+    if (!mounted) return;
+    final recommendationProvider = context.read<RecommendationProvider>();
+    await recommendationProvider.fetchLocationsByContext();
   }
 
-  void _getAdvertisement() {
-    context.read<AdvertisementProvider>().fetchAdvertisement();
+  void _getSpecialEvent() async {
+    await context.read<AdvertisementProvider>().fetchSpecialEvents();
+  }
+
+  void _getAdvertisement() async {
+    await context.read<AdvertisementProvider>().fetchAdvertisement();
   }
 
   void _showSpecialEventDialog(BuildContext context, int eventId) async {
@@ -173,9 +181,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _refresh() async {
-    _getPopularNearby();
+    // _getPopularNearby();
     _getSpecialEvent();
     _getAdvertisement();
+    _getContextRecommendation();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
@@ -187,6 +196,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final recs =
         recommendationProvider.recommendationResponse?.recommendations.items ??
         [];
+    final contextRecs =
+        recommendationProvider.contextRecommendationResponse?.hits ?? [];
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -320,6 +331,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverToBoxAdapter(child: PopularNearby(recs: recs)),
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(child: ContextLocation(recs: contextRecs)),
           ],
         ),
       ),
