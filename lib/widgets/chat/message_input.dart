@@ -93,7 +93,7 @@ class MessageInput extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Share',
+                'Chia sẻ',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -124,7 +124,7 @@ class MessageInput extends StatelessWidget {
             ),
 
             ListTile(
-              leading: const Icon(Icons.video_call_outlined, color: Colors.blue),
+              leading: const Icon(Icons.video_call_outlined, color: Colors.red),
               title: const Text('Video'),
               onTap: () async {
                 final chatProvider = context.read<ChatProvider>();
@@ -147,41 +147,41 @@ class MessageInput extends StatelessWidget {
               },
             ),
             
-            ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.green),
-              title: const Text('Camera'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement camera
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.location_on, color: Colors.red),
-              title: const Text('Location'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement location picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today, color: Colors.purple),
-              title: const Text('Date Plan'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement date plan picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.insert_drive_file,
-                color: Colors.orange,
-              ),
-              title: const Text('File'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement file picker
-              },
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.camera_alt, color: Colors.green),
+            //   title: const Text('Camera'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement camera
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(Icons.location_on, color: Colors.red),
+            //   title: const Text('Location'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement location picker
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(Icons.calendar_today, color: Colors.purple),
+            //   title: const Text('Date Plan'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement date plan picker
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(
+            //     Icons.insert_drive_file,
+            //     color: Colors.orange,
+            //   ),
+            //   title: const Text('File'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement file picker
+            //   },
+            // ),
             const SizedBox(height: 8),
           ],
         ),

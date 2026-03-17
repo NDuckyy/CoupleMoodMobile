@@ -18,7 +18,7 @@ class ChatProvider with ChangeNotifier {
   Map<int, bool> _hasMoreMessages = {};
   Map<int, Set<int>> _typingUsers = {};
   
-  bool _isLoadingConversations = false;
+  bool _isLoadingConversations = true;
   String? _error;
   int? _currentUserId;
   
