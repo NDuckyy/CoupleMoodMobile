@@ -77,7 +77,9 @@ class MessageBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: message.isMine && message.messageType == 'TEXT'
                           ? Color(0xFFB388EB)
-                          : message.isMine && message.messageType == 'DATE_PLAN' || message.messageType == 'IMAGE'
+                          : message.isMine &&
+                                    message.messageType == 'DATE_PLAN' ||
+                                message.messageType == 'IMAGE'
                           ? Colors.white.withOpacity(0)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
@@ -171,13 +173,27 @@ class MessageBubble extends StatelessWidget {
               child: Image.network(
                 message.content,
                 width: 200,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
+
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+
+                  return Container(
+                    width: 200,
+                    height: 200,
+                    color: Colors.grey[300],
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator(),
+                  );
+                },
+
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     width: 200,
-                    height: 150,
+                    height: 200,
                     color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 48),
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.broken_image, size: 40),
                   );
                 },
               ),
