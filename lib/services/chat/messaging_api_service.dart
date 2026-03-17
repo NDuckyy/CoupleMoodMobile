@@ -189,7 +189,6 @@ class MessagingApiService {
         data['fileUrl'] = fileUrl;
         data['fileName'] = fileName;
         data['fileSize'] = fileSize;
-        data['content'] = content ?? fileName ?? '';
       }
       
       if (metadata != null) {
