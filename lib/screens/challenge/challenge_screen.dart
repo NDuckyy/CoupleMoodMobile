@@ -42,7 +42,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(title: const Text("Challenges"), elevation: 0),
+      appBar: AppBar(title: const Text("Thử thách"), elevation: 0),
       body: Consumer<ChallengeProvider>(
         builder: (_, provider, __) {
           if (provider.isLoading) {

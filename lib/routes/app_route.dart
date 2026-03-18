@@ -79,7 +79,7 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
 //voucher
-import 'package:couple_mood_mobile/screens/voucher/voucher_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/member_voucher_screen.dart';
 
 //auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
@@ -341,7 +341,7 @@ GoRouter createRouter(BuildContext context) {
         path: '/voucher',
         name: 'voucher',
         pageBuilder: (_, __) {
-          return const MaterialPage(child: VoucherScreen());
+          return const MaterialPage(child: MemberVoucherScreen());
         },
       ),
       GoRoute(
