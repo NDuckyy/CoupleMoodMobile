@@ -8,7 +8,6 @@ import 'package:couple_mood_mobile/screens/home/widget/context.dart';
 import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
 import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
 import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
-import 'package:couple_mood_mobile/screens/home/widget/special_event.dart';
 import 'package:couple_mood_mobile/screens/home/widget/week_selector.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/home_icon_button.dart';
