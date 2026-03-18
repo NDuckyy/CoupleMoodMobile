@@ -313,6 +313,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     HomeIconButton(
+                      icon: Icons.card_giftcard,
+                      label: "Voucher",
+                      color: const Color(0xFF4CAF50),
+                      onTap: () {
+                        context.pushNamed("voucher");
+                      },
+                    ),
+
+                    HomeIconButton(
                       icon: Icons.logout,
                       label: "Đăng xuất",
                       color: const Color(0xFFB388EB),

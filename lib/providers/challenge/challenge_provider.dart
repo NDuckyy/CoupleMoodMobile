@@ -95,4 +95,19 @@ class ChallengeProvider extends ChangeNotifier {
 
     return false;
   }
+
+  Future<bool> claimReward(int coupleChallengeId) async {
+    try {
+      await ChallengeService.claimReward(coupleChallengeId);
+
+      /// reload list để lấy trạng thái mới
+      await loadChallenges();
+
+      return true;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    return false;
+  }
 }
