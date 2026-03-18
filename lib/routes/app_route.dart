@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -107,7 +108,7 @@ final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
 final _searchTabNavKey = GlobalKey<NavigatorState>();
 final _chatTabNavKey = GlobalKey<NavigatorState>();
-final _hotTabNavKey = GlobalKey<NavigatorState>();
+final _mapTabNavKey = GlobalKey<NavigatorState>();
 final _worldTabNavKey = GlobalKey<NavigatorState>();
 final _collectionTabNavKey = GlobalKey<NavigatorState>();
 final _profileTabNavKey = GlobalKey<NavigatorState>();
@@ -237,13 +238,13 @@ GoRouter createRouter(BuildContext context) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _hotTabNavKey,
+            navigatorKey: _mapTabNavKey,
             routes: [
               GoRoute(
-                path: '/hot',
-                name: 'hot',
+                path: '/map',
+                name: 'map',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Hot')),
+                    const NoTransitionPage(child: CoupleLocationScreen()),
               ),
             ],
           ),

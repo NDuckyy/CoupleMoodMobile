@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
@@ -60,6 +61,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ChallengeProvider()),
         ChangeNotifierProvider(create: (_) => CoupleProvider()),
         ChangeNotifierProvider(create: (_) => MemberVoucherProvider()),
+        ChangeNotifierProvider(create: (_) => CoupleLocationProvider()),
       ],
       child: const MyApp(),
     ),
