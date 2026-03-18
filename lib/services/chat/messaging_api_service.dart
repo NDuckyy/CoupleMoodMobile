@@ -153,7 +153,7 @@ class MessagingApiService {
 
   /// Send a message (text or file)
   /// POST /api/messaging/messages
-  static Future<Message> sendMessage({
+  static Future<dynamic> sendMessage({
     required int conversationId,
     required String messageType, // "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE"
     String? content,

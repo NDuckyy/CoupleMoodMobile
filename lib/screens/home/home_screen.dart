@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await context.read<MoodProvider>().getCoupleCurrentMood();
       _getPopularNearby();
       _getContextRecommendation();
-      _getSpecialEvent();
+      // _getSpecialEvent();
       _getAdvertisement();
       showAdvertisement();
     });
@@ -89,9 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
     await recommendationProvider.fetchLocationsByContext();
   }
 
-  void _getSpecialEvent() async {
-    await context.read<AdvertisementProvider>().fetchSpecialEvents();
-  }
+  // void _getSpecialEvent() async {
+  //   await context.read<AdvertisementProvider>().fetchSpecialEvents();
+  // }
 
   void _getAdvertisement() async {
     await context.read<AdvertisementProvider>().fetchAdvertisement();
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refresh() async {
     _getPopularNearby();
-    _getSpecialEvent();
+    // _getSpecialEvent();
     _getAdvertisement();
     _getContextRecommendation();
     context.read<MoodProvider>().getCoupleCurrentMood();
@@ -324,15 +324,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: SpecialEvent(
-                advertisements: advertisementProvider.specialEvents,
-              ),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 16)),
-            SliverToBoxAdapter(child: PopularNearby(recs: recs)),
+            // SliverToBoxAdapter(
+            //   child: SpecialEvent(
+            //     advertisements: advertisementProvider.specialEvents,
+            //   ),
+            // ),
             SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverToBoxAdapter(child: ContextLocation(recs: contextRecs)),
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(child: PopularNearby(recs: recs)),
           ],
         ),
       ),

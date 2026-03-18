@@ -25,13 +25,24 @@ class RecommendationService {
     }
   }
 
+  static Future<ApiResponse<String>> fetchContext() async{
+    try{
+      final res = await ApiClient.request('/v1/user-context', method: HttpMethod.get);
+      return ApiResponse.fromJson(res, (json) => json as String);
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi lấy ngữ cảnh người dùng: $e');
+    }
+}
+
   static Future<ContextRecommendation>
   fetchRecommendationsByContext() async {
     try {
+      final context = await fetchContext();
       final res = await ApiClient.requestForContext(
         method: HttpMethod.post,
         data: {
-          "personalize": {"userContext": "thích phê"},
+          "personalize": {"userContext": context.data},
         },
       );
       return ContextRecommendation.fromJson(res);
