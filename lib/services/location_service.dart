@@ -5,6 +5,7 @@ import 'dart:async';
 import 'checkin_watcher.dart';
 
 class LocationService {
+  static bool _isListening = false;
   final dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:
@@ -40,7 +41,10 @@ class LocationService {
   }
 
   static StreamSubscription<Position>? _positionSub;
+  
   static Future<void> startListening() async {
+    if (_isListening) return;
+    _isListening = true;
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) return;
 

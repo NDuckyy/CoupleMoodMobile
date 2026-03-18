@@ -14,7 +14,6 @@ import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_review_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/member_voucher_provider.dart';
 import 'package:couple_mood_mobile/routes/app_route.dart';
-import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -43,7 +42,7 @@ void main() async {
   await initializeDateFormatting('vi');
   final auth = AuthProvider();
   await auth.init();
-  LocationService.startListening();
+  // LocationService.startListening();
   runApp(
     MultiProvider(
       providers: [

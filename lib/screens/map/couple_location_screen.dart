@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -13,14 +15,21 @@ class CoupleLocationScreen extends StatefulWidget {
 
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
   @override
-  void initState() {
-    super.initState();
+@override
+void initState() {
+  super.initState();
 
-    final provider =
-        Provider.of<CoupleLocationProvider>(context, listen: false);
+  final provider =
+      Provider.of<CoupleLocationProvider>(context, listen: false);
 
-    provider.listenLocation("coupleId_123"); // 👈 start listen
-  }
+  provider.listenLocation("31");
+
+  Future.microtask(()async {
+    await Geolocator.requestPermission();
+   LocationService.startListening();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

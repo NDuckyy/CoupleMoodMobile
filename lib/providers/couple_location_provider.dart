@@ -12,6 +12,7 @@ class CoupleLocationProvider extends ChangeNotifier {
 
   Set<Marker> _markers = {};
   Set<Marker> get markers => _markers;
+  String currentUserId = "10"; // 👈 hardcode for demo
 
   void listenLocation(String coupleId) {
     _dbRef.child(coupleId).onValue.listen((event) {
@@ -25,11 +26,20 @@ class CoupleLocationProvider extends ChangeNotifier {
         final lat = value["lat"];
         final lng = value["lng"];
 
+        final isMe = userId == currentUserId;
+
         newMarkers.add(
           Marker(
             markerId: MarkerId(userId),
             position: LatLng(lat, lng),
-            infoWindow: InfoWindow(title: userId),
+            infoWindow: InfoWindow(title: isMe ? "You 📍" : "Your Partner ❤️"),
+            icon: isMe
+                ? BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueAzure, // xanh
+                  )
+                : BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueRose, // hồng
+                  ),
           ),
         );
       });
