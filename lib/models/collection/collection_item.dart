@@ -28,12 +28,12 @@ class CollectionItem {
       id: json['id'],
       memberId: json['memberId'],
       collectionName: json['collectionName'],
-      description: json['description'],
+      description: json['description'] ?? '',
       status: json['status'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       img: json['img'],
-      venues: (json['venues'] as List<dynamic>)
+      venues: (json['venues'] as List? ?? [])
           .map((e) => CollectionVenue.fromJson(e))
           .toList(),
     );

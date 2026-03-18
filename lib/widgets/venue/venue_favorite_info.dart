@@ -10,14 +10,14 @@ class VenueFavoriteInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final count = context.watch<VenueDetailProvider>().favoriteCount;
 
-    if (count <= 0) return const SizedBox.shrink();
-
     return Row(
       children: [
         const Icon(Icons.favorite, size: 16, color: Colors.redAccent),
         const SizedBox(width: 4),
         Text(
-          '${formatCount(count)} người yêu thích địa điểm này',
+          count > 0
+              ? '${formatCount(count)} người yêu thích địa điểm này'
+              : 'Chưa có người yêu thích địa điểm này',
           style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
         ),
       ],

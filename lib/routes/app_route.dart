@@ -78,6 +78,9 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 //challenge
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
+//voucher
+import 'package:couple_mood_mobile/screens/voucher/member_voucher_screen.dart';
+
 //auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/register_screen.dart';
@@ -331,6 +334,14 @@ GoRouter createRouter(BuildContext context) {
         name: 'challenge',
         pageBuilder: (_, __) {
           return const MaterialPage(child: ChallengeScreen());
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/voucher',
+        name: 'voucher',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: MemberVoucherScreen());
         },
       ),
       GoRoute(

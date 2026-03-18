@@ -4,7 +4,7 @@ class CollectionVenue {
   final String description;
   final String address;
   final String? coverImage;
-  final String? interiorImage;
+  final List<String> interiorImage;
 
   CollectionVenue({
     required this.id,
@@ -12,17 +12,19 @@ class CollectionVenue {
     required this.description,
     required this.address,
     this.coverImage,
-    this.interiorImage,
+    required this.interiorImage,
   });
 
   factory CollectionVenue.fromJson(Map<String, dynamic> json) {
     return CollectionVenue(
       id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      address: json['address'],
+      name: json['name'] ?? '',
+      description: json['description'] ?? '',
+      address: json['address'] ?? '',
       coverImage: json['coverImage'],
-      interiorImage: json['interiorImage'],
+      interiorImage: (json['interiorImage'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList(),
     );
   }
 }
