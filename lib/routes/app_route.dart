@@ -32,6 +32,9 @@ import 'package:couple_mood_mobile/providers/member_provider.dart';
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 
+//voucher
+import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
+
 //---Screen
 //Chat
 import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
@@ -80,7 +83,8 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
 //voucher
-import 'package:couple_mood_mobile/screens/voucher/member_voucher_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/voucher_list_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
 
 //auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
@@ -342,7 +346,22 @@ GoRouter createRouter(BuildContext context) {
         path: '/voucher',
         name: 'voucher',
         pageBuilder: (_, __) {
-          return const MaterialPage(child: MemberVoucherScreen());
+          return const MaterialPage(child: VoucherListScreen());
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/voucher-detail',
+        name: 'voucher_detail',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => VoucherDetailProvider(),
+              child: VoucherDetailScreen(voucherId: extra['voucherId']),
+            ),
+          );
         },
       ),
       GoRoute(

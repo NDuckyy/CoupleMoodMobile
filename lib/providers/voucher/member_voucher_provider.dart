@@ -1,11 +1,11 @@
-import 'package:couple_mood_mobile/models/voucher/member_voucher_item_model.dart';
+import 'package:couple_mood_mobile/models/voucher/voucher_item_model.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
-import 'package:couple_mood_mobile/services/voucher/member_voucher_service.dart';
+import 'package:couple_mood_mobile/services/voucher/voucher_service.dart';
 
-class MemberVoucherProvider extends ChangeNotifier {
-  ApiResponse<PaginatedResponse<MemberVoucherItem>>? _response;
+class VoucherProvider extends ChangeNotifier {
+  ApiResponse<PaginatedResponse<VoucherItem>>? _response;
 
   bool isLoading = false;
   bool isLoadingMore = false;
@@ -15,7 +15,7 @@ class MemberVoucherProvider extends ChangeNotifier {
   final int _pageSize = 10;
   bool hasMore = true;
 
-  List<MemberVoucherItem> get vouchers => _response?.data?.items ?? [];
+  List<VoucherItem> get vouchers => _response?.data?.items ?? [];
 
   /// INITIAL LOAD / REFRESH
   Future<void> fetchVouchers({bool refresh = false}) async {
@@ -32,7 +32,7 @@ class MemberVoucherProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await MemberVoucherService.getMemberVouchers(
+      final res = await VoucherService.getVouchers(
         page: _page,
         pageSize: _pageSize,
         sortBy: 'createdAt',
@@ -58,7 +58,7 @@ class MemberVoucherProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final res = await MemberVoucherService.getMemberVouchers(
+      final res = await VoucherService.getVouchers(
         page: _page,
         pageSize: _pageSize,
         sortBy: 'createdAt',

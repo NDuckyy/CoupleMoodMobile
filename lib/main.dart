@@ -59,7 +59,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ChallengeProvider()),
         ChangeNotifierProvider(create: (_) => CoupleProvider()),
-        ChangeNotifierProvider(create: (_) => MemberVoucherProvider()),
+        ChangeNotifierProvider(create: (_) => VoucherProvider()),
       ],
       child: const MyApp(),
     ),
