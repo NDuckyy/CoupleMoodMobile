@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/models/voucher/exchange_item.dart';
 import 'package:couple_mood_mobile/models/voucher/voucher_item_model.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
@@ -80,6 +82,32 @@ class VoucherProvider extends ChangeNotifier {
     } finally {
       isLoadingMore = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> exchangeVoucher(
+    BuildContext context,
+    VoucherItem voucher,
+  ) async {
+    try {
+      final res = await VoucherService.exchangeVoucher(
+        items: [ExchangeItem(voucherId: voucher.id, quantity: 1)],
+      );
+
+      if (res.code == 200) {
+        showMsg(context, "Đổi voucher thành công ❤️", true);
+
+        /// reload list sau khi đổi
+        await fetchVouchers(refresh: true);
+
+        return true;
+      } else {
+        showMsg(context, res.message ?? "Đổi thất bại", false);
+        return false;
+      }
+    } catch (e) {
+      showMsg(context, e.toString(), false);
+      return false;
     }
   }
 

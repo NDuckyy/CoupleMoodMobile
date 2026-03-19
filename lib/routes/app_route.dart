@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +35,7 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 
 //voucher
 import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
 
 //---Screen
 //Chat
@@ -83,8 +85,10 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
 //voucher
-import 'package:couple_mood_mobile/screens/voucher/voucher_list_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/my_voucher_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/voucher_hub_screen.dart';
 
 //auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
@@ -346,7 +350,7 @@ GoRouter createRouter(BuildContext context) {
         path: '/voucher',
         name: 'voucher',
         pageBuilder: (_, __) {
-          return const MaterialPage(child: VoucherListScreen());
+          return const MaterialPage(child: VoucherHubScreen());
         },
       ),
       GoRoute(
@@ -360,6 +364,33 @@ GoRouter createRouter(BuildContext context) {
             child: ChangeNotifierProvider(
               create: (_) => VoucherDetailProvider(),
               child: VoucherDetailScreen(voucherId: extra['voucherId']),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/my-voucher',
+        name: 'my_voucher',
+        pageBuilder: (_, __) => MaterialPage(
+          child: ChangeNotifierProvider(
+            create: (_) => MyVoucherProvider()..fetchMyVouchers(refresh: true),
+            child: const MyVoucherScreen(),
+          ),
+        ),
+      ),
+
+      GoRoute(
+        path: '/my-voucher-detail',
+        name: 'my_voucher_detail',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => MyVoucherDetailProvider(),
+              child: MyVoucherDetailScreen(
+                voucherItemId: extra['voucherItemId'],
+              ),
             ),
           );
         },

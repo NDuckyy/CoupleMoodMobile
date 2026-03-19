@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:couple_mood_mobile/providers/voucher/member_voucher_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
 import 'package:couple_mood_mobile/widgets/voucher/animated_voucher_item.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_card.dart';
 
@@ -64,12 +64,6 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
-      appBar: AppBar(
-        title: const Text("Mã khuyến mãi"),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-      ),
       body: Consumer<VoucherProvider>(
         builder: (context, provider, _) {
           /// FIRST LOAD
@@ -125,7 +119,15 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
                           refresh: true,
                         );
                       },
-                      child: VoucherCard(voucher: v),
+                      child: VoucherCard(
+                        voucher: v,
+                        onExchange: () async {
+                          await context.read<VoucherProvider>().exchangeVoucher(
+                            context,
+                            v,
+                          );
+                        },
+                      ),
                     ),
                   );
                 }

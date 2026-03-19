@@ -5,12 +5,16 @@ import 'package:couple_mood_mobile/utils/currency_utils.dart';
 
 class VoucherCard extends StatelessWidget {
   final VoucherItem voucher;
+  final VoidCallback? onExchange;
 
-  const VoucherCard({super.key, required this.voucher});
+  const VoucherCard({super.key, required this.voucher, this.onExchange});
 
   @override
   Widget build(BuildContext context) {
     final percentUsed = 1 - (voucher.remainingQuantity / voucher.quantity);
+    final isOutOfStock = voucher.remainingQuantity <= 0;
+    final isLow =
+        voucher.remainingQuantity > 0 && voucher.remainingQuantity <= 5;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -114,10 +118,19 @@ class VoucherCard extends StatelessWidget {
                         const SizedBox(height: 6),
 
                         Text(
-                          "Còn ${voucher.remainingQuantity}",
-                          style: const TextStyle(
+                          isOutOfStock
+                              ? "Đã hết hàng"
+                              : "Còn ${voucher.remainingQuantity}",
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Colors.grey,
+                            color: isOutOfStock
+                                ? Colors.grey
+                                : isLow
+                                ? Colors.red
+                                : Colors.grey,
+                            fontWeight: isLow
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
                       ],
@@ -128,44 +141,99 @@ class VoucherCard extends StatelessWidget {
 
                   /// RIGHT
                   Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(
-                        voucher.status,
-                        style: TextStyle(
-                          color: voucher.status == "ACTIVE"
-                              ? Colors.green
-                              : Colors.grey,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                      /// STATUS
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-
-                      const SizedBox(height: 8),
-
-                      Text(
-                        "HSD\n${voucher.endDate.day}/${voucher.endDate.month}",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 11),
+                        decoration: BoxDecoration(
+                          color: voucher.status == "ACTIVE"
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          voucher.status,
+                          style: TextStyle(
+                            color: voucher.status == "ACTIVE"
+                                ? Colors.green
+                                : Colors.grey,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                        ),
                       ),
 
                       const SizedBox(height: 10),
 
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 6,
+                      /// POINT PRICE 🔥
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.stars,
+                            size: 16,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${voucher.pointPrice}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Text(
+                        "điểm",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
                         ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1EAFE),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          "ĐỔI NGAY",
-                          style: TextStyle(
-                            color: Color(0xFF6A1B9A),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      /// BUTTON 🔥
+                      InkWell(
+                        onTap: voucher.remainingQuantity > 0
+                            ? onExchange
+                            : null,
+                        borderRadius: BorderRadius.circular(20),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            gradient: voucher.remainingQuantity > 0
+                                ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFFB388EB),
+                                      Color(0xFF8093F1),
+                                    ],
+                                  )
+                                : null,
+                            color: voucher.remainingQuantity > 0
+                                ? null
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            "ĐỔI NGAY",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ),
