@@ -9,27 +9,28 @@ class CoupleLocationScreen extends StatefulWidget {
   const CoupleLocationScreen({super.key});
 
   @override
-  State<CoupleLocationScreen> createState() =>
-      _CoupleLocationScreenState();
+  State<CoupleLocationScreen> createState() => _CoupleLocationScreenState();
 }
 
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
   @override
-@override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  final provider =
-      Provider.of<CoupleLocationProvider>(context, listen: false);
+    Future.microtask(() async {
+      final provider = Provider.of<CoupleLocationProvider>(
+        context,
+        listen: false,
+      );
 
-  provider.listenLocation("31");
+      await provider.loadAvatars(); // 👈 load trước
 
-  Future.microtask(()async {
-    await Geolocator.requestPermission();
-   LocationService.startListening();
-  });
-}
+      provider.listenLocation("31");
 
+      await Geolocator.requestPermission();
+      LocationService.startListening();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
