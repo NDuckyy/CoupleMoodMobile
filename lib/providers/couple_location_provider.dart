@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +15,15 @@ class CoupleLocationProvider extends ChangeNotifier {
         "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
   ).ref("locations");
 
+  MoodProvider? moodProvider;
   LatLng? myPosition;
   LatLng? partnerPosition;
   BitmapDescriptor? myAvatar;
   BitmapDescriptor? partnerAvatar;
-
+  StreamSubscription? _locationSub;
   Set<Marker> _markers = {};
   Set<Marker> get markers => _markers;
-  String currentUserId = "10";
+      
   Map<String, LatLng> _lastPositions = {};
 
   LatLng _lerp(LatLng a, LatLng b, double t) {
@@ -34,8 +38,11 @@ class CoupleLocationProvider extends ChangeNotifier {
     partnerAvatar = await getAvatarMarker("./lib/assets/images/nu_vui.png");
   }
 
-  void listenLocation(String coupleId) {
-    _dbRef.child(coupleId).onValue.listen((event) {
+  void listenLocation(String coupleId, String currentUserId) {
+    _locationSub?.cancel();
+    print("Listening to location changes for coupleId: $coupleId");
+    print("Current User ID: $currentUserId");
+    _locationSub = _dbRef.child(coupleId).onValue.listen((event) {
       final data = event.snapshot.value as Map?;
 
       if (data == null) return;
@@ -118,5 +125,14 @@ class CoupleLocationProvider extends ChangeNotifier {
     }
 
     _lastPositions[userId] = newPosition;
+  }
+
+  void reset() {
+    _locationSub?.cancel();
+    myPosition = null;
+    partnerPosition = null;
+    _markers.clear();
+    _lastPositions.clear();
+    notifyListeners();
   }
 }

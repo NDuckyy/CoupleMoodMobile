@@ -18,6 +18,7 @@ class CurrentMood {
 
   final bool isCouple;
   final bool hasCoupleMood;
+  final int? coupleProfileId;
 
   CurrentMood({
     required this.memberId,
@@ -36,6 +37,7 @@ class CurrentMood {
     this.description,
     required this.isCouple,
     required this.hasCoupleMood,
+    this.coupleProfileId,
   });
 
   factory CurrentMood.fromJson(Map<String, dynamic> json) {
@@ -58,6 +60,7 @@ class CurrentMood {
       description: json['description'] as String?,
       isCouple: json['isCouple'] as bool,
       hasCoupleMood: json['hasCoupleMood'] as bool,
+      coupleProfileId: json['coupleProfileId'] as int?,
     );
   }
 }

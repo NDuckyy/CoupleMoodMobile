@@ -42,7 +42,6 @@ void main() async {
   await initializeDateFormatting('vi');
   final auth = AuthProvider();
   await auth.init();
-  // LocationService.startListening();
   runApp(
     MultiProvider(
       providers: [

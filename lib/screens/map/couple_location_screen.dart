@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -28,10 +29,18 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
         listen: false,
       );
 
+      final moodProvider = Provider.of<MoodProvider>(context, listen: false);
+
       await provider.loadAvatars();
-      provider.listenLocation("31");
       await Geolocator.requestPermission();
-      LocationService.startListening();
+      provider.listenLocation(
+        moodProvider.coupleCurrentMood?.coupleProfileId.toString() ?? "unknown_couple",
+        moodProvider.coupleCurrentMood?.memberId.toString() ?? "unknown_user"
+      );
+      LocationService.startListening(
+        moodProvider.coupleCurrentMood!.coupleProfileId.toString(),
+        moodProvider.coupleCurrentMood!.memberId.toString(),
+      );
 
       if (pos != null && _mapController != null) {
         _mapController!.animateCamera(
@@ -70,7 +79,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
           Positioned(
             bottom: 100,
-            right: 16,
+            left: 16,
             child: FloatingActionButton(
               backgroundColor: Color(0xFF8093F1),
               heroTag: "me",
@@ -88,7 +97,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
           Positioned(
             bottom: 40,
-            right: 16,
+            left: 16,
             child: FloatingActionButton(
               heroTag: "partner",
               backgroundColor: Color(0xFFF7AEF8),

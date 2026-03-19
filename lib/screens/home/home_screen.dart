@@ -26,10 +26,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   void _logout() {
     final auth = context.read<AuthProvider>();
+    LocationService.stopListening();
     auth.logout();
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
-      context.pushNamed("login");
+      context.goNamed("login");
     });
   }
 

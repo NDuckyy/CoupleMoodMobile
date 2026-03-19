@@ -43,7 +43,7 @@ class LocationService {
 
   static StreamSubscription<Position>? _positionSub;
   
-  static Future<void> startListening() async {
+  static Future<void> startListening(String coupleId, String userId) async {
     if (_isListening) return;
     _isListening = true;
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -73,7 +73,7 @@ class LocationService {
             position.longitude,
           );
           print("👉 BEFORE UPDATE LOCATION");
-          LocationService.updateLocation("31", "10", position);
+          LocationService.updateLocation(coupleId, userId, position);
           print("👉 AFTER UPDATE LOCATION");
         });
   }
@@ -104,5 +104,10 @@ class LocationService {
     } catch (e) {
       print("❌ WRITE ERROR: $e");
     }
+  }
+
+  static Future<void> stopListening() async {
+    _positionSub?.cancel();
+    _isListening = false;
   }
 }

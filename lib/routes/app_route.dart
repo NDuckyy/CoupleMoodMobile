@@ -684,7 +684,7 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                _buildItem(Icons.map, 3, currentIndex),
                 const SizedBox(width: 16),
                 _buildItem(Icons.chat_outlined, 2, currentIndex),
               ],
