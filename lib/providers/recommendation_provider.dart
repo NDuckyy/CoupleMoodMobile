@@ -14,8 +14,10 @@ class RecommendationProvider extends ChangeNotifier {
   double? longitude;
   ApiResponse<RecommendationResponse>? _recommendationResponse;
   ContextRecommendation? _contextRecommendationResponse;
+  List<dynamic> autoCompleteResult = [];
   bool isLoading = true;
   bool isContextLoading = true;
+  bool isAutoCompleteLoading = false;
   String? error;
   RecommendationResponse? get recommendationResponse =>
       _recommendationResponse?.data;
@@ -129,6 +131,21 @@ class RecommendationProvider extends ChangeNotifier {
       notifyListeners();
     } finally {
       isContextLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> autoComplete(String query) async {
+    isAutoCompleteLoading = true;
+    notifyListeners();
+
+    try {
+      autoCompleteResult = await RecommendationService.autoComplete(query);
+    } catch (e) {
+      debugPrint('Auto-complete error: $e');
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isAutoCompleteLoading = false;
       notifyListeners();
     }
   }

@@ -25,18 +25,20 @@ class RecommendationService {
     }
   }
 
-  static Future<ApiResponse<String>> fetchContext() async{
-    try{
-      final res = await ApiClient.request('/v1/user-context', method: HttpMethod.get);
+  static Future<ApiResponse<String>> fetchContext() async {
+    try {
+      final res = await ApiClient.request(
+        '/v1/user-context',
+        method: HttpMethod.get,
+      );
       return ApiResponse.fromJson(res, (json) => json as String);
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi lấy ngữ cảnh người dùng: $e');
     }
-}
+  }
 
-  static Future<ContextRecommendation>
-  fetchRecommendationsByContext() async {
+  static Future<ContextRecommendation> fetchRecommendationsByContext() async {
     try {
       final context = await fetchContext();
       final res = await ApiClient.requestForContext(
@@ -46,6 +48,23 @@ class RecommendationService {
         },
       );
       return ContextRecommendation.fromJson(res);
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi tìm kiếm địa điểm: $e');
+    }
+  }
+
+  static Future<List<dynamic>> autoComplete(String query) async {
+    try {
+      final res = await ApiClient.autoComplete(
+        method: HttpMethod.post,
+        data: {
+          "q": query,
+          "limit": 5,
+          "attributesToHighlight": ["name"],
+        },
+      );
+      return res['hits'] as List<dynamic>;
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi tìm kiếm địa điểm: $e');
