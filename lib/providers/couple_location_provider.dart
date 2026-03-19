@@ -12,6 +12,8 @@ class CoupleLocationProvider extends ChangeNotifier {
         "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
   ).ref("locations");
 
+  LatLng? myPosition;
+  LatLng? partnerPosition;
   BitmapDescriptor? myAvatar;
   BitmapDescriptor? partnerAvatar;
 
@@ -45,6 +47,12 @@ class CoupleLocationProvider extends ChangeNotifier {
         final lng = value["lng"];
 
         final isMe = userId == currentUserId;
+        final position = LatLng(lat, lng);
+        if (isMe) {
+          myPosition = position;
+        } else {
+          partnerPosition = position;
+        }
 
         await _animateMarker(userId, LatLng(lat, lng), isMe);
       });
@@ -54,11 +62,14 @@ class CoupleLocationProvider extends ChangeNotifier {
     });
   }
 
-  Future<BitmapDescriptor> getAvatarMarker(String assetPath) async {
+  Future<BitmapDescriptor> getAvatarMarker(
+    String assetPath, {
+    int size = 120,
+  }) async {
     final ByteData data = await rootBundle.load(assetPath);
     final codec = await ui.instantiateImageCodec(
       data.buffer.asUint8List(),
-      targetWidth: 120, // chỉnh size avatar
+      targetWidth: size,
     );
     final frame = await codec.getNextFrame();
 

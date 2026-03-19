@@ -13,22 +13,35 @@ class CoupleLocationScreen extends StatefulWidget {
 }
 
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
+  Position? _initialPosition;
+  GoogleMapController? _mapController;
+
   @override
   void initState() {
     super.initState();
 
     Future.microtask(() async {
+      final pos = await LocationService.getCurrentPosition();
+
       final provider = Provider.of<CoupleLocationProvider>(
         context,
         listen: false,
       );
 
-      await provider.loadAvatars(); // 👈 load trước
-
+      await provider.loadAvatars();
       provider.listenLocation("31");
-
       await Geolocator.requestPermission();
       LocationService.startListening();
+
+      if (pos != null && _mapController != null) {
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
+        );
+      }
+
+      setState(() {
+        _initialPosition = pos;
+      });
     });
   }
 
@@ -38,13 +51,59 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
     return Scaffold(
       appBar: AppBar(title: const Text("Couple Map 💕")),
-      body: GoogleMap(
-        initialCameraPosition: const CameraPosition(
-          target: LatLng(10.8231, 106.6297),
-          zoom: 14,
-        ),
-        markers: provider.markers,
-        myLocationEnabled: true,
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (controller) {
+              _mapController = controller;
+            },
+            initialCameraPosition: CameraPosition(
+              target: LatLng(
+                _initialPosition?.latitude ?? 10.762622,
+                _initialPosition?.longitude ?? 106.660172,
+              ),
+              zoom: 14,
+            ),
+            markers: provider.markers,
+            myLocationEnabled: true,
+          ),
+
+          Positioned(
+            bottom: 100,
+            right: 16,
+            child: FloatingActionButton(
+              backgroundColor: Color(0xFF8093F1),
+              heroTag: "me",
+              onPressed: () {
+                final pos = provider.myPosition;
+                if (pos != null && _mapController != null) {
+                  _mapController!.animateCamera(
+                    CameraUpdate.newLatLngZoom(pos, 16),
+                  );
+                }
+              },
+              child: const Icon(Icons.my_location, color: Colors.white),
+            ),
+          ),
+
+          Positioned(
+            bottom: 40,
+            right: 16,
+            child: FloatingActionButton(
+              heroTag: "partner",
+              backgroundColor: Color(0xFFF7AEF8),
+              onPressed: () {
+                final pos = provider.partnerPosition;
+                if (pos != null && _mapController != null) {
+                  _mapController!.animateCamera(
+                    CameraUpdate.newLatLngZoom(pos, 16),
+                  );
+                }
+              },
+              child: const Icon(Icons.favorite, color: Colors.white),
+            ),
+          ),
+        ],
       ),
     );
   }

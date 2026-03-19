@@ -11,6 +11,7 @@ class LocationService {
     databaseURL:
         "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app/",
   ).ref("locations");
+  
   static Future<Position?> getCurrentPosition() async {
     bool serviceEnabled;
     LocationPermission permission;
