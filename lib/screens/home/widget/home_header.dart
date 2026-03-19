@@ -14,6 +14,7 @@ class HomeHeader extends StatelessWidget {
             style: GoogleFonts.balooChettan2(
               fontSize: 26,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
@@ -26,6 +27,7 @@ class HomeHeader extends StatelessWidget {
               onPressed: () {},
               icon: const Icon(
                 Icons.notifications_outlined,
+                color: Colors.white,
               ),
             ),
           ),

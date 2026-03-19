@@ -205,22 +205,36 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _refresh,
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              pinned: true,
-              floating: false,
-              snap: false,
-              elevation: 0,
-              backgroundColor: Colors.white,
-              automaticallyImplyLeading: false,
-              titleSpacing: 12,
-              title: const HomeHeader(),
-            ),
-
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: CoupleMoodCard(
-                  coupleCurrentMood: moodProvider.coupleCurrentMood,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFFDC5F5),
+                      Color(0xFFF7AEF8),
+                      Colors.white,
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize:
+                          MainAxisSize.min, // Cho Column co theo nội dung
+                      children: [
+                        const HomeHeader(),
+                        const SizedBox(height: 16),
+                        CoupleMoodCard(
+                          coupleCurrentMood: moodProvider.coupleCurrentMood,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
