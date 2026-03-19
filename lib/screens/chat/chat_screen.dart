@@ -27,10 +27,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Timer? _typingTimer;
   bool _isTyping = false;
   bool _isLoadingMore = false;
+  late ChatProvider chatProvider;
+  StreamSubscription? _conversationSub;
 
   @override
   void initState() {
     super.initState();
+    chatProvider = context.read<ChatProvider>();
     WidgetsBinding.instance.addObserver(this);
     _initialize();
     _scrollController.addListener(_onScroll);
@@ -38,11 +41,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _initialize() async {
-    final chatProvider = context.read<ChatProvider>();
-
     // Join conversation room
     await chatProvider.joinConversation(widget.conversation.id);
-
+    if (!mounted) return;
     // Load messages
     await chatProvider.loadMessages(widget.conversation.id);
   }
@@ -57,7 +58,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<void> _loadMoreMessages() async {
     if (_isLoadingMore) return;
 
-    final chatProvider = context.read<ChatProvider>();
     if (!chatProvider.hasMoreMessages(widget.conversation.id)) return;
 
     setState(() => _isLoadingMore = true);
@@ -66,8 +66,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _handleTextChanged(String text) {
-    final chatProvider = context.read<ChatProvider>();
-
     _typingTimer?.cancel();
 
     if (text.isNotEmpty) {
@@ -96,7 +94,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_isTyping) {
       _isTyping = false;
       _typingTimer?.cancel();
-      context.read<ChatProvider>().sendTypingIndicator(
+      chatProvider.sendTypingIndicator(
         widget.conversation.id,
         false,
       );
@@ -106,7 +104,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _textController.clear();
 
     // Send message
-    final chatProvider = context.read<ChatProvider>();
     await chatProvider.sendTextMessage(widget.conversation.id, text);
 
     // Scroll to bottom
@@ -125,8 +122,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final chatProvider = context.read<ChatProvider>();
-
     if (state == AppLifecycleState.paused) {
       // App going to background
       chatProvider.leaveConversation(widget.conversation.id);
@@ -138,7 +133,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _onAcceptDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
-    final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.acceptDatePlan(datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
@@ -153,7 +147,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _onRejectDatePlan(int datePlanId, int messageId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
-    final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.rejectDatePlan(datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
@@ -167,15 +160,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _listenRealtimeUpdates() {
-    final chatProvider = context.read<ChatProvider>();
-
-    chatProvider.signalR.onConversationUpdated.listen((conversation) {
-      if (conversation.id == widget.conversation.id) {
-        chatProvider.loadMessages(widget.conversation.id);
-      }
-    });
-  }
+void _listenRealtimeUpdates() {
+  _conversationSub =
+      chatProvider.signalR.onConversationUpdated.listen((conversation) {
+        if (conversation.id == widget.conversation.id) {
+          chatProvider.loadMessages(widget.conversation.id);
+        }
+      });
+}
 
   @override
   void dispose() {
@@ -183,9 +175,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _scrollController.dispose();
     _textController.dispose();
     _typingTimer?.cancel();
-
+    _conversationSub?.cancel();
     // Leave conversation
-    context.read<ChatProvider>().leaveConversation(widget.conversation.id);
+    chatProvider.leaveConversation(widget.conversation.id);
 
     super.dispose();
   }
@@ -475,9 +467,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     if (confirm == true) {
       if (!mounted) return;
-      await context.read<ChatProvider>().deleteMessage(messageId);
+      await chatProvider.deleteMessage(messageId);
       if (!mounted) return;
-      await context.read<ChatProvider>().loadMessages(widget.conversation.id);
+      await chatProvider.loadMessages(widget.conversation.id);
     }
   }
 }
