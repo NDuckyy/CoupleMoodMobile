@@ -1,9 +1,9 @@
 import 'package:couple_mood_mobile/providers/test_provider.dart';
-import 'package:couple_mood_mobile/screens/test/widgets/test_action_row.dart';
-import 'package:couple_mood_mobile/screens/test/widgets/test_breakdown_card.dart';
-import 'package:couple_mood_mobile/screens/test/widgets/test_description_card.dart';
-import 'package:couple_mood_mobile/screens/test/widgets/test_header_card.dart';
-import 'package:couple_mood_mobile/screens/test/widgets/test_section_title.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_action_row.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_breakdown_card.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_description_card.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_header_card.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_section_title.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
