@@ -118,18 +118,24 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chi tiết bài test'),
         backgroundColor: Colors.white,
+        title: const Text(
+          'Bài test 💕',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
       ),
+      backgroundColor: Colors.white,
+
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
           children: [
             Expanded(
-              child: OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: primary),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB388EB),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -158,19 +164,23 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
                     showMsg(context, "Lỗi khi lưu tiến trình", false);
                   }
                 },
-                child: const Text('Lưu', style: TextStyle(color: primary)),
+                child: const Text('Lưu', style: TextStyle(color: Colors.white)),
               ),
             ),
+
             const SizedBox(width: 12),
+
             Expanded(
               flex: 2,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primary,
+                  backgroundColor: const Color(0xFF8093F1),
+                  elevation: 4,
+                  shadowColor: const Color(0xFF8093F1).withOpacity(0.4),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
                 onPressed: () async {
                   final provider = context.read<TestProvider>();
@@ -206,6 +216,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
+
                   ),
                 ),
               ),
@@ -213,126 +224,178 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
           ],
         ),
       ),
+      body: Stack(
+        children: [
+          testProvider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: testProvider.testDetails.data!.length,
+                  itemBuilder: (context, index) {
+                    final testDetail = testProvider.testDetails.data![index];
 
-      backgroundColor: Colors.white,
-      body: testProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-              itemCount: testProvider.testDetails.data!.length,
-              itemBuilder: (context, index) {
-                final testDetail = testProvider.testDetails.data![index];
-
-                return Card(
-                  elevation: 2,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// QUESTION HEADER
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: softPink,
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                'Câu ${index + 1}',
-                                style: const TextStyle(
-                                  color: primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '/ ${testProvider.testDetails.data!.length}',
-                              style: const TextStyle(color: Colors.black54),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        /// QUESTION CONTENT
-                        Text(
-                          testDetail.content,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        /// OPTIONS
-                        ...testDetail.options.map((option) {
-                          final isSelected =
-                              selectedAnswers[testDetail.questionId] ==
-                              option.answerId;
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedAnswers[testDetail.questionId] =
-                                    option.answerId;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.only(bottom: 12),
-                              padding: const EdgeInsets.all(14),
-                              decoration: BoxDecoration(
-                                color: isSelected ? softPink : softGrey,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? primary
-                                      : Colors.transparent,
-                                  width: 1.5,
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// QUESTION HEADER
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFDC5F5),
+                                      Color(0xFFB388EB),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  'Câu ${index + 1}',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    isSelected
-                                        ? Icons.radio_button_checked
-                                        : Icons.radio_button_off,
-                                    color: isSelected ? primary : Colors.grey,
+                              const SizedBox(width: 8),
+                              Text(
+                                '/ ${testProvider.testDetails.data!.length}',
+                                style: const TextStyle(color: Colors.black54),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 14),
+
+                          /// QUESTION CONTENT
+                          Text(
+                            testDetail.content,
+                            style: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w700,
+                              height: 1.4,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          /// OPTIONS
+                          ...testDetail.options.map((option) {
+                            final isSelected =
+                                selectedAnswers[testDetail.questionId] ==
+                                option.answerId;
+
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedAnswers[testDetail.questionId] =
+                                      option.answerId;
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeInOut,
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  gradient: isSelected
+                                      ? const LinearGradient(
+                                          colors: [
+                                            Color(0xFFFDC5F5),
+                                            Color(0xFFB388EB),
+                                          ],
+                                        )
+                                      : null,
+                                  color: isSelected ? null : softGrey,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Colors.transparent
+                                        : Colors.grey.shade200,
                                   ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      option.content,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: isSelected
-                                            ? FontWeight.w600
-                                            : FontWeight.normal,
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: primary.withOpacity(0.3),
+                                            blurRadius: 12,
+                                          ),
+                                        ]
+                                      : [],
+                                ),
+                                child: Row(
+                                  children: [
+                                    AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.grey,
+                                          width: 2,
+                                        ),
+                                        color: isSelected
+                                            ? Colors.white
+                                            : Colors.transparent,
+                                      ),
+                                      child: isSelected
+                                          ? const Icon(
+                                              Icons.check,
+                                              size: 16,
+                                              color: primary,
+                                            )
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        option.content,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.black87,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+                            );
+                          }),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+        ],
+      ),
     );
   }
 }

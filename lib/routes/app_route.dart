@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -480,6 +481,14 @@ GoRouter createRouter(BuildContext context) {
         path: '/couple-profile',
         name: 'couple_profile',
         pageBuilder: (_, __) => const MaterialPage(child: CoupleProfilePage()),
+      ),
+
+      GoRoute(
+        path: '/couple-profile/edit',
+        name: 'edit_couple_profile',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: EditCoupleProfilePage());
+        },
       ),
 
       GoRoute(
