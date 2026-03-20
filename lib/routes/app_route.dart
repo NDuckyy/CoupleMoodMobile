@@ -685,6 +685,7 @@ class MainShell extends StatelessWidget {
       shape: const CircularNotchedRectangle(),
       notchMargin: 6,
       height: 60,
+      color: Colors.white,
       child: SizedBox(
         height: 60,
         child: Row(

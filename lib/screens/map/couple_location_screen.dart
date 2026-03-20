@@ -34,8 +34,9 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
       await provider.loadAvatars();
       await Geolocator.requestPermission();
       provider.listenLocation(
-        moodProvider.coupleCurrentMood?.coupleProfileId.toString() ?? "unknown_couple",
-        moodProvider.coupleCurrentMood?.memberId.toString() ?? "unknown_user"
+        moodProvider.coupleCurrentMood?.coupleProfileId.toString() ??
+            "unknown_couple",
+        moodProvider.coupleCurrentMood?.memberId.toString() ?? "unknown_user",
       );
       LocationService.startListening(
         moodProvider.coupleCurrentMood!.coupleProfileId.toString(),
@@ -59,7 +60,10 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
     final provider = Provider.of<CoupleLocationProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Couple Map 💕")),
+      appBar: AppBar(
+        title: const Text("Vị trí cặp đôi"),
+        backgroundColor: Colors.white,
+      ),
       body: Stack(
         children: [
           GoogleMap(
