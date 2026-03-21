@@ -1,9 +1,11 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/category.dart';
 import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
 import 'package:couple_mood_mobile/models/recommendation/search_history.dart';
 import 'package:couple_mood_mobile/services/recommendation_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class RecommendationProvider extends ChangeNotifier {
@@ -21,6 +23,15 @@ class RecommendationProvider extends ChangeNotifier {
   bool isContextLoading = true;
   bool isAutoCompleteLoading = false;
   bool isSearchHistoryLoading = false;
+
+  List<CategoryItem> allCategories = [];
+  List<CategoryItem> filteredCategories = [];
+  String categoryKeyword = "";
+  bool isCategoryLoading = false;
+  CategoryItem? selectedCategory;
+
+  RangeValues priceRange = const RangeValues(0, 1000000);
+
   String? error;
   RecommendationResponse? get recommendationResponse =>
       _recommendationResponse?.data;
@@ -174,5 +185,81 @@ class RecommendationProvider extends ChangeNotifier {
       isSearchHistoryLoading = false;
       notifyListeners();
     }
+  }
+
+  // Category
+
+  Future<void> fetchAllCategories() async {
+    if (allCategories.isNotEmpty) return;
+
+    try {
+      isCategoryLoading = true;
+      notifyListeners();
+
+      int page = 1;
+      const pageSize = 20;
+      bool hasNext = true;
+
+      List<CategoryItem> temp = [];
+
+      while (hasNext) {
+        final res = await RecommendationService.fetchCategory(
+          page: page,
+          pageSize: pageSize,
+        );
+
+        if (res.code == 200) {
+          final data = res.data;
+          if (data != null) {
+            temp.addAll(data.items);
+            hasNext = data.hasNextPage;
+            page++;
+          } else {
+            hasNext = false;
+          }
+        } else {
+          throw Exception("Lỗi load category");
+        }
+      }
+
+      temp.sort((a, b) => a.name.compareTo(b.name));
+
+      allCategories = temp;
+      filteredCategories = temp;
+    } catch (e) {
+      error = e.toString();
+    } finally {
+      isCategoryLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void searchCategory(String keyword) {
+    categoryKeyword = keyword;
+
+    if (keyword.isEmpty) {
+      filteredCategories = allCategories;
+    } else {
+      filteredCategories = allCategories.where((c) {
+        return c.name.toLowerCase().contains(keyword.toLowerCase());
+      }).toList();
+    }
+
+    notifyListeners();
+  }
+
+  void selectCategory(CategoryItem category) {
+    if (selectedCategory?.id == category.id) {
+      selectedCategory = null;
+    } else {
+      selectedCategory = category;
+    }
+
+    notifyListeners();
+  }
+
+  void updatePrice(RangeValues values) {
+    priceRange = values;
+    notifyListeners();
   }
 }

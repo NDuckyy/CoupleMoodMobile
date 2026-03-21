@@ -110,7 +110,19 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
               actions: [
                 IconButton(
                   icon: const Icon(Icons.filter_list),
-                  onPressed: () => context.pushNamed("filter_location"),
+                  onPressed: () async {
+                    final res = await context.pushNamed("filter_location");
+                    if (res == true) {
+                      if (!context.mounted) return;
+                      final provider = context.read<RecommendationProvider>();
+                      provider.fetchRecommendations(RecommendationRequest(
+                        category: provider.selectedCategory?.name,
+                        minPrice: provider.priceRange.start,
+                        maxPrice: provider.priceRange.end,
+                      ));
+                    }
+
+                  },
                 ),
               ],
             ),

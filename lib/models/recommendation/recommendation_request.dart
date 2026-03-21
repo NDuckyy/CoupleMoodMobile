@@ -7,6 +7,9 @@ class RecommendationRequest {
   final String? query;
   final int? page;
   final int? pageSize;
+  final String? category;
+  final double? minPrice;
+  final double? maxPrice;
 
   RecommendationRequest({
     this.lat,
@@ -17,6 +20,9 @@ class RecommendationRequest {
     this.query,
     this.page,
     this.pageSize,
+    this.category,
+    this.minPrice,
+    this.maxPrice,
   });
 
   Map<String, dynamic> toJson() {
@@ -29,6 +35,9 @@ class RecommendationRequest {
       if (query != null) 'query': query,
       if (page != null) 'page': page,
       if (pageSize != null) 'pageSize': pageSize,
+      if (category != null) 'category': category,
+      if (minPrice != null) 'minPrice': minPrice,
+      if (maxPrice != null) 'maxPrice': maxPrice,
     };
   }
 }

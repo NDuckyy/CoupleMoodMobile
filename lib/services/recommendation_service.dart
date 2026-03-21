@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/category.dart';
 import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
@@ -83,6 +84,23 @@ class RecommendationService {
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi lấy lịch sử tìm kiếm: $e');
+    }
+  }
+
+  static Future<ApiResponse<CategoryPagination>> fetchCategory({required int page, required int pageSize}) async {
+    try {
+      final res = await ApiClient.request(
+        "/Category",
+        method: HttpMethod.get,
+        query: {"page": page, "pageSize": pageSize},
+      );
+      return ApiResponse.fromJson(
+        res,
+        (json) => CategoryPagination.fromJson(json),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi lấy danh mục địa điểm: $e');
     }
   }
 }

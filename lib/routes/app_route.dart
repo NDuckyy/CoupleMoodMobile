@@ -189,17 +189,8 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/list-location',
                 name: 'listLocation',
-                pageBuilder: (_, __) => NoTransitionPage(
-                  child: MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(
-                        create: (_) => RecommendationProvider(),
-                      ),
-                      ChangeNotifierProvider(create: (_) => MoodProvider()),
-                    ],
-                    child: const ListLocationScreen(),
-                  ),
-                ),
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: ListLocationScreen()),
               ),
 
               GoRoute(
