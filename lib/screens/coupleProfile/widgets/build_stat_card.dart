@@ -1,19 +1,26 @@
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BuildStatCard extends StatelessWidget {
   final String anniversaryDate;
   final int totalPoints;
   final int interactionPoints;
+  final double? budgetMin;
+  final double? budgetMax;
 
   const BuildStatCard({
     super.key,
     required this.anniversaryDate,
     required this.totalPoints,
     required this.interactionPoints,
+    this.budgetMin,
+    this.budgetMax,
   });
 
   @override
   Widget build(BuildContext context) {
+    final formatter = DateFormat('dd-MM-yyyy');
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
@@ -28,32 +35,52 @@ class BuildStatCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Column(
         children: [
-          _buildStatItem(
-            icon: Icons.favorite,
-            color: const Color(0xFFF7AEF8),
-            label: "Kỷ niệm",
-            value: anniversaryDate,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem(
+                icon: Icons.favorite,
+                color: const Color(0xFFF7AEF8),
+                label: "Kỷ niệm",
+                value: formatter.format(DateTime.parse(anniversaryDate)),
+              ),
+
+              _divider(),
+
+              _buildStatItem(
+                icon: Icons.workspace_premium,
+                color: const Color(0xFFB388EB),
+                label: "Couple point",
+                value: "$totalPoints",
+              ),
+
+              _divider(),
+
+              _buildStatItem(
+                icon: Icons.flash_on,
+                color: const Color(0xFF72DDF7),
+                label: "Điểm tương tác",
+                value: "$interactionPoints",
+              ),
+            ],
           ),
 
-          _divider(),
+          const SizedBox(height: 20),
 
-          _buildStatItem(
-            icon: Icons.workspace_premium,
-            color: const Color(0xFFB388EB),
-            label: "Couple point",
-            value: "$totalPoints",
-          ),
-
-          _divider(),
-
-          _buildStatItem(
-            icon: Icons.flash_on,
-            color: const Color(0xFF72DDF7),
-            label: "Điểm tương tác",
-            value: "$interactionPoints",
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem(
+                icon: Icons.attach_money_outlined,
+                color: Colors.green,
+                label: "Ngân sách",
+                value: budgetMin != null && budgetMax != null
+                    ? "${CurrencyUtils.formatVND(budgetMin!)} - ${CurrencyUtils.formatVND(budgetMax!)}"
+                    : "Chưa cập nhật ngân sách",
+              ),
+            ],
           ),
         ],
       ),

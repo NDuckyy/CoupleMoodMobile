@@ -3,6 +3,8 @@ class Couple {
   final String? coupleName;
   final String startDate;
   final String? aniversaryDate;
+  final double? budgetMin;
+  final double? budgetMax;
   final int totalPoints;
   final int interactionPoints;
   final String status;
@@ -34,6 +36,8 @@ class Couple {
     this.coupleName,
     required this.startDate,
     this.aniversaryDate,
+    this.budgetMin,
+    this.budgetMax,
     required this.totalPoints,
     required this.interactionPoints,
     required this.status,
@@ -63,6 +67,8 @@ class Couple {
       coupleName: json['coupleName'] as String?,
       startDate: json['startDate'] as String,
       aniversaryDate: json['aniversaryDate'] as String?,
+      budgetMin: (json['budgetMin'] as num?)?.toDouble(),
+      budgetMax: (json['budgetMax'] as num?)?.toDouble(),
       totalPoints: json['totalPoints'] as int,
       interactionPoints: json['interactionPoints'] as int,
       status: json['status'] as String,

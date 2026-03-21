@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/models/couple/update_couple_profile_request.dart';
 import 'package:couple_mood_mobile/providers/couple_provider.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
+import 'package:couple_mood_mobile/widgets/custom_test_field.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +9,19 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class EditCoupleProfilePage extends StatefulWidget {
-  const EditCoupleProfilePage({super.key});
+  final String? coupleName;
+  final String? anniversaryDate;
+  final double? budgetMin;
+  final double? budgetMax;
+
+
+  const EditCoupleProfilePage({
+    super.key,
+    this.coupleName,
+    this.anniversaryDate,
+    this.budgetMin,
+    this.budgetMax,
+  });
 
   @override
   State<EditCoupleProfilePage> createState() => _EditCoupleProfilePageState();
@@ -20,9 +34,10 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
   final TextEditingController budgetMinController = TextEditingController();
   final TextEditingController budgetMaxController = TextEditingController();
 
-  DateTime? startDate;
   DateTime? anniversaryDate;
-  final formatter = DateFormat('yyyy-MM-dd');
+  final formatter = DateFormat('dd-MM-yyyy');
+  final bodyFormatter = DateFormat('yyyy-MM-dd');
+  final maxCurrency = 100000000;
 
   late CoupleProvider coupleProvider;
 
@@ -30,9 +45,19 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
   void initState() {
     super.initState();
     coupleProvider = context.read<CoupleProvider>();
+    nameController.text = widget.coupleName ?? "";
+    if (widget.anniversaryDate != null) {
+      anniversaryDate = DateTime.parse(widget.anniversaryDate!);
+    }
+    if (widget.budgetMin != null) {
+      budgetMinController.text = int.tryParse(widget.budgetMin!.toInt().toString())?.toString() ?? "";
+    }
+    if (widget.budgetMax != null) {
+      budgetMaxController.text = int.tryParse(widget.budgetMax!.toInt().toString())?.toString() ?? "";
+    }
   }
 
-  Future<void> pickDate(bool isStart) async {
+  Future<void> pickDate() async {
     final picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -42,23 +67,27 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
 
     if (picked != null) {
       setState(() {
-        if (isStart) {
-          startDate = picked;
-        } else {
-          anniversaryDate = picked;
-        }
+        anniversaryDate = picked;
       });
     }
   }
 
-  void handleSave() {
+  void handleSave() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
+      if(budgetMinController.text.isNotEmpty && budgetMaxController.text.isNotEmpty) {
+        final min = int.tryParse(budgetMinController.text);
+        final max = int.tryParse(budgetMaxController.text);
+
+        if (min! > maxCurrency || max! > maxCurrency) {
+          showMsg(context, "Ngân sách không được vượt quá ${CurrencyUtils.formatVND(maxCurrency)}", false);
+          return;
+        }
+      }
       final request = UpdateCoupleProfileRequest(
         coupleName: nameController.text.isEmpty ? null : nameController.text,
-        startDate: formatter.format(startDate ?? DateTime.now()),
-        aniversaryDate: formatter.format(anniversaryDate ?? DateTime.now()),
+        aniversaryDate: anniversaryDate == null ? null : bodyFormatter.format(anniversaryDate!),
         budgetMin: budgetMinController.text.isEmpty
             ? null
             : int.tryParse(budgetMinController.text),
@@ -68,10 +97,12 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
       );
 
       debugPrint("Update body: ${request.toJson()}");
-      coupleProvider.updateCoupleProfile(request);
+      await coupleProvider.updateCoupleProfile(request);
       if (coupleProvider.error != null) {
+        if (!mounted) return;
         showMsg(context, coupleProvider.error!, false);
       } else {
+        if (!mounted) return;
         showMsg(context, "Cập nhật thành công", true);
         context.pop();
       }
@@ -87,10 +118,10 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
       extendBodyBehindAppBar: true,
 
       appBar: AppBar(
-        title: const Text("Chỉnh sửa"),
+        title: const Text("Chỉnh sửa", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        foregroundColor: Colors.black,
+        foregroundColor: Colors.white,
       ),
 
       body: Stack(
@@ -113,7 +144,6 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                 children: [
                   const SizedBox(height: 40),
 
-                  /// 🔥 Card form
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -130,38 +160,29 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                       key: _formKey,
                       child: Column(
                         children: [
-                          /// Couple Name
-                          TextFormField(
+                          CustomTextField(
+                            label: "Tên cặp đôi",
+                            hint: "Nhập tên cặp đôi",
+                            icon: Icons.favorite,
                             controller: nameController,
-                            decoration: const InputDecoration(
-                              labelText: "Tên cặp đôi",
-                            ),
-                            validator: (v) =>
-                                v!.isEmpty ? "Không được để trống" : null,
                           ),
 
                           const SizedBox(height: 16),
 
-                          /// Start Date
-                          ListTile(
-                            title: Text(
-                              startDate == null
-                                  ? "Chọn ngày bắt đầu"
-                                  : startDate.toString().split(" ")[0],
+                          GestureDetector(
+                            onTap: pickDate,
+                            child: AbsorbPointer(
+                              child: CustomTextField(
+                                label: "Ngày kỷ niệm",
+                                hint: "Chọn ngày kỷ niệm",
+                                icon: Icons.calendar_today,
+                                controller: TextEditingController(
+                                  text: anniversaryDate == null
+                                      ? ""
+                                      : formatter.format(anniversaryDate!),
+                                ),
+                              ),
                             ),
-                            trailing: const Icon(Icons.calendar_today),
-                            onTap: () => pickDate(true),
-                          ),
-
-                          /// Anniversary
-                          ListTile(
-                            title: Text(
-                              anniversaryDate == null
-                                  ? "Chọn ngày kỷ niệm"
-                                  : anniversaryDate.toString().split(" ")[0],
-                            ),
-                            trailing: const Icon(Icons.favorite),
-                            onTap: () => pickDate(false),
                           ),
 
                           const SizedBox(height: 16),
@@ -170,22 +191,36 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                           Row(
                             children: [
                               Expanded(
-                                child: TextFormField(
+                                child: CustomTextField(
+                                  label: "Tối thiểu",
+                                  hint: "0",
+                                  icon: Icons.attach_money,
                                   controller: budgetMinController,
                                   keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: "Min",
-                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return null;
+                                    if (int.tryParse(v) == null) {
+                                      return "Sai số";
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: TextFormField(
+                                child: CustomTextField(
+                                  label: "Tối đa",
+                                  hint: "1000000",
+                                  icon: Icons.attach_money,
                                   controller: budgetMaxController,
                                   keyboardType: TextInputType.number,
-                                  decoration: const InputDecoration(
-                                    labelText: "Max",
-                                  ),
+                                  validator: (v) {
+                                    if (v == null || v.isEmpty) return null;
+                                    if (int.tryParse(v) == null) {
+                                      return "Sai số";
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                             ],
@@ -209,7 +244,10 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                               ),
                               child: const Text(
                                 "Lưu thay đổi",
-                                style: TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),

@@ -41,7 +41,15 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
               child: IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  context.pushNamed("edit_couple_profile");
+                  context.pushNamed(
+                    "edit_couple_profile",
+                    extra: {
+                      "coupleName": couple.coupleName,
+                      "anniversaryDate": couple.aniversaryDate,
+                      "budgetMin": couple.budgetMin,
+                      "budgetMax": couple.budgetMax,
+                    },
+                  );
                 },
               ),
             ),
@@ -135,6 +143,8 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                             anniversaryDate: couple.aniversaryDate ?? "Chưa có",
                             totalPoints: couple.totalPoints,
                             interactionPoints: couple.interactionPoints,
+                            budgetMin: couple.budgetMin,
+                            budgetMax: couple.budgetMax,
                           ),
 
                           const SizedBox(height: 20),

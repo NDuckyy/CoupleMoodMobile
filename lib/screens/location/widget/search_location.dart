@@ -67,7 +67,6 @@ class _SearchLocationState extends State<SearchLocation> {
             ),
           ),
 
-          /// 🔥 Dropdown
           Positioned(
             width: MediaQuery.of(context).size.width - 32,
             child: CompositedTransformFollower(

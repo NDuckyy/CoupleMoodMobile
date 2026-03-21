@@ -486,8 +486,14 @@ GoRouter createRouter(BuildContext context) {
       GoRoute(
         path: '/couple-profile/edit',
         name: 'edit_couple_profile',
-        pageBuilder: (_, __) {
-          return const MaterialPage(child: EditCoupleProfilePage());
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditCoupleProfilePage(
+            coupleName: extra['coupleName'],
+            anniversaryDate: extra['anniversaryDate'],
+            budgetMin: extra['budgetMin'],
+            budgetMax: extra['budgetMax'],
+          );
         },
       ),
 
