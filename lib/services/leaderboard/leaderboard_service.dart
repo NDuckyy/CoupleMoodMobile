@@ -1,8 +1,8 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/leaderboard/leaderboard_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
 class LeaderboardService {
-  /// GET /api/Leaderboard
   static Future<ApiResponse<LeaderboardResponse>> getLeaderboard({
     required int year,
     required int month,

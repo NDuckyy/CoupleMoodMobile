@@ -19,14 +19,14 @@ class LeaderboardResponse {
 
   factory LeaderboardResponse.fromJson(Map<String, dynamic> json) {
     return LeaderboardResponse(
-      periodType: json['periodType'],
-      seasonKey: json['seasonKey'],
+      periodType: json['periodType'] ?? '',
+      seasonKey: json['seasonKey'] ?? '',
       periodStart: DateTime.parse(json['periodStart']),
       periodEnd: DateTime.parse(json['periodEnd']),
-      rankings: (json['rankings'] as List)
+      rankings: (json['rankings'] as List? ?? [])
           .map((e) => LeaderboardItem.fromJson(e))
           .toList(),
-      totalCount: json['totalCount'],
+      totalCount: json['totalCount'] ?? 0,
     );
   }
 }

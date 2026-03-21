@@ -1,5 +1,3 @@
-import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
-import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +34,10 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 //voucher
 import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
+
+//leaderboard
+import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
 
 //---Screen
 //Chat
@@ -84,6 +86,9 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 //challenge
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
 
+//leaderboard
+import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
+
 //voucher
 import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
@@ -110,6 +115,7 @@ import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart'
 import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -352,6 +358,16 @@ GoRouter createRouter(BuildContext context) {
         pageBuilder: (_, __) {
           return const MaterialPage(child: VoucherHubScreen());
         },
+      ),
+      GoRoute(
+        name: "leaderboard",
+        path: "/leaderboard",
+        pageBuilder: (_, __) => MaterialPage(
+          child: ChangeNotifierProvider(
+            create: (_) => LeaderboardProvider(),
+            child: const LeaderboardScreen(),
+          ),
+        ),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavKey,

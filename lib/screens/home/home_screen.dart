@@ -312,6 +312,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     HomeIconButton(
+                      icon: Icons.leaderboard,
+                      label: "BXH",
+                      color: const Color(0xFFFF6B6B),
+                      onTap: () {
+                        context.pushNamed("leaderboard");
+                      },
+                    ),
+
+                    HomeIconButton(
                       icon: Icons.card_giftcard,
                       label: "Voucher",
                       color: const Color(0xFF4CAF50),
