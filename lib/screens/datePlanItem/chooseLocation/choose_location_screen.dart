@@ -36,10 +36,8 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
         );
         recommendationProvider.fetchRecommendations(
           RecommendationRequest(
-            latitude: position.latitude,
-            longitude: position.longitude,
-            radiusKm: 1000,
-            area: "79",
+            lat: position.latitude,
+            lng: position.longitude,
           ),
         );
       } else {
@@ -75,10 +73,8 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
     final recommendationProvider = context.read<RecommendationProvider>();
     await recommendationProvider.fetchRecommendations(
       RecommendationRequest(
-        latitude: recommendationProvider.latitude,
-        longitude: recommendationProvider.longitude,
-        radiusKm: 1000,
-        area: "79",
+        lat: recommendationProvider.latitude,
+        lng: recommendationProvider.longitude,
       ),
     );
   }

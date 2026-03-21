@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
+import 'package:couple_mood_mobile/models/recommendation/search_history.dart';
 import 'package:couple_mood_mobile/services/recommendation_service.dart';
 import 'package:flutter/material.dart';
 
@@ -15,9 +16,11 @@ class RecommendationProvider extends ChangeNotifier {
   ApiResponse<RecommendationResponse>? _recommendationResponse;
   ContextRecommendation? _contextRecommendationResponse;
   List<dynamic> autoCompleteResult = [];
+  List<SearchHistoryItem> searchHistory = [];
   bool isLoading = true;
   bool isContextLoading = true;
   bool isAutoCompleteLoading = false;
+  bool isSearchHistoryLoading = false;
   String? error;
   RecommendationResponse? get recommendationResponse =>
       _recommendationResponse?.data;
@@ -55,8 +58,8 @@ class RecommendationProvider extends ChangeNotifier {
 
       final response = await RecommendationService.fetchRecommendations(
         RecommendationRequest(
-          latitude: latitude,
-          longitude: longitude,
+          lat: latitude,
+          lng: longitude,
           page: nextPage,
           pageSize: pageSize,
         ),
@@ -83,8 +86,8 @@ class RecommendationProvider extends ChangeNotifier {
       _recommendationResponse =
           await RecommendationService.fetchRecommendations(
             RecommendationRequest(
-              latitude: latitude,
-              longitude: longitude,
+              lat: latitude,
+              lng: longitude,
               page: page,
               pageSize: pageSize,
             ),
@@ -101,6 +104,7 @@ class RecommendationProvider extends ChangeNotifier {
   Future<void> searchLocations(String query) async {
     debugPrint('Searching locations with query: $query');
     page = 1;
+    error = null;
     try {
       isLoading = true;
       notifyListeners();
@@ -140,12 +144,34 @@ class RecommendationProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      error = null;
       autoCompleteResult = await RecommendationService.autoComplete(query);
     } catch (e) {
       debugPrint('Auto-complete error: $e');
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isAutoCompleteLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchSearchHistory() async {
+    try {
+      error = null;
+      isSearchHistoryLoading = true;
+      notifyListeners();
+      final res = await RecommendationService.fetchSearchHistory();
+      if (res.code == 200) {
+        searchHistory = res.data?.items ?? [];
+      } else {
+        error = 'Lỗi khi lấy lịch sử tìm kiếm';
+      }
+
+      isSearchHistoryLoading = false;
+      notifyListeners();
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isSearchHistoryLoading = false;
       notifyListeners();
     }
   }
