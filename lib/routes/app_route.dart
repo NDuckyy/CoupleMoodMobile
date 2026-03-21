@@ -9,9 +9,6 @@ import 'package:provider/provider.dart';
 //auth
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 
-//Recommendation
-import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
-
 //Dateplan
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 

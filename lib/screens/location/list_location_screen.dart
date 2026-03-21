@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.d
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -100,6 +101,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
       body: RefreshIndicator(
         onRefresh: () => _onRefresh(context),
         child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
           controller: _scrollController,
           slivers: [
             SliverAppBar(
@@ -115,13 +117,14 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                     if (res == true) {
                       if (!context.mounted) return;
                       final provider = context.read<RecommendationProvider>();
-                      provider.fetchRecommendations(RecommendationRequest(
-                        category: provider.selectedCategory?.name,
-                        minPrice: provider.priceRange.start,
-                        maxPrice: provider.priceRange.end,
-                      ));
+                      provider.fetchRecommendations(
+                        RecommendationRequest(
+                          category: provider.selectedCategory?.name,
+                          minPrice: provider.priceRange.start,
+                          maxPrice: provider.priceRange.end,
+                        ),
+                      );
                     }
-
                   },
                 ),
               ],
@@ -152,7 +155,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             else if (recs.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
-                child: Center(child: Text('Không có địa điểm phù hợp')),
+                child: EmptyStateWidget(icon: Icons.location_off_outlined, title: "Không có địa điểm phù hợp", description: "Hãy thử thay đổi tiêu chí tìm kiếm của bạn."),
               )
             else
               SliverPadding(
