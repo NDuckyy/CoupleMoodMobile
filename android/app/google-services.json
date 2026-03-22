@@ -2,6 +2,7 @@
   "project_info": {
     "project_number": "1058244642671",
     "project_id": "couplemood-firebase",
+    "firebase_url": "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
     "storage_bucket": "couplemood-firebase.firebasestorage.app"
   },
   "client": [

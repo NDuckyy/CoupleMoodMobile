@@ -37,7 +37,7 @@ class AdvertisementCarousel extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text(
-                "Đề xuất cho bạn",
+                "Những chương trình nổi bật",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],

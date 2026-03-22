@@ -1,34 +1,43 @@
 class RecommendationRequest {
-  final double? latitude;
-  final double? longitude;
+  final double? lat;
+  final double? lng;
   final double? radiusKm;
   final String? area;
   final int? limit;
   final String? query;
   final int? page;
   final int? pageSize;
+  final String? category;
+  final double? minPrice;
+  final double? maxPrice;
 
   RecommendationRequest({
-    this.latitude,
-    this.longitude,
+    this.lat,
+    this.lng,
     this.radiusKm,
     this.area,
     this.limit,
     this.query,
     this.page,
     this.pageSize,
+    this.category,
+    this.minPrice,
+    this.maxPrice,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      if (latitude != null) 'latitude': latitude,
-      if (longitude != null) 'longitude': longitude,
+      if (lat != null) 'lat': lat,
+      if (lng != null) 'lng': lng,
       if (radiusKm != null) 'radiusKm': radiusKm,
       if (area != null) 'area': area,
       if (limit != null) 'limit': limit,
       if (query != null) 'query': query,
       if (page != null) 'page': page,
       if (pageSize != null) 'pageSize': pageSize,
+      if (category != null) 'category': category,
+      if (minPrice != null) 'minPrice': minPrice,
+      if (maxPrice != null) 'maxPrice': maxPrice,
     };
   }
 }

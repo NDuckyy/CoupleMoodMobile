@@ -18,7 +18,9 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       context.read<ChatProvider>().initialize();
+      context.read<ChatProvider>().loadConversations();
     });
   }
 
@@ -67,26 +69,26 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (chatProvider.error != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error: ${chatProvider.error}',
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => chatProvider.loadConversations(),
-                    child: const Text('Thử lại'),
-                  ),
-                ],
-              ),
-            );
-          }
+          // if (chatProvider.error != null) {
+          //   return Center(
+          //     child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         const Icon(Icons.error_outline, size: 64, color: Colors.red),
+          //         const SizedBox(height: 16),
+          //         Text(
+          //           'Error: ${chatProvider.error}',
+          //           textAlign: TextAlign.center,
+          //         ),
+          //         const SizedBox(height: 16),
+          //         ElevatedButton(
+          //           onPressed: () => chatProvider.loadConversations(),
+          //           child: const Text('Thử lại'),
+          //         ),
+          //       ],
+          //     ),
+          //   );
+          // }
 
           if (chatProvider.conversations.isEmpty) {
             return Center(
@@ -151,11 +153,13 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                       return _ConversationItem(
                         conversation: conversation,
                         currentUserId: currentUserId,
-                        onTap: () {
-                          context.pushNamed(
+                        onTap: () async {
+                          await context.pushNamed(
                             'chat_screen',
                             extra: {'conversation': conversation},
                           );
+                          if (!context.mounted) return;
+                          context.read<ChatProvider>().loadConversations();
                         },
                       );
                     },

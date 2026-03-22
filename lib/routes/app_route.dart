@@ -1,3 +1,6 @@
+import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -5,9 +8,6 @@ import 'package:provider/provider.dart';
 //---Provider
 //auth
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
-
-//Recommendation
-import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 
 //Dateplan
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
@@ -127,7 +127,7 @@ final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
 final _searchTabNavKey = GlobalKey<NavigatorState>();
 final _chatTabNavKey = GlobalKey<NavigatorState>();
-final _hotTabNavKey = GlobalKey<NavigatorState>();
+final _mapTabNavKey = GlobalKey<NavigatorState>();
 final _worldTabNavKey = GlobalKey<NavigatorState>();
 final _collectionTabNavKey = GlobalKey<NavigatorState>();
 final _profileTabNavKey = GlobalKey<NavigatorState>();
@@ -229,17 +229,8 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/list-location',
                 name: 'listLocation',
-                pageBuilder: (_, __) => NoTransitionPage(
-                  child: MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(
-                        create: (_) => RecommendationProvider(),
-                      ),
-                      ChangeNotifierProvider(create: (_) => MoodProvider()),
-                    ],
-                    child: const ListLocationScreen(),
-                  ),
-                ),
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: ListLocationScreen()),
               ),
 
               GoRoute(
@@ -279,13 +270,13 @@ GoRouter createRouter(BuildContext context) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _hotTabNavKey,
+            navigatorKey: _mapTabNavKey,
             routes: [
               GoRoute(
-                path: '/hot',
-                name: 'hot',
+                path: '/map',
+                name: 'map',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Hot')),
+                    const NoTransitionPage(child: CoupleLocationScreen()),
               ),
             ],
           ),
@@ -597,6 +588,20 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        path: '/couple-profile/edit',
+        name: 'edit_couple_profile',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditCoupleProfilePage(
+            coupleName: extra['coupleName'],
+            anniversaryDate: extra['anniversaryDate'],
+            budgetMin: extra['budgetMin'],
+            budgetMax: extra['budgetMax'],
+          );
+        },
+      ),
+
+      GoRoute(
         path: '/direct',
         name: 'direct',
         pageBuilder: (_, __) => const MaterialPage(child: UserSearchScreen()),
@@ -790,6 +795,7 @@ class MainShell extends StatelessWidget {
       shape: const CircularNotchedRectangle(),
       notchMargin: 6,
       height: 60,
+      color: Colors.white,
       child: SizedBox(
         height: 60,
         child: Row(
@@ -798,7 +804,7 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                _buildItem(Icons.map, 3, currentIndex),
                 const SizedBox(width: 16),
                 _buildItem(Icons.chat_outlined, 2, currentIndex),
               ],

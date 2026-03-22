@@ -51,11 +51,13 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCwMhoJMOiENNvMTFpvv5HAUx7zDIBdmO4',
-    appId: '1:616077887688:android:e2f5809e37bff0568a3dfd',
-    messagingSenderId: '616077887688',
-    projectId: 'couplemood-507e6',
-    storageBucket: 'couplemood-507e6.firebasestorage.app',
+    apiKey: 'AIzaSyDZONrredxPQKaIb1E01ql5JtG5vf58KQY',
+    appId: '1:1058244642671:android:75355d6d577dea979eca9a',
+    messagingSenderId: '1058244642671',
+    projectId: 'couplemood-firebase',
+    storageBucket: 'couplemood-firebase.firebasestorage.app',
+    databaseURL:
+        'https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -85,5 +87,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'couplemood-507e6.firebasestorage.app',
     measurementId: 'G-EQJ5JR146J',
   );
-
 }
