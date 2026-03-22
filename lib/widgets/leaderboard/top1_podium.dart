@@ -89,69 +89,74 @@ class Top1Podium extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // bóng mờ sàn
           Positioned(
-            bottom: 16,
+            bottom: 12,
             child: Container(
               width: 230,
               height: 58,
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.25),
+                color: Colors.black.withOpacity(0.20),
                 borderRadius: BorderRadius.circular(50),
               ),
             ),
           ),
 
-          Transform.translate(
-            offset: const Offset(0, -14),
-            child: Container(
-              width: 230,
-              height: 120,
-              decoration: BoxDecoration(
-                color: Colors.amber.shade200,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
-
+          // khối chính (thân podium)
           Container(
             width: 230,
-            height: 100,
-            alignment: Alignment.center,
+            height: 120,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFFFFC107), Color(0xFFFF8F00)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFFFD54F), Color(0xFFFFA000)],
               ),
               borderRadius: BorderRadius.circular(16),
               boxShadow: const [
                 BoxShadow(
-                  color: Colors.black45,
-                  blurRadius: 16,
-                  offset: Offset(0, 10),
+                  color: Colors.black26,
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: Offset(0, 8),
                 ),
               ],
             ),
+            alignment: Alignment.center,
             child: const Text(
               "1",
               style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
+                fontSize: 52,
+                fontWeight: FontWeight.w900,
                 color: Colors.white,
+                shadows: [
+                  Shadow(
+                    color: Colors.black45,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
             ),
           ),
 
+          // top face
           Positioned(
             top: 0,
             child: Transform(
+              alignment: Alignment.topCenter,
               transform: Matrix4.identity()
-                ..setEntry(3, 2, 0.001)
-                ..rotateX(pi / 5),
+                ..setEntry(3, 2, 0.006)
+                ..rotateX(-pi / 4),
               child: Container(
-                width: 230,
-                height: 35,
+                width: 190,
+                height: 38,
                 decoration: BoxDecoration(
-                  color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFFFFFFC1), Color(0xFFFFF176)],
+                  ),
                 ),
               ),
             ),
