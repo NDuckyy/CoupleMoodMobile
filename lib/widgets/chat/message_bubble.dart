@@ -107,7 +107,7 @@ class MessageBubble extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          DateFormat('HH:mm').format(message.createdAt),
+                          DateFormat('HH:mm').format(message.createdAt.toLocal()),
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey[600],

@@ -94,10 +94,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_isTyping) {
       _isTyping = false;
       _typingTimer?.cancel();
-      chatProvider.sendTypingIndicator(
-        widget.conversation.id,
-        false,
-      );
+      chatProvider.sendTypingIndicator(widget.conversation.id, false);
     }
 
     // Clear input
@@ -160,14 +157,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     }
   }
 
-void _listenRealtimeUpdates() {
-  _conversationSub =
-      chatProvider.signalR.onConversationUpdated.listen((conversation) {
-        if (conversation.id == widget.conversation.id) {
-          chatProvider.loadMessages(widget.conversation.id);
-        }
-      });
-}
+  void _listenRealtimeUpdates() {
+    _conversationSub = chatProvider.signalR.onConversationUpdated.listen((
+      conversation,
+    ) {
+      if (conversation.id == widget.conversation.id) {
+        chatProvider.loadMessages(widget.conversation.id);
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -417,15 +415,18 @@ void _listenRealtimeUpdates() {
     final currentMessage = messages[index];
     final nextMessage = messages[index + 1];
 
+    final currentDateTime = currentMessage.createdAt.toLocal();
+    final nextDateTime = nextMessage.createdAt.toLocal();
+
     final currentDate = DateTime(
-      currentMessage.createdAt.year,
-      currentMessage.createdAt.month,
-      currentMessage.createdAt.day,
+      currentDateTime.year,
+      currentDateTime.month,
+      currentDateTime.day,
     );
     final nextDate = DateTime(
-      nextMessage.createdAt.year,
-      nextMessage.createdAt.month,
-      nextMessage.createdAt.day,
+      nextDateTime.year,
+      nextDateTime.month,
+      nextDateTime.day,
     );
 
     return currentDate != nextDate;
@@ -504,21 +505,22 @@ class _DateHeader extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
+    final localDate = date.toLocal();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(date.year, date.month, date.day);
+    final messageDate = DateTime(localDate.year, localDate.month, localDate.day);
 
     if (messageDate == today) {
       return 'Hôm nay';
     } else if (messageDate == yesterday) {
       return 'Hôm qua';
-    } else if (now.difference(date).inDays < 7) {
-      return DateFormat('EEEE', 'vi').format(date);
-    } else if (date.year == now.year) {
-      return DateFormat('d MMMM', 'vi').format(date);
+    } else if (now.difference(localDate).inDays < 7) {
+      return DateFormat('EEEE', 'vi').format(localDate);
+    } else if (localDate.year == now.year) {
+      return DateFormat('d MMMM', 'vi').format(localDate);
     } else {
-      return DateFormat('d MMMM, yyyy', 'vi').format(date);
+      return DateFormat('d MMMM, yyyy', 'vi').format(localDate);
     }
   }
 }
