@@ -39,8 +39,9 @@ import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
 
-//payment
+//payment, subscription
 import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dart';
+import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
 
 //---Screen
 //Chat
@@ -107,12 +108,10 @@ import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
-//package, advertisement, subscription..
+//payment, package, advertisement
+import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
-
-//payment
-import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 
 //home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
@@ -359,7 +358,12 @@ GoRouter createRouter(BuildContext context) {
         path: '/subscriptions',
         name: 'subscriptions',
         pageBuilder: (_, __) {
-          return const MaterialPage(child: SubscriptionsScreen());
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => SubscriptionProvider(),
+              child: const SubscriptionScreen(),
+            ),
+          );
         },
       ),
       GoRoute(

@@ -30,19 +30,34 @@ class MyVoucherCard extends StatelessWidget {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFFF3E0), Color(0xFFFFE0B2)],
-            ),
             borderRadius: BorderRadius.circular(16),
+
+            /// 🔥 SAME STYLE AS VoucherCard
+            gradient: const LinearGradient(
+              colors: [
+                Color(0xFFF3E5F5), // tím nhạt
+                Color(0xFFEDE7F6),
+              ],
+            ),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              /// 🎟 LEFT DISCOUNT
+              /// 🎟 LEFT DISCOUNT (đổi sang tím)
               Container(
                 width: 90,
                 padding: const EdgeInsets.symmetric(vertical: 20),
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFF7043),
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
+                  ),
                   borderRadius: BorderRadius.horizontal(
                     left: Radius.circular(16),
                   ),
@@ -111,14 +126,14 @@ class MyVoucherCard extends StatelessWidget {
 
                       const SizedBox(height: 8),
 
-                      /// STATUS BADGE
+                      /// STATUS BADGE (giữ logic, chỉ tweak nhẹ UI)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: getStatusColor().withOpacity(0.15),
+                          color: getStatusColor().withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
