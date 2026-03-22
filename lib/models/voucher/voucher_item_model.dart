@@ -1,3 +1,5 @@
+import 'package:couple_mood_mobile/models/voucher/voucher_location.dart';
+
 class VoucherItem {
   final int id;
   final int venueOwnerId;
@@ -15,6 +17,7 @@ class VoucherItem {
   final int remainingQuantity;
 
   final int? usageLimitPerMember;
+  final int? remainingUsagePerMember;
   final int? usageValidDays;
 
   final String status;
@@ -40,6 +43,7 @@ class VoucherItem {
     required this.quantity,
     required this.remainingQuantity,
     this.usageLimitPerMember,
+    this.remainingUsagePerMember,
     this.usageValidDays,
     required this.status,
     required this.startDate,
@@ -82,30 +86,14 @@ class VoucherItem {
       quantity: _toInt(json['quantity']),
       remainingQuantity: _toInt(json['remainingQuantity']),
       usageLimitPerMember: _toNullableInt(json['usageLimitPerMember']),
-      usageValidDays: _toNullableInt(json['usageValiDays']), // backend typo
+      remainingUsagePerMember: _toNullableInt(json['remainingUsagePerMember']),
+      usageValidDays: _toNullableInt(json['usageValidDays']),
       status: json['status'] ?? '',
       startDate: _toDate(json['startDate']),
       endDate: _toDate(json['endDate']),
       createdAt: _toDate(json['createdAt']),
       updatedAt: _toDate(json['updatedAt']),
       locations: _toLocations(json['locations']),
-    );
-  }
-}
-
-class VoucherLocation {
-  final int venueLocationId;
-  final String venueLocationName;
-
-  VoucherLocation({
-    required this.venueLocationId,
-    required this.venueLocationName,
-  });
-
-  factory VoucherLocation.fromJson(Map<String, dynamic> json) {
-    return VoucherLocation(
-      venueLocationId: (json['venueLocationId'] as num?)?.toInt() ?? 0,
-      venueLocationName: json['venueLocationName'] ?? '',
     );
   }
 }

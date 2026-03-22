@@ -117,21 +117,38 @@ class VoucherCard extends StatelessWidget {
 
                         const SizedBox(height: 6),
 
-                        Text(
-                          isOutOfStock
-                              ? "Đã hết hàng"
-                              : "Còn ${voucher.remainingQuantity}",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: isOutOfStock
-                                ? Colors.grey
-                                : isLow
-                                ? Colors.red
-                                : Colors.grey,
-                            fontWeight: isLow
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isOutOfStock
+                                  ? "Đã hết hàng"
+                                  : "Còn ${voucher.remainingQuantity}",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isOutOfStock
+                                    ? Colors.grey
+                                    : isLow
+                                    ? Colors.red
+                                    : Colors.grey,
+                                fontWeight: isLow
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+
+                            const SizedBox(height: 4),
+
+                            ///  USAGE PER MEMBER
+                            Text(
+                              _buildUsageText(voucher),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: _usageColor(voucher),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -247,4 +264,30 @@ class VoucherCard extends StatelessWidget {
       ),
     );
   }
+}
+
+String _buildUsageText(VoucherItem v) {
+  if (v.usageLimitPerMember == null) {
+    return "Không giới hạn";
+  }
+
+  final remain = v.remainingUsagePerMember ?? 0;
+  final total = v.usageLimitPerMember ?? 0;
+
+  if (remain <= 0) {
+    return "Hết lượt đổi";
+  }
+
+  return "Còn $remain/$total lượt";
+}
+
+Color _usageColor(VoucherItem v) {
+  if (v.usageLimitPerMember == null) return Colors.blueGrey;
+
+  final remain = v.remainingUsagePerMember ?? 0;
+
+  if (remain <= 0) return Colors.red;
+  if (remain <= 1) return Colors.orange;
+
+  return Colors.grey;
 }

@@ -1,5 +1,4 @@
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
-import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
 import 'package:couple_mood_mobile/widgets/voucher/animated_voucher_item.dart';
 import 'package:couple_mood_mobile/widgets/voucher/my_voucher_card.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +63,7 @@ class _MyVoucherScreenState extends State<MyVoucherScreen> {
                     child: MyVoucherCard(
                       voucher: voucher,
                       onTap: () async {
-                        await await context.pushNamed(
+                        await context.pushNamed(
                           'my_voucher_detail',
                           extra: {'voucherItemId': voucher.voucherItemId},
                         );
