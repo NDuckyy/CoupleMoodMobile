@@ -1,224 +1,145 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 
-class Top1Podium extends StatefulWidget {
+class Top1Podium extends StatelessWidget {
   final dynamic item;
 
   const Top1Podium({super.key, required this.item});
 
   @override
-  State<Top1Podium> createState() => _Top1PodiumState();
-}
-
-class _Top1PodiumState extends State<Top1Podium>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(); // chạy infinite
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final m1 = widget.item.member1;
-    final m2 = widget.item.member2;
+    final m1 = item.member1;
+    final m2 = item.member2;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        /// 🔥 NEON COUPLE NAME
-        AnimatedBuilder(
-          animation: _controller,
-          builder: (_, __) {
-            return ShaderMask(
-              shaderCallback: (bounds) {
-                return LinearGradient(
-                  colors: const [
-                    Colors.amber,
-                    Colors.orange,
-                    Colors.yellow,
-                    Colors.amber,
-                  ],
-                  stops: [
-                    _controller.value,
-                    _controller.value + 0.2,
-                    _controller.value + 0.4,
-                    _controller.value + 0.6,
-                  ].map((e) => e % 1).toList(),
-                ).createShader(bounds);
-              },
-              child: Text(
-                widget.item.coupleName,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            );
-          },
+        /// 🔥 COUPLE NAME (CLEAN)
+        Text(
+          item.coupleName,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.1,
+            color: Colors.black,
+          ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: 1),
 
-        /// 🔥 SPOTLIGHT + CONTENT
-        Stack(
-          alignment: Alignment.topCenter,
+        /// AVATAR
+        Transform.translate(
+          offset: const Offset(0, 5),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _avatar(m1.avatarUrl),
+              const SizedBox(width: 12),
+              const Icon(Icons.favorite, color: Colors.red, size: 28),
+              const SizedBox(width: 12),
+              _avatar(m2.avatarUrl),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 15),
+
+        /// MEMBER NAME
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            /// LEFT LIGHT
-            Positioned(
-              left: 10,
-              top: 0,
-              child: Transform.rotate(angle: -pi / 6, child: _spotLight()),
-            ),
-
-            /// RIGHT LIGHT
-            Positioned(
-              right: 10,
-              top: 0,
-              child: Transform.rotate(angle: pi / 6, child: _spotLight()),
-            ),
-
-            /// CONTENT (avatar + podium)
-            Column(
-              children: [
-                const SizedBox(height: 10),
-
-                /// AVATAR + HEART (đè xuống gần podium)
-                Transform.translate(
-                  offset: const Offset(0, 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _avatar(m1.avatarUrl),
-                      const SizedBox(width: 12),
-                      const Icon(Icons.favorite, color: Colors.red, size: 28),
-                      const SizedBox(width: 12),
-                      _avatar(m2.avatarUrl),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 6),
-
-                /// MEMBER NAMES
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _name(m1.memberName),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 6),
-                      child: Icon(Icons.favorite, size: 14, color: Colors.red),
-                    ),
-                    _name(m2.memberName),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                /// POINT BADGE
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFFFF6B9A), Color(0xFFFF8E53)],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    "${widget.item.totalPoints} CP",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                /// 🔥 WIDE 3D PODIUM
-                _wide3DPodium(),
-              ],
-            ),
+            _name(m1.memberName),
+            const SizedBox(width: 20),
+            _name(m2.memberName),
           ],
         ),
+
+        const SizedBox(height: 6),
+
+        /// POINT
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFFF6B9A), Color(0xFFFF8E53)],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            "${item.totalPoints} CP",
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 4),
+
+        /// PODIUM
+        _buildPodium(),
       ],
     );
   }
 
-  /// 🔥 PODIUM DÀI + 3D
-  Widget _wide3DPodium() {
+  Widget _buildPodium() {
     return SizedBox(
-      height: 130,
-      width: 220, // 🔥 dài hơn
+      height: 170,
+      width: 320,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          /// shadow
           Positioned(
-            bottom: 0,
+            bottom: 16,
             child: Container(
-              width: 180,
-              height: 20,
+              width: 230,
+              height: 58,
               decoration: BoxDecoration(
-                color: Colors.black26,
+                color: Colors.black.withOpacity(0.25),
                 borderRadius: BorderRadius.circular(50),
               ),
             ),
           ),
 
-          /// back
           Transform.translate(
-            offset: const Offset(0, -12),
+            offset: const Offset(0, -14),
             child: Container(
-              width: 200,
-              height: 100,
+              width: 230,
+              height: 120,
               decoration: BoxDecoration(
                 color: Colors.amber.shade200,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
               ),
             ),
           ),
 
-          /// front
           Container(
-            width: 200,
-            height: 90,
+            width: 230,
+            height: 100,
             alignment: Alignment.center,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFFFFC107), Color(0xFFFF8F00)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
               ),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: const [
                 BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 10,
-                  offset: Offset(0, 6),
+                  color: Colors.black45,
+                  blurRadius: 16,
+                  offset: Offset(0, 10),
                 ),
               ],
             ),
             child: const Text(
               "1",
               style: TextStyle(
-                fontSize: 40,
+                fontSize: 42,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),
             ),
           ),
 
-          /// top face
           Positioned(
             top: 0,
             child: Transform(
@@ -226,31 +147,16 @@ class _Top1PodiumState extends State<Top1Podium>
                 ..setEntry(3, 2, 0.001)
                 ..rotateX(pi / 5),
               child: Container(
-                width: 200,
-                height: 30,
+                width: 230,
+                height: 35,
                 decoration: BoxDecoration(
                   color: Colors.amber.shade100,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  /// 🔥 SPOTLIGHT
-  Widget _spotLight() {
-    return Container(
-      width: 80,
-      height: 140,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.yellow.withOpacity(0.4), Colors.transparent],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
       ),
     );
   }
@@ -264,7 +170,7 @@ class _Top1PodiumState extends State<Top1Podium>
         ],
       ),
       child: CircleAvatar(
-        radius: 30,
+        radius: 28,
         backgroundImage: url != null ? NetworkImage(url) : null,
         child: url == null ? const Icon(Icons.person) : null,
       ),
