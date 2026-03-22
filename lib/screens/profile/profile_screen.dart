@@ -1,8 +1,10 @@
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
+import 'package:couple_mood_mobile/services/payment/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
+    // Giữ nguyên việc fetch user khi vào màn hình
     Future.microtask(() {
       context.read<UserProvider>().fetchMe();
     });
@@ -39,8 +42,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ListView(
                 children: [
                   const SizedBox(height: 20),
-
-                  /// PROFILE HEADER
                   Row(
                     children: [
                       CircleAvatar(
@@ -53,9 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ? const Icon(Icons.person)
                             : null,
                       ),
-
                       const SizedBox(width: 12),
-
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -67,9 +66,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 fontSize: 16,
                               ),
                             ),
-
                             const SizedBox(height: 2),
-
                             Text(
                               user?.email ?? '',
                               style: const TextStyle(
@@ -80,7 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ],
                         ),
                       ),
-
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: () {
@@ -89,7 +85,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 24),
 
                   /// QUICK ACTIONS
@@ -103,24 +98,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           context.pushNamed("my_posts");
                         },
                       ),
-
                       _actionButton(
                         icon: Icons.favorite_border,
                         label: "Hẹn hò",
                         onTap: () {},
                       ),
-
                       _actionButton(
                         icon: Icons.photo_library_outlined,
                         label: "Ảnh",
                         onTap: () {},
                       ),
-
                       _actionButton(
                         icon: Icons.notifications,
                         label: "Test Noti",
                         onTap: () async {
                           await NotificationService().showTestNotification();
+                        },
+                      ),
+                      _actionButton(
+                        icon: Icons.payment,
+                        label: "MOMO Test",
+                        onTap: () async {
+                          try {
+                            final response = await PaymentService.momoPay(
+                              packageId: 6,
+                            );
+                            if (response.code == 200 && response.data != null) {
+                              final deepLink = response.data!.deepLink;
+                              final url = Uri.parse(deepLink);
+
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                final fallbackUrl = Uri.parse(
+                                  response.data!.payUrl,
+                                );
+                                await launchUrl(
+                                  fallbackUrl,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              }
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(response.message)),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
                         },
                       ),
                     ],
@@ -151,9 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontSize: 15,
                             ),
                           ),
-
                           SizedBox(height: 4),
-
                           Text(
                             'Nâng cấp để có thêm tính năng',
                             style: TextStyle(color: Colors.white70),
@@ -164,36 +192,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   const SizedBox(height: 24),
-
-                  /// ACCOUNT
                   const Text(
                     'Tài khoản',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-
                   _tile(Icons.lock_outline, "Mật khẩu", () {}),
                   _tile(Icons.notifications_none, "Thông báo", () {}),
 
                   const SizedBox(height: 16),
-
-                  /// SERVICES
                   const Text(
                     'Dịch vụ',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-
                   _tile(Icons.confirmation_number_outlined, "Voucher", () {}),
                   _tile(Icons.account_balance_wallet_outlined, "Ví", () {}),
                   _tile(Icons.history, "Lịch sử hẹn hò", () {}),
 
                   const SizedBox(height: 24),
-
-                  /// OTHER
                   const Text(
                     'Khác',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-
                   _tile(Icons.star_border, "Đánh giá", () {}),
                   _tile(Icons.help_outline, "Trợ giúp", () {}),
                 ],
@@ -229,9 +248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             child: Icon(icon),
           ),
-
           const SizedBox(height: 6),
-
           Text(label, style: const TextStyle(fontSize: 12)),
         ],
       ),

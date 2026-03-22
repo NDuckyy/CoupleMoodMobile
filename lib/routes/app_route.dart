@@ -39,6 +39,9 @@ import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
 
+//payment
+import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dart';
+
 //---Screen
 //Chat
 import 'package:couple_mood_mobile/screens/chat/chat_screen.dart';
@@ -108,6 +111,9 @@ import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 
+//payment
+import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
+
 //home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
@@ -136,8 +142,33 @@ GoRouter createRouter(BuildContext context) {
     refreshListenable: auth,
 
     redirect: (ctx, state) {
-      final isLoggedIn = auth.isLoggedIn; // bạn tự map theo provider của bạn
-      final loc = state.uri.toString();
+      final uri =
+          state.uri; // Dùng state.uri để lấy đầy đủ scheme/host/path/query
+
+      // Debug để xem chính xác GoRouter nhận URI gì khi cold start từ MoMo
+      debugPrint('🔍 Redirect called | Full URI: $uri');
+      debugPrint(
+        '   Scheme: ${uri.scheme} | Host: ${uri.host} | Path: ${uri.path} | Query: ${uri.queryParameters}',
+      );
+
+      // 1. Xử lý custom scheme deep link (chạy trước auth để tránh miss cold start)
+      if (uri.scheme == 'couplemood') {
+        if (uri.host == 'payment-result') {
+          final orderId = uri.queryParameters['orderId'];
+          if (orderId != null && orderId.isNotEmpty) {
+            // Normalize về path nội bộ hợp lệ → GoRouter sẽ match route '/payment-result'
+            // Truyền orderId qua query (dễ lấy ở builder)
+            return '/payment-result?orderId=$orderId';
+          }
+        }
+        // Nếu có deep link khác (ví dụ invite, reset pass) → thêm case ở đây
+        // fallback về splash hoặc home nếu không match
+        return '/splash'; // hoặc '/home' tùy logic
+      }
+
+      // 2. Logic auth cũ của bạn (giữ nguyên, chỉ chạy nếu không phải deep link custom)
+      final isLoggedIn = auth.isLoggedIn;
+      final loc = uri.toString(); // hoặc state.matchedLocation nếu chỉ cần path
 
       final isAuthRoute =
           loc.startsWith('/login') ||
@@ -145,15 +176,12 @@ GoRouter createRouter(BuildContext context) {
           loc.startsWith('/guest');
       final isSplash = loc == '/splash';
 
-      // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
       if (isSplash) {
         return null;
       }
 
-      // Chưa login mà không ở auth routes => đá về login
       if (!isLoggedIn && !isAuthRoute) return '/guest';
 
-      // Đã login mà còn ở login/register => đá về home
       if (isLoggedIn && isAuthRoute) return '/home';
 
       return null;
@@ -408,6 +436,27 @@ GoRouter createRouter(BuildContext context) {
                 voucherItemId: extra['voucherItemId'],
               ),
             ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/payment-result',
+        name: 'payment-result',
+        builder: (context, state) {
+          // Ưu tiên extra (từ goNamed/pushNamed), fallback về query (từ redirect cold start)
+          String? orderId = state.extra as String?;
+          orderId ??= state.uri.queryParameters['orderId'];
+
+          if (orderId == null || orderId.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('OrderId trống hoặc không hợp lệ')),
+            );
+          }
+
+          return ChangeNotifierProvider(
+            create: (_) => PaymentResultProvider()..fetchStatus(orderId!),
+            child: const PaymentResultScreen(),
           );
         },
       ),

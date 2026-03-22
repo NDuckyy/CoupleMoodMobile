@@ -15,6 +15,7 @@ import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart'
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
+import 'package:couple_mood_mobile/utils/deep_link_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -85,10 +86,15 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'Flutter Demo',
-      theme: ThemeData(),
+    return DeepLinkHandler(
+      router: _router,
+      child: MaterialApp.router(
+        routerConfig: _router,
+        title: 'Couple Mood',
+        theme: ThemeData(
+          // theme của bạn
+        ),
+      ),
     );
   }
 }
