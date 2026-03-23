@@ -145,7 +145,6 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                               return ChallengeCard.discover(
                                 c,
                                 onJoin: isCheckin ? null : trigger,
-                                triggerEvent: c.triggerEvent,
                                 onTap: () {
                                   Navigator.push(
                                     context,
