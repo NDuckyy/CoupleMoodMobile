@@ -26,17 +26,19 @@ class CommentItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double indent = (comment.level - 1) * 24.0;
+    final double indent = (comment.level - 1) * 20.0;
 
-    return GestureDetector(
-      onLongPress: comment.isOwner ? onLongPress : null,
-      child: Padding(
-        padding: EdgeInsets.only(left: indent, top: 8, bottom: 8),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
+    return Padding(
+      padding: EdgeInsets.only(left: indent, top: 8, bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// AVATAR
+          GestureDetector(
+            onLongPress: comment.isOwner ? onLongPress : null,
+            child: CircleAvatar(
               radius: 18,
+              backgroundColor: Colors.grey.shade200,
               backgroundImage: comment.author.avatar != null
                   ? NetworkImage(comment.author.avatar!)
                   : null,
@@ -45,101 +47,136 @@ class CommentItem extends StatelessWidget {
                       comment.author.fullName.isNotEmpty
                           ? comment.author.fullName[0]
                           : "?",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     )
                   : null,
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    comment.author.fullName,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+
+          const SizedBox(width: 10),
+
+          /// CONTENT
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// BUBBLE
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
-                  const SizedBox(height: 4),
-
-                  RichText(
-                    text: TextSpan(
-                      style: const TextStyle(fontSize: 14, color: Colors.black),
-                      children: [
-                        if (comment.replyToMember != null)
-                          TextSpan(
-                            text: "@${comment.replyToMember!.fullName} ",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w500,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        TextSpan(text: comment.content),
-                      ],
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(14),
                   ),
-
-                  const SizedBox(height: 8),
-
-                  Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      GestureDetector(
-                        onTap: onLike,
-                        child: Row(
-                          children: [
-                            Icon(
-                              comment.isLikedByMe
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              size: 18,
-                              color: comment.isLikedByMe
-                                  ? Colors.red
-                                  : Colors.grey,
-                            ),
-                            const SizedBox(width: 4),
-                            Text("${comment.likeCount}"),
-                          ],
+                      /// NAME
+                      Text(
+                        comment.author.fullName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
-                      const SizedBox(width: 24),
-                      GestureDetector(
-                        onTap: onReply,
-                        child: const Text(
-                          "Trả lời",
-                          style: TextStyle(fontSize: 13),
+
+                      const SizedBox(height: 4),
+
+                      /// CONTENT + MENTION
+                      RichText(
+                        text: TextSpan(
+                          style: const TextStyle(
+                            fontSize: 14,
+                            height: 1.35,
+                            color: Colors.black87,
+                          ),
+                          children: [
+                            if (comment.replyToMember != null)
+                              TextSpan(
+                                text: "@${comment.replyToMember!.fullName} ",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            TextSpan(text: comment.content),
+                          ],
                         ),
                       ),
                     ],
                   ),
+                ),
 
-                  if (comment.replyCount > 0 &&
-                      comment.level < 3 &&
-                      showViewReplies)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: GestureDetector(
-                        onTap: onViewReplies,
-                        child: loadingReplies
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                isExpanded
-                                    ? "Ẩn phản hồi"
-                                    : "Xem ${comment.replyCount} phản hồi",
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                const SizedBox(height: 6),
+
+                /// ACTIONS ROW
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: onLike,
+                      child: Row(
+                        children: [
+                          Icon(
+                            comment.isLikedByMe
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            size: 16,
+                            color: comment.isLikedByMe
+                                ? Colors.red
+                                : Colors.grey,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "${comment.likeCount}",
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                       ),
                     ),
-                ],
-              ),
+
+                    const SizedBox(width: 16),
+
+                    GestureDetector(
+                      onTap: onReply,
+                      child: const Text(
+                        "Trả lời",
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+
+                /// VIEW REPLIES
+                if (comment.replyCount > 0 &&
+                    comment.level < 3 &&
+                    showViewReplies)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: GestureDetector(
+                      onTap: onViewReplies,
+                      child: loadingReplies
+                          ? const SizedBox(
+                              height: 14,
+                              width: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(
+                              isExpanded
+                                  ? "Ẩn phản hồi"
+                                  : "Xem ${comment.replyCount} phản hồi",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                    ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

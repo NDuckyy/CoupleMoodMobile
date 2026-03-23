@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/widgets/feed/comment_item_skeleton.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -157,7 +158,13 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
             /// COMMENT LIST
             Expanded(
               child: provider.loading && provider.comments.isEmpty
-                  ? const Center(child: CircularProgressIndicator())
+                  ? ListView(
+                      children: const [
+                        CommentItemSkeleton(),
+                        CommentItemSkeleton(level: 2),
+                        CommentItemSkeleton(),
+                      ],
+                    )
                   : ListView.builder(
                       controller: _scrollController,
                       itemCount:
@@ -166,7 +173,7 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                       itemBuilder: (context, index) {
                         if (index == provider.comments.length) {
                           return const Padding(
-                            padding: EdgeInsets.all(16),
+                            padding: EdgeInsets.symmetric(vertical: 12),
                             child: Center(child: CircularProgressIndicator()),
                           );
                         }

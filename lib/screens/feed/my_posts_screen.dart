@@ -1,5 +1,6 @@
-import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
+import 'package:couple_mood_mobile/widgets/feed/post_card_skeleton.dart';
+import 'package:couple_mood_mobile/widgets/feed/profile_summary_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +55,14 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
       body: RefreshIndicator(
         onRefresh: provider.refresh,
         child: provider.loading
-            ? const Center(child: CircularProgressIndicator())
+            ? ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  if (index == 0) return const ProfileSummarySkeleton();
+                  if (index == 1) return const SizedBox(height: 80);
+                  return const PostCardSkeleton();
+                },
+              )
             : ListView.builder(
                 controller: _scrollController,
                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -89,7 +97,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
                   /// loading more
                   if (postIndex == provider.posts.length) {
                     return const Padding(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.symmetric(vertical: 12),
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }

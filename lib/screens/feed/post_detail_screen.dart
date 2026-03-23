@@ -1,13 +1,14 @@
 import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/models/post/post_detail_model.dart';
 import 'package:couple_mood_mobile/models/post/post_model.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
+import 'package:couple_mood_mobile/widgets/feed/comment_item_skeleton.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/post/post_detail_provider.dart';
 import '../../widgets/feed/post_media.dart';
-import '../../widgets/feed/hashtag_wrap.dart';
 import '../../widgets/feed/comment_item.dart';
 import '../../utils/time_utils.dart';
 
@@ -274,17 +275,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                 const SizedBox(height: 12),
 
                 /// FULL CONTENT
-                Text(post.content),
+                _buildContentWithTags(post),
 
                 const SizedBox(height: 12),
 
                 if (post.mediaPayload.isNotEmpty)
                   PostMedia(mediaList: post.mediaPayload),
 
-                if (post.hashTags.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  HashTagWrap(tags: post.hashTags),
-                ],
                 const SizedBox(height: 16),
 
                 Consumer<PostProvider>(
@@ -432,10 +429,13 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                   }).toList(),
                 ),
 
-                if (provider.loadingComments)
-                  const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
+                if (provider.loadingComments && provider.comments.isEmpty)
+                  const Column(
+                    children: [
+                      CommentItemSkeleton(),
+                      CommentItemSkeleton(level: 2),
+                      CommentItemSkeleton(),
+                    ],
                   ),
               ],
             ),
@@ -563,4 +563,27 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       ),
     );
   }
+}
+
+Widget _buildContentWithTags(PostDetailModel post) {
+  final tags = post.hashTags
+      .map((tag) => tag.startsWith("#") ? tag : "#$tag")
+      .join(" ");
+
+  return RichText(
+    text: TextSpan(
+      style: const TextStyle(fontSize: 14, height: 1.4, color: Colors.black87),
+      children: [
+        TextSpan(text: "${post.content} "),
+        if (tags.isNotEmpty)
+          TextSpan(
+            text: tags,
+            style: const TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+      ],
+    ),
+  );
 }

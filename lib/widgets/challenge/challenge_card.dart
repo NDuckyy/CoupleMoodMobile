@@ -16,6 +16,7 @@ class ChallengeCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onClaimReward;
   final bool rewardClaimed;
+  final String? triggerEvent;
 
   const ChallengeCard({
     super.key,
@@ -31,6 +32,7 @@ class ChallengeCard extends StatelessWidget {
     this.onLeave,
     this.onClaimReward,
     this.onTap,
+    this.triggerEvent,
   });
 
   /// Discover challenge
@@ -45,6 +47,7 @@ class ChallengeCard extends StatelessWidget {
       reward: item.rewardPoints,
       onJoin: onJoin,
       onTap: onTap,
+      triggerEvent: item.triggerEvent,
     );
   }
 
@@ -77,6 +80,7 @@ class ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCheckin = triggerEvent == "CHECKIN";
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -166,7 +170,7 @@ class ChallengeCard extends StatelessWidget {
                 const Spacer(),
 
                 /// Join button
-                if (onJoin != null)
+                if (onJoin != null && !isCheckin)
                   SizedBox(
                     height: 34,
                     child: ElevatedButton.icon(
@@ -186,7 +190,7 @@ class ChallengeCard extends StatelessWidget {
                   ),
 
                 /// Leave button
-                if (onLeave != null)
+                if (onLeave != null && !isCheckin)
                   SizedBox(
                     height: 34,
                     child: OutlinedButton.icon(
@@ -206,7 +210,10 @@ class ChallengeCard extends StatelessWidget {
 
                 /// Completed
                 /// CLAIM REWARD
-                if (completed && !rewardClaimed && onClaimReward != null)
+                if (completed &&
+                    !rewardClaimed &&
+                    onClaimReward != null &&
+                    !isCheckin)
                   SizedBox(
                     height: 34,
                     child: ElevatedButton.icon(
@@ -225,7 +232,7 @@ class ChallengeCard extends StatelessWidget {
                   ),
 
                 /// REWARD CLAIMED
-                if (completed && rewardClaimed)
+                if (completed && rewardClaimed && !isCheckin)
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -245,6 +252,35 @@ class ChallengeCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           "Đã nhận thưởng",
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (completed && isCheckin)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          size: 14,
+                          color: Colors.green.shade600,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          "Đã hoàn thành",
                           style: TextStyle(
                             color: Colors.green.shade700,
                             fontWeight: FontWeight.w600,
