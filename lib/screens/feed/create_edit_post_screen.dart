@@ -1,9 +1,4 @@
 import 'dart:io';
-import 'package:couple_mood_mobile/widgets/feed/hashtag_input.dart';
-import 'package:couple_mood_mobile/widgets/feed/post_image_grid.dart';
-import 'package:couple_mood_mobile/widgets/feed/topic_selector.dart';
-import 'package:couple_mood_mobile/widgets/feed/visibility_selector.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -11,6 +6,10 @@ import 'package:image_picker/image_picker.dart';
 import '../../models/post/post_model.dart';
 import '../../models/post/media_model.dart';
 import '../../providers/post/post_provider.dart';
+import '../../widgets/feed/post_image_grid.dart';
+import '../../widgets/feed/topic_selector.dart';
+import '../../widgets/feed/visibility_selector.dart';
+import '../../widgets/snack_bar.dart';
 
 class CreateEditPostScreen extends StatefulWidget {
   final PostModel? post;
@@ -22,8 +21,8 @@ class CreateEditPostScreen extends StatefulWidget {
 }
 
 class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
-  final TextEditingController _contentController = TextEditingController();
-  final TextEditingController _hashtagController = TextEditingController();
+  final HashtagTextController _contentController = HashtagTextController();
+  final FocusNode _focusNode = FocusNode();
 
   List<String> selectedTopics = [];
   String visibility = "PUBLIC";
@@ -45,11 +44,14 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
       _contentController.text = widget.post!.content;
       oldMedia = List.from(widget.post!.mediaPayload);
       selectedTopics = List.from(widget.post!.topic);
-
-      _hashtagController.text = widget.post!.hashTags
-          .map((e) => "#$e")
-          .join(" ");
     }
+  }
+
+  @override
+  void dispose() {
+    _contentController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
   Future<void> pickImages() async {
@@ -58,10 +60,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
 
     if (files.isEmpty) return;
 
-    /// tổng số ảnh hiện tại
     final currentTotal = newImages.length + oldMedia.length;
-
-    /// số ảnh còn được phép chọn
     final remaining = 4 - currentTotal;
 
     if (remaining <= 0) {
@@ -69,7 +68,6 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
       return;
     }
 
-    /// nếu user chọn nhiều hơn số cho phép
     final selected = files.take(remaining);
 
     setState(() {
@@ -82,20 +80,16 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
   }
 
   Future<void> submit() async {
-    final content = _contentController.text.trim();
+    final rawContent = _contentController.text.trim();
+    final content = removeHashtags(rawContent);
 
     if (content.isEmpty && newImages.isEmpty && oldMedia.isEmpty) {
       showMsg(context, "Post cannot be empty", false);
       return;
     }
 
-    final hashTags = _hashtagController.text.trim().isEmpty
-        ? null
-        : _hashtagController.text
-              .split(" ")
-              .where((e) => e.trim().isNotEmpty)
-              .map((e) => e.replaceAll("#", ""))
-              .toList();
+    /// 🔥 extract hashtag từ content
+    final hashTags = _contentController.extractHashtags();
 
     setState(() => loading = true);
 
@@ -138,76 +132,146 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết"),
-        actions: [
-          TextButton(
-            onPressed: loading ? null : submit,
-            child: Text(isEdit ? "Save" : "Post"),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _contentController,
-              maxLines: null,
-              decoration: const InputDecoration(
-                hintText: "Bạn đang nghĩ gì?",
-                border: InputBorder.none,
-              ),
-            ),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
 
-            const SizedBox(height: 16),
+      /// 👇 tap ra ngoài để đóng keyboard
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
 
-            VisibilitySelector(
-              value: visibility,
-              onChanged: (v) => setState(() => visibility = v),
-            ),
-
-            const SizedBox(height: 16),
-
-            HashtagInput(controller: _hashtagController),
-
-            const SizedBox(height: 16),
-
-            TopicSelector(
-              selectedTopics: selectedTopics,
-              onToggle: (topicKey) {
-                setState(() {
-                  if (selectedTopics.contains(topicKey)) {
-                    selectedTopics.remove(topicKey);
-                  } else {
-                    selectedTopics.add(topicKey);
-                  }
-                });
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            PostImageGrid(
-              newImages: newImages,
-              oldMedia: oldMedia,
-              onRemoveOld: (i) => setState(() => oldMedia.removeAt(i)),
-              onRemoveNew: (i) => setState(() => newImages.removeAt(i)),
-            ),
-
-            const SizedBox(height: 12),
-
-            ElevatedButton.icon(
-              onPressed: (newImages.length + oldMedia.length) >= 4
-                  ? null
-                  : pickImages,
-              icon: const Icon(Icons.image),
-              label: const Text("Add Ảnh (tối đa 4 ảnh)"),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết"),
+          actions: [
+            TextButton(
+              onPressed: loading ? null : submit,
+              child: Text(isEdit ? "Save" : "Post"),
             ),
           ],
+        ),
+        body: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              TextField(
+                controller: _contentController,
+                focusNode: _focusNode,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: "Bạn đang nghĩ gì?",
+                  border: InputBorder.none,
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              VisibilitySelector(
+                value: visibility,
+                onChanged: (v) => setState(() => visibility = v),
+              ),
+
+              const SizedBox(height: 16),
+
+              TopicSelector(
+                selectedTopics: selectedTopics,
+                onToggle: (topicKey) {
+                  setState(() {
+                    if (selectedTopics.contains(topicKey)) {
+                      selectedTopics.remove(topicKey);
+                    } else {
+                      selectedTopics.add(topicKey);
+                    }
+                  });
+                },
+              ),
+
+              const SizedBox(height: 16),
+
+              PostImageGrid(
+                newImages: newImages,
+                oldMedia: oldMedia,
+                onRemoveOld: (i) => setState(() => oldMedia.removeAt(i)),
+                onRemoveNew: (i) => setState(() => newImages.removeAt(i)),
+              ),
+
+              const SizedBox(height: 12),
+
+              ElevatedButton.icon(
+                onPressed: (newImages.length + oldMedia.length) >= 4
+                    ? null
+                    : pickImages,
+                icon: const Icon(Icons.image),
+                label: const Text("Add Ảnh (tối đa 4 ảnh)"),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class HashtagTextController extends TextEditingController {
+  /// hỗ trợ cả tiếng Việt
+  final RegExp hashtagRegex = RegExp(r'(?<=\s|^)#[\p{L}0-9_]+', unicode: true);
+
+  List<String> extractHashtags() {
+    return hashtagRegex
+        .allMatches(text)
+        .map((e) => e.group(0)!.replaceAll("#", "").toLowerCase())
+        .toSet()
+        .toList();
+  }
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final children = <TextSpan>[];
+    final matches = hashtagRegex.allMatches(text);
+
+    int lastIndex = 0;
+
+    for (final match in matches) {
+      if (match.start > lastIndex) {
+        children.add(
+          TextSpan(text: text.substring(lastIndex, match.start), style: style),
+        );
+      }
+
+      children.add(
+        TextSpan(
+          text: match.group(0),
+          style: style?.copyWith(
+            color: Colors.blue,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < text.length) {
+      children.add(TextSpan(text: text.substring(lastIndex), style: style));
+    }
+
+    return TextSpan(style: style, children: children);
+  }
+}
+
+String removeHashtags(String text) {
+  final regex = RegExp(r'(?<=\s|^)#[\p{L}0-9_]+', unicode: true);
+
+  return text
+      .replaceAll(regex, '') // xóa hashtag
+      .replaceAll(RegExp(r'\s+'), ' ') // fix double space
+      .trim();
 }

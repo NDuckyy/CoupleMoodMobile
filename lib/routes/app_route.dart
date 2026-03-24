@@ -723,7 +723,19 @@ GoRouter createRouter(BuildContext context) {
         builder: (context, state, child) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => PostProvider()),
+              /// 1. MyPostsProvider (nguồn dữ liệu riêng)
+              ChangeNotifierProvider(create: (_) => MyPostsProvider()),
+
+              /// 2. PostProvider phụ thuộc MyPostsProvider
+              ChangeNotifierProxyProvider<MyPostsProvider, PostProvider>(
+                create: (_) => PostProvider(null),
+                update: (_, myPostsProvider, previous) {
+                  previous!.setMyPostsProvider(myPostsProvider);
+                  return previous;
+                },
+              ),
+
+              /// 3. User
               ChangeNotifierProvider(create: (_) => UserProvider()..fetchMe()),
             ],
             child: child,
@@ -740,10 +752,7 @@ GoRouter createRouter(BuildContext context) {
             name: "my_posts",
             path: "/my-posts",
             builder: (context, state) {
-              return ChangeNotifierProvider(
-                create: (_) => MyPostsProvider(),
-                child: const MyPostsScreen(),
-              );
+              return const MyPostsScreen();
             },
           ),
           GoRoute(
