@@ -18,6 +18,7 @@ class PostCommentBottomSheet extends StatefulWidget {
 class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _textScrollController = ScrollController();
 
   CommentModel? _editingComment;
   int? _replyingToCommentId;
@@ -128,263 +129,343 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
   Widget build(BuildContext context) {
     final provider = context.watch<PostDetailProvider>();
 
-    return SafeArea(
-      child: Container(
-        height: MediaQuery.of(context).size.height * 0.85,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          children: [
-            const SizedBox(height: 12),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(), //  tắt keyboard
+      behavior: HitTestBehavior.opaque,
+      child: SafeArea(
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(
+              context,
+            ).viewInsets.bottom, //  đẩy lên khi keyboard mở
+          ),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.85,
+            child: Column(
+              children: [
+                const SizedBox(height: 12),
 
-            /// Drag handle
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
+                /// Drag handle
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade400,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
 
-            const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-            const Text(
-              "Bình luận",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+                const Text(
+                  "Bình luận",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
 
-            const SizedBox(height: 12),
+                const SizedBox(height: 12),
 
-            /// COMMENT LIST
-            Expanded(
-              child: provider.loading && provider.comments.isEmpty
-                  ? ListView(
-                      children: const [
-                        CommentItemSkeleton(),
-                        CommentItemSkeleton(level: 2),
-                        CommentItemSkeleton(),
-                      ],
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      itemCount:
-                          provider.comments.length +
-                          (provider.loadingComments ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (index == provider.comments.length) {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 12),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
+                /// COMMENT LIST
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: provider.loading && provider.comments.isEmpty
+                        ? ListView(
+                            children: const [
+                              CommentItemSkeleton(),
+                              CommentItemSkeleton(level: 2),
+                              CommentItemSkeleton(),
+                            ],
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            itemCount:
+                                provider.comments.length +
+                                (provider.loadingComments ? 1 : 0),
+                            itemBuilder: (context, index) {
+                              if (index == provider.comments.length) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
 
-                        final comment = provider.comments[index];
+                              final comment = provider.comments[index];
 
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ///  Level 1
-                            CommentItem(
-                              comment: comment,
-                              onReply: () {
-                                setState(() {
-                                  _editingComment = null;
-                                  _replyingToCommentId = comment.id;
-                                  _replyingToName = comment.author.fullName;
-                                });
-                              },
-                              onLongPress: () => _showCommentOptions(comment),
-                              showViewReplies: comment.replyCount > 0,
-                              isExpanded: provider.isExpanded(comment.id),
-                              loadingReplies: provider.isLoadingReplies(
-                                comment.id,
-                              ),
-                              onViewReplies: () =>
-                                  provider.loadReplies(comment),
-                              onLike: () => provider.toggleLikeComment(comment),
-                            ),
-
-                            ///  Level 2
-                            ...provider.getReplies(comment.id).map((reply) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  ///  Level 1
                                   CommentItem(
-                                    comment: reply,
+                                    comment: comment,
                                     onReply: () {
                                       setState(() {
                                         _editingComment = null;
-                                        _replyingToCommentId = reply.id;
+                                        _replyingToCommentId = comment.id;
                                         _replyingToName =
                                             comment.author.fullName;
                                       });
                                     },
                                     onLongPress: () =>
-                                        _showCommentOptions(reply),
-                                    showViewReplies: reply.replyCount > 0,
-                                    isExpanded: provider.isExpanded(reply.id),
+                                        _showCommentOptions(comment),
+                                    showViewReplies: comment.replyCount > 0,
+                                    isExpanded: provider.isExpanded(comment.id),
                                     loadingReplies: provider.isLoadingReplies(
-                                      reply.id,
+                                      comment.id,
                                     ),
                                     onViewReplies: () =>
-                                        provider.loadReplies(reply),
+                                        provider.loadReplies(comment),
                                     onLike: () =>
-                                        provider.toggleLikeComment(reply),
+                                        provider.toggleLikeComment(comment),
                                   ),
 
-                                  ///  Level 3
-                                  ...provider
-                                      .getReplies(reply.id)
-                                      .map(
-                                        (lv3) => CommentItem(
-                                          comment: lv3,
+                                  ///  Level 2
+                                  ...provider.getReplies(comment.id).map((
+                                    reply,
+                                  ) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CommentItem(
+                                          comment: reply,
                                           onReply: () {
                                             setState(() {
                                               _editingComment = null;
-                                              _replyingToCommentId = lv3.id;
+                                              _replyingToCommentId = reply.id;
                                               _replyingToName =
-                                                  lv3.author.fullName;
+                                                  comment.author.fullName;
                                             });
                                           },
                                           onLongPress: () =>
-                                              _showCommentOptions(lv3),
+                                              _showCommentOptions(reply),
+                                          showViewReplies: reply.replyCount > 0,
+                                          isExpanded: provider.isExpanded(
+                                            reply.id,
+                                          ),
+                                          loadingReplies: provider
+                                              .isLoadingReplies(reply.id),
+                                          onViewReplies: () =>
+                                              provider.loadReplies(reply),
                                           onLike: () =>
-                                              provider.toggleLikeComment(lv3),
+                                              provider.toggleLikeComment(reply),
                                         ),
-                                      ),
+
+                                        ///  Level 3
+                                        ...provider
+                                            .getReplies(reply.id)
+                                            .map(
+                                              (lv3) => CommentItem(
+                                                comment: lv3,
+                                                onReply: () {
+                                                  setState(() {
+                                                    _editingComment = null;
+                                                    _replyingToCommentId =
+                                                        lv3.id;
+                                                    _replyingToName =
+                                                        lv3.author.fullName;
+                                                  });
+                                                },
+                                                onLongPress: () =>
+                                                    _showCommentOptions(lv3),
+                                                onLike: () => provider
+                                                    .toggleLikeComment(lv3),
+                                              ),
+                                            ),
+                                      ],
+                                    );
+                                  }),
                                 ],
                               );
-                            }),
-                          ],
-                        );
-                      },
-                    ),
-            ),
+                            },
+                          ),
+                  ),
+                ),
 
-            /// INPUT
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: const BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+                /// INPUT
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: Colors.grey)),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_replyingToCommentId != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        "Đang trả lời $_replyingToName",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (_replyingToCommentId != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      bottom: 6,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: RichText(
+                                            text: TextSpan(
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                              children: [
+                                                const TextSpan(
+                                                  text: "Đang trả lời ",
+                                                ),
+                                                TextSpan(
+                                                  text: _replyingToName ?? "",
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                                const TextSpan(text: " • "),
+                                                WidgetSpan(
+                                                  alignment:
+                                                      PlaceholderAlignment
+                                                          .middle,
+                                                  child: GestureDetector(
+                                                    onTap: () {
+                                                      setState(() {
+                                                        _replyingToCommentId =
+                                                            null;
+                                                        _replyingToName = null;
+                                                      });
+                                                    },
+                                                    child: const Text(
+                                                      "Hủy",
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         ),
+                                      ],
+                                    ),
+                                  ),
+
+                                ///  Thanh hiển thị edit mode
+                                if (_editingComment != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 12,
+                                      bottom: 6,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        const Text(
+                                          "Đang chỉnh sửa bình luận",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.orange,
+                                          ),
+                                        ),
+                                        const Spacer(),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              _editingComment = null;
+                                              _replyingToCommentId = null;
+                                              _replyingToName = null;
+                                              _controller.clear();
+                                            });
+                                          },
+                                          child: const Icon(
+                                            Icons.close,
+                                            size: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Scrollbar(
+                                    controller: _textScrollController,
+                                    thumbVisibility: true,
+                                    thickness: 3,
+                                    radius: const Radius.circular(10),
+                                    child: TextField(
+                                      controller: _controller,
+                                      scrollController: _textScrollController,
+                                      minLines: 1,
+                                      maxLines: 4,
+                                      decoration: InputDecoration(
+                                        hintText: _editingComment != null
+                                            ? "Chỉnh sửa bình luận..."
+                                            : "Viết bình luận...",
+                                        border: InputBorder.none,
+                                        isCollapsed: true,
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _replyingToCommentId = null;
-                                          _replyingToName = null;
-                                        });
-                                      },
-                                      child: const Icon(Icons.close, size: 16),
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-
-                            ///  Thanh hiển thị edit mode
-                            if (_editingComment != null)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 6),
-                                child: Row(
-                                  children: [
-                                    const Text(
-                                      "Đang chỉnh sửa bình luận",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.orange,
-                                      ),
-                                    ),
-                                    const Spacer(),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          _editingComment = null;
-                                          _replyingToCommentId = null;
-                                          _replyingToName = null;
-                                          _controller.clear();
-                                        });
-                                      },
-                                      child: const Icon(Icons.close, size: 16),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                            ///  TextField
-                            TextField(
-                              controller: _controller,
-                              decoration: InputDecoration(
-                                hintText: _editingComment != null
-                                    ? "Chỉnh sửa bình luận..."
-                                    : "Viết bình luận...",
-                                border: InputBorder.none,
-                              ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          _editingComment != null ? Icons.check : Icons.send,
-                        ),
-                        onPressed: () async {
-                          final text = _controller.text.trim();
-                          if (text.isEmpty) return;
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              _editingComment != null
+                                  ? Icons.check
+                                  : Icons.send,
+                            ),
+                            onPressed: () async {
+                              final text = _controller.text.trim();
+                              if (text.isEmpty) return;
 
-                          if (_editingComment != null) {
-                            await context
-                                .read<PostDetailProvider>()
-                                .editComment(
-                                  commentId: _editingComment!.id,
-                                  newContent: text,
-                                );
-                          } else {
-                            await context
-                                .read<PostDetailProvider>()
-                                .createComment(
-                                  content: text,
-                                  parentId: _replyingToCommentId,
-                                );
-                          }
+                              if (_editingComment != null) {
+                                await context
+                                    .read<PostDetailProvider>()
+                                    .editComment(
+                                      commentId: _editingComment!.id,
+                                      newContent: text,
+                                    );
+                              } else {
+                                await context
+                                    .read<PostDetailProvider>()
+                                    .createComment(
+                                      content: text,
+                                      parentId: _replyingToCommentId,
+                                    );
+                              }
 
-                          //  Reset toàn bộ state sau khi gửi
-                          _controller.clear();
+                              //  Reset toàn bộ state sau khi gửi
+                              _controller.clear();
 
-                          setState(() {
-                            _editingComment = null;
-                            _replyingToCommentId = null;
-                            _replyingToName = null;
-                          });
-                        },
+                              setState(() {
+                                _editingComment = null;
+                                _replyingToCommentId = null;
+                                _replyingToName = null;
+                              });
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
