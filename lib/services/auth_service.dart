@@ -29,6 +29,8 @@ class AuthService {
       fullName: data['fullName']?.toString(),
       dateOfBirth: data['dateOfBirth']?.toString(),
       inviteCode: data['inviteCode']?.toString(),
+      balance: data['balance'] as int?,
+      points: data['points'] as int?,
     );
     await SessionStorage.save(session);
     await NotificationService.sendTokenToServerAfterLogin();
