@@ -1,7 +1,9 @@
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,15 @@ class PostHeader extends StatelessWidget {
   void _onMenuSelected(BuildContext context, String value) async {
     final feedProvider = context.read<PostProvider>();
     final myPostsProvider = context.read<MyPostsProvider>();
+
+    if (value == "report") {
+      showReportBottomSheet(
+        context: context,
+        targetId: post.id,
+        targetType: ReportTargetType.post,
+      );
+      return;
+    }
 
     if (value == "edit") {
       final updated = await Navigator.push(
@@ -95,32 +106,49 @@ class PostHeader extends StatelessWidget {
         ),
 
         /// MENU
-        if (post.isOwner)
-          PopupMenuButton<String>(
-            onSelected: (value) => _onMenuSelected(context, value),
-            itemBuilder: (context) => [
+        PopupMenuButton<String>(
+          onSelected: (value) => _onMenuSelected(context, value),
+          itemBuilder: (context) {
+            if (post.isOwner) {
+              return [
+                const PopupMenuItem(
+                  value: "edit",
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 8),
+                      Text("Chỉnh sửa"),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: "delete",
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text("Xoá", style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ];
+            }
+
+            /// 👇 USER KHÁC → chỉ có REPORT
+            return [
               const PopupMenuItem(
-                value: "edit",
+                value: "report",
                 child: Row(
                   children: [
-                    Icon(Icons.edit, size: 18),
+                    Icon(Icons.flag, size: 18, color: Colors.red),
                     SizedBox(width: 8),
-                    Text("Chỉnh sửa"),
+                    Text("Báo cáo", style: TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
-              const PopupMenuItem(
-                value: "delete",
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text("Xoá", style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ];
+          },
+        ),
       ],
     );
   }
