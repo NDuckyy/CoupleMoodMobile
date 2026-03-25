@@ -18,7 +18,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    // Giữ nguyên việc fetch user khi vào màn hình
     Future.microtask(() {
       context.read<UserProvider>().fetchMe();
     });
@@ -94,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       // HÀNG 2: Xu + Điểm (FULL WIDTH)
                       Container(
-                        width: double.infinity, // 🔥 QUAN TRỌNG để full ngang
+                        width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
                           color: Colors.grey[100],
@@ -240,7 +239,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   _tile(Icons.confirmation_number_outlined, "Voucher", () {}),
-                  _tile(Icons.account_balance_wallet_outlined, "Ví", () {}),
+                  _tile(
+                    Icons.account_balance_wallet_outlined,
+                    "Ví",
+                    () => context.pushNamed("wallet"),
+                  ),
                   _tile(Icons.history, "Lịch sử hẹn hò", () {}),
 
                   const SizedBox(height: 24),

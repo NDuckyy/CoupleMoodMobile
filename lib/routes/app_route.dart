@@ -39,9 +39,10 @@ import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
 
-//payment, subscription
+//payment, subscription, wallet
 import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dart';
 import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
+import 'package:couple_mood_mobile/providers/wallet/wallet_provider.dart';
 
 //---Screen
 //Chat
@@ -108,10 +109,11 @@ import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
-//payment, package, advertisement
+//payment, package, advertisement, wallet
 import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+import 'package:couple_mood_mobile/screens/wallet/wallet_screen.dart';
 
 //home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
@@ -455,6 +457,21 @@ GoRouter createRouter(BuildContext context) {
           );
         },
       ),
+
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/wallet',
+        name: 'wallet',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => WalletProvider(),
+              child: const WalletScreen(),
+            ),
+          );
+        },
+      ),
+
       GoRoute(
         path: '/filter-location',
         name: 'filter_location',
