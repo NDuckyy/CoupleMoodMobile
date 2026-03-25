@@ -122,7 +122,6 @@ import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart'
 import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
-import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
