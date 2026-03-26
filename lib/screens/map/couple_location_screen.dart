@@ -86,7 +86,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
             left: 16,
             child: FloatingActionButton(
               backgroundColor: Color(0xFF8093F1),
-              heroTag: "me",
+              heroTag: UniqueKey(),
               onPressed: () {
                 final pos = provider.myPosition;
                 if (pos != null && _mapController != null) {
@@ -103,7 +103,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
             bottom: 40,
             left: 16,
             child: FloatingActionButton(
-              heroTag: "partner",
+              heroTag: UniqueKey(),
               backgroundColor: Color(0xFFF7AEF8),
               onPressed: () {
                 final pos = provider.partnerPosition;

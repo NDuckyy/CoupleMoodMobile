@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -25,6 +26,7 @@ class UserCard extends StatelessWidget {
 
   void _showInviteDialog(BuildContext context, MemberResponse user) {
     final TextEditingController messageController = TextEditingController();
+    messageController.text = "Xin chào ${user.fullName}, cho mình làm quen nhé! 💕";
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -111,7 +113,11 @@ class UserCard extends StatelessWidget {
                   GestureDetector(
                     onTap: () async {
                       final message = messageController.text.trim();
-                      if (message.isEmpty) return;
+                      if (message.isEmpty) {
+                        context.pop();
+                        showMsg(context, "Vui lòng nhập lời nhắn", false);
+                        return;
+                      }
                       onSend(message);
                     },
                     child: Container(
@@ -168,7 +174,7 @@ class UserCard extends StatelessWidget {
                       if (loadingProgress == null) {
                         return child;
                       }
-                      return _buildPlaceholder(); 
+                      return _buildPlaceholder();
                     },
                     errorBuilder: (_, __, ___) {
                       return _buildPlaceholder();
