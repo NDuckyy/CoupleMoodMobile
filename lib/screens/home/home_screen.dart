@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
@@ -44,7 +45,17 @@ class _HomeScreenState extends State<HomeScreen> {
       // _getSpecialEvent();
       _getAdvertisement();
       showAdvertisement();
+      getDatePlanCalender();
     });
+  }
+
+  void getDatePlanCalender() async {
+    final provider = context.read<DatePlanProvider>();
+    await provider.getDatePlanCalender();
+    if (provider.error != null) {
+      if (!mounted) return;
+      showMsg(context, provider.error!, false);
+    }
   }
 
   void showAdvertisement() async {
@@ -198,6 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
         [];
     final contextRecs =
         recommendationProvider.contextRecommendationResponse?.hits ?? [];
+    final datePlanProvider = context.watch<DatePlanProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -257,6 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   onDateSelected: (date) {
                     debugPrint(date.toString());
                   },
+                  calendarDays:
+                      datePlanProvider.datePlanCalender?.data?.days ?? [],
                 ),
               ),
             ),

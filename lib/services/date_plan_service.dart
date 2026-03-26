@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_request.dart';
@@ -53,6 +54,21 @@ class DatePlanService {
       );
     } catch (e) {
       throw Exception('Lỗi khi lấy thông tin kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<DatePlanCalender>> getDatePlanCalender() async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/calendar-30-days',
+        method: HttpMethod.get,
+      );
+      return ApiResponse<DatePlanCalender>.fromJson(
+        res,
+        (json) => DatePlanCalender.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy lịch hẹn hò: $e');
     }
   }
 
