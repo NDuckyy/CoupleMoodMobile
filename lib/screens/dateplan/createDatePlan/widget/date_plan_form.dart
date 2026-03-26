@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/budget_input.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/widget/date_time_picker_section.dart';
+import 'package:couple_mood_mobile/widgets/datePlan/duration_mode_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/note_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/submit_button.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/title_input.dart';
@@ -24,6 +25,7 @@ class _DatePlanFormState extends State<DatePlanForm> {
   final TextEditingController titleCtrl = TextEditingController();
   final TextEditingController noteCtrl = TextEditingController();
   final TextEditingController budgetCtrl = TextEditingController();
+  final TextEditingController durationModeCtrl = TextEditingController();
 
   DateTime? plannedStartAt;
   DateTime? plannedEndAt;
@@ -33,6 +35,7 @@ class _DatePlanFormState extends State<DatePlanForm> {
     titleCtrl.dispose();
     noteCtrl.dispose();
     budgetCtrl.dispose();
+    durationModeCtrl.dispose();
     super.dispose();
   }
 
@@ -52,6 +55,7 @@ class _DatePlanFormState extends State<DatePlanForm> {
       plannedStartAt: plannedStartAt!,
       plannedEndAt: plannedEndAt!,
       estimatedBudget: estimatedBudget,
+      durationMode: durationModeCtrl.text.trim().isNotEmpty ? durationModeCtrl.text.trim() : null,
     );
 
     final provider = context.read<DatePlanProvider>();
@@ -86,6 +90,9 @@ class _DatePlanFormState extends State<DatePlanForm> {
           const SizedBox(height: 32),
 
           NoteInput(controller: noteCtrl),
+          const SizedBox(height: 16),
+
+          DurationModeInput(controller: durationModeCtrl),
           const SizedBox(height: 16),
 
           SubmitButton(onPressed: _submit, label: "Tạo lịch hẹn 💖"),

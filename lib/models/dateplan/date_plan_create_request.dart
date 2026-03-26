@@ -4,6 +4,7 @@ class DatePlanCreateAndUpdateRequest {
   final DateTime plannedStartAt;
   final DateTime plannedEndAt;
   final double estimatedBudget;
+  final String? durationMode;
   final int? version;
 
   DatePlanCreateAndUpdateRequest({
@@ -12,6 +13,7 @@ class DatePlanCreateAndUpdateRequest {
     required this.plannedStartAt,
     required this.plannedEndAt,
     required this.estimatedBudget,
+    this.durationMode,
     this.version,
   });
 
@@ -22,6 +24,7 @@ class DatePlanCreateAndUpdateRequest {
       'plannedStartAt': plannedStartAt.toIso8601String(),
       'plannedEndAt': plannedEndAt.toIso8601String(),
       'estimatedBudget': estimatedBudget,
+      if (durationMode != null) 'durationMode': durationMode,
       if (version != null) 'version': version,
     };
   }

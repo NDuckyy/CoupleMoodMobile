@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
+import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
@@ -10,6 +11,7 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<DatePlanPageResult>? datePlans;
   ApiResponse<DatePlanItemResponse>? datePlanItems;
   ApiResponse<DatePlanDetails>? selectedDatePlan;
+  ApiResponse<DatePlanInfo>? datePlanInfo;
   bool isLoading = true;
   String? error;
 
@@ -59,6 +61,24 @@ class DatePlanProvider extends ChangeNotifier {
       if (response.code != 200) {
         error = response.message;
       }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> getDatePlanInfo(int datePlanId) async {
+    error = null;
+    isLoading = true;
+    notifyListeners();
+    try {
+      datePlanInfo = await DatePlanService.getDatePlanInfo(datePlanId);
+      if (datePlanInfo?.code != 200) {
+        error = datePlanInfo?.message;
+      }
+      isLoading = false;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
