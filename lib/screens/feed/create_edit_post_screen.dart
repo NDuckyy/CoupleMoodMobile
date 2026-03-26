@@ -11,7 +11,6 @@ import '../../models/post/media_model.dart';
 import '../../providers/post/post_provider.dart';
 import '../../widgets/feed/post_image_grid.dart';
 import '../../widgets/feed/topic_selector.dart';
-import '../../widgets/feed/visibility_selector.dart';
 import '../../widgets/snack_bar.dart';
 
 class CreateEditPostScreen extends StatefulWidget {
