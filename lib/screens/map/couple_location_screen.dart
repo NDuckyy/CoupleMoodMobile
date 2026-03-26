@@ -31,7 +31,10 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
       final moodProvider = Provider.of<MoodProvider>(context, listen: false);
 
-      await provider.loadAvatars();
+      await provider.loadAvatars(
+        moodProvider.myAvatarUrl ?? "",
+        moodProvider.partnerAvatarUrl ?? "",
+      );
       await Geolocator.requestPermission();
       provider.listenLocation(
         moodProvider.coupleCurrentMood?.coupleProfileId.toString() ??
