@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:couple_mood_mobile/models/post/media_model.dart';
 import 'package:couple_mood_mobile/models/upload_type.dart';
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/upload_util.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/post_model.dart';
@@ -9,6 +10,14 @@ import '../../models/post/post_topic_model.dart';
 import '../../services/post/post_service.dart';
 
 class PostProvider extends ChangeNotifier {
+  MyPostsProvider? myPostsProvider;
+
+  PostProvider(this.myPostsProvider);
+
+  void setMyPostsProvider(MyPostsProvider provider) {
+    myPostsProvider = provider;
+  }
+
   List<PostModel> posts = [];
   bool loading = false;
   bool loadingMore = false;
@@ -67,13 +76,17 @@ class PostProvider extends ChangeNotifier {
     final oldPost = posts[index];
     final oldLiked = oldPost.isLikedByMe;
 
-    // optimistic update
-    posts[index] = oldPost.copyWith(
+    /// optimistic update
+    final updatedPost = oldPost.copyWith(
       isLikedByMe: !oldLiked,
       likeCount: oldLiked ? oldPost.likeCount - 1 : oldPost.likeCount + 1,
     );
 
+    posts[index] = updatedPost;
     notifyListeners();
+
+    /// ✅ sync sang MyPosts
+    myPostsProvider?.updatePost(updatedPost);
 
     try {
       final res = oldLiked
@@ -81,16 +94,23 @@ class PostProvider extends ChangeNotifier {
           : await PostService.likePost(post.id);
 
       if (res.code == 200 && res.data != null) {
-        posts[index] = posts[index].copyWith(
+        final newPost = updatedPost.copyWith(
           isLikedByMe: res.data['isLikedByMe'],
           likeCount: res.data['postLikeCount'],
         );
+
+        posts[index] = newPost;
         notifyListeners();
+
+        /// sync lại
+        myPostsProvider?.updatePost(newPost);
       }
     } catch (e) {
-      // rollback
+      /// rollback
       posts[index] = oldPost;
       notifyListeners();
+
+      myPostsProvider?.updatePost(oldPost);
     }
   }
 
@@ -238,24 +258,32 @@ class PostProvider extends ChangeNotifier {
     final index = posts.indexWhere((p) => p.id == postId);
     if (index == -1) return;
 
-    final old = posts[index];
+    final updated = posts[index].copyWith(
+      commentCount: posts[index].commentCount + 1,
+    );
 
-    posts[index] = old.copyWith(commentCount: old.commentCount + 1);
-
+    posts[index] = updated;
     notifyListeners();
+
+    ///  sync
+    myPostsProvider?.updatePost(updated);
   }
 
   void decreaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
     if (index == -1) return;
 
-    final old = posts[index];
-
-    posts[index] = old.copyWith(
-      commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+    final updated = posts[index].copyWith(
+      commentCount: posts[index].commentCount > 0
+          ? posts[index].commentCount - 1
+          : 0,
     );
 
+    posts[index] = updated;
     notifyListeners();
+
+    ///  sync
+    myPostsProvider?.updatePost(updated);
   }
 
   void toggleLikeById(int postId) {

@@ -4,16 +4,25 @@ import '../../models/post/post_model.dart';
 import 'post_header.dart';
 import 'post_media.dart';
 import 'post_actions.dart';
-import 'hashtag_wrap.dart';
 
 class PostCard extends StatelessWidget {
   final PostModel post;
 
   const PostCard({super.key, required this.post});
 
-  bool _isTextOverflow(BuildContext context, String text) {
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(text: text, style: const TextStyle(fontSize: 14)),
+  String _buildFullText() {
+    final tagsText = post.hashTags
+        .map((tag) => tag.startsWith("#") ? tag : "#$tag")
+        .join(" ");
+
+    return "${post.content} ${tagsText.isNotEmpty ? tagsText : ""}";
+  }
+
+  bool _isTextOverflow(BuildContext context) {
+    final fullText = _buildFullText();
+
+    final textPainter = TextPainter(
+      text: TextSpan(text: fullText, style: const TextStyle(fontSize: 14)),
       maxLines: 3,
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: MediaQuery.of(context).size.width - 64);
@@ -28,55 +37,82 @@ class PostCard extends StatelessWidget {
     );
   }
 
+  Widget _buildContent() {
+    final tags = post.hashTags
+        .map((tag) => tag.startsWith("#") ? tag : "#$tag")
+        .join(" ");
+
+    return RichText(
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      text: TextSpan(
+        style: const TextStyle(
+          fontSize: 14,
+          height: 1.4,
+          color: Colors.black87,
+        ),
+        children: [
+          TextSpan(text: "${post.content} "),
+          if (tags.isNotEmpty)
+            TextSpan(
+              text: tags,
+              style: const TextStyle(
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isOverflow = _isTextOverflow(context, post.content);
+    final isOverflow = _isTextOverflow(context);
 
-    return GestureDetector(
-      onTap: () => _openDetail(context),
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              PostHeader(post: post),
-              const SizedBox(height: 12),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 2,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PostHeader(post: post),
+            const SizedBox(height: 12),
 
-              /// PREVIEW CONTENT
-              Text(post.content, maxLines: 3, overflow: TextOverflow.ellipsis),
+            /// CONTENT (tap để mở detail)
+            GestureDetector(
+              onTap: () => _openDetail(context),
+              child: _buildContent(),
+            ),
 
-              if (isOverflow)
-                GestureDetector(
-                  onTap: () => _openDetail(context),
-                  child: const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      "Xem thêm",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.w500,
-                      ),
+            if (isOverflow)
+              GestureDetector(
+                onTap: () => _openDetail(context),
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 4),
+                  child: Text(
+                    "Xem thêm",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
+              ),
 
-              const SizedBox(height: 12),
+            const SizedBox(height: 12),
 
-              if (post.mediaPayload.isNotEmpty)
-                PostMedia(mediaList: post.mediaPayload),
+            if (post.mediaPayload.isNotEmpty)
+              PostMedia(mediaList: post.mediaPayload),
 
-              if (post.hashTags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                HashTagWrap(tags: post.hashTags),
-              ],
+            const SizedBox(height: 12),
 
-              const SizedBox(height: 12),
-              PostActions(post: post),
-            ],
-          ),
+            PostActions(post: post),
+          ],
         ),
       ),
     );

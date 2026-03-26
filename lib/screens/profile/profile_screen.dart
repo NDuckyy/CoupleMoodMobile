@@ -18,7 +18,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
 
-    // Giữ nguyên việc fetch user khi vào màn hình
     Future.microtask(() {
       context.read<UserProvider>().fetchMe();
     });
@@ -42,46 +41,81 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ListView(
                 children: [
                   const SizedBox(height: 20),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 28,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage: user?.avatarUrl != null
-                            ? NetworkImage(user!.avatarUrl!)
-                            : null,
-                        child: user?.avatarUrl == null
-                            ? const Icon(Icons.person)
-                            : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              user?.fullName ?? '',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                      // HÀNG 1: Avatar + Name
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 28,
+                            backgroundColor: Colors.grey[200],
+                            backgroundImage: user?.avatarUrl != null
+                                ? NetworkImage(user!.avatarUrl!)
+                                : null,
+                            child: user?.avatarUrl == null
+                                ? const Icon(Icons.person)
+                                : null,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  user?.fullName ?? '',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  user?.email ?? '',
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 2),
-                            Text(
-                              user?.email ?? '',
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
-                              ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () {
+                              context.pushNamed("edit_profile");
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // HÀNG 2: Xu + Điểm (FULL WIDTH)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _statItem(
+                              icon: Icons.account_balance_wallet,
+                              label: "Xu",
+                              value: "${user?.balance ?? 0}",
+                              onTap: () => context.pushNamed("wallet"),
+                            ),
+                            _statItem(
+                              icon: Icons.stars,
+                              label: "Điểm",
+                              value: "${user?.points ?? 0}",
+                              onTap: () => context.pushNamed("points"),
                             ),
                           ],
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.edit),
-                        onPressed: () {
-                          context.pushNamed("edit_profile");
-                        },
                       ),
                     ],
                   ),
@@ -205,7 +239,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   _tile(Icons.confirmation_number_outlined, "Voucher", () {}),
-                  _tile(Icons.account_balance_wallet_outlined, "Ví", () {}),
+                  _tile(
+                    Icons.account_balance_wallet_outlined,
+                    "Ví",
+                    () => context.pushNamed("wallet"),
+                  ),
                   _tile(Icons.history, "Lịch sử hẹn hò", () {}),
 
                   const SizedBox(height: 24),
@@ -254,4 +292,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
+}
+
+Widget _statItem({
+  required IconData icon,
+  required String label,
+  required String value,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Column(
+      children: [
+        Icon(icon, size: 22),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+      ],
+    ),
+  );
 }

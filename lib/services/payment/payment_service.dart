@@ -32,13 +32,32 @@ class PaymentService {
     String orderId,
   ) async {
     final res = await ApiClient.request(
-      '/MemberSubscription/status/$orderId',
+      '/Payment/member/status/$orderId',
       method: HttpMethod.get,
     );
 
     return ApiResponse<PaymentStatus>.fromJson(
       res as Map<String, dynamic>,
       (json) => PaymentStatus.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<MomoPaymentData>> momoTopup({
+    required int amount,
+  }) async {
+    if (amount < 1000) {
+      throw "Số tiền tối thiểu là 1000 VND";
+    }
+
+    final res = await ApiClient.request(
+      '/Payment/member/momo-topup',
+      method: HttpMethod.post,
+      data: {"amount": amount},
+    );
+
+    return ApiResponse<MomoPaymentData>.fromJson(
+      res as Map<String, dynamic>,
+      (json) => MomoPaymentData.fromJson(json),
     );
   }
 }

@@ -14,6 +14,7 @@ class PostActions extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.white,
       builder: (ctx) => ChangeNotifierProvider(
         create: (_) =>
             PostDetailProvider(ctx.read<PostProvider>())..init(post.id),

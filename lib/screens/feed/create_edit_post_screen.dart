@@ -1,16 +1,16 @@
 import 'dart:io';
-import 'package:couple_mood_mobile/widgets/feed/hashtag_input.dart';
-import 'package:couple_mood_mobile/widgets/feed/post_image_grid.dart';
-import 'package:couple_mood_mobile/widgets/feed/topic_selector.dart';
-import 'package:couple_mood_mobile/widgets/feed/visibility_selector.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/post/post_model.dart';
 import '../../models/post/media_model.dart';
 import '../../providers/post/post_provider.dart';
+import '../../widgets/feed/post_image_grid.dart';
+import '../../widgets/feed/topic_selector.dart';
+import '../../widgets/feed/visibility_selector.dart';
+import '../../widgets/snack_bar.dart';
 
 class CreateEditPostScreen extends StatefulWidget {
   final PostModel? post;
@@ -22,8 +22,8 @@ class CreateEditPostScreen extends StatefulWidget {
 }
 
 class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
-  final TextEditingController _contentController = TextEditingController();
-  final TextEditingController _hashtagController = TextEditingController();
+  final HashtagTextController _contentController = HashtagTextController();
+  final FocusNode _focusNode = FocusNode();
 
   List<String> selectedTopics = [];
   String visibility = "PUBLIC";
@@ -38,70 +38,53 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
   @override
   void initState() {
     super.initState();
-
     context.read<PostProvider>().loadTopics();
 
     if (isEdit) {
       _contentController.text = widget.post!.content;
       oldMedia = List.from(widget.post!.mediaPayload);
       selectedTopics = List.from(widget.post!.topic);
-
-      _hashtagController.text = widget.post!.hashTags
-          .map((e) => "#$e")
-          .join(" ");
     }
+
+    // Listener để cập nhật số ký tự
+    _contentController.addListener(() => setState(() {}));
   }
 
-  Future<void> pickImages() async {
-    final picker = ImagePicker();
-    final files = await picker.pickMultiImage();
-
-    if (files.isEmpty) return;
-
-    /// tổng số ảnh hiện tại
-    final currentTotal = newImages.length + oldMedia.length;
-
-    /// số ảnh còn được phép chọn
-    final remaining = 4 - currentTotal;
-
-    if (remaining <= 0) {
-      showMsg(context, "Chỉ được tối đa 4 ảnh", false);
-      return;
-    }
-
-    /// nếu user chọn nhiều hơn số cho phép
-    final selected = files.take(remaining);
-
-    setState(() {
-      newImages.addAll(selected.map((e) => File(e.path)));
-    });
-
-    if (files.length > remaining) {
-      showMsg(context, "Chỉ được tối đa 4 ảnh", false);
-    }
+  @override
+  void dispose() {
+    _contentController.removeListener(() {}); // cleanup
+    _contentController.dispose();
+    _focusNode.dispose();
+    super.dispose();
   }
 
+  // Cập nhật hàm submit()
   Future<void> submit() async {
-    final content = _contentController.text.trim();
+    final rawContent = _contentController.text.trim();
+    final content = removeHashtags(rawContent);
 
+    // === VALIDATION MỚI ===
     if (content.isEmpty && newImages.isEmpty && oldMedia.isEmpty) {
-      showMsg(context, "Post cannot be empty", false);
+      showMsg(context, "Bài viết không được để trống", false);
       return;
     }
 
-    final hashTags = _hashtagController.text.trim().isEmpty
-        ? null
-        : _hashtagController.text
-              .split(" ")
-              .where((e) => e.trim().isNotEmpty)
-              .map((e) => e.replaceAll("#", ""))
-              .toList();
+    if (newImages.isEmpty && oldMedia.isEmpty) {
+      showMsg(context, "Phải có ít nhất 1 ảnh", false);
+      return;
+    }
+
+    if (_contentController.text.length > 500) {
+      showMsg(context, "Nội dung tối đa 500 ký tự", false);
+      return;
+    }
+
+    final hashTags = _contentController.extractHashtags();
 
     setState(() => loading = true);
 
     try {
       final provider = context.read<PostProvider>();
-
       bool success;
 
       if (isEdit) {
@@ -128,86 +111,230 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
         Navigator.pop(context, true);
       }
     } catch (e) {
-      showMsg(context, e.toString(), false);
+      if (mounted) showMsg(context, e.toString(), false);
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
+
+  Future<void> pickImages() async {
+    final picker = ImagePicker();
+    final files = await picker.pickMultiImage();
+
+    if (files.isEmpty) return;
+
+    final currentTotal = newImages.length + oldMedia.length;
+    final remaining = 4 - currentTotal;
+
+    if (remaining <= 0) {
+      showMsg(context, "Chỉ được tối đa 4 ảnh", false);
+      return;
     }
 
-    if (mounted) {
-      setState(() => loading = false);
+    final selected = files.take(remaining);
+
+    setState(() {
+      newImages.addAll(selected.map((e) => File(e.path)));
+    });
+
+    if (files.length > remaining) {
+      showMsg(context, "Chỉ được tối đa 4 ảnh", false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết"),
-        actions: [
-          TextButton(
-            onPressed: loading ? null : submit,
-            child: Text(isEdit ? "Save" : "Post"),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          title: Text(
+            isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết",
+            style: const TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: _contentController,
-              maxLines: null,
-              decoration: const InputDecoration(
-                hintText: "Bạn đang nghĩ gì?",
-                border: InputBorder.none,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            TextButton(
+              onPressed: loading ? null : submit,
+              child: Text(
+                isEdit ? "Lưu" : "Đăng bài",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: loading ? Colors.grey : const Color(0xFF8E24AA),
+                ),
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            VisibilitySelector(
-              value: visibility,
-              onChanged: (v) => setState(() => visibility = v),
-            ),
-
-            const SizedBox(height: 16),
-
-            HashtagInput(controller: _hashtagController),
-
-            const SizedBox(height: 16),
-
-            TopicSelector(
-              selectedTopics: selectedTopics,
-              onToggle: (topicKey) {
-                setState(() {
-                  if (selectedTopics.contains(topicKey)) {
-                    selectedTopics.remove(topicKey);
-                  } else {
-                    selectedTopics.add(topicKey);
-                  }
-                });
-              },
-            ),
-
-            const SizedBox(height: 16),
-
-            PostImageGrid(
-              newImages: newImages,
-              oldMedia: oldMedia,
-              onRemoveOld: (i) => setState(() => oldMedia.removeAt(i)),
-              onRemoveNew: (i) => setState(() => newImages.removeAt(i)),
-            ),
-
-            const SizedBox(height: 12),
-
-            ElevatedButton.icon(
-              onPressed: (newImages.length + oldMedia.length) >= 4
-                  ? null
-                  : pickImages,
-              icon: const Icon(Icons.image),
-              label: const Text("Add Ảnh (tối đa 4 ảnh)"),
-            ),
           ],
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Nội dung + đếm ký tự
+              TextField(
+                controller: _contentController,
+                focusNode: _focusNode,
+                maxLines: null,
+                minLines: 6,
+                maxLength: 500,
+                inputFormatters: [LengthLimitingTextInputFormatter(500)],
+                decoration: const InputDecoration(
+                  hintText: "Bạn đang nghĩ gì?",
+                  border: InputBorder.none,
+                  hintStyle: TextStyle(fontSize: 17, color: Colors.grey),
+                  counterText: '',
+                ),
+                style: const TextStyle(fontSize: 17),
+              ),
+
+              // Số ký tự
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  "${_contentController.text.length}/500",
+                  style: TextStyle(
+                    color: _contentController.text.length > 500
+                        ? Colors.red
+                        : Colors.grey,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+
+              const Divider(height: 32),
+
+              // Visibility (dropdown)
+              const Text(
+                "Ai có thể xem?",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
+              VisibilitySelector(
+                value: visibility,
+                onChanged: (v) => setState(() => visibility = v),
+              ),
+
+              const Divider(height: 32),
+
+              // Topic
+              TopicSelector(
+                selectedTopics: selectedTopics,
+                onToggle: (key) {
+                  setState(() {
+                    if (selectedTopics.contains(key)) {
+                      selectedTopics.remove(key);
+                    } else {
+                      selectedTopics.add(key);
+                    }
+                  });
+                },
+              ),
+
+              const Divider(height: 32),
+
+              // Ảnh
+              PostImageGrid(
+                newImages: newImages,
+                oldMedia: oldMedia,
+                onRemoveOld: (i) => setState(() => oldMedia.removeAt(i)),
+                onRemoveNew: (i) => setState(() => newImages.removeAt(i)),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Nút thêm ảnh
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: (newImages.length + oldMedia.length) >= 4
+                      ? null
+                      : pickImages,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: const Text("Thêm ảnh (tối đa 4)"),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF8E24AA)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+}
+
+class HashtagTextController extends TextEditingController {
+  /// hỗ trợ cả tiếng Việt
+  final RegExp hashtagRegex = RegExp(r'(?<=\s|^)#[\p{L}0-9_]+', unicode: true);
+
+  List<String> extractHashtags() {
+    return hashtagRegex
+        .allMatches(text)
+        .map((e) => e.group(0)!.replaceAll("#", "").toLowerCase())
+        .toSet()
+        .toList();
+  }
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    final children = <TextSpan>[];
+    final matches = hashtagRegex.allMatches(text);
+
+    int lastIndex = 0;
+
+    for (final match in matches) {
+      if (match.start > lastIndex) {
+        children.add(
+          TextSpan(text: text.substring(lastIndex, match.start), style: style),
+        );
+      }
+
+      children.add(
+        TextSpan(
+          text: match.group(0),
+          style: style?.copyWith(
+            color: Colors.blue,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+
+      lastIndex = match.end;
+    }
+
+    if (lastIndex < text.length) {
+      children.add(TextSpan(text: text.substring(lastIndex), style: style));
+    }
+
+    return TextSpan(style: style, children: children);
+  }
+}
+
+String removeHashtags(String text) {
+  final regex = RegExp(r'(?<=\s|^)#[\p{L}0-9_]+', unicode: true);
+
+  return text
+      .replaceAll(regex, '') // xóa hashtag
+      .replaceAll(RegExp(r'\s+'), ' ') // fix double space
+      .trim();
 }

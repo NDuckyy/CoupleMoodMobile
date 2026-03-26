@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_info_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -100,7 +102,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// COVER + BACK BUTTON
+                /// COVER, BACK + REPORT BUTTON
                 Stack(
                   children: [
                     if (provider.loading)
@@ -111,22 +113,26 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                     SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: () => Navigator.of(context).pop(),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.45),
-                              shape: BoxShape.circle,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _circleButton(
+                              icon: Icons.arrow_back_ios_new,
+                              onTap: () => Navigator.pop(context),
                             ),
-                            child: const Icon(
-                              Icons.arrow_back_ios_new,
-                              color: Colors.white,
-                              size: 18,
+
+                            /// REPORT BUTTON
+                            _circleButton(
+                              icon: Icons.flag,
+                              onTap: () {
+                                showReportBottomSheet(
+                                  context: context,
+                                  targetId: venue.id,
+                                  targetType: ReportTargetType.venue,
+                                );
+                              },
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
@@ -335,4 +341,20 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
       ),
     );
   }
+}
+
+Widget _circleButton({required IconData icon, required VoidCallback onTap}) {
+  return InkWell(
+    borderRadius: BorderRadius.circular(20),
+    onTap: onTap,
+    child: Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.45),
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Colors.white, size: 18),
+    ),
+  );
 }

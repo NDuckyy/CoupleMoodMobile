@@ -72,4 +72,37 @@ class MyPostsProvider extends ChangeNotifier {
   Future<void> refresh() async {
     await loadMyPosts();
   }
+
+  void updatePost(PostModel updatedPost) {
+    final index = posts.indexWhere((p) => p.id == updatedPost.id);
+
+    if (index != -1) {
+      posts[index] = updatedPost;
+      notifyListeners();
+    }
+  }
+
+  void increaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(commentCount: old.commentCount + 1);
+
+    notifyListeners();
+  }
+
+  void decreaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(
+      commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+    );
+
+    notifyListeners();
+  }
 }
