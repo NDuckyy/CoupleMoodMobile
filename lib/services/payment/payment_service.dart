@@ -32,7 +32,7 @@ class PaymentService {
     String orderId,
   ) async {
     final res = await ApiClient.request(
-      '/MemberSubscription/status/$orderId',
+      '/Payment/member/status/$orderId',
       method: HttpMethod.get,
     );
 

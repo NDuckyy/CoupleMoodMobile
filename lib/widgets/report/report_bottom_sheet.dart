@@ -171,9 +171,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                                 provider.submitting || selectedTypeId == null
                                 ? null
                                 : () async {
-                                    FocusScope.of(
-                                      context,
-                                    ).unfocus(); // hide keyboard
+                                    FocusScope.of(context).unfocus();
 
                                     final success = await provider.submitReport(
                                       reportTypeId: selectedTypeId!,

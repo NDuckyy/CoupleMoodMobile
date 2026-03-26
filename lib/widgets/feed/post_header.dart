@@ -134,7 +134,7 @@ class PostHeader extends StatelessWidget {
               ];
             }
 
-            /// 👇 USER KHÁC → chỉ có REPORT
+            ///  USER KHÁC → chỉ có REPORT
             return [
               const PopupMenuItem(
                 value: "report",

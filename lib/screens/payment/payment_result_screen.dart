@@ -63,6 +63,8 @@ class PaymentResultScreen extends StatelessWidget {
     final status = provider.status!;
     final isSuccess = provider.isSuccess;
 
+    final isSubscription = status.startDate != null;
+
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -107,12 +109,21 @@ class PaymentResultScreen extends StatelessWidget {
                 _row("Số tiền", CurrencyUtils.formatVND(status.amount ?? 0)),
                 _row("Tiền tệ", status.currency ?? 'VND'),
                 _row("Phương thức", status.paymentMethod ?? '--'),
-                _row("Bắt đầu", formatDate(status.startDate)),
-                _row("Kết thúc", formatDate(status.endDate)),
-                _row(
-                  "Trạng thái",
-                  isSuccess ? "Đã kích hoạt" : "Chưa kích hoạt",
-                ),
+
+                ///  Chỉ show khi là subscription
+                if (isSubscription) ...[
+                  _row("Bắt đầu", formatDate(status.startDate)),
+                  _row("Kết thúc", formatDate(status.endDate)),
+                  _row(
+                    "Trạng thái gói",
+                    status.isActive ? "Đã kích hoạt" : "Chưa kích hoạt",
+                  ),
+                ] else ...[
+                  _row("Loại giao dịch", "Nạp ví"),
+                ],
+
+                /// 👇 luôn có
+                _row("Thanh toán", isSuccess ? "Thành công" : "Thất bại"),
               ],
             ),
           ),
