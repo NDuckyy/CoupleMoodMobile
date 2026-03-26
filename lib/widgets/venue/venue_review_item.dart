@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import '../../models/venue/venue_review.dart';
 
@@ -99,7 +100,7 @@ class VenueReviewItem extends StatelessWidget {
 
               /// Time
               Text(
-                _formatDate(review.createdAt),
+                review.createdAt != null ? timeAgo(review.createdAt!) : "",
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
@@ -202,17 +203,6 @@ class VenueReviewItem extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime? date) {
-    if (date == null) return '';
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inDays > 0) return "${diff.inDays} ngày trước";
-    if (diff.inHours > 0) return "${diff.inHours} giờ trước";
-    if (diff.inMinutes > 0) return "${diff.inMinutes} phút trước";
-    return "Vừa xong";
   }
 }
 

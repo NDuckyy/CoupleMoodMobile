@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,7 +38,6 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
   @override
   void initState() {
     super.initState();
-
     context.read<PostProvider>().loadTopics();
 
     if (isEdit) {
@@ -45,13 +45,76 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
       oldMedia = List.from(widget.post!.mediaPayload);
       selectedTopics = List.from(widget.post!.topic);
     }
+
+    // Listener để cập nhật số ký tự
+    _contentController.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
+    _contentController.removeListener(() {}); // cleanup
     _contentController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  // Cập nhật hàm submit()
+  Future<void> submit() async {
+    final rawContent = _contentController.text.trim();
+    final content = removeHashtags(rawContent);
+
+    // === VALIDATION MỚI ===
+    if (content.isEmpty && newImages.isEmpty && oldMedia.isEmpty) {
+      showMsg(context, "Bài viết không được để trống", false);
+      return;
+    }
+
+    if (newImages.isEmpty && oldMedia.isEmpty) {
+      showMsg(context, "Phải có ít nhất 1 ảnh", false);
+      return;
+    }
+
+    if (_contentController.text.length > 500) {
+      showMsg(context, "Nội dung tối đa 500 ký tự", false);
+      return;
+    }
+
+    final hashTags = _contentController.extractHashtags();
+
+    setState(() => loading = true);
+
+    try {
+      final provider = context.read<PostProvider>();
+      bool success;
+
+      if (isEdit) {
+        success = await provider.updatePost(
+          postId: widget.post!.id,
+          content: content,
+          newMediaFiles: newImages,
+          oldMedia: oldMedia,
+          visibility: visibility,
+          hashTags: hashTags,
+          topic: selectedTopics,
+        );
+      } else {
+        success = await provider.createPost(
+          content: content,
+          mediaFiles: newImages,
+          visibility: visibility,
+          hashTags: hashTags,
+          topic: selectedTopics,
+        );
+      }
+
+      if (success && mounted) {
+        Navigator.pop(context, true);
+      }
+    } catch (e) {
+      if (mounted) showMsg(context, e.toString(), false);
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
   }
 
   Future<void> pickImages() async {
@@ -79,119 +142,108 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
     }
   }
 
-  Future<void> submit() async {
-    final rawContent = _contentController.text.trim();
-    final content = removeHashtags(rawContent);
-
-    if (content.isEmpty && newImages.isEmpty && oldMedia.isEmpty) {
-      showMsg(context, "Post cannot be empty", false);
-      return;
-    }
-
-    /// 🔥 extract hashtag từ content
-    final hashTags = _contentController.extractHashtags();
-
-    setState(() => loading = true);
-
-    try {
-      final provider = context.read<PostProvider>();
-
-      bool success;
-
-      if (isEdit) {
-        success = await provider.updatePost(
-          postId: widget.post!.id,
-          content: content,
-          newMediaFiles: newImages,
-          oldMedia: oldMedia,
-          visibility: visibility,
-          hashTags: hashTags,
-          topic: selectedTopics,
-        );
-      } else {
-        success = await provider.createPost(
-          content: content,
-          mediaFiles: newImages,
-          visibility: visibility,
-          hashTags: hashTags,
-          topic: selectedTopics,
-        );
-      }
-
-      if (success && mounted) {
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      showMsg(context, e.toString(), false);
-    }
-
-    if (mounted) {
-      setState(() => loading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-
-      /// 👇 tap ra ngoài để đóng keyboard
-      onTap: () {
-        FocusScope.of(context).unfocus();
-      },
-
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
-          title: Text(isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết"),
+          backgroundColor: Colors.white,
+          elevation: 0.5,
+          title: Text(
+            isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết",
+            style: const TextStyle(
+              color: Colors.black87,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.black87),
+            onPressed: () => Navigator.pop(context),
+          ),
           actions: [
             TextButton(
               onPressed: loading ? null : submit,
-              child: Text(isEdit ? "Save" : "Post"),
+              child: Text(
+                isEdit ? "Lưu" : "Đăng bài",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: loading ? Colors.grey : const Color(0xFF8E24AA),
+                ),
+              ),
             ),
           ],
         ),
         body: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Nội dung + đếm ký tự
               TextField(
                 controller: _contentController,
                 focusNode: _focusNode,
                 maxLines: null,
-                keyboardType: TextInputType.multiline,
-                textInputAction: TextInputAction.newline,
-                autofocus: true,
+                minLines: 6,
+                maxLength: 500,
+                inputFormatters: [LengthLimitingTextInputFormatter(500)],
                 decoration: const InputDecoration(
                   hintText: "Bạn đang nghĩ gì?",
                   border: InputBorder.none,
+                  hintStyle: TextStyle(fontSize: 17, color: Colors.grey),
+                  counterText: '',
+                ),
+                style: const TextStyle(fontSize: 17),
+              ),
+
+              // Số ký tự
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  "${_contentController.text.length}/500",
+                  style: TextStyle(
+                    color: _contentController.text.length > 500
+                        ? Colors.red
+                        : Colors.grey,
+                    fontSize: 13,
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const Divider(height: 32),
 
+              // Visibility (dropdown)
+              const Text(
+                "Ai có thể xem?",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: 8),
               VisibilitySelector(
                 value: visibility,
                 onChanged: (v) => setState(() => visibility = v),
               ),
 
-              const SizedBox(height: 16),
+              const Divider(height: 32),
 
+              // Topic
               TopicSelector(
                 selectedTopics: selectedTopics,
-                onToggle: (topicKey) {
+                onToggle: (key) {
                   setState(() {
-                    if (selectedTopics.contains(topicKey)) {
-                      selectedTopics.remove(topicKey);
+                    if (selectedTopics.contains(key)) {
+                      selectedTopics.remove(key);
                     } else {
-                      selectedTopics.add(topicKey);
+                      selectedTopics.add(key);
                     }
                   });
                 },
               ),
 
-              const SizedBox(height: 16),
+              const Divider(height: 32),
 
+              // Ảnh
               PostImageGrid(
                 newImages: newImages,
                 oldMedia: oldMedia,
@@ -199,14 +251,25 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                 onRemoveNew: (i) => setState(() => newImages.removeAt(i)),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
 
-              ElevatedButton.icon(
-                onPressed: (newImages.length + oldMedia.length) >= 4
-                    ? null
-                    : pickImages,
-                icon: const Icon(Icons.image),
-                label: const Text("Add Ảnh (tối đa 4 ảnh)"),
+              // Nút thêm ảnh
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: (newImages.length + oldMedia.length) >= 4
+                      ? null
+                      : pickImages,
+                  icon: const Icon(Icons.add_photo_alternate_outlined),
+                  label: const Text("Thêm ảnh (tối đa 4)"),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF8E24AA)),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
