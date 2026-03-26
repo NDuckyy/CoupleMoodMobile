@@ -31,7 +31,7 @@ class CommentItem extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(left: indent, top: 8, bottom: 8),
       child: GestureDetector(
-        onLongPress: comment.isOwner ? onLongPress : null,
+        onLongPress: onLongPress,
         behavior: HitTestBehavior.opaque,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,

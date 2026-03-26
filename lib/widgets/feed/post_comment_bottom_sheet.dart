@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/models/post/comment_model.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/widgets/feed/comment_item_skeleton.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,8 +27,6 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
   String? _replyingToName;
 
   void _showCommentOptions(CommentModel comment) {
-    if (!comment.isOwner) return;
-
     showModalBottomSheet(
       context: context,
       builder: (_) {
@@ -34,70 +34,95 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text("Chỉnh sửa"),
-                onTap: () {
-                  Navigator.pop(context);
+              /// OWNER → edit + delete
+              if (comment.isOwner) ...[
+                ListTile(
+                  leading: const Icon(Icons.edit),
+                  title: const Text("Chỉnh sửa"),
+                  onTap: () {
+                    Navigator.pop(context);
 
-                  setState(() {
-                    _editingComment = comment;
+                    setState(() {
+                      _editingComment = comment;
+                      _replyingToCommentId = null;
+                      _replyingToName = null;
 
-                    _replyingToCommentId = null;
-                    _replyingToName = null;
-
-                    _controller.text = comment.content;
-                    _controller.selection = TextSelection.fromPosition(
-                      TextPosition(offset: _controller.text.length),
-                    );
-                  });
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete, color: Colors.red),
-                title: const Text(
-                  "Xoá bình luận",
-                  style: TextStyle(color: Colors.red),
-                ),
-                onTap: () async {
-                  Navigator.pop(context);
-
-                  final confirm = await showDialog<bool>(
-                    context: context,
-                    builder: (dialogContext) => AlertDialog(
-                      title: const Text("Xoá bình luận?"),
-                      content: const Text("Hành động này không thể hoàn tác."),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext, false),
-                          child: const Text("Huỷ"),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(dialogContext, true),
-                          child: const Text(
-                            "Xoá",
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (confirm == true) {
-                    final success = await context
-                        .read<PostDetailProvider>()
-                        .deleteComment(comment.id);
-
-                    if (mounted) {
-                      showMsg(
-                        context,
-                        success ? "Đã xoá bình luận" : "Xoá thất bại",
-                        success,
+                      _controller.text = comment.content;
+                      _controller.selection = TextSelection.fromPosition(
+                        TextPosition(offset: _controller.text.length),
                       );
+                    });
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.delete, color: Colors.red),
+                  title: const Text("Xoá", style: TextStyle(color: Colors.red)),
+                  onTap: () async {
+                    Navigator.pop(context);
+
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: const Text("Xoá bình luận?"),
+                        content: const Text(
+                          "Hành động này không thể hoàn tác.",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, false),
+                            child: const Text("Huỷ"),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogContext, true),
+                            child: const Text(
+                              "Xoá",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true) {
+                      final success = await context
+                          .read<PostDetailProvider>()
+                          .deleteComment(comment.id);
+
+                      if (mounted) {
+                        showMsg(
+                          context,
+                          success ? "Đã xoá bình luận" : "Xoá thất bại",
+                          success,
+                        );
+                      }
                     }
-                  }
-                },
-              ),
+                  },
+                ),
+              ],
+
+              /// NOT OWNER → report
+              if (!comment.isOwner)
+                ListTile(
+                  leading: const Icon(Icons.flag, color: Colors.red),
+                  title: const Text(
+                    "Báo cáo",
+                    style: TextStyle(color: Colors.red),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context); // đóng menu option
+
+                    await showReportBottomSheet(
+                      context: context,
+                      targetId: comment.id,
+                      targetType: ReportTargetType.comment,
+                    );
+
+                    if (!mounted) return;
+
+                    Navigator.pop(context); // đóng luôn comment sheet
+                  },
+                ),
             ],
           ),
         );
