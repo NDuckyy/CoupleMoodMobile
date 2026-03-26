@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:couple_mood_mobile/widgets/feed/post_composer_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -144,6 +146,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().user;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -181,6 +184,18 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              /// HEADER (avatar + name + visibility)
+              if (user != null)
+                PostComposerHeader(
+                  name: user.fullName ?? "",
+                  avatarUrl: user.avatarUrl,
+                  visibility: visibility,
+                  onVisibilityChanged: (v) {
+                    setState(() => visibility = v);
+                  },
+                ),
+
+              const SizedBox(height: 12),
               // Nội dung + đếm ký tự
               TextField(
                 controller: _contentController,
@@ -210,19 +225,6 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                     fontSize: 13,
                   ),
                 ),
-              ),
-
-              const Divider(height: 32),
-
-              // Visibility (dropdown)
-              const Text(
-                "Ai có thể xem?",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-              const SizedBox(height: 8),
-              VisibilitySelector(
-                value: visibility,
-                onChanged: (v) => setState(() => visibility = v),
               ),
 
               const Divider(height: 32),
