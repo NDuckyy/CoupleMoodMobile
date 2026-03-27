@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_info_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_header.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
@@ -9,7 +10,11 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 class DatePlanItemScreen extends StatefulWidget {
   final int datePlanId;
   final String status;
-  const DatePlanItemScreen({super.key, required this.datePlanId, required this.status});
+  const DatePlanItemScreen({
+    super.key,
+    required this.datePlanId,
+    required this.status,
+  });
 
   @override
   State<DatePlanItemScreen> createState() => _DatePlanItemScreenState();
@@ -23,8 +28,12 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initDatePlanItems(context, widget.datePlanId);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final provider = context.read<DatePlanProvider>();
+      await Future.wait([
+        provider.fetchDatePlanItems(widget.datePlanId),
+        provider.getDatePlanInfo(widget.datePlanId), // 👈 thêm dòng này
+      ]);
     });
   }
 
@@ -55,6 +64,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<DatePlanProvider>();
     final items = provider.datePlanItems?.data?.items ?? [];
+    final info = provider.datePlanInfo?.data;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -84,6 +94,16 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                         ),
                       ),
                     ),
+
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: info == null
+                            ? const SizedBox()
+                            : DatePlanInfoCard(info: info),
+                      ),
+                    ),
+
                     items.isEmpty
                         ? SliverToBoxAdapter(
                             child: Column(

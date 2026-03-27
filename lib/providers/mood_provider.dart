@@ -10,6 +10,8 @@ import 'package:flutter/foundation.dart';
 class MoodProvider extends ChangeNotifier {
   ApiResponse<List<MoodFace>>? _currentMoodResponse;
   CurrentMood? coupleCurrentMood;
+  String? myAvatarUrl;
+  String? partnerAvatarUrl;
   bool isLoading = false;
   String? error;
   ApiResponse<List<MoodType>> moodTypes = ApiResponse(
@@ -99,6 +101,8 @@ class MoodProvider extends ChangeNotifier {
         coupleCurrentMood = null;
       } else {
         coupleCurrentMood = moodResponse.data;
+        myAvatarUrl = coupleCurrentMood?.memberAvatarUrl;
+        partnerAvatarUrl = coupleCurrentMood?.partnerAvatarUrl;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');

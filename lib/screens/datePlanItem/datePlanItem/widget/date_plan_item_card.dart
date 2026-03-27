@@ -55,11 +55,12 @@ class DatePlanItemCard extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          VenueTitle(
-                            name: item.venueLocation.name,
-                            venueId: item.venueLocation.id,
+                          Expanded(
+                            child: VenueTitle(
+                              name: item.venueLocation.name,
+                              venueId: item.venueLocation.id,
+                            ),
                           ),
-                          const Spacer(),
                           IconButton(
                             icon: const Icon(
                               Icons.delete_outline,

@@ -72,7 +72,7 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
         plannedEndAt: endAt.toUtc(),
         estimatedBudget: double.parse(budgetCtrl.text.trim()),
         note: noteCtrl.text.trim(),
-        version: provider.selectedDatePlan?.data?.version ?? 0,
+        version: provider.selectedDatePlan?.data?.version ?? 1,
       ),
     );
 

@@ -2,6 +2,8 @@ import 'package:couple_mood_mobile/models/recommendation/recommendation_request.
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/widget/choose_location_venue_card.dart';
+import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
+import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,6 +65,11 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
     }
   }
 
+  void _onSearch(String query) {
+    final recommendationProvider = context.read<RecommendationProvider>();
+    recommendationProvider.searchLocations(query);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -98,65 +105,13 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
               centerTitle: true,
               pinned: true,
               backgroundColor: Colors.white,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: () => context.pushNamed("filter_location"),
-                ),
-              ],
             ),
 
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE1E1),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm địa điểm',
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
 
+            /// MOOD
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4FB),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Text(
-                    'Tâm trạng cặp đôi hiện tại là: ${moodProvider.userCurrentMood ?? "Đang tải..."}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
+              child: CurrentMoodBanner(mood: moodProvider.userCurrentMood),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),

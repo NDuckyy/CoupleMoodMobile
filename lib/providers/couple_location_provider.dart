@@ -23,7 +23,7 @@ class CoupleLocationProvider extends ChangeNotifier {
   StreamSubscription? _locationSub;
   Set<Marker> _markers = {};
   Set<Marker> get markers => _markers;
-      
+
   Map<String, LatLng> _lastPositions = {};
 
   LatLng _lerp(LatLng a, LatLng b, double t) {
@@ -33,9 +33,13 @@ class CoupleLocationProvider extends ChangeNotifier {
     );
   }
 
-  Future<void> loadAvatars() async {
-    myAvatar = await getAvatarMarker("./lib/assets/images/nam_vui.png");
-    partnerAvatar = await getAvatarMarker("./lib/assets/images/nu_vui.png");
+  Future<void> loadAvatars(String myAvatarUrl, String partnerAvatarUrl) async {
+    myAvatar = await createAvatarMarker(
+      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+    );
+    partnerAvatar = await createAvatarMarker(
+      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+    );
   }
 
   void listenLocation(String coupleId, String currentUserId) {
@@ -69,20 +73,54 @@ class CoupleLocationProvider extends ChangeNotifier {
     });
   }
 
-  Future<BitmapDescriptor> getAvatarMarker(
-    String assetPath, {
-    int size = 120,
+  Future<BitmapDescriptor> createAvatarMarker(
+    String imageUrl, {
+    int size = 140,
   }) async {
-    final ByteData data = await rootBundle.load(assetPath);
-    final codec = await ui.instantiateImageCodec(
-      data.buffer.asUint8List(),
-      targetWidth: size,
-    );
-    final frame = await codec.getNextFrame();
+    final data = await NetworkAssetBundle(Uri.parse(imageUrl)).load("");
+    final bytes = data.buffer.asUint8List();
 
-    final byteData = await frame.image.toByteData(
-      format: ui.ImageByteFormat.png,
+    final codec = await ui.instantiateImageCodec(bytes);
+    final frame = await codec.getNextFrame();
+    final image = frame.image;
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    final center = Offset(size / 2, size / 2);
+
+    final outerRadius = size / 2;
+    final innerRadius = size / 2.6;
+
+    final borderPaint = Paint()
+      ..shader = ui.Gradient.linear(
+        Offset(0, 0),
+        Offset(size.toDouble(), size.toDouble()),
+        [Color(0xFFFDC5F5), Color(0xFFB388EB)],
+      );
+    canvas.drawCircle(center, outerRadius, borderPaint);
+
+    final clipPath = Path()
+      ..addOval(Rect.fromCircle(center: center, radius: innerRadius));
+
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    final src = Rect.fromLTWH(
+      0,
+      0,
+      image.width.toDouble(),
+      image.height.toDouble(),
     );
+
+    final dst = Rect.fromCircle(center: center, radius: innerRadius);
+
+    canvas.drawImageRect(image, src, dst, Paint());
+    canvas.restore();
+
+    final picture = recorder.endRecording();
+    final img = await picture.toImage(size, size);
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
 
     return BitmapDescriptor.fromBytes(byteData!.buffer.asUint8List());
   }
