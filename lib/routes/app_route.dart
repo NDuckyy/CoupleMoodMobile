@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
+import 'package:couple_mood_mobile/screens/test/test_history.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -236,12 +237,8 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/test',
                 name: 'test',
-                pageBuilder: (_, __) => NoTransitionPage(
-                  child: ChangeNotifierProvider(
-                    create: (_) => TestProvider(),
-                    child: const TestTypeScreen(),
-                  ),
-                ),
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: TestTypeScreen()),
               ),
             ],
           ),
@@ -478,29 +475,24 @@ GoRouter createRouter(BuildContext context) {
           return const NoTransitionPage(child: FilterLocationScreen());
         },
       ),
-      ShellRoute(
-        parentNavigatorKey: _rootNavKey,
-        builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => TestProvider(),
-            child: child,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/test-detail',
-            name: 'test_detail',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: TestDetailScreen()),
-          ),
-          GoRoute(
-            path: '/test-result',
-            name: 'test_result',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: TestResultScreen()),
-          ),
-        ],
+
+      GoRoute(
+        path: '/test-detail',
+        name: 'test_detail',
+        pageBuilder: (_, __) => const MaterialPage(child: TestDetailScreen()),
       ),
+      GoRoute(
+        path: '/test-result',
+        name: 'test_result',
+        pageBuilder: (_, __) => const MaterialPage(child: TestResultScreen()),
+      ),
+
+      GoRoute(
+        path: '/test-history',
+        name: 'test_history',
+        pageBuilder: (_, __) => const MaterialPage(child: TestHistoryScreen()),
+      ),
+
       GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/venue-detail',

@@ -16,11 +16,17 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTests(context.read<TestProvider>());
+      _getPersonalityType(context.read<TestProvider>());
     });
   }
 
   Future<void> _loadTests(TestProvider testProvider) async {
     await testProvider.fetchTestList();
+    if (!mounted) return;
+  }
+
+  Future<void> _getPersonalityType(TestProvider testProvider) async {
+    await testProvider.getMyPersonalityType();
     if (!mounted) return;
   }
 
@@ -31,6 +37,15 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
       appBar: AppBar(
         title: const Text('Danh sách bài test'),
         backgroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 26),
+            child: GestureDetector(
+              onTap: () => context.pushNamed('test_history'),
+              child: const Icon(Icons.history, color: Colors.black87),
+            ),
+          ),
+        ],
       ),
       backgroundColor: Colors.white,
       body: Padding(
@@ -56,7 +71,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                         borderRadius: BorderRadius.circular(22),
 
                         gradient: const LinearGradient(
-                          colors: [ Color(0xFFB388EB), Color(0xFFFDC5F5) ],
+                          colors: [Color(0xFFB388EB), Color(0xFFFDC5F5)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

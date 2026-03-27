@@ -9,6 +9,7 @@ import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/notification_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_review_provider.dart';
@@ -61,6 +62,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CoupleProvider()),
         ChangeNotifierProvider(create: (_) => VoucherProvider()),
         ChangeNotifierProvider(create: (_) => CoupleLocationProvider()),
+        ChangeNotifierProvider(create: (_) => TestProvider()),
       ],
       child: const MyApp(),
     ),
