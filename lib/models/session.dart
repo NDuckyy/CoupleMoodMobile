@@ -9,8 +9,8 @@ class Session {
   final String? dateOfBirth;
   final String? inviteCode;
 
-  final int? balance;
-  final int? points;
+  final num? balance;
+  final num? points;
 
   Session({
     required this.accessToken,
@@ -36,6 +36,7 @@ class Session {
     'points': points,
   };
 
+  // Factory
   factory Session.fromTokensAndProfile({
     required String accessToken,
     String? refreshToken,
@@ -51,8 +52,8 @@ class Session {
       fullName: profile?['fullName']?.toString(),
       dateOfBirth: profile?['dateOfBirth']?.toString(),
       inviteCode: profile?['inviteCode']?.toString(),
-      balance: profile?['balance'] as int?,
-      points: profile?['points'] as int?,
+      balance: profile?['balance'] as num?,
+      points: profile?['points'] as num?,
     );
   }
 }

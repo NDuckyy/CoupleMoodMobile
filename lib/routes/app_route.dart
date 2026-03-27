@@ -114,7 +114,7 @@ import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
-import 'package:couple_mood_mobile/screens/wallet/wallet_screen.dart';
+import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
 
 //home, location, profile, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
@@ -458,11 +458,17 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/wallet',
         name: 'wallet',
-        pageBuilder: (_, __) {
+        pageBuilder: (_, state) {
+          // Lấy tab từ query parameter (nếu có)
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
           return MaterialPage(
             child: ChangeNotifierProvider(
               create: (_) => WalletProvider(),
-              child: const WalletScreen(),
+              child: WalletHubScreen(
+                initialTab: tab.clamp(0, 2),
+              ), // giới hạn 0-2
             ),
           );
         },

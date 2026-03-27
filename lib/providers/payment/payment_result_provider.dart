@@ -28,5 +28,5 @@ class PaymentResultProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isSuccess => status?.isActive == true;
+  bool get isSuccess => status?.isSuccess == true;
 }

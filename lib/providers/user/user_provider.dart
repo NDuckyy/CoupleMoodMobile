@@ -32,8 +32,8 @@ class UserProvider extends ChangeNotifier {
               gender: user!.memberProfile?.gender,
               dateOfBirth: user!.memberProfile?.dateOfBirth,
               inviteCode: user!.memberProfile?.inviteCode,
-              balance: user!.balance,
-              points: user!.points,
+              balance: (user!.balance as num?)?.toInt(),
+              points: (user!.points as num?)?.toInt(),
             ),
           );
         }
