@@ -57,4 +57,22 @@ class AuthProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> loginWithGoogle(String idToken) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      session = await AuthService.loginWithGoogle(idToken);
+      isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 }

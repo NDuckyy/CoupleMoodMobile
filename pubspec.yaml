@@ -40,6 +40,7 @@ dependencies:
   url_launcher: ^6.3.2
   app_links: ^7.0.0
   google_maps_flutter: ^2.5.0
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:
