@@ -47,7 +47,9 @@ class _WalletScreenState extends State<WalletScreen> {
     final auth = context.read<AuthProvider>();
     _gender = auth.session?.gender ?? 'MALE';
 
-    Future.microtask(() => context.read<WalletProvider>().loadBalance());
+    Future.microtask(
+      () => context.read<WalletProvider>().loadWalletData(context),
+    );
   }
 
   @override
@@ -74,7 +76,7 @@ class _WalletScreenState extends State<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     final wallet = context.watch<WalletProvider>();
-    final balance = wallet.balance;
+    final balance = wallet.moneyBalance;
     final colorScheme = _getThemeByGender(); // Lấy màu từ state
 
     return Scaffold(

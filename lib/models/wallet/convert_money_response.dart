@@ -1,13 +1,15 @@
 class ConvertMoneyResponse {
-  final int convertedMoney;
-  final int convertedPoints;
-  final int balanceBefore;
-  final int balanceAfter;
-  final int pointsBefore;
-  final int pointsAfter;
-  final int rate;
+  final int transactionId;
+  final num convertedMoney;
+  final num convertedPoints;
+  final num balanceBefore;
+  final num balanceAfter;
+  final num pointsBefore;
+  final num pointsAfter;
+  final num rate;
 
   ConvertMoneyResponse({
+    required this.transactionId,
     required this.convertedMoney,
     required this.convertedPoints,
     required this.balanceBefore,
@@ -19,13 +21,14 @@ class ConvertMoneyResponse {
 
   factory ConvertMoneyResponse.fromJson(Map<String, dynamic> json) {
     return ConvertMoneyResponse(
-      convertedMoney: json['convertedMoney'],
-      convertedPoints: json['convertedPoints'],
-      balanceBefore: json['balanceBefore'],
-      balanceAfter: json['balanceAfter'],
-      pointsBefore: json['pointsBefore'],
-      pointsAfter: json['pointsAfter'],
-      rate: json['rate'],
+      transactionId: json['transactionId'] ?? 0,
+      convertedMoney: json['convertedMoney'] ?? 0,
+      convertedPoints: json['convertedPoints'] ?? 0,
+      balanceBefore: json['balanceBefore'] ?? 0,
+      balanceAfter: json['balanceAfter'] ?? 0,
+      pointsBefore: json['pointsBefore'] ?? 0,
+      pointsAfter: json['pointsAfter'] ?? 0,
+      rate: json['rate'] ?? 0,
     );
   }
 }

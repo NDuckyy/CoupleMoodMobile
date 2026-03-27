@@ -106,13 +106,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               icon: Icons.account_balance_wallet,
                               label: "Xu",
                               value: "${user?.balance ?? 0}",
-                              onTap: () => context.pushNamed("wallet"),
+                              onTap: () => context.pushNamed(
+                                'wallet',
+                                queryParameters: {'tab': '0'},
+                              ),
                             ),
                             _statItem(
                               icon: Icons.stars,
                               label: "Điểm",
                               value: "${user?.points ?? 0}",
-                              onTap: () => context.pushNamed("points"),
+                              onTap: () => context.pushNamed(
+                                'wallet',
+                                queryParameters: {'tab': '1'},
+                              ),
                             ),
                           ],
                         ),
@@ -242,7 +248,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _tile(
                     Icons.account_balance_wallet_outlined,
                     "Ví",
-                    () => context.pushNamed("wallet"),
+                    () => context.pushNamed(
+                      'wallet',
+                      queryParameters: {'tab': '0'},
+                    ),
                   ),
                   _tile(Icons.history, "Lịch sử hẹn hò", () {}),
 

@@ -25,7 +25,7 @@ class WalletService {
 
   /// 🔹 GET transactions (paginated)
   static Future<ApiResponse<PaginatedResponse<WalletTransaction>>>
-  getTransactions({int page = 1, int pageSize = 10}) async {
+  getTransactions({int page = 1, int pageSize = 20}) async {
     try {
       final res = await ApiClient.request(
         '/Wallet/member/transactions',
@@ -41,6 +41,7 @@ class WalletService {
         ),
       );
     } catch (e) {
+      print("❌ Error in getTransactions: $e"); // ← Thêm debug
       throw Exception('Lỗi khi lấy lịch sử giao dịch: $e');
     }
   }
