@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
+import 'package:couple_mood_mobile/models/dateplan/date_plan_item_update_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:flutter/material.dart';
@@ -163,6 +164,42 @@ class DatePlanService {
       return ApiResponse<int>.fromJson(res, (json) => json as int);
     } catch (e) {
       throw Exception('Lỗi khi tạo mục kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<ListDatePlanItem>> getDatePlanItemDetails(
+    int datePlanId,
+    int datePlanItemId,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/items/$datePlanItemId',
+        method: HttpMethod.get,
+      );
+      return ApiResponse<ListDatePlanItem>.fromJson(
+        res,
+        (json) => ListDatePlanItem.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy chi tiết mục kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<void>> updateDatePlanItem(
+    int datePlanId,
+    int datePlanItemId,
+    DatePlanItemUpdateRequest request,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/$datePlanId/items/$datePlanItemId',
+        method: HttpMethod.patch,
+        query: {'version': request.version},
+        data: request.toJson(),
+      );
+      return ApiResponse<void>.fromJson(res, (_) {});
+    } catch (e) {
+      throw Exception('Lỗi khi cập nhật mục kế hoạch hẹn hò: $e');
     }
   }
 

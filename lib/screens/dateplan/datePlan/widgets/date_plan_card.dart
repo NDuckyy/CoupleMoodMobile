@@ -133,20 +133,7 @@ class DatePlanCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
 
-          Row(
-            children: [
-              const Icon(Icons.notes, size: 14),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  item.note ?? 'Chưa có ghi chú',
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
 
           SizedBox(

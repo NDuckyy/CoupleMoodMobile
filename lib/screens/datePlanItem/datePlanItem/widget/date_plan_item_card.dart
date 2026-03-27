@@ -12,20 +12,25 @@ import 'package:go_router/go_router.dart';
 class DatePlanItemCard extends StatelessWidget {
   final ListDatePlanItem item;
   final VoidCallback onDelete;
+  final VoidCallback onReload;
   final int index;
 
   const DatePlanItemCard({
     super.key,
     required this.item,
     required this.onDelete,
+    required this.onReload,
     required this.index,
   });
 
-  void _onEditPressed(BuildContext context) {
-    context.pushNamed(
+  Future<void> _onEditPressed(BuildContext context) async {
+    final res = await context.pushNamed(
       'date_plan_item_edit',
       extra: {'datePlanId': item.datePlanId, 'datePlanItemId': item.id},
     );
+    if (res == true) {
+      onReload();
+    }
   }
 
   @override
@@ -97,7 +102,9 @@ class DatePlanItemCard extends StatelessWidget {
 
                       const SizedBox(height: 14),
                       EditDatePlanItemButton(
-                        onPressed: () => _onEditPressed(context),
+                        onPressed: () async {
+                          await _onEditPressed(context);
+                        },
                       ),
                     ],
                   ),

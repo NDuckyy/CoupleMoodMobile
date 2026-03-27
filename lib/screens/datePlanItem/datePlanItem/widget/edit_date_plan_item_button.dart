@@ -18,7 +18,7 @@ class EditDatePlanItemButton extends StatelessWidget {
         ),
         child: const Center(
           child: Text(
-            'Edit',
+            'Chỉnh sửa',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,

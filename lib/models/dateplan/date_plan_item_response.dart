@@ -43,8 +43,7 @@ class ListDatePlanItem {
   final String startTime;
   final String endTime;
   final String note;
-  final String? visitedAt;
-  final String? skippedAt;
+  final int? version;
 
   ListDatePlanItem({
     required this.id,
@@ -55,8 +54,7 @@ class ListDatePlanItem {
     required this.startTime,
     required this.endTime,
     required this.note,
-    this.visitedAt,
-    this.skippedAt,
+    this.version,
   });
 
   factory ListDatePlanItem.fromJson(Map<String, dynamic> json) {
@@ -69,8 +67,7 @@ class ListDatePlanItem {
       startTime: json['startTime'],
       endTime: json['endTime'],
       note: json['note'],
-      visitedAt: json['visitedAt'],
-      skippedAt: json['skippedAt'],
+      version: json['version'],
     );
   }
 }

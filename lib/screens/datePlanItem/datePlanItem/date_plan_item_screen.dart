@@ -148,6 +148,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                                     onDelete: () {
                                       _onDeleteItem(item.datePlanId, item.id);
                                     },
+                                    onReload: _reload,
                                   ),
                                 );
                               },
