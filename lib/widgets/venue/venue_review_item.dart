@@ -127,7 +127,7 @@ class VenueReviewItem extends StatelessWidget {
                                 position: PopupMenuPosition.under,
                                 onSelected: (value) async {
                                   if (value == 'edit') {
-                                    // TODO edit review
+                                    onEdit?.call();
                                   } else if (value == 'delete') {
                                     final confirm = await showDialog<bool>(
                                       context: context,

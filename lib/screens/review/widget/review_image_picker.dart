@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ReviewImagePicker extends StatefulWidget {
-  final List<String> images;
-  final Function(List<String>) onChanged;
+  final List<String> oldImages; // URL
+  final List<String> newImages; // local path
+
+  final Function(String url) onOldRemoved;
+  final Function(List<String>) onNewChanged;
 
   const ReviewImagePicker({
     super.key,
-    required this.images,
-    required this.onChanged,
+    required this.oldImages,
+    required this.newImages,
+    required this.onOldRemoved,
+    required this.onNewChanged,
   });
 
   @override
@@ -19,30 +24,22 @@ class ReviewImagePicker extends StatefulWidget {
 class _ReviewImagePickerState extends State<ReviewImagePicker> {
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _pickImage() async {
-    if (widget.images.length >= 3) return;
+  int get totalImages => widget.oldImages.length + widget.newImages.length;
 
-    final List<XFile> pickedFiles = await _picker.pickMultiImage();
+  Future<void> _pickImage() async {
+    if (totalImages >= 3) return;
+
+    final pickedFiles = await _picker.pickMultiImage();
 
     if (pickedFiles.isNotEmpty) {
-      final remainingSlots = 3 - widget.images.length;
+      final remaining = 3 - totalImages;
 
-      final selectedPaths = pickedFiles
-          .take(remainingSlots)
-          .map((file) => file.path)
-          .toList();
+      final selected = pickedFiles.take(remaining).map((e) => e.path).toList();
 
-      final updatedList = List<String>.from(widget.images)
-        ..addAll(selectedPaths);
+      final updated = [...widget.newImages, ...selected];
 
-      widget.onChanged(updatedList);
+      widget.onNewChanged(updated);
     }
-  }
-
-  void _removeImage(int index) {
-    final updatedList = List<String>.from(widget.images)..removeAt(index);
-
-    widget.onChanged(updatedList);
   }
 
   @override
@@ -50,44 +47,38 @@ class _ReviewImagePickerState extends State<ReviewImagePicker> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Thêm ảnh (tối đa 3)",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        const Text("Thêm ảnh (tối đa 3)"),
         const SizedBox(height: 10),
+
         Wrap(
           spacing: 10,
           children: [
-            ...List.generate(widget.images.length, (index) {
+            /// OLD IMAGES (URL)
+            ...widget.oldImages.map((url) {
               return Stack(
                 children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      image: DecorationImage(
-                        image: FileImage(File(widget.images[index])),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: -8,
-                    right: -8,
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.cancel,
-                        color: Colors.red,
-                        size: 20,
-                      ),
-                      onPressed: () => _removeImage(index),
-                    ),
-                  ),
+                  _buildImage(NetworkImage(url)),
+                  _removeBtn(() => widget.onOldRemoved(url)),
                 ],
               );
             }),
-            if (widget.images.length < 3)
+
+            /// NEW IMAGES (FILE)
+            ...widget.newImages.map((path) {
+              return Stack(
+                children: [
+                  _buildImage(FileImage(File(path))),
+                  _removeBtn(() {
+                    final updated = List<String>.from(widget.newImages)
+                      ..remove(path);
+                    widget.onNewChanged(updated);
+                  }),
+                ],
+              );
+            }),
+
+            /// ADD BUTTON
+            if (totalImages < 3)
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
@@ -103,6 +94,28 @@ class _ReviewImagePickerState extends State<ReviewImagePicker> {
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildImage(ImageProvider provider) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        image: DecorationImage(image: provider, fit: BoxFit.cover),
+      ),
+    );
+  }
+
+  Widget _removeBtn(VoidCallback onTap) {
+    return Positioned(
+      top: -8,
+      right: -8,
+      child: IconButton(
+        icon: const Icon(Icons.cancel, color: Colors.red, size: 20),
+        onPressed: onTap,
+      ),
     );
   }
 }

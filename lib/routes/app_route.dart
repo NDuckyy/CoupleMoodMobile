@@ -25,8 +25,11 @@ import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 //Member, user
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
-import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
+
+//review
+import 'package:couple_mood_mobile/providers/review/review_provider.dart';
+import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -674,9 +677,13 @@ GoRouter createRouter(BuildContext context) {
         name: 'review_venue',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return ReviewScreen(
-            venueLocationId: extra['venueLocationId'],
-            checkInId: extra['checkInId'],
+          return ChangeNotifierProvider(
+            create: (_) => ReviewProvider(),
+            child: ReviewScreen(
+              venueLocationId: extra['venueLocationId'],
+              checkInId: extra['checkInId'], // có thể null
+              initialReview: extra['review'],
+            ),
           );
         },
       ),
