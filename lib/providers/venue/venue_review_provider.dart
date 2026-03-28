@@ -49,7 +49,7 @@ class VenueReviewProvider extends ChangeNotifier {
 
     try {
       final res = await VenueReviewService.submitVenueReview(request);
-      
+
       if (res.code != 200) {
         error = res.message;
       }
@@ -58,6 +58,22 @@ class VenueReviewProvider extends ChangeNotifier {
     } finally {
       loading = false;
       notifyListeners();
+    }
+  }
+
+  Future<bool> deleteReview(int reviewId) async {
+    try {
+      final res = await VenueReviewService.deleteReview(reviewId);
+
+      if (res.code == 200) {
+        pagination?.items.removeWhere((e) => e.id == reviewId);
+        notifyListeners();
+        return true;
+      } else {
+        throw res.message ?? "Xoá thất bại";
+      }
+    } catch (e) {
+      rethrow;
     }
   }
 }

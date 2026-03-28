@@ -1,10 +1,8 @@
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
-import 'package:couple_mood_mobile/services/payment/payment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -82,8 +80,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              context.pushNamed("edit_profile");
+                            onPressed: () async {
+                              final result = await context.pushNamed(
+                                "edit_profile",
+                              );
+
+                              if (result == true) {
+                                context.read<UserProvider>().fetchMe();
+                              }
                             },
                           ),
                         ],
@@ -155,44 +159,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           await NotificationService().showTestNotification();
                         },
                       ),
-                      _actionButton(
-                        icon: Icons.payment,
-                        label: "MOMO Test",
-                        onTap: () async {
-                          try {
-                            final response = await PaymentService.momoPay(
-                              packageId: 6,
-                            );
-                            if (response.code == 200 && response.data != null) {
-                              final deepLink = response.data!.deepLink;
-                              final url = Uri.parse(deepLink);
-
-                              if (await canLaunchUrl(url)) {
-                                await launchUrl(
-                                  url,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } else {
-                                final fallbackUrl = Uri.parse(
-                                  response.data!.payUrl,
-                                );
-                                await launchUrl(
-                                  fallbackUrl,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              }
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(response.message)),
-                              );
-                            }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(e.toString())),
-                            );
-                          }
-                        },
-                      ),
                     ],
                   ),
 
@@ -254,6 +220,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   _tile(Icons.history, "Lịch sử hẹn hò", () {}),
+                  _tile(Icons.rate_review_outlined, "Đánh giá của tôi", () {
+                    context.pushNamed("my_reviews");
+                  }),
 
                   const SizedBox(height: 24),
                   const Text(
