@@ -1,6 +1,9 @@
+import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/notification/notification.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:io';
 import 'local_notification_service.dart';
 
@@ -125,5 +128,30 @@ class NotificationService {
 
   static Future<void> requestNotificationPermission() async {
     await FirebaseMessaging.instance.requestPermission();
+  }
+
+  static Future<ApiResponse<NotificationPagination>> getNotification(
+    int pageNumber,
+    int pageSize,
+    String type,
+  ) async {
+    try {
+      final response = await ApiClient.request(
+        '/Notification',
+        method: HttpMethod.get,
+        query: {
+          'pageNumber': pageNumber.toString(),
+          'pageSize': pageSize.toString(),
+          'type': type,
+        },
+      );
+      return ApiResponse.fromJson(
+        response,
+        (json) => NotificationPagination.fromJson(json),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi lấy thông báo: $e');
+    }
   }
 }
