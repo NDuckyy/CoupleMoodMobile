@@ -11,7 +11,8 @@ class VenueReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isAnonymous = review.isAnonymous;
+    final isAnonymous = review.isAnonymous && !review.isOwner;
+    final showAnonymousTag = review.isOwner && review.isAnonymous;
 
     final displayName = isAnonymous
         ? "Người Dùng Ẩn Danh"
@@ -208,6 +209,10 @@ class VenueReviewItem extends StatelessWidget {
                         const SizedBox(width: 8),
                         if (review.matchedTag != null)
                           _buildTag(review.matchedTag!),
+                        if (showAnonymousTag) ...[
+                          const SizedBox(width: 6),
+                          _buildAnonymousTag(),
+                        ],
                       ],
                     ),
                   ],
@@ -361,8 +366,8 @@ Widget _buildReplyBox(VenueReview review) {
             const Icon(Icons.store, size: 16, color: Colors.green),
             const SizedBox(width: 6),
             Text(
-              reply.venueOwnerProfile?.businessName != null
-                  ? "Phản hồi của ${reply.venueOwnerProfile!.businessName}"
+              reply.venueName != null && reply.venueName!.isNotEmpty
+                  ? "Phản hồi của ${reply.venueName}"
                   : "Phản hồi của chủ quán",
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
             ),
@@ -382,6 +387,30 @@ Widget _buildReplyBox(VenueReview review) {
             timeAgo(reply.createdAt!),
             style: TextStyle(fontSize: 11, color: Colors.grey[600]),
           ),
+      ],
+    ),
+  );
+}
+
+Widget _buildAnonymousTag() {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+    decoration: BoxDecoration(
+      color: Colors.grey.withOpacity(0.12),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: const [
+        Icon(Icons.visibility_off, size: 12, color: Colors.grey),
+        SizedBox(width: 4),
+        Text(
+          "Ẩn danh",
+          style: TextStyle(
+            fontSize: 11,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     ),
   );
