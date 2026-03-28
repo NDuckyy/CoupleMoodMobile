@@ -80,8 +80,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              context.pushNamed("edit_profile");
+                            onPressed: () async {
+                              final result = await context.pushNamed(
+                                "edit_profile",
+                              );
+
+                              if (result == true) {
+                                context.read<UserProvider>().fetchMe();
+                              }
                             },
                           ),
                         ],

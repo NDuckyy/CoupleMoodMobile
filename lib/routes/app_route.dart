@@ -26,6 +26,7 @@ import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
+import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
 
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -122,6 +123,7 @@ import 'package:couple_mood_mobile/screens/review/review_screen.dart';
 import 'package:couple_mood_mobile/screens/user/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
 import 'package:couple_mood_mobile/screens/user/my_review_screen.dart';
+import 'package:couple_mood_mobile/screens/user/edit_profile_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -482,6 +484,19 @@ GoRouter createRouter(BuildContext context) {
             child: ChangeNotifierProvider(
               create: (_) => MyReviewProvider(),
               child: const MyReviewScreen(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/edit-profile',
+        name: 'edit_profile',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => EditProfileProvider(),
+              child: const EditProfileScreen(),
             ),
           );
         },
