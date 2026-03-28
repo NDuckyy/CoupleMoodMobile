@@ -21,7 +21,12 @@ class VenueReviewListSection extends StatelessWidget {
       itemCount: provider.reviews.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
       itemBuilder: (_, i) {
-        return VenueReviewItem(review: provider.reviews[i]);
+        return VenueReviewItem(
+          review: provider.reviews[i],
+          onDelete: () => context.read<VenueReviewProvider>().deleteReview(
+            provider.reviews[i].id,
+          ),
+        );
       },
     );
   }

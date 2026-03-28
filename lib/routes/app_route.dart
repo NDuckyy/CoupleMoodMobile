@@ -22,12 +22,10 @@ import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 
-//test
-import 'package:couple_mood_mobile/providers/test_provider.dart';
-
 //Member, user
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
+import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -116,13 +114,14 @@ import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_sc
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
 
-//home, location, profile, user related, etc..
+//home, location, profile, review, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/review/review_screen.dart';
-import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/user/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
+import 'package:couple_mood_mobile/screens/user/my_review_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -469,6 +468,20 @@ GoRouter createRouter(BuildContext context) {
               child: WalletHubScreen(
                 initialTab: tab.clamp(0, 2),
               ), // giới hạn 0-2
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/my-reviews',
+        name: 'my_reviews',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => MyReviewProvider(),
+              child: const MyReviewScreen(),
             ),
           );
         },

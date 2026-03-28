@@ -1,13 +1,23 @@
 import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/venue/venue_review.dart';
 
 class VenueReviewItem extends StatelessWidget {
   final VenueReview review;
+  final Future<bool> Function()? onDelete;
+  final VoidCallback? onEdit;
 
-  const VenueReviewItem({super.key, required this.review});
+  const VenueReviewItem({
+    super.key,
+    required this.review,
+    this.onDelete,
+    this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,11 +125,53 @@ class VenueReviewItem extends StatelessWidget {
                                 padding: EdgeInsets.zero,
                                 icon: const Icon(Icons.more_vert, size: 20),
                                 position: PopupMenuPosition.under,
-                                onSelected: (value) {
+                                onSelected: (value) async {
                                   if (value == 'edit') {
                                     // TODO edit review
                                   } else if (value == 'delete') {
-                                    // TODO delete review
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (_) => AlertDialog(
+                                        title: const Text("Xoá đánh giá"),
+                                        content: const Text(
+                                          "Bạn có chắc muốn xoá đánh giá này không?",
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, false),
+                                            child: const Text("Huỷ"),
+                                          ),
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context, true),
+                                            child: const Text(
+                                              "Xoá",
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+
+                                    if (confirm != true) return;
+
+                                    try {
+                                      final success = await onDelete?.call();
+
+                                      if (success == true && context.mounted) {
+                                        showMsg(
+                                          context,
+                                          "Đã xoá đánh giá",
+                                          true,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      showMsg(context, e.toString(), false);
+                                    }
                                   } else if (value == 'report') {
                                     showReportBottomSheet(
                                       context: context,
