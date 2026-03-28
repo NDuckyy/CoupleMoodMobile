@@ -134,7 +134,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
             /// MOOD
             SliverToBoxAdapter(
-              child: CurrentMoodBanner(mood: moodProvider.userCurrentMood),
+              child: CurrentMoodBanner(mood: moodProvider.coupleMood),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
