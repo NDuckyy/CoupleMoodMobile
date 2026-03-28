@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
+import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_history.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -637,6 +638,12 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        path: '/notification',
+        name: 'notification',
+        pageBuilder: (_, __) => const MaterialPage(child: NotificationScreen()),
+      ),
+
+      GoRoute(
         path: '/couple-profile/edit',
         name: 'edit_couple_profile',
         builder: (context, state) {
@@ -951,4 +958,10 @@ void navigateToReviewVenue({required int venueId, required int checkInId}) {
     'review_venue',
     extra: {'venueLocationId': venueId, 'checkInId': checkInId},
   );
+}
+
+void navigateToChatScreen({required conversation}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed('chat_screen', extra: {'conversation': conversation});
 }

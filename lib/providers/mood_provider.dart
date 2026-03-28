@@ -20,6 +20,7 @@ class MoodProvider extends ChangeNotifier {
     data: [],
   );
   String? _userCurrentMood = '';
+  String? get coupleMood => coupleCurrentMood?.coupleMood;
 
   String? get userCurrentMood => _userCurrentMood;
 
