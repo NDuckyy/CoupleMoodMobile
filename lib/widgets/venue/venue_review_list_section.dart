@@ -36,6 +36,7 @@ class VenueReviewListSection extends StatelessWidget {
               },
             );
 
+            ///TODO: cho chim cuts luôn pagination
             if (result == true) {
               await context.read<VenueReviewProvider>().loadPage(
                 venueId: provider.reviews[i].venueId,
