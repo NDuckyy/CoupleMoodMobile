@@ -917,3 +917,9 @@ void navigateToReviewVenue({required int venueId, required int checkInId}) {
     extra: {'venueLocationId': venueId, 'checkInId': checkInId},
   );
 }
+
+void navigateToChatScreen({required conversation}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed('chat_screen', extra: {'conversation': conversation});
+}

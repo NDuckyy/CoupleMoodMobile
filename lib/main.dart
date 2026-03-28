@@ -17,6 +17,7 @@ import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart'
 import 'package:couple_mood_mobile/routes/app_route.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:couple_mood_mobile/utils/deep_link_handler.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +40,7 @@ void main() async {
   await NotificationService.requestNotificationPermission();
   await LocalNotificationService.init();
   NotificationService.listenNotification();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   await NotificationService.init();
   await NotificationService().setupInteractedMessage();
   await initializeDateFormatting('vi');
@@ -67,6 +69,35 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  final title = message.notification?.title;
+  final body = message.notification?.body;
+
+  if (title == null || body == null) {
+    return;
+  }
+
+  if (message.data['type'] == "CHAT") {
+    final conversationId = int.parse(message.data['conversationId'] ?? "0");
+
+    await LocalNotificationService.show(
+      title,
+      body,
+      payload: "CHAT|$conversationId",
+    );
+  } else {
+    final venueId = message.data['venueLocationId'] ?? "";
+    final checkInId = message.data['refId'] ?? "";
+
+    await LocalNotificationService.show(
+      title,
+      body,
+      payload: "$venueId|$checkInId",
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
