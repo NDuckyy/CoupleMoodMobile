@@ -54,4 +54,39 @@ class AuthService {
       throw Exception(root['message']?.toString() ?? 'Đăng ký thất bại');
     }
   }
+
+  static Future<Session> loginWithGoogle(String idToken) async {
+    final res = await ApiClient.request(
+      '/Auth/google-login-mobile', 
+      method: HttpMethod.post,
+      data: {'idToken': idToken},
+    );
+
+    final root = (res as Map).cast<String, dynamic>();
+    final data = (root['data'] as Map).cast<String, dynamic>();
+
+    final accessToken = data['accessToken']?.toString() ?? '';
+    final refreshToken = data['refreshToken']?.toString() ?? '';
+
+    if (accessToken.isEmpty || refreshToken.isEmpty) {
+      throw Exception('Thiếu token từ server');
+    }
+
+    final session = Session(
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      gender: data['gender']?.toString(),
+      avatarUrl: data['avatarUrl']?.toString(),
+      fullName: data['fullName']?.toString(),
+      dateOfBirth: data['dateOfBirth']?.toString(),
+      inviteCode: data['inviteCode']?.toString(),
+      balance: (data['balance'] as num?)?.toInt(),
+      points: (data['points'] as num?)?.toInt(),
+    );
+
+    await SessionStorage.save(session);
+    await NotificationService.sendTokenToServerAfterLogin();
+
+    return session;
+  }
 }

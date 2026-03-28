@@ -273,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: const Text("Quên mật khẩu?"),
                                 ),
                                 const SizedBox(height: 10),
-                                googleLoginButton(),
+                                googleLoginButton(context),
                               ],
                             ),
                           ),
