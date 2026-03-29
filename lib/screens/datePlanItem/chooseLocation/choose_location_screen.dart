@@ -6,7 +6,6 @@ import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.d
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ChooseLocationScreen extends StatefulWidget {
@@ -92,6 +91,7 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
     final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
     final recs = page?.items ?? [];
+    final coupleMood = moodProvider.coupleCurrentMood?.coupleMood;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -111,7 +111,7 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
 
             /// MOOD
             SliverToBoxAdapter(
-              child: CurrentMoodBanner(mood: moodProvider.userCurrentMood),
+              child: CurrentMoodBanner(mood: coupleMood),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
