@@ -76,6 +76,9 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
                                 context.read<MyReviewProvider>().refresh();
                               }
                             },
+                            onLike: () => context
+                                .read<MyReviewProvider>()
+                                .toggleLikeReview(provider.reviews[index]),
                           );
                         }
 

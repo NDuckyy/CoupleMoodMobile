@@ -11,12 +11,14 @@ class VenueReviewItem extends StatelessWidget {
   final VenueReview review;
   final Future<bool> Function()? onDelete;
   final VoidCallback? onEdit;
+  final VoidCallback? onLike;
 
   const VenueReviewItem({
     super.key,
     required this.review,
     this.onDelete,
     this.onEdit,
+    this.onLike,
   });
 
   @override
@@ -113,11 +115,26 @@ class VenueReviewItem extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              const Icon(Icons.favorite_border, size: 16),
-                              const SizedBox(width: 4),
-                              Text(
-                                review.likeCount.toString(),
-                                style: const TextStyle(fontSize: 13),
+                              GestureDetector(
+                                onTap: onLike,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      review.isLikedByMe
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      size: 16,
+                                      color: review.isLikedByMe
+                                          ? Colors.red
+                                          : Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      review.likeCount.toString(),
+                                      style: const TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(width: 8),
 

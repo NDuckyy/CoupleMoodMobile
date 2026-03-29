@@ -44,6 +44,9 @@ class VenueReviewListSection extends StatelessWidget {
               );
             }
           },
+          onLike: () => context.read<VenueReviewProvider>().toggleLikeReview(
+            provider.reviews[i],
+          ),
         );
       },
     );
