@@ -35,10 +35,14 @@ class CoupleLocationProvider extends ChangeNotifier {
 
   Future<void> loadAvatars(String myAvatarUrl, String partnerAvatarUrl) async {
     myAvatar = await createAvatarMarker(
-      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      myAvatarUrl.isNotEmpty
+          ? myAvatarUrl
+          : "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-2.jpg",
     );
     partnerAvatar = await createAvatarMarker(
-      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      partnerAvatarUrl.isNotEmpty
+          ? partnerAvatarUrl
+          : "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
     );
   }
 
