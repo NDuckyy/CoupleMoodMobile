@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_info_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_header.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/update_loading.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -60,6 +61,19 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
     }
   }
 
+  void _updateOrder(int oldIndex, int newIndex) async {
+    try {
+      await context.read<DatePlanProvider>().reorderDatePlanItems(
+        widget.datePlanId,
+        oldIndex,
+        newIndex,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showMsg(context, "$e", false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DatePlanProvider>();
@@ -68,10 +82,10 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: provider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : RefreshIndicator(
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
+              child: RefreshIndicator(
                 onRefresh: _reload,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -104,60 +118,53 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                       ),
                     ),
 
-                    items.isEmpty
-                        ? SliverToBoxAdapter(
-                            child: Column(
-                              children: const [
-                                SizedBox(height: 200),
-                                EmptyStateWidget(
-                                  icon: Icons.location_on_outlined,
-                                  title: 'Chưa có địa điểm nào trong lịch hẹn',
-                                  description:
-                                      'Bạn chưa thêm địa điểm nào cho lịch hẹn này. Hãy thêm địa điểm để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
-                                ),
-                              ],
-                            ),
-                          )
-                        : SliverPadding(
-                            padding: const EdgeInsets.all(24),
-                            sliver: SliverReorderableList(
-                              itemCount: items.length,
-                              onReorder: (oldIndex, newIndex) async {
-                                try {
-                                  await context
-                                      .read<DatePlanProvider>()
-                                      .reorderDatePlanItems(
-                                        widget.datePlanId,
-                                        oldIndex,
-                                        newIndex,
-                                      );
-                                } catch (e) {
-                                  if (!context.mounted) return;
-                                  showMsg(context, "$e", false);
-                                }
-                              },
-
-                              itemBuilder: (context, index) {
-                                final item = items[index];
-
-                                return Container(
-                                  key: ValueKey(item.id),
-                                  child: DatePlanItemCard(
-                                    item: item,
-                                    index: index,
-                                    onDelete: () {
-                                      _onDeleteItem(item.datePlanId, item.id);
-                                    },
-                                    onReload: _reload,
+                    if (provider.isUpdatingOrder) ...{
+                      SliverToBoxAdapter(child: UpdateLoading()),
+                    } else ...{
+                      items.isEmpty
+                          ? SliverToBoxAdapter(
+                              child: Column(
+                                children: const [
+                                  SizedBox(height: 200),
+                                  EmptyStateWidget(
+                                    icon: Icons.location_on_outlined,
+                                    title:
+                                        'Chưa có địa điểm nào trong lịch hẹn',
+                                    description:
+                                        'Bạn chưa thêm địa điểm nào cho lịch hẹn này. Hãy thêm địa điểm để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
                                   ),
-                                );
-                              },
+                                ],
+                              ),
+                            )
+                          : SliverPadding(
+                              padding: const EdgeInsets.all(24),
+                              sliver: SliverReorderableList(
+                                itemCount: items.length,
+                                onReorder: (oldIndex, newIndex) =>
+                                    _updateOrder(oldIndex, newIndex),
+
+                                itemBuilder: (context, index) {
+                                  final item = items[index];
+
+                                  return Container(
+                                    key: ValueKey(item.id),
+                                    child: DatePlanItemCard(
+                                      item: item,
+                                      index: index,
+                                      onDelete: () {
+                                        _onDeleteItem(item.datePlanId, item.id);
+                                      },
+                                      onReload: _reload,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
+                    },
                   ],
                 ),
               ),
-      ),
+            ),
     );
   }
 }

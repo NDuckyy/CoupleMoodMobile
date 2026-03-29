@@ -46,7 +46,7 @@ class AdvertisementCarousel extends StatelessWidget {
         advertisements.isEmpty && !advertisementProvider.isLoadingAdvertisement
             ? EmptyStateWidget(
                 icon: Icons.event,
-                title: "Không có đề xuất nào",
+                title: "Không có chương trình nào",
                 description: "",
               )
             : advertisements.isEmpty &&

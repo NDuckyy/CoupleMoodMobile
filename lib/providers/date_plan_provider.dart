@@ -19,6 +19,7 @@ class DatePlanProvider extends ChangeNotifier {
   bool isLoading = true;
   String? error;
   bool isFetching = false;
+  bool isUpdatingOrder = false;
 
   int pageNumber = 1;
   final int pageSize = 5;
@@ -115,7 +116,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> fetchDatePlanItems(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isUpdatingOrder = true;
     notifyListeners();
     try {
       datePlanItems = await DatePlanService.getDatePlanItems(datePlanId);
@@ -124,11 +125,10 @@ class DatePlanProvider extends ChangeNotifier {
             datePlanItems?.message ??
             'Lỗi khi lấy danh sách mục kế hoạch hẹn hò';
       }
-      isLoading = false;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }
@@ -174,7 +174,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> deleteDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.deleteDatePlan(datePlanId);
@@ -184,7 +184,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
@@ -287,7 +287,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> updateOrder(int datePlanId, List<int> orderedIds) async {
     error = null;
-    isLoading = true;
+    isUpdatingOrder = true;
     notifyListeners();
     try {
       final response = await DatePlanService.updateDatePlanItemOrder(
@@ -301,7 +301,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }

@@ -10,19 +10,22 @@ class NoteSection extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Icon(
-          Icons.notes,
-          color: Color(0xFFB388EB),
-        ),
+        const Icon(Icons.notes, color: Color(0xFFB388EB)),
         const SizedBox(width: 8),
         Expanded(
-          child: Text(
-            note,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
-            ),
-          ),
+          child: note.isEmpty
+              ? const Text(
+                  "Không có ghi chú nào",
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                    fontStyle: FontStyle.italic,
+                  ),
+                )
+              : Text(
+                  note,
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
+                ),
         ),
       ],
     );
