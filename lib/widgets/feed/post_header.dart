@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
@@ -78,14 +79,45 @@ class PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accessories = post.author?.equippedAccessories ?? [];
+
+    final frame = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "FRAME",
+      orElse: () => null,
+    );
+
+    final badge = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "BADGE",
+      orElse: () => null,
+    );
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundImage: post.author?.avatar != null
-              ? NetworkImage(post.author!.avatar!)
-              : null,
-          child: post.author?.avatar == null ? const Icon(Icons.person) : null,
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            /// AVATAR
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: post.author?.avatar != null
+                  ? NetworkImage(post.author!.avatar!)
+                  : null,
+              child: post.author?.avatar == null
+                  ? const Icon(Icons.person)
+                  : null,
+            ),
+
+            /// FRAME
+            if (frame?.thumbnailUrl != null && frame!.thumbnailUrl!.isNotEmpty)
+              Transform.scale(
+                scale: 1.2,
+                child: Image.network(
+                  frame.thumbnailUrl!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 12),
 
@@ -93,10 +125,20 @@ class PostHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post.author?.fullName ?? "Bạn",
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    post.author?.fullName ?? "Bạn",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  if (badge?.thumbnailUrl != null) ...[
+                    const SizedBox(width: 4),
+                    Image.network(badge!.thumbnailUrl!, width: 16, height: 16),
+                  ],
+                ],
               ),
+
               Text(
                 timeAgo(post.createdAt),
                 style: const TextStyle(fontSize: 12, color: Colors.grey),

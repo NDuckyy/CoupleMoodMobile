@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/comment_model.dart';
 
@@ -27,6 +28,17 @@ class CommentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double indent = (comment.level - 1) * 20.0;
+    final accessories = comment.author.equippedAccessories ?? [];
+
+    final frame = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "FRAME",
+      orElse: () => null,
+    );
+
+    final badge = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "BADGE",
+      orElse: () => null,
+    );
 
     return Padding(
       padding: EdgeInsets.only(left: indent, top: 8, bottom: 8),
@@ -36,21 +48,39 @@ class CommentItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// AVATAR
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.grey.shade200,
-              backgroundImage: comment.author.avatar != null
-                  ? NetworkImage(comment.author.avatar!)
-                  : null,
-              child: comment.author.avatar == null
-                  ? Text(
-                      comment.author.fullName.isNotEmpty
-                          ? comment.author.fullName[0]
-                          : "?",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  : null,
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                /// AVATAR
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage: comment.author.avatar != null
+                      ? NetworkImage(comment.author.avatar!)
+                      : null,
+                  child: comment.author.avatar == null
+                      ? Text(
+                          comment.author.fullName.isNotEmpty
+                              ? comment.author.fullName[0]
+                              : "?",
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      : null,
+                ),
+
+                /// FRAME
+                if (frame?.thumbnailUrl != null &&
+                    frame!.thumbnailUrl!.isNotEmpty)
+                  Transform.scale(
+                    scale: 1.2, // nhỏ hơn shop, giống post header
+                    child: Image.network(
+                      frame.thumbnailUrl!,
+                      width: 36, // = 18 * 2
+                      height: 36,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+              ],
             ),
 
             const SizedBox(width: 10),
@@ -74,12 +104,27 @@ class CommentItem extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         /// NAME
-                        Text(
-                          comment.author.fullName,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 13,
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min, // 🔥 FIX quan trọng
+                          children: [
+                            Text(
+                              comment.author.fullName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                            ),
+
+                            if (badge?.thumbnailUrl != null &&
+                                badge!.thumbnailUrl!.isNotEmpty) ...[
+                              const SizedBox(width: 4),
+                              Image.network(
+                                badge.thumbnailUrl!,
+                                width: 14,
+                                height: 14,
+                              ),
+                            ],
+                          ],
                         ),
 
                         const SizedBox(height: 4),

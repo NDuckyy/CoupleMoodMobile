@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
@@ -23,6 +24,18 @@ class VenueReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accessories = review.member.equippedAccessories;
+
+    final frame = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "FRAME",
+      orElse: () => null,
+    );
+
+    final badge = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "BADGE",
+      orElse: () => null,
+    );
+
     final isAnonymous = review.isAnonymous && !review.isOwner;
     final showAnonymousTag = review.isOwner && review.isAnonymous;
 
@@ -52,15 +65,53 @@ class VenueReviewItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               /// Avatar
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: Colors.grey[200],
-                backgroundImage: avatarUrl != null
-                    ? NetworkImage(avatarUrl)
-                    : null,
-                child: avatarUrl == null
-                    ? const Icon(Icons.person, size: 26)
-                    : null,
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: Colors.grey[200],
+                        backgroundImage: avatarUrl != null
+                            ? NetworkImage(avatarUrl)
+                            : null,
+                        child: avatarUrl == null
+                            ? const Icon(Icons.person, size: 26)
+                            : null,
+                      ),
+
+                      /// FRAME
+                      if (!isAnonymous &&
+                          frame?.thumbnailUrl != null &&
+                          frame!.thumbnailUrl!.isNotEmpty)
+                        Transform.scale(
+                          scale: 1.15,
+                          child: Image.network(
+                            frame.thumbnailUrl!,
+                            width: 44, // = radius * 2
+                            height: 44,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                    ],
+                  ),
+
+                  /// FRAME
+                  if (!isAnonymous &&
+                      frame?.thumbnailUrl != null &&
+                      frame!.thumbnailUrl!.isNotEmpty)
+                    Transform.scale(
+                      scale: 1.15,
+                      child: Image.network(
+                        frame.thumbnailUrl!,
+                        width: 44, // = radius * 2
+                        height: 44,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                ],
               ),
 
               const SizedBox(width: 12),
@@ -77,7 +128,7 @@ class VenueReviewItem extends StatelessWidget {
                         /// Name + Gender
                         Expanded(
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Flexible(
                                 child: Text(
@@ -89,7 +140,23 @@ class VenueReviewItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
+
+                              /// BADGE
+                              if (!isAnonymous &&
+                                  badge?.thumbnailUrl != null &&
+                                  badge!.thumbnailUrl!.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 4),
+                                  child: Image.network(
+                                    badge.thumbnailUrl!,
+                                    width: 16,
+                                    height: 16,
+                                  ),
+                                ),
+
                               const SizedBox(width: 4),
+
+                              /// GENDER
                               if (!isAnonymous &&
                                   review.member.gender == "FEMALE")
                                 const Icon(
@@ -97,6 +164,7 @@ class VenueReviewItem extends StatelessWidget {
                                   size: 15,
                                   color: Colors.pink,
                                 ),
+
                               if (!isAnonymous &&
                                   review.member.gender == "MALE")
                                 const Icon(
