@@ -8,7 +8,10 @@ class VenueReview {
   final String content;
   final DateTime? visitedAt;
   final bool isAnonymous;
-  final int likeCount;
+
+  int likeCount;
+  bool isLikedByMe;
+
   final String status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -27,6 +30,7 @@ class VenueReview {
     required this.visitedAt,
     required this.isAnonymous,
     required this.likeCount,
+    required this.isLikedByMe,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -47,7 +51,10 @@ class VenueReview {
           ? DateTime.tryParse(json['visitedAt'])
           : null,
       isAnonymous: json['isAnonymous'] ?? false,
+
       likeCount: json['likeCount'] ?? 0,
+      isLikedByMe: json['isLikedByMe'] ?? false,
+
       status: json['status'] ?? '',
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
@@ -59,8 +66,6 @@ class VenueReview {
       imageUrls:
           (json['imageUrls'] as List?)?.map((e) => e.toString()).toList() ?? [],
       matchedTag: json['matchedTag'],
-
-      // NEW
       isOwner: json['isOwner'] ?? false,
       reviewReply: json['reviewReply'] != null
           ? VenueReviewReply.fromJson(json['reviewReply'])

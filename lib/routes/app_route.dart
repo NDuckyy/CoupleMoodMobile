@@ -1,7 +1,9 @@
+import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
+import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_history.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,8 +28,11 @@ import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 //Member, user
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
-import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
+
+//review
+import 'package:couple_mood_mobile/providers/review/review_provider.dart';
+import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -371,6 +376,19 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
       GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/shop',
+        name: 'shop',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => ShopProvider(),
+              child: const ShopScreen(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
         name: "leaderboard",
         path: "/leaderboard",
         pageBuilder: (_, __) => MaterialPage(
@@ -669,9 +687,13 @@ GoRouter createRouter(BuildContext context) {
         name: 'review_venue',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return ReviewScreen(
-            venueLocationId: extra['venueLocationId'],
-            checkInId: extra['checkInId'],
+          return ChangeNotifierProvider(
+            create: (_) => ReviewProvider(),
+            child: ReviewScreen(
+              venueLocationId: extra['venueLocationId'],
+              checkInId: extra['checkInId'], // có thể null
+              initialReview: extra['review'],
+            ),
           );
         },
       ),

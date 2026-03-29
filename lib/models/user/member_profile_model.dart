@@ -1,3 +1,5 @@
+import '../venue/member_accessory.dart';
+
 class MemberProfileModel {
   final int id;
   final String? fullName;
@@ -13,6 +15,8 @@ class MemberProfileModel {
   final String? availableTime;
   final String? inviteCode;
 
+  final List<MemberAccessory>? equippedAccessories;
+
   MemberProfileModel({
     required this.id,
     this.fullName,
@@ -27,6 +31,7 @@ class MemberProfileModel {
     this.interests,
     this.availableTime,
     this.inviteCode,
+    this.equippedAccessories,
   });
 
   factory MemberProfileModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +49,10 @@ class MemberProfileModel {
       interests: json['interests'],
       availableTime: json['availableTime'],
       inviteCode: json['inviteCode'],
+
+      equippedAccessories: (json['equippedAccessories'] as List?)
+          ?.map((e) => MemberAccessory.fromJson(e))
+          .toList(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../providers/wallet/wallet_provider.dart';
@@ -153,12 +154,7 @@ class PointsWalletTab extends StatelessWidget {
                           color: colorScheme.primary,
                         ),
                         onTap: () {
-                          // TODO: Navigate to Voucher screen
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Tính năng sắp ra mắt"),
-                            ),
-                          );
+                          context.pushNamed('voucher');
                         },
                       ),
                       const Divider(),
@@ -175,12 +171,7 @@ class PointsWalletTab extends StatelessWidget {
                           color: colorScheme.primary,
                         ),
                         onTap: () {
-                          // TODO: Navigate to Shop
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Tính năng sắp ra mắt"),
-                            ),
-                          );
+                          context.pushNamed('shop');
                         },
                       ),
                     ],

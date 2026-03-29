@@ -74,4 +74,36 @@ class MyReviewProvider extends ChangeNotifier {
       rethrow;
     }
   }
+
+  Future<void> toggleLikeReview(VenueReview review) async {
+    final oldIsLiked = review.isLikedByMe;
+    final oldLikeCount = review.likeCount;
+
+    /// Optimistic update
+    review.isLikedByMe = !oldIsLiked;
+    review.likeCount += review.isLikedByMe ? 1 : -1;
+    notifyListeners();
+
+    try {
+      final res = await VenueReviewService.toggleLikeReview(review.id);
+
+      if (res.code == 200 && res.data != null) {
+        final data = res.data!;
+
+        /// Sync lại từ server (quan trọng)
+        review.isLikedByMe = data['isLiked'] ?? review.isLikedByMe;
+        review.likeCount = data['likeCount'] ?? review.likeCount;
+      } else {
+        /// rollback nếu fail
+        review.isLikedByMe = oldIsLiked;
+        review.likeCount = oldLikeCount;
+      }
+    } catch (e) {
+      /// rollback nếu lỗi mạng
+      review.isLikedByMe = oldIsLiked;
+      review.likeCount = oldLikeCount;
+    }
+
+    notifyListeners();
+  }
 }

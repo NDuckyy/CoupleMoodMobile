@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/venue/venue_review_provider.dart';
@@ -25,6 +26,26 @@ class VenueReviewListSection extends StatelessWidget {
           review: provider.reviews[i],
           onDelete: () => context.read<VenueReviewProvider>().deleteReview(
             provider.reviews[i].id,
+          ),
+          onEdit: () async {
+            final result = await context.pushNamed(
+              'review_venue',
+              extra: {
+                'venueLocationId': provider.reviews[i].venueId,
+                'review': provider.reviews[i],
+              },
+            );
+
+            ///TODO: cho chim cuts luôn pagination
+            if (result == true) {
+              await context.read<VenueReviewProvider>().loadPage(
+                venueId: provider.reviews[i].venueId,
+                page: 1,
+              );
+            }
+          },
+          onLike: () => context.read<VenueReviewProvider>().toggleLikeReview(
+            provider.reviews[i],
           ),
         );
       },

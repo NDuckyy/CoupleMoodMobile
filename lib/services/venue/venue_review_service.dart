@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
 import 'package:couple_mood_mobile/models/venue/review_request.dart';
+import 'package:couple_mood_mobile/models/venue/update_review_request.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review.dart';
 import 'package:couple_mood_mobile/models/venue/venue_review_data.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
@@ -88,7 +89,7 @@ class VenueReviewService {
 
   static Future<ApiResponse<int>> updateReview({
     required int reviewId,
-    required ReviewRequest request,
+    required UpdateReviewRequest request,
   }) async {
     final res = await ApiClient.request(
       '/Review/$reviewId/update',

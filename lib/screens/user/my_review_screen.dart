@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/venue/venue_review_item.dart';
@@ -60,6 +61,24 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
                             onDelete: () => context
                                 .read<MyReviewProvider>()
                                 .deleteReview(provider.reviews[index].id),
+                            onEdit: () async {
+                              final review = provider.reviews[index];
+
+                              final result = await context.pushNamed(
+                                'review_venue',
+                                extra: {
+                                  'venueLocationId': review.venueId,
+                                  'review': review,
+                                },
+                              );
+
+                              if (result == true) {
+                                context.read<MyReviewProvider>().refresh();
+                              }
+                            },
+                            onLike: () => context
+                                .read<MyReviewProvider>()
+                                .toggleLikeReview(provider.reviews[index]),
                           );
                         }
 
