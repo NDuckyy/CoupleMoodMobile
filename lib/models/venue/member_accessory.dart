@@ -17,6 +17,7 @@ class MemberAccessory {
   final bool? isOwnedByMe;
   final bool? isOwnedByPartner;
   final bool? canPurchase;
+  final bool? isEquipped;
 
   MemberAccessory({
     this.memberAccessoryId,
@@ -35,6 +36,7 @@ class MemberAccessory {
     this.isOwnedByMe,
     this.isOwnedByPartner,
     this.canPurchase,
+    this.isEquipped,
   });
 
   factory MemberAccessory.empty() {
@@ -67,6 +69,7 @@ class MemberAccessory {
       isOwnedByMe: json['isOwnedByMe'],
       isOwnedByPartner: json['isOwnedByPartner'],
       canPurchase: json['canPurchase'],
+      isEquipped: json['isEquipped'],
     );
   }
 }
