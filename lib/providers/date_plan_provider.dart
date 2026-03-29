@@ -43,6 +43,7 @@ class DatePlanProvider extends ChangeNotifier {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isFetching = false;
+      isLoading = false;
       notifyListeners();
     }
   }

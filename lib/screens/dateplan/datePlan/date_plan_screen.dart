@@ -1,6 +1,5 @@
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/date_plan_over_view.dart';
-import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/pagination_control.dart';
 import 'package:couple_mood_mobile/widgets/common/pagination_bar.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';

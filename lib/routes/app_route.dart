@@ -323,36 +323,24 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       /// Mood flow ngoài shell => ẩn bottom bar
-      ShellRoute(
-        parentNavigatorKey:
-            _rootNavKey, // ngoài main shell => không có bottom bar
-        builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => MoodProvider(),
-            child: child, // các màn con sẽ dùng CHUNG provider này
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/mood/icon',
-            name: 'moodChooseByIcon',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/method',
-            name: 'moodChooseMethod',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodMethodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/camera',
-            name: 'emotionCamera',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: EmotionCameraScreen()),
-          ),
-        ],
+      GoRoute(
+        path: '/mood/icon',
+        name: 'moodChooseByIcon',
+        pageBuilder: (_, __) => const MaterialPage(child: ChooseMoodScreen()),
       ),
+      GoRoute(
+        path: '/mood/method',
+        name: 'moodChooseMethod',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ChooseMoodMethodScreen()),
+      ),
+      GoRoute(
+        path: '/mood/camera',
+        name: 'emotionCamera',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: EmotionCameraScreen()),
+      ),
+
       GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/subscriptions',

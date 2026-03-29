@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/screens/mood/widgets/camera_content.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -58,173 +59,132 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
   Widget build(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
 
-    final hasSuccess =
-        _result != null && _result!.dominantEmotion.isNotEmpty;
-    final hasError =
-        moodProvider.error != null && !moodProvider.isLoading;
+    final hasSuccess = _result != null && _result!.dominantEmotion.isNotEmpty;
+    final hasError = moodProvider.error != null && !moodProvider.isLoading;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Phân tích cảm xúc'),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      appBar: AppBar(title: const Text('Phân tích cảm xúc'), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
 
-      floatingActionButton: hasSuccess
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 24),
-              child: FloatingActionButton.extended(
-                onPressed: () {
-                  context.goNamed('listLocation');
-                },
-                backgroundColor: const Color(0xFF8CA9FF),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
+            Text(
+              'Khám phá cảm xúc của bạn',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF8093F1),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            Text(
+              'Chụp ảnh khuôn mặt để AI phân tích mood hiện tại 💜',
+              style: TextStyle(color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 30),
+
+            Expanded(
+              child: Center(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: 280,
+                  height: 350,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFF7AEF8), Color(0xFFB388EB)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Container(
+                    margin: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: CameraContent(
+                      moodProvider: moodProvider,
+                      hasSuccess: hasSuccess,
+                      hasError: hasError,
+                      imageFile: _image,
+                    ),
+                  ),
                 ),
-                label: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: Text(
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: moodProvider.isLoading ? null : _takePhotoAndAnalyze,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF8093F1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                ),
+                child: moodProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'Chụp & phân tích',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            if (hasSuccess)
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: OutlinedButton(
+                  onPressed: () {
+                    context.goNamed('listLocation');
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF8093F1)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  child: const Text(
                     'Xác nhận',
                     style: TextStyle(
-                      fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF8093F1),
                     ),
                   ),
                 ),
               ),
-            )
-          : null,
 
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-
-              if (_image == null && !moodProvider.isLoading)
-                const Column(
-                  children: [
-                    Image(
-                      image: AssetImage(
-                          'lib/assets/images/camera_icon.png'),
-                      width: 300,
-                      height: 300,
-                    ),
-                    SizedBox(height: 16),
-                    Text(
-                      'Nhấn nút "Chụp & phân tích" để chụp ảnh khuôn mặt\nvà phân tích cảm xúc của bạn.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-
-              if (moodProvider.isLoading) ...[
-                const SizedBox(height: 24),
-                const SizedBox(
-                  width: 300,
-                  height: 300,
-                  child: CircularProgressIndicator(strokeWidth: 3),
-                ),
-              ],
-
-              if (_image != null && !moodProvider.isLoading) ...[
-                const SizedBox(height: 16),
-
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: hasSuccess
-                          ? Colors.greenAccent
-                          : hasError
-                              ? Colors.redAccent
-                              : Colors.grey,
-                      width: 2,
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  padding: const EdgeInsets.all(8),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.file(
-                      _image!,
-                      width: 300,
-                      height: 300,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 16),
-
-                if (hasError) ...[
-                  Text(
-                    moodProvider.error!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                  ),
-                ],
-
-                if (hasSuccess) ...[
-                  Text(
-                    'Cảm xúc của bạn là:',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _result!.dominantEmotion,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _result!.emotionSentence,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
-              ], 
-              const SizedBox(height: 24),
-
-              ElevatedButton(
-                onPressed:
-                    moodProvider.isLoading ? null : _takePhotoAndAnalyze,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8CA9FF),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: const Text(
-                  'Chụp & phân tích',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
-          ),
+            const SizedBox(height: 10),
+          ],
         ),
       ),
     );
