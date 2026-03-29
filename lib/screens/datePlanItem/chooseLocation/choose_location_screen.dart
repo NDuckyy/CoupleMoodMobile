@@ -109,7 +109,6 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
 
             SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
 
-            /// MOOD
             SliverToBoxAdapter(
               child: CurrentMoodBanner(mood: coupleMood),
             ),
