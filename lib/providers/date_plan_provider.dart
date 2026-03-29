@@ -18,12 +18,15 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<ListDatePlanItem>? selectedDatePlanItem;
   bool isLoading = true;
   String? error;
+  bool isFetching = false;
 
   int pageNumber = 1;
   final int pageSize = 5;
 
   Future<void> fetchDatePlans({int? page}) async {
     error = null;
+    isFetching = true;
+
     notifyListeners();
     try {
       pageNumber = page ?? pageNumber;
@@ -34,12 +37,12 @@ class DatePlanProvider extends ChangeNotifier {
       if (datePlans?.code != 200) {
         error = datePlans?.message ?? 'Lỗi khi lấy danh sách kế hoạch hẹn hò';
       }
-      isLoading = false;
+      
     } catch (e) {
       debugPrint(e.toString());
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }

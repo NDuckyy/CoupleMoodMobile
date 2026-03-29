@@ -73,31 +73,7 @@ void main() async {
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  final title = message.notification?.title;
-  final body = message.notification?.body;
-
-  if (title == null || body == null) {
-    return;
-  }
-
-  if (message.data['type'] == "CHAT") {
-    final conversationId = int.parse(message.data['conversationId'] ?? "0");
-
-    await LocalNotificationService.show(
-      title,
-      body,
-      payload: "CHAT|$conversationId",
-    );
-  } else {
-    final venueId = message.data['venueLocationId'] ?? "";
-    final checkInId = message.data['refId'] ?? "";
-
-    await LocalNotificationService.show(
-      title,
-      body,
-      payload: "$venueId|$checkInId",
-    );
-  }
+  print("🔥 Background message received: ${message.messageId}");
 }
 
 class MyApp extends StatefulWidget {

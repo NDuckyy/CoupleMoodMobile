@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/date_plan_over_view.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/pagination_control.dart';
+import 'package:couple_mood_mobile/widgets/common/pagination_bar.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -80,10 +81,19 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     }
   }
 
+  void _refreshDatePlans() {
+    context.read<DatePlanProvider>().fetchDatePlans(page: 1);
+  }
+
+  void _onPageChanged(int page) {
+    context.read<DatePlanProvider>().fetchDatePlans(page: page);
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<DatePlanProvider>();
     final datePlanDetails = provider.datePlans?.data;
+    final pagination = datePlanDetails?.pagedResult;
     final items = datePlanDetails?.pagedResult.items ?? [];
 
     return Scaffold(
@@ -93,9 +103,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
                 onRefresh: () async {
-                  await context.read<DatePlanProvider>().fetchDatePlans(
-                    page: provider.pageNumber,
-                  );
+                  _refreshDatePlans();
                 },
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
@@ -117,52 +125,66 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                       ),
                     ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                    if (provider.error != null) ...{
-                      SliverToBoxAdapter(
-                        child: EmptyStateWidget(
-                          icon: Icons.warning_amber_outlined,
-                          title: 'Lỗi',
-                          description: provider.error!,
+                    if (provider.isFetching) ...{
+                      const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(child: CircularProgressIndicator()),
                         ),
                       ),
-                    } else if (items.isNotEmpty) ...{
-                      SliverList(
-                        delegate: SliverChildBuilderDelegate((context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: DatePlanCard(
-                              item: items[index],
-                              onDelete: () {
-                                _deleteDatePlan(items[index].id);
-                              },
-                              onSend: () {
-                                _sendDatePlan(items[index].id);
-                              },
-                              onCancel: () {
-                                _cancelDatePlan(items[index].id);
-                              },
-                              onComplete: () {
-                                _completeDatePlan(items[index].id);
-                              },
-                            ),
-                          );
-                        }, childCount: items.length),
-                      ),
-
-                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
-                      SliverToBoxAdapter(child: PaginationControls()),
                     } else ...{
                       const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                      const SliverToBoxAdapter(
-                        child: EmptyStateWidget(
-                          icon: Icons.event_note,
-                          title: 'Chưa có lịch hẹn nào',
-                          description:
-                              'Bạn chưa tạo lịch hẹn nào. Hãy thêm lịch hẹn để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
+                      if (items.isNotEmpty) ...{
+                        SliverList(
+                          delegate: SliverChildBuilderDelegate((
+                            context,
+                            index,
+                          ) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: DatePlanCard(
+                                item: items[index],
+                                onDelete: () {
+                                  _deleteDatePlan(items[index].id);
+                                },
+                                onSend: () {
+                                  _sendDatePlan(items[index].id);
+                                },
+                                onCancel: () {
+                                  _cancelDatePlan(items[index].id);
+                                },
+                                onComplete: () {
+                                  _completeDatePlan(items[index].id);
+                                },
+                              ),
+                            );
+                          }, childCount: items.length),
                         ),
-                      ),
+
+                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+                        SliverToBoxAdapter(
+                          child: PaginationBar(
+                            currentPage: pagination!.pageNumber,
+                            totalPages: pagination.totalPages,
+                            onPageChanged: (page) {
+                              _onPageChanged(page);
+                            },
+                          ),
+                        ),
+                      } else ...{
+                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                        const SliverToBoxAdapter(
+                          child: EmptyStateWidget(
+                            icon: Icons.event_note,
+                            title: 'Chưa có lịch hẹn nào',
+                            description:
+                                'Bạn chưa tạo lịch hẹn nào. Hãy thêm lịch hẹn để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
+                          ),
+                        ),
+                      },
                     },
                   ],
                 ),

@@ -86,11 +86,9 @@ class NotificationService {
         .getInitialMessage();
 
     if (initialMessage != null) {
-      Future.delayed(const Duration(milliseconds: 8000), () async {
-        await LocalNotificationService.handleNotificationNavigation(
-          Map<String, dynamic>.from(initialMessage.data),
-        );
-      });
+      await LocalNotificationService.handleNotificationNavigation(
+        Map<String, dynamic>.from(initialMessage.data),
+      );
     }
   }
 
