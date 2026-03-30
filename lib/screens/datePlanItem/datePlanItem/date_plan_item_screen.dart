@@ -114,7 +114,10 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: info == null
                             ? const SizedBox()
-                            : DatePlanInfoCard(info: info),
+                            : DatePlanInfoCard(
+                                info: info,
+                                isEmpty: items.isEmpty,
+                              ),
                       ),
                     ),
 
@@ -125,7 +128,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                           ? SliverToBoxAdapter(
                               child: Column(
                                 children: const [
-                                  SizedBox(height: 200),
+                                  SizedBox(height: 100),
                                   EmptyStateWidget(
                                     icon: Icons.location_on_outlined,
                                     title:

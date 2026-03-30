@@ -1,12 +1,18 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/status_dot.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class DatePlanInfoCard extends StatelessWidget {
   final DatePlanInfo info;
+  final bool isEmpty;
 
-  const DatePlanInfoCard({super.key, required this.info});
+  const DatePlanInfoCard({
+    super.key,
+    required this.info,
+    required this.isEmpty,
+  });
 
   String formatDate(DateTime date) {
     return DateFormat('dd/MM • HH:mm').format(date);
@@ -29,10 +35,7 @@ class DatePlanInfoCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFB388EB),
-            Color(0xFFF7AEF8),
-          ],
+          colors: [Color(0xFFB388EB), Color(0xFFF7AEF8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -42,13 +45,13 @@ class DatePlanInfoCard extends StatelessWidget {
             color: const Color(0xFFB388EB).withOpacity(0.3),
             blurRadius: 16,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
       ),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.15), 
+          color: Colors.white.withOpacity(0.15),
           borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
@@ -66,8 +69,7 @@ class DatePlanInfoCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (info.status != null)
-                  StatusDot(status: info.status!)
+                if (info.status != null) StatusDot(status: info.status!),
               ],
             ),
 
@@ -88,7 +90,6 @@ class DatePlanInfoCard extends StatelessWidget {
 
             const SizedBox(height: 8),
 
-            /// 💰 BUDGET
             if (info.estimatedBudget != null)
               _infoRow(
                 icon: Icons.attach_money_rounded,
@@ -96,7 +97,6 @@ class DatePlanInfoCard extends StatelessWidget {
                     "${NumberFormat('#,###').format(info.estimatedBudget)} VND",
               ),
 
-            /// 📝 NOTE
             if (info.note != null && info.note!.isNotEmpty) ...[
               const SizedBox(height: 12),
               Container(
@@ -107,13 +107,35 @@ class DatePlanInfoCard extends StatelessWidget {
                 ),
                 child: Text(
                   info.note!,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    height: 1.4,
+                  style: const TextStyle(color: Colors.white, height: 1.4),
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            if (!isEmpty) ...{
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    context.goNamed("map");
+                  },
+                  icon: const Icon(Icons.map_rounded, color: Colors.white),
+                  label: const Text(
+                    "Xem bản đồ",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF8093F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
                   ),
                 ),
-              )
-            ],
+              ),
+            },
           ],
         ),
       ),
@@ -128,12 +150,9 @@ class DatePlanInfoCard extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-            ),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
           ),
-        )
+        ),
       ],
     );
   }

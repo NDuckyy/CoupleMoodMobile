@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,8 @@ class CoupleLocationScreen extends StatefulWidget {
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
   Position? _initialPosition;
   GoogleMapController? _mapController;
+  VoidCallback? _datePlanListener;
+  String? _lastVenueHash;
 
   @override
   void initState() {
@@ -25,6 +28,11 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
       final pos = await LocationService.getCurrentPosition();
 
       final provider = Provider.of<CoupleLocationProvider>(
+        context,
+        listen: false,
+      );
+
+      final datePlanProvider = Provider.of<DatePlanProvider>(
         context,
         listen: false,
       );
@@ -46,6 +54,32 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
         moodProvider.coupleCurrentMood!.memberId.toString(),
       );
 
+      _datePlanListener = () {
+        final items = datePlanProvider.datePlanItems;
+
+        if (items != null &&
+            items.data != null &&
+            items.data!.items.isNotEmpty) {
+          final currentHash = items.data!.items
+              .map((e) => "${e.id}-${e.orderIndex}")
+              .join(",");
+
+          if (_lastVenueHash != currentHash) {
+            _lastVenueHash = currentHash;
+
+            LocationService.updateVenues(
+              moodProvider.coupleCurrentMood!.coupleProfileId.toString(),
+              moodProvider.coupleCurrentMood!.memberId.toString(),
+              items.data!.items,
+            );
+
+            print("✅ Venues updated AGAIN");
+          }
+        }
+      };
+
+      datePlanProvider.addListener(_datePlanListener!);
+
       if (pos != null && _mapController != null) {
         _mapController!.animateCamera(
           CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
@@ -56,6 +90,20 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
         _initialPosition = pos;
       });
     });
+  }
+
+  @override
+  void dispose() {
+    final datePlanProvider = Provider.of<DatePlanProvider>(
+      context,
+      listen: false,
+    );
+
+    if (_datePlanListener != null) {
+      datePlanProvider.removeListener(_datePlanListener!);
+    }
+
+    super.dispose();
   }
 
   @override

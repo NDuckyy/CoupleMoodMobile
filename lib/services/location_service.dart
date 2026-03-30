@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
@@ -11,7 +12,7 @@ class LocationService {
     databaseURL:
         "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app/",
   ).ref("locations");
-  
+
   static Future<Position?> getCurrentPosition() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -94,7 +95,7 @@ class LocationService {
     ).ref("locations");
 
     try {
-      await dbRef.child(coupleId).child(userId).set({
+      await dbRef.child(coupleId).child("users").child(userId).update({
         "lat": position.latitude,
         "lng": position.longitude,
         "updatedAt": DateTime.now().millisecondsSinceEpoch,
@@ -104,6 +105,44 @@ class LocationService {
     } catch (e) {
       print("❌ WRITE ERROR: $e");
     }
+  }
+
+  static Future<void> updateVenues(
+    String coupleId,
+    String userId,
+    List<ListDatePlanItem> venues,
+  ) async {
+    final ref = FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL:
+          "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+    ).ref("locations");
+
+    await ref
+        .child(coupleId)
+        .child("venues")
+        .set(
+          venues
+              .map(
+                (e) => {
+                  "id": e.id,
+                  "name": e.venueLocation.name,
+                  "lat": e.venueLocation.latitude,
+                  "lng": e.venueLocation.longitude,
+                },
+              )
+              .toList(),
+        );
+  }
+
+  static Future<void> clearVenues(String coupleId) async {
+    final ref = FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL:
+          "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+    ).ref("locations");
+
+    await ref.child(coupleId).child("venues").remove();
   }
 
   static Future<void> stopListening() async {

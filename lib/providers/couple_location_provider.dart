@@ -48,31 +48,65 @@ class CoupleLocationProvider extends ChangeNotifier {
 
   void listenLocation(String coupleId, String currentUserId) {
     _locationSub?.cancel();
-    print("Listening to location changes for coupleId: $coupleId");
-    print("Current User ID: $currentUserId");
-    _locationSub = _dbRef.child(coupleId).onValue.listen((event) {
-      final data = event.snapshot.value as Map?;
 
+    _locationSub = _dbRef.child(coupleId).onValue.listen((event) async {
+      final data = event.snapshot.value as Map?;
       if (data == null) return;
 
-      Set<Marker> newMarkers = {};
+      final users = data["users"];
+      final venues = data["venues"];
 
-      data.forEach((userId, value) async {
-        final lat = value["lat"];
-        final lng = value["lng"];
+      // =========================
+      // 🧍‍♂️ USERS (GIỮ NGUYÊN LOGIC CŨ)
+      // =========================
+      if (users != null && users is Map) {
+        for (final entry in users.entries) {
+          final userId = entry.key;
+          final value = entry.value;
 
-        final isMe = userId == currentUserId;
-        final position = LatLng(lat, lng);
-        if (isMe) {
-          myPosition = position;
-        } else {
-          partnerPosition = position;
+          final lat = value["lat"];
+          final lng = value["lng"];
+
+          if (lat == null || lng == null) continue;
+
+          final position = LatLng(lat, lng);
+          final isMe = userId == currentUserId;
+
+          if (isMe) {
+            myPosition = position;
+          } else {
+            partnerPosition = position;
+          }
+
+          _animateMarker(userId, position, isMe);
         }
+      }
 
-        await _animateMarker(userId, LatLng(lat, lng), isMe);
-      });
+      _markers.removeWhere((m) => m.markerId.value.startsWith("venue_"));
 
-      _markers = newMarkers;
+      if (venues != null && venues is List && venues.isNotEmpty) {
+        for (int i = 0; i < venues.length; i++) {
+          final v = venues[i];
+
+          final lat = v["lat"];
+          final lng = v["lng"];
+          final name = v["name"];
+
+          if (lat == null || lng == null) continue;
+
+          _markers.add(
+            Marker(
+              markerId: MarkerId("venue_$i"),
+              position: LatLng(lat, lng),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueRose,
+              ),
+              infoWindow: InfoWindow(title: name ?? "Venue"),
+            ),
+          );
+        }
+      }
+
       notifyListeners();
     });
   }
