@@ -53,10 +53,7 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
         showMsg(context, "Vui lòng chọn thời gian bắt đầu và kết thúc", false);
         return;
       }
-      if (endTime!.isBefore(startTime!)) {
-        showMsg(context, "Giờ kết thúc phải sau giờ bắt đầu", false);
-        return;
-      }
+      
       final request = DatePlanItemRequest(items: items);
 
       await datePlanProvider.createDatePlanItem(widget.datePlanId, request);

@@ -196,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // _getSpecialEvent();
     _getAdvertisement();
     _getContextRecommendation();
+    getDatePlanCalender();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
