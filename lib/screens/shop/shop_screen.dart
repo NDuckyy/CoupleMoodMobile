@@ -72,7 +72,7 @@ class _ShopScreenState extends State<ShopScreen> {
           orElse: () => MemberAccessory.empty(),
         );
 
-    final size = 80.0; // ❌ bỏ const là hết lỗi
+    final size = 80.0;
 
     return Column(
       children: [
@@ -203,32 +203,58 @@ class _ShopScreenState extends State<ShopScreen> {
           /// BUTTON GROUP
           Column(
             children: [
-              /// TRY BUTTON
-              OutlinedButton(
-                onPressed: () {
-                  setState(() {
-                    if (item.type == "FRAME") {
-                      previewFrame = isPreviewing ? null : item;
-                    } else if (item.type == "BADGE") {
-                      previewBadge = isPreviewing ? null : item;
-                    }
-                  });
-                },
-                child: Text(isPreviewing ? "Bỏ thử" : "Thử"),
-              ),
-
-              const SizedBox(height: 6),
-
-              /// BUY BUTTON
-              ElevatedButton(
-                onPressed: (item.canPurchase ?? false) ? () {} : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: (item.isOwnedByMe ?? false)
-                      ? Colors.grey
-                      : Colors.blue,
+              /// ===== CHƯA MUA =====
+              if (!(item.isOwnedByMe ?? false)) ...[
+                OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      if (item.type == "FRAME") {
+                        previewFrame = isPreviewing ? null : item;
+                      } else if (item.type == "BADGE") {
+                        previewBadge = isPreviewing ? null : item;
+                      }
+                    });
+                  },
+                  child: Text(isPreviewing ? "Bỏ thử" : "Thử"),
                 ),
-                child: Text((item.isOwnedByMe ?? false) ? "Đã có" : "Đổi"),
-              ),
+
+                const SizedBox(height: 6),
+
+                ElevatedButton(
+                  onPressed: () async {
+                    await context.read<ShopProvider>().purchase(
+                      item.accessoryId,
+                    );
+
+                    /// reload user để hiện frame ngoài app
+                    await context.read<UserProvider>().fetchMe();
+                  },
+                  child: const Text("Đổi"),
+                ),
+              ]
+              /// ===== ĐÃ MUA =====
+              else ...[
+                ElevatedButton(
+                  onPressed: () async {
+                    final provider = context.read<ShopProvider>();
+
+                    if (item.isEquipped == true) {
+                      await provider.unequip(item);
+                    } else {
+                      await provider.equip(item);
+                    }
+
+                    /// reload user để sync UI toàn app
+                    await context.read<UserProvider>().fetchMe();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: item.isEquipped == true
+                        ? Colors.grey
+                        : Colors.blue,
+                  ),
+                  child: Text(item.isEquipped == true ? "Tháo" : "Trang bị"),
+                ),
+              ],
             ],
           ),
         ],
