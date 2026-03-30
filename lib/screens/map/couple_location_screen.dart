@@ -75,6 +75,12 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
             print("✅ Venues updated AGAIN");
           }
+        } else {
+          LocationService.clearVenues(
+            moodProvider.coupleCurrentMood!.coupleProfileId.toString(),
+          );
+
+          print("✅ Venues cleared");
         }
       };
 
