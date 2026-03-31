@@ -62,7 +62,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
                   const SizedBox(height: 20),
 
-                  // OTP
                   TextField(
                     controller: otpController,
                     keyboardType: TextInputType.number,
