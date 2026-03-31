@@ -14,7 +14,7 @@ class _CreateDatePlanScreenState extends State<CreateDatePlanScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Tạo lịch hẹn hò 💕'),
+        title: const Text('Tạo lịch hẹn hò'),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
