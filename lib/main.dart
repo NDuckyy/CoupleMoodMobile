@@ -8,6 +8,7 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/notification_provider.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
@@ -65,6 +66,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => VoucherProvider()),
         ChangeNotifierProvider(create: (_) => CoupleLocationProvider()),
         ChangeNotifierProvider(create: (_) => TestProvider()),
+        ChangeNotifierProvider(create: (_) => PositionProvider()),
       ],
       child: const MyApp(),
     ),

@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_request.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
@@ -16,6 +18,7 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<DatePlanInfo>? datePlanInfo;
   ApiResponse<DatePlanCalender>? datePlanCalender;
   ApiResponse<ListDatePlanItem>? selectedDatePlanItem;
+  ApiResponse<AiDatePlanItemResponse>? aiDatePlanItem;
   bool isLoading = true;
   String? error;
   bool isFetching = false;
@@ -38,7 +41,6 @@ class DatePlanProvider extends ChangeNotifier {
       if (datePlans?.code != 200) {
         error = datePlans?.message ?? 'Lỗi khi lấy danh sách kế hoạch hẹn hò';
       }
-      
     } catch (e) {
       debugPrint(e.toString());
       error = e.toString().replaceFirst('Exception: ', '');
@@ -417,6 +419,46 @@ class DatePlanProvider extends ChangeNotifier {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> createAIPlanItems(
+    AiDatePlanItemRequest request,
+    int datePlanId,
+  ) async {
+    error = null;
+    isUpdatingOrder = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.createAIPlanItems(
+        request,
+        datePlanId,
+      );
+      if (response.code != 200) {
+        error = response.message;
+        return;
+      }
+
+      List<ItemRequest> requests = [];
+      for (var item in response.data!.items) {
+        requests.add(
+          ItemRequest(
+            venueLocationId: item.venueLocationId,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            note: item.note,
+          ),
+        );
+      }
+      await createDatePlanItem(
+        datePlanId,
+        DatePlanItemRequest(items: requests),
+      );
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }

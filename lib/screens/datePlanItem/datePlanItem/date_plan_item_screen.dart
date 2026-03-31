@@ -1,3 +1,6 @@
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_request.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
+import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/ai_prompt_bottom_sheet.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_info_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_header.dart';
@@ -33,7 +36,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
       final provider = context.read<DatePlanProvider>();
       await Future.wait([
         provider.fetchDatePlanItems(widget.datePlanId),
-        provider.getDatePlanInfo(widget.datePlanId), // 👈 thêm dòng này
+        provider.getDatePlanInfo(widget.datePlanId),
       ]);
     });
   }
@@ -71,6 +74,52 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
     } catch (e) {
       if (!mounted) return;
       showMsg(context, "$e", false);
+    }
+  }
+
+  void _onAICreatePlan() async {
+    final provider = context.read<DatePlanProvider>();
+    final positionProvider = context.read<PositionProvider>();
+
+    if (provider.datePlanInfo?.data == null) {
+      showMsg(
+        context,
+        "Không thể tạo lịch bằng AI do thiếu thông tin kế hoạch hẹn hò",
+        false,
+      );
+      return;
+    }
+
+    final userQuery = await showAIPromptBottomSheet(context);
+
+    if (!mounted) return;
+
+    if (userQuery == null) return;
+
+    final finalQuery = userQuery.isEmpty
+        ? "Hãy gợi ý một lịch trình hẹn hò lãng mạn"
+        : userQuery;
+
+    await provider.createAIPlanItems(
+      AiDatePlanItemRequest(
+        query: finalQuery,
+        plannedStartAt: provider.datePlanInfo!.data!.plannedStartAt.toUtc(),
+        plannedEndAt: provider.datePlanInfo!.data!.plannedEndAt.toUtc(),
+        durationMode: provider.datePlanInfo!.data!.durationMode ?? 'SAME_DAY',
+        latitude: positionProvider.latitude ?? 10.762622,
+        longitude: positionProvider.longitude ?? 106.6948,
+        estimatedBudget: provider.datePlanInfo!.data?.estimatedBudget ?? 0,
+      ),
+      widget.datePlanId,
+    );
+
+    if (!mounted) return;
+
+    if (provider.error != null) {
+      showMsg(context, provider.error!, false);
+    } else {
+      showMsg(context, "Đã tạo lịch hẹn hò bằng AI thành công 💖", true);
+      _reload();
     }
   }
 
@@ -117,6 +166,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
                             : DatePlanInfoCard(
                                 info: info,
                                 isEmpty: items.isEmpty,
+                                onAICreatePlan: _onAICreatePlan,
                               ),
                       ),
                     ),

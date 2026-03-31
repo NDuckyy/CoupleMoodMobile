@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_request.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
@@ -43,7 +45,9 @@ class DatePlanService {
     }
   }
 
-  static Future<ApiResponse<DatePlanInfo>> getDatePlanInfo(int datePlanId) async {
+  static Future<ApiResponse<DatePlanInfo>> getDatePlanInfo(
+    int datePlanId,
+  ) async {
     try {
       final res = await ApiClient.request(
         '/DatePlan/$datePlanId',
@@ -276,6 +280,25 @@ class DatePlanService {
       return ApiResponse<int>.fromJson(res, (json) => json as int);
     } catch (e) {
       throw Exception('Lỗi khi từ chối kế hoạch hẹn hò: $e');
+    }
+  }
+
+  static Future<ApiResponse<AiDatePlanItemResponse>> createAIPlanItems(
+    AiDatePlanItemRequest request,
+    int datePlanId,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/DatePlan/ai-suggestion?previewOnly=false',
+        method: HttpMethod.post,
+        data: request.toJson(),
+      );
+      return ApiResponse<AiDatePlanItemResponse>.fromJson(
+        res,
+        (json) => AiDatePlanItemResponse.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi tạo mục kế hoạch hẹn hò bằng AI: $e');
     }
   }
 }

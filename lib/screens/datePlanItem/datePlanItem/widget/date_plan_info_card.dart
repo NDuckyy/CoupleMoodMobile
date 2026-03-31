@@ -7,11 +7,13 @@ import 'package:intl/intl.dart';
 class DatePlanInfoCard extends StatelessWidget {
   final DatePlanInfo info;
   final bool isEmpty;
+  final VoidCallback onAICreatePlan;
 
   const DatePlanInfoCard({
     super.key,
     required this.info,
     required this.isEmpty,
+    required this.onAICreatePlan,
   });
 
   String formatDate(DateTime date) {
@@ -122,6 +124,27 @@ class DatePlanInfoCard extends StatelessWidget {
                   icon: const Icon(Icons.map_rounded, color: Colors.white),
                   label: const Text(
                     "Xem bản đồ",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF8093F1),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
+              ),
+            } else ...{
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => onAICreatePlan(),
+                  icon: const Icon(Icons.map_rounded, color: Colors.white),
+                  label: const Text(
+                    "Tạo lịch bằng AI (Beta)",
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                   style: ElevatedButton.styleFrom(
