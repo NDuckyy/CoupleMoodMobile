@@ -268,7 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     foregroundColor: Colors.black,
                                   ),
                                   onPressed: () {
-                                    print("Quên mật khẩu");
+                                    context.pushNamed("forgot_password");
                                   },
                                   child: const Text("Quên mật khẩu?"),
                                 ),
