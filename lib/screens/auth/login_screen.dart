@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -43,6 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return;
       context.goNamed("home");
     } else {
+      showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
     }
   }
 
