@@ -1,6 +1,8 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
+import 'package:couple_mood_mobile/utils/google_map.dart';
 import 'package:couple_mood_mobile/widgets/info_chip.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -177,7 +179,15 @@ class VenueCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        if (!r.hasLocation) {
+                          showMsg(context, "Địa điểm chưa có vị trí", false);
+                          return;
+                        }
+                        if (r.hasLocation) {
+                          openMap(r.latitude!, r.longitude!, r.displayName);
+                        }
+                      },
                       icon: const Icon(Icons.map_outlined, size: 18),
                       label: const Text('Bản đồ'),
                     ),
@@ -191,7 +201,10 @@ class VenueCard extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          context.pushNamed("venue_detail", extra: {"venueId": r.id});
+                          context.pushNamed(
+                            "venue_detail",
+                            extra: {"venueId": r.id},
+                          );
                         },
                         child: const Text(
                           'Chi tiết',
