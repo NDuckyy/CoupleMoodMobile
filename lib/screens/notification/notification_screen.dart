@@ -15,7 +15,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().getNotifications(1, 10, "SYSTEM");
+      context.read<NotificationProvider>().getNotifications(1, 10, "LOCATION");
     });
   }
 
@@ -32,7 +32,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           await context.read<NotificationProvider>().getNotifications(
             1,
             10,
-            "SYSTEM",
+            "LOCATION",
           );
         },
         child: _buildBody(provider),

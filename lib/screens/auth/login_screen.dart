@@ -35,10 +35,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final auth = context.read<AuthProvider>();
     final ok = await auth.login(email, password);
+    if (!mounted) return;
 
     if (ok) {
-      if (!mounted) return;
       showMsg(context, "Đăng nhập thành công", true);
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (!mounted) return;
       context.goNamed("home");
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);

@@ -340,7 +340,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> sendDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.sendDatePlan(datePlanId);
@@ -350,14 +350,14 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
 
   Future<void> cancelDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.cancelDatePlan(datePlanId);
@@ -367,14 +367,14 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
 
   Future<void> completeDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.completeDatePlan(datePlanId);
@@ -384,7 +384,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
