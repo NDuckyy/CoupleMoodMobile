@@ -9,6 +9,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 
 class CoupleLocationProvider extends ChangeNotifier {
+
+  void disposeListener() {
+    _locationSub?.cancel();
+    _locationSub = null;
+  }
+
   final _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:

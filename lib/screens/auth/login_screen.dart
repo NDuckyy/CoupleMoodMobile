@@ -38,14 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (ok) {
-      showMsg(context, "Đăng nhập thành công", true);
 
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
       context.goNamed("home");
     } else {
-      showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
     }
   }
 

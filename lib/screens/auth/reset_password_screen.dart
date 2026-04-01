@@ -144,7 +144,6 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             await provider.resetPassword(request);
 
                             if (provider.error == null && context.mounted) {
-                              showMsg(context, "Đổi mật khẩu thành công", true);
                               context.goNamed("login");
                             }
                           },

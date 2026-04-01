@@ -23,12 +23,10 @@ Widget googleLoginButton(BuildContext context) {
             if (!context.mounted) {
               return;
             }
-            showMsg(context, "Đăng nhập với Google thất bại", false);
           } else {
             if (!context.mounted) {
               return;
             }
-            showMsg(context, "Đăng nhập với Google thành công", true);
             Future.delayed(const Duration(seconds: 1), () {
               if (!context.mounted) {
                 return;

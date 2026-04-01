@@ -74,8 +74,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final ok = await auth.register(req);
     if (ok) {
       if (!mounted) return;
-      showMsg(context, "Đăng ký thành công. Vui lòng đăng nhập.", true);
-      context.pushNamed("login");
+
+      context.pushNamed("login", extra: "Đăng ký thành công");
       return;
     }
     if (!mounted) return;
