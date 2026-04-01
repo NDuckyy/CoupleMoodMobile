@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/chat/widgets/group_avatar.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
       setState(() {
         _conversation = updated;
       });
-      
+
       showMsg(context, "Thêm thành viên thành công", true);
     } else {
       showMsg(context, "Lỗi khi thêm thành viên", false);
@@ -92,7 +93,9 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Xóa thành viên'),
-        content: Text('Bạn có chắc muốn xóa ${member.fullName ?? "User"} ra khỏi nhóm không ?'),
+        content: Text(
+          'Bạn có chắc muốn xóa ${member.fullName ?? "User"} ra khỏi nhóm không ?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -100,10 +103,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Xóa',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Xóa', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -135,7 +135,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
               .toList(),
         );
       });
-      
+
       showMsg(context, "Xóa thành viên thành công", true);
     } else {
       showMsg(context, "Lỗi khi xóa thành viên", false);
@@ -155,10 +155,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Rời nhóm',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: const Text('Rời nhóm', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -189,7 +186,7 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
     if (success) {
       // Navigate back to conversation list
       Navigator.popUntil(context, (route) => route.isFirst);
-      
+
       showMsg(context, "Bạn đã rời khỏi nhóm", true);
     } else {
       showMsg(context, "Lỗi khi rời khỏi nhóm", false);
@@ -213,48 +210,47 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
           // Conversation info
           Container(
             padding: const EdgeInsets.all(24),
-            color: Colors.white,
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: _conversation.getDisplayAvatar() != null
-                      ? NetworkImage(_conversation.getDisplayAvatar()!)
-                      : null,
-                  onBackgroundImageError:
-                      _conversation.getDisplayAvatar() != null
-                      ? (exception, stackTrace) {
-                          print(
-                            'Error loading conversation avatar: $exception',
-                          );
-                        }
-                      : null,
-                  child: _conversation.getDisplayAvatar() == null
-                      ? Icon(
-                          isGroup ? Icons.group : Icons.person,
-                          size: 50,
-                          color: Colors.grey[600],
-                        )
-                      : null,
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFDC5F5), Color(0xFFB388EB)],
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircleAvatar(
+                    radius: 46,
+                    backgroundColor: Colors.white,
+                    backgroundImage: _conversation.getDisplayAvatar() != null
+                        ? NetworkImage(_conversation.getDisplayAvatar()!)
+                        : null,
+                    child: _conversation.getDisplayAvatar() == null
+                        ? (isGroup
+                              ? GroupAvatar(members: _conversation.members)
+                              : Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.grey[600],
+                                ))
+                        : null,
+                  ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 14),
                 Text(
                   _conversation.getDisplayName(),
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 if (isGroup) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
                     '${_conversation.members.length} thành viên',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
               ],
@@ -272,15 +268,21 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
                 children: [
                   const Text(
                     'Thành viên',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   TextButton.icon(
                     onPressed: _showAddMembersDialog,
-                    icon: const Icon(Icons.person_add),
-                    label: const Text('Thêm thành viên'),
+                    icon: const Icon(
+                      Icons.person_add,
+                      color: Color(0xFFB388EB),
+                    ),
+                    label: const Text(
+                      'Thêm',
+                      style: TextStyle(
+                        color: Color(0xFFB388EB),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -289,71 +291,135 @@ class _ConversationDetailsScreenState extends State<ConversationDetailsScreen> {
             // Member list
             ..._conversation.members.map((member) {
               final isSelf = member.userId == currentUserId;
-              return ListTile(
-                leading: Stack(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage:
-                          member.avatar != null && member.avatar!.isNotEmpty
-                          ? NetworkImage(member.avatar!)
-                          : null,
-                      onBackgroundImageError:
-                          member.avatar != null && member.avatar!.isNotEmpty
-                          ? (exception, stackTrace) {
-                              print('Error loading member avatar: $exception');
-                            }
-                          : null,
-                      child: member.avatar == null || member.avatar!.isEmpty
-                          ? Text((member.fullName ?? 'U')[0].toUpperCase())
-                          : null,
-                    ),
-                    if (member.isOnline)
-                      Positioned(
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 22,
+                            backgroundImage:
+                                member.avatar != null &&
+                                    member.avatar!.isNotEmpty
+                                ? NetworkImage(member.avatar!)
+                                : null,
+                            child:
+                                member.avatar == null || member.avatar!.isEmpty
+                                ? Text(
+                                    (member.fullName ?? 'U')[0].toUpperCase(),
+                                  )
+                                : null,
                           ),
+                          if (member.isOnline)
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF72DDF7),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(width: 12),
+
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isSelf
+                                  ? '${member.fullName ?? "User"} (Bạn)'
+                                  : (member.fullName ?? "User"),
+                              style: TextStyle(
+                                fontWeight: isSelf
+                                    ? FontWeight.bold
+                                    : FontWeight.w500,
+                              ),
+                            ),
+                            if (!member.isOnline)
+                              Text(
+                                'Hoạt động ${_formatLastSeen(member.joinedAt)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                          ],
                         ),
                       ),
-                  ],
-                ),
-                title: Text(
-                  isSelf ? '${member.fullName ?? "User"} (Bạn)' : (member.fullName ?? "User ${member.userId}"),
-                  style: TextStyle(
-                    fontWeight: isSelf ? FontWeight.bold : FontWeight.normal,
+
+                      if (!isSelf)
+                        GestureDetector(
+                          onTap: () => _removeMember(member),
+                          child: Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                subtitle: !member.isOnline
-                    ? Text('Lần cuối đăng nhập: ${_formatLastSeen(member.joinedAt)}')
-                    : null,
-                trailing: !isSelf
-                    ? IconButton(
-                        icon: const Icon(
-                          Icons.remove_circle_outline,
-                          color: Colors.red,
-                        ),
-                        onPressed: () => _removeMember(member),
-                      )
-                    : null,
               );
             }).toList(),
 
             const Divider(height: 1),
 
             // Leave group button
-            ListTile(
-              leading: const Icon(Icons.exit_to_app, color: Colors.red),
-              title: const Text(
-                'Rời nhóm',
-                style: TextStyle(color: Colors.red),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: GestureDetector(
+                onTap: _leaveGroup,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'Rời nhóm',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              onTap: _leaveGroup,
             ),
           ],
         ],
@@ -495,6 +561,8 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
                 children: _selectedUsers.map((user) {
                   return Chip(
                     label: Text(user.fullName),
+                    backgroundColor: const Color(0xFFF7AEF8).withOpacity(0.2),
+                    deleteIconColor: const Color(0xFFB388EB),
                     onDeleted: () => _toggleUser(user),
                   );
                 }).toList(),
@@ -506,12 +574,22 @@ class _AddMembersDialogState extends State<_AddMembersDialog> {
             Expanded(child: _buildSearchResults()),
 
             // Add button
-            SizedBox(
+            Container(
               width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFDC5F5), Color(0xFFB388EB)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: ElevatedButton(
                 onPressed: _selectedUsers.isEmpty
                     ? null
                     : () => Navigator.pop(context, _selectedUsers),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                ),
                 child: Text('Thêm ${_selectedUsers.length} thành viên'),
               ),
             ),
