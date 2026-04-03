@@ -362,6 +362,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     HomeIconButton(
+                      icon: Icons.storefront,
+                      label: "Cửa hàng",
+                      color: const Color(0xFF00BFA6),
+                      onTap: () {
+                        context.pushNamed("shop");
+                      },
+                    ),
+
+                    HomeIconButton(
+                      icon: Icons.account_balance_wallet,
+                      label: "Ví",
+                      color: const Color(0xFF5C6BC0),
+                      onTap: () {
+                        context.pushNamed("wallet");
+                      },
+                    ),
+
+                    HomeIconButton(
                       icon: Icons.logout,
                       label: "Đăng xuất",
                       color: const Color(0xFFB388EB),
