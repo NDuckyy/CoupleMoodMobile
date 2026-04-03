@@ -55,6 +55,14 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     }
   }
 
+  void _goToListLocation() {
+    final moodProvider = context.read<MoodProvider>();
+    if (_result != null && _result!.dominantEmotion.isNotEmpty) {
+      moodProvider.getCurrentMood();
+    }
+    context.goNamed('listLocation');
+  }
+
   @override
   Widget build(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
@@ -164,9 +172,7 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton(
-                  onPressed: () {
-                    context.goNamed('listLocation');
-                  },
+                  onPressed: () => _goToListLocation(),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF8093F1)),
                     shape: RoundedRectangleBorder(

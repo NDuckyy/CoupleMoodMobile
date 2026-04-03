@@ -81,6 +81,7 @@ class MoodProvider extends ChangeNotifier {
         error = moodResponse.message;
         _userCurrentMood = null;
       } else {
+        coupleCurrentMood = moodResponse.data;
         _userCurrentMood = moodResponse.data!.currentMood;
       }
     } catch (e) {
