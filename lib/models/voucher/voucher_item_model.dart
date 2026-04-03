@@ -1,3 +1,4 @@
+// voucher_item_model.dart
 import 'package:couple_mood_mobile/models/voucher/voucher_location.dart';
 
 class VoucherItem {
@@ -21,13 +22,13 @@ class VoucherItem {
   final int? usageValidDays;
 
   final String status;
-
   final DateTime startDate;
   final DateTime endDate;
 
   final DateTime createdAt;
   final DateTime updatedAt;
 
+  final String? imageUrl;
   final List<VoucherLocation> locations;
 
   VoucherItem({
@@ -50,16 +51,14 @@ class VoucherItem {
     required this.endDate,
     required this.createdAt,
     required this.updatedAt,
+    this.imageUrl,
     required this.locations,
   });
 
-  /// ---------- SAFE PARSE ----------
+  // ---------- SAFE PARSE ----------
   static int _toInt(dynamic value) => (value as num?)?.toInt() ?? 0;
-
   static int? _toNullableInt(dynamic value) => (value as num?)?.toInt();
-
   static double? _toDouble(dynamic value) => (value as num?)?.toDouble();
-
   static DateTime _toDate(dynamic value) {
     if (value == null) return DateTime.now();
     return DateTime.tryParse(value.toString()) ?? DateTime.now();
@@ -93,6 +92,7 @@ class VoucherItem {
       endDate: _toDate(json['endDate']),
       createdAt: _toDate(json['createdAt']),
       updatedAt: _toDate(json['updatedAt']),
+      imageUrl: json['imageUrl'] as String?,
       locations: _toLocations(json['locations']),
     );
   }

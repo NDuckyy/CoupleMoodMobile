@@ -7,6 +7,7 @@ class MemberVoucherItem {
   final String? voucherDescription;
   final String itemCode;
   final String qrCodeUrl;
+  final String? imageUrl;
   final String status;
   final DateTime acquiredAt;
   final DateTime expiredAt;
@@ -24,6 +25,7 @@ class MemberVoucherItem {
     this.voucherDescription,
     required this.itemCode,
     required this.qrCodeUrl,
+    this.imageUrl,
     required this.status,
     required this.acquiredAt,
     required this.expiredAt,
@@ -69,6 +71,7 @@ class MemberVoucherItem {
       voucherDescription: json['voucherDescription'],
       itemCode: json['itemCode'] ?? '',
       qrCodeUrl: json['qrCodeUrl'] ?? '',
+      imageUrl: json['imageUrl'] as String?,
       status: json['status'] ?? '',
       acquiredAt: _parseDate(json['acquiredAt']) ?? DateTime.now(),
       expiredAt: _parseDate(json['expiredAt']) ?? DateTime.now(),
