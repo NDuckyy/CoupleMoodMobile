@@ -3,8 +3,8 @@ class NotificationApp {
   final String title;
   final String message;
   final String type;
-  final int referenceId;
-  final String referenceType;
+  final int? referenceId;
+  final String? referenceType;
   final bool isRead;
   final DateTime createdAt;
 
@@ -13,8 +13,8 @@ class NotificationApp {
     required this.title,
     required this.message,
     required this.type,
-    required this.referenceId,
-    required this.referenceType,
+    this.referenceId,
+    this.referenceType,
     required this.isRead,
     required this.createdAt,
   });
@@ -25,8 +25,8 @@ class NotificationApp {
       title: json['title'] as String,
       message: json['message'] as String,
       type: json['type'] as String,
-      referenceId: json['referenceId'] as int,
-      referenceType: json['referenceType'] as String,
+      referenceId: json['referenceId'] as int?,
+      referenceType: json['referenceType'] as String?,
       isRead: json['isRead'] as bool,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );

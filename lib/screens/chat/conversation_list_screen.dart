@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/chat/widgets/group_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -192,6 +193,37 @@ class _ConversationItem extends StatelessWidget {
     final isOnline = conversation.getOnlineStatus();
     final lastMessage = conversation.lastMessage;
     final unreadCount = conversation.unreadCount;
+    Widget avatar;
+
+    if (displayAvatar != null) {
+      avatar = CircleAvatar(
+        radius: 28,
+        backgroundImage: NetworkImage(displayAvatar),
+        backgroundColor: Colors.transparent,
+      );
+    } else if (conversation.type == 'GROUP') {
+      avatar = GroupAvatar(members: conversation.members, size: 56);
+    } else {
+      avatar = Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFDC5F5), Color(0xFFB388EB)],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          displayName[0].toUpperCase(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
 
     print(
       'ConversationItem - conversationId: ${conversation.id}, currentUserId: $currentUserId, displayName: $displayName',
@@ -209,29 +241,7 @@ class _ConversationItem extends StatelessWidget {
             // Avatar
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Colors.grey[300],
-                  backgroundImage: displayAvatar != null
-                      ? NetworkImage(displayAvatar)
-                      : null,
-                  onBackgroundImageError: displayAvatar != null
-                      ? (exception, stackTrace) {
-                          print('Error loading avatar: $exception');
-                        }
-                      : null,
-                  child: displayAvatar == null
-                      ? conversation.type == 'GROUP'
-                            ? const Icon(Icons.group, size: 28)
-                            : Text(
-                                displayName[0].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              )
-                      : null,
-                ),
+                avatar,
                 // Online indicator
                 if (isOnline && conversation.type == 'DIRECT')
                   Positioned(

@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_request.dart';
+import 'package:couple_mood_mobile/models/dateplan/ai_date_plan_item_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
@@ -16,14 +18,19 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<DatePlanInfo>? datePlanInfo;
   ApiResponse<DatePlanCalender>? datePlanCalender;
   ApiResponse<ListDatePlanItem>? selectedDatePlanItem;
+  ApiResponse<AiDatePlanItemResponse>? aiDatePlanItem;
   bool isLoading = true;
   String? error;
+  bool isFetching = false;
+  bool isUpdatingOrder = false;
 
   int pageNumber = 1;
   final int pageSize = 5;
 
   Future<void> fetchDatePlans({int? page}) async {
     error = null;
+    isFetching = true;
+
     notifyListeners();
     try {
       pageNumber = page ?? pageNumber;
@@ -34,11 +41,11 @@ class DatePlanProvider extends ChangeNotifier {
       if (datePlans?.code != 200) {
         error = datePlans?.message ?? 'Lỗi khi lấy danh sách kế hoạch hẹn hò';
       }
-      isLoading = false;
     } catch (e) {
       debugPrint(e.toString());
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
+      isFetching = false;
       isLoading = false;
       notifyListeners();
     }
@@ -111,7 +118,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> fetchDatePlanItems(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isUpdatingOrder = true;
     notifyListeners();
     try {
       datePlanItems = await DatePlanService.getDatePlanItems(datePlanId);
@@ -120,11 +127,10 @@ class DatePlanProvider extends ChangeNotifier {
             datePlanItems?.message ??
             'Lỗi khi lấy danh sách mục kế hoạch hẹn hò';
       }
-      isLoading = false;
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }
@@ -170,7 +176,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> deleteDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.deleteDatePlan(datePlanId);
@@ -180,7 +186,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
@@ -283,7 +289,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> updateOrder(int datePlanId, List<int> orderedIds) async {
     error = null;
-    isLoading = true;
+    isUpdatingOrder = true;
     notifyListeners();
     try {
       final response = await DatePlanService.updateDatePlanItemOrder(
@@ -297,7 +303,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }
@@ -334,7 +340,7 @@ class DatePlanProvider extends ChangeNotifier {
 
   Future<void> sendDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.sendDatePlan(datePlanId);
@@ -344,14 +350,14 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
 
   Future<void> cancelDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.cancelDatePlan(datePlanId);
@@ -361,14 +367,14 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
 
   Future<void> completeDatePlan(int datePlanId) async {
     error = null;
-    isLoading = true;
+    isFetching = true;
     notifyListeners();
     try {
       final response = await DatePlanService.completeDatePlan(datePlanId);
@@ -378,7 +384,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isFetching = false;
       notifyListeners();
     }
   }
@@ -413,6 +419,46 @@ class DatePlanProvider extends ChangeNotifier {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> createAIPlanItems(
+    AiDatePlanItemRequest request,
+    int datePlanId,
+  ) async {
+    error = null;
+    isUpdatingOrder = true;
+    notifyListeners();
+    try {
+      final response = await DatePlanService.createAIPlanItems(
+        request,
+        datePlanId,
+      );
+      if (response.code != 200) {
+        error = response.message;
+        return;
+      }
+
+      List<ItemRequest> requests = [];
+      for (var item in response.data!.items) {
+        requests.add(
+          ItemRequest(
+            venueLocationId: item.venueLocationId,
+            startTime: item.startTime,
+            endTime: item.endTime,
+            note: item.note,
+          ),
+        );
+      }
+      await createDatePlanItem(
+        datePlanId,
+        DatePlanItemRequest(items: requests),
+      );
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isUpdatingOrder = false;
       notifyListeners();
     }
   }

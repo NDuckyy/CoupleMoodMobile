@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
@@ -10,57 +11,119 @@ class CoupleLocationScreen extends StatefulWidget {
   const CoupleLocationScreen({super.key});
 
   @override
-  State<CoupleLocationScreen> createState() => _CoupleLocationScreenState();
+  State<CoupleLocationScreen> createState() =>
+      _CoupleLocationScreenState();
 }
 
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
   Position? _initialPosition;
   GoogleMapController? _mapController;
+  VoidCallback? _datePlanListener;
+  String? _lastVenueHash;
+
+  late CoupleLocationProvider _provider;
+  late DatePlanProvider _datePlanProvider;
+  late MoodProvider _moodProvider;
 
   @override
   void initState() {
     super.initState();
 
-    Future.microtask(() async {
-      final pos = await LocationService.getCurrentPosition();
+    // 🔥 LẤY provider 1 lần (tránh dùng context trong dispose)
+    _provider = context.read<CoupleLocationProvider>();
+    _datePlanProvider = context.read<DatePlanProvider>();
+    _moodProvider = context.read<MoodProvider>();
 
-      final provider = Provider.of<CoupleLocationProvider>(
-        context,
-        listen: false,
-      );
+    _init();
+  }
 
-      final moodProvider = Provider.of<MoodProvider>(context, listen: false);
+  Future<void> _init() async {
+    final pos = await LocationService.getCurrentPosition();
 
-      await provider.loadAvatars(
-        moodProvider.myAvatarUrl ?? "",
-        moodProvider.partnerAvatarUrl ?? "",
-      );
-      await Geolocator.requestPermission();
-      provider.listenLocation(
-        moodProvider.coupleCurrentMood?.coupleProfileId.toString() ??
-            "unknown_couple",
-        moodProvider.coupleCurrentMood?.memberId.toString() ?? "unknown_user",
-      );
-      LocationService.startListening(
-        moodProvider.coupleCurrentMood!.coupleProfileId.toString(),
-        moodProvider.coupleCurrentMood!.memberId.toString(),
-      );
+    if (!mounted) return;
 
-      if (pos != null && _mapController != null) {
-        _mapController!.animateCamera(
-          CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
-        );
+    await _provider.loadAvatars(
+      _moodProvider.myAvatarUrl ?? "",
+      _moodProvider.partnerAvatarUrl ?? "",
+    );
+
+    await Geolocator.requestPermission();
+
+    final coupleId =
+        _moodProvider.coupleCurrentMood?.coupleProfileId.toString() ??
+        "unknown_couple";
+
+    final memberId =
+        _moodProvider.coupleCurrentMood?.memberId.toString() ??
+        "unknown_user";
+
+    // 🔥 START LISTEN
+    _provider.listenLocation(coupleId, memberId);
+    LocationService.startListening(coupleId, memberId);
+
+    // 🔥 LISTENER DATE PLAN
+    _datePlanListener = () {
+      if (!mounted) return;
+
+      final items = _datePlanProvider.datePlanItems;
+
+      if (items != null &&
+          items.data != null &&
+          items.data!.items.isNotEmpty) {
+        final currentHash = items.data!.items
+            .map((e) => "${e.id}-${e.orderIndex}")
+            .join(",");
+
+        if (_lastVenueHash != currentHash) {
+          _lastVenueHash = currentHash;
+
+          LocationService.updateVenues(
+            coupleId,
+            memberId,
+            items.data!.items,
+          );
+        }
+      } else {
+        LocationService.clearVenues(coupleId);
       }
+    };
 
-      setState(() {
-        _initialPosition = pos;
-      });
+    _datePlanProvider.addListener(_datePlanListener!);
+
+    // 🔥 MOVE CAMERA SAFE
+    if (pos != null && _mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(pos.latitude, pos.longitude),
+        ),
+      );
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _initialPosition = pos;
     });
   }
 
   @override
+  void dispose() {
+    // 🔥 STOP ALL trước khi widget chết
+    LocationService.stopListening();
+    _provider.disposeListener(); // 👈 phải có trong provider
+
+    if (_datePlanListener != null) {
+      _datePlanProvider.removeListener(_datePlanListener!);
+    }
+
+    _mapController?.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<CoupleLocationProvider>(context);
+    final provider = context.watch<CoupleLocationProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -84,12 +147,13 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
             myLocationEnabled: true,
           ),
 
+          /// 🔥 MY LOCATION
           Positioned(
             bottom: 100,
             left: 16,
             child: FloatingActionButton(
-              backgroundColor: Color(0xFF8093F1),
-              heroTag: UniqueKey(),
+              heroTag: "my_location_btn", // ❌ FIX duplicate key
+              backgroundColor: const Color(0xFF8093F1),
               onPressed: () {
                 final pos = provider.myPosition;
                 if (pos != null && _mapController != null) {
@@ -102,12 +166,13 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
             ),
           ),
 
+          /// 🔥 PARTNER LOCATION
           Positioned(
             bottom: 40,
             left: 16,
             child: FloatingActionButton(
-              heroTag: UniqueKey(),
-              backgroundColor: Color(0xFFF7AEF8),
+              heroTag: "partner_location_btn", // ❌ FIX duplicate key
+              backgroundColor: const Color(0xFFF7AEF8),
               onPressed: () {
                 final pos = provider.partnerPosition;
                 if (pos != null && _mapController != null) {

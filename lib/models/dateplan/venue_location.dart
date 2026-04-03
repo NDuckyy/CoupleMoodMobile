@@ -4,6 +4,8 @@ class VenueLocation {
   final String address;
   final String description;
   final List<String> coverImage;
+  final double latitude;
+  final double longitude;
 
   VenueLocation({
     required this.id,
@@ -11,6 +13,8 @@ class VenueLocation {
     required this.address,
     required this.description,
     required this.coverImage,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory VenueLocation.fromJson(Map<String, dynamic> json) {
@@ -22,6 +26,8 @@ class VenueLocation {
       coverImage: json['coverImage'] != null
           ? List<String>.from(json['coverImage'])
           : [],
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
     );
   }
 }

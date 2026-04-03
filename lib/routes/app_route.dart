@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
+import 'package:couple_mood_mobile/screens/auth/forgot_password_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/reset_password_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
@@ -181,7 +183,9 @@ GoRouter createRouter(BuildContext context) {
       final isAuthRoute =
           loc.startsWith('/login') ||
           loc.startsWith('/register') ||
-          loc.startsWith('/guest');
+          loc.startsWith('/guest') ||
+          loc.startsWith('/forgot-password') ||
+          loc.startsWith('/reset-password');
       final isSplash = loc == '/splash';
 
       if (isSplash) {
@@ -216,6 +220,23 @@ GoRouter createRouter(BuildContext context) {
         path: '/register',
         name: 'register',
         pageBuilder: (_, __) => const MaterialPage(child: RegisterScreen()),
+      ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot_password',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: ForgotPasswordScreen());
+        },
+      ),
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset_password',
+        pageBuilder: (_, __) {
+          final extra = __.extra as Map<String, dynamic>;
+          return MaterialPage(
+            child: ResetPasswordScreen(email: extra['email']),
+          );
+        },
       ),
 
       /// SHELL: sau khi login mới vào đây => có bottom bar
@@ -328,36 +349,24 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       /// Mood flow ngoài shell => ẩn bottom bar
-      ShellRoute(
-        parentNavigatorKey:
-            _rootNavKey, // ngoài main shell => không có bottom bar
-        builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => MoodProvider(),
-            child: child, // các màn con sẽ dùng CHUNG provider này
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/mood/icon',
-            name: 'moodChooseByIcon',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/method',
-            name: 'moodChooseMethod',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodMethodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/camera',
-            name: 'emotionCamera',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: EmotionCameraScreen()),
-          ),
-        ],
+      GoRoute(
+        path: '/mood/icon',
+        name: 'moodChooseByIcon',
+        pageBuilder: (_, __) => const MaterialPage(child: ChooseMoodScreen()),
       ),
+      GoRoute(
+        path: '/mood/method',
+        name: 'moodChooseMethod',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ChooseMoodMethodScreen()),
+      ),
+      GoRoute(
+        path: '/mood/camera',
+        name: 'emotionCamera',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: EmotionCameraScreen()),
+      ),
+
       GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/subscriptions',

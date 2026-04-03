@@ -35,10 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final auth = context.read<AuthProvider>();
     final ok = await auth.login(email, password);
+    if (!mounted) return;
 
     if (ok) {
+
+      await Future.delayed(const Duration(milliseconds: 300));
+
       if (!mounted) return;
-      showMsg(context, "Đăng nhập thành công", true);
       context.goNamed("home");
     } else {
       showMsg(context, "Tên đăng nhập hoặc mật khẩu không đúng", false);
@@ -48,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
-
+    final provider = context.watch<AuthProvider>();
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: BackgroudAuthScreen(
@@ -207,9 +210,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: ElevatedButton(
-                                      onPressed: () {
-                                        _onLogin();
-                                      },
+                                      onPressed: (provider.isLoading
+                                          ? null
+                                          : () {
+                                              _onLogin();
+                                            }),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.transparent,
                                         shadowColor: Colors.transparent,
@@ -219,13 +224,22 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Đăng nhập',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 20,
-                                        ),
-                                      ),
+                                      child: provider.isLoading
+                                          ? const SizedBox(
+                                              height: 20,
+                                              width: 20,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Text(
+                                              'Đăng nhập',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20,
+                                              ),
+                                            ),
                                     ),
                                   ),
                                 ),
@@ -268,7 +282,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     foregroundColor: Colors.black,
                                   ),
                                   onPressed: () {
-                                    print("Quên mật khẩu");
+                                    context.pushNamed("forgot_password");
                                   },
                                   child: const Text("Quên mật khẩu?"),
                                 ),

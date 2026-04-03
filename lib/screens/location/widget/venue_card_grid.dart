@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -151,7 +152,7 @@ class VenueCardGrid extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        "≈ ${r.averageCost?.toInt() ?? 0}đ",
+                        "≈ ${CurrencyUtils.formatVND(r.averageCost?.toDouble() ?? 0)}",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,

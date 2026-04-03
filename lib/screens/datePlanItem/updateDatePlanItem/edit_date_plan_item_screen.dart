@@ -96,11 +96,6 @@ class _EditDatePlanItemScreenState extends State<EditDatePlanItemScreen> {
       return;
     }
 
-    if (endAt!.isBefore(startAt!)) {
-      showMsg(context, "Giờ kết thúc phải sau giờ bắt đầu", false);
-      return;
-    }
-
     final provider = context.read<DatePlanProvider>();
 
     await provider.updateDatePlanItem(

@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/edit_date_plan_item_button.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/venue_address.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/venue_title.dart';
 import 'package:couple_mood_mobile/widgets/dialogs/show_confirm_delete_dialog.dart';
@@ -36,25 +35,33 @@ class DatePlanItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 20),
-      elevation: 3,
-      color: Colors.white,
-      shadowColor: const Color(0x33B388EB),
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
+      margin: const EdgeInsets.only(bottom: 12),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                VenueImage(
-                  imageUrl: item.venueLocation.coverImage.isNotEmpty
-                      ? item.venueLocation.coverImage[0]
-                      : '',
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: 90,
+                    height: 90,
+                    child: VenueImage(
+                      imageUrl: item.venueLocation.coverImage.isNotEmpty
+                          ? item.venueLocation.coverImage[0]
+                          : '',
+                    ),
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
+
+                const SizedBox(width: 10),
+
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -66,53 +73,68 @@ class DatePlanItemCard extends StatelessWidget {
                               venueId: item.venueLocation.id,
                             ),
                           ),
+
                           IconButton(
-                            icon: const Icon(
-                              Icons.delete_outline,
-                              color: Colors.redAccent,
-                              size: 20,
-                            ),
+                            icon: const Icon(Icons.delete_outline, size: 18),
+                            color: Colors.redAccent,
+                            padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                             onPressed: () => showConfirmDeleteDialog(
                               context: context,
                               onConfirm: onDelete,
                             ),
                           ),
+
                           ReorderableDragStartListener(
                             index: index,
-                            child: const Padding(
-                              padding: EdgeInsets.only(right: 8),
-                              child: Icon(Icons.drag_handle),
-                            ),
+                            child: const Icon(Icons.drag_handle, size: 18),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+
+                      const SizedBox(height: 6),
 
                       TimeRangeBadge(
                         startTime: item.startTime,
                         endTime: item.endTime,
-                      ),
-
-                      const SizedBox(height: 10),
-                      VenueAddress(address: item.venueLocation.address),
-
-                      const SizedBox(height: 14),
-                      NoteSection(note: item.note),
-
-                      const SizedBox(height: 14),
-                      EditDatePlanItemButton(
-                        onPressed: () async {
-                          await _onEditPressed(context);
-                        },
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+
+            const SizedBox(height: 10),
+
+            VenueAddress(address: item.venueLocation.address),
+
+            const SizedBox(height: 8),
+
+            NoteSection(note: item.note),
+
+            const SizedBox(height: 8),
+
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => _onEditPressed(context),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  minimumSize: Size.zero,
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                ),
+                child: const Text(
+                  "Chỉnh sửa",
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF8093F1),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

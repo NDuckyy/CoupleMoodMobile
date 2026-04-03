@@ -9,6 +9,12 @@ import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
 
 class CoupleLocationProvider extends ChangeNotifier {
+
+  void disposeListener() {
+    _locationSub?.cancel();
+    _locationSub = null;
+  }
+
   final _dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:
@@ -35,40 +41,78 @@ class CoupleLocationProvider extends ChangeNotifier {
 
   Future<void> loadAvatars(String myAvatarUrl, String partnerAvatarUrl) async {
     myAvatar = await createAvatarMarker(
-      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      myAvatarUrl.isNotEmpty
+          ? myAvatarUrl
+          : "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-2.jpg",
     );
     partnerAvatar = await createAvatarMarker(
-      "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
+      partnerAvatarUrl.isNotEmpty
+          ? partnerAvatarUrl
+          : "https://cdn11.dienmaycholon.vn/filewebdmclnew/public/userupload/files/Image%20FP_2024/avatar-cute-3.jpg",
     );
   }
 
   void listenLocation(String coupleId, String currentUserId) {
     _locationSub?.cancel();
-    print("Listening to location changes for coupleId: $coupleId");
-    print("Current User ID: $currentUserId");
-    _locationSub = _dbRef.child(coupleId).onValue.listen((event) {
-      final data = event.snapshot.value as Map?;
 
+    _locationSub = _dbRef.child(coupleId).onValue.listen((event) async {
+      final data = event.snapshot.value as Map?;
       if (data == null) return;
 
-      Set<Marker> newMarkers = {};
+      final users = data["users"];
+      final venues = data["venues"];
 
-      data.forEach((userId, value) async {
-        final lat = value["lat"];
-        final lng = value["lng"];
+      // =========================
+      // 🧍‍♂️ USERS (GIỮ NGUYÊN LOGIC CŨ)
+      // =========================
+      if (users != null && users is Map) {
+        for (final entry in users.entries) {
+          final userId = entry.key;
+          final value = entry.value;
 
-        final isMe = userId == currentUserId;
-        final position = LatLng(lat, lng);
-        if (isMe) {
-          myPosition = position;
-        } else {
-          partnerPosition = position;
+          final lat = value["lat"];
+          final lng = value["lng"];
+
+          if (lat == null || lng == null) continue;
+
+          final position = LatLng(lat, lng);
+          final isMe = userId == currentUserId;
+
+          if (isMe) {
+            myPosition = position;
+          } else {
+            partnerPosition = position;
+          }
+
+          _animateMarker(userId, position, isMe);
         }
+      }
 
-        await _animateMarker(userId, LatLng(lat, lng), isMe);
-      });
+      _markers.removeWhere((m) => m.markerId.value.startsWith("venue_"));
 
-      _markers = newMarkers;
+      if (venues != null && venues is List && venues.isNotEmpty) {
+        for (int i = 0; i < venues.length; i++) {
+          final v = venues[i];
+
+          final lat = v["lat"];
+          final lng = v["lng"];
+          final name = v["name"];
+
+          if (lat == null || lng == null) continue;
+
+          _markers.add(
+            Marker(
+              markerId: MarkerId("venue_$i"),
+              position: LatLng(lat, lng),
+              icon: BitmapDescriptor.defaultMarkerWithHue(
+                BitmapDescriptor.hueRose,
+              ),
+              infoWindow: InfoWindow(title: name ?? "Venue"),
+            ),
+          );
+        }
+      }
+
       notifyListeners();
     });
   }

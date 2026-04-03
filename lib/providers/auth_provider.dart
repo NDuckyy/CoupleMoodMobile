@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/register_request.dart';
+import 'package:couple_mood_mobile/models/reset_password_request.dart';
 import 'package:flutter/foundation.dart';
 import '../models/session.dart';
 import '../services/auth_service.dart';
@@ -73,6 +74,44 @@ class AuthProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<bool> forgotPassword(String email) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final res = await AuthService.forgotPassword(email);
+      if (res.code == 200) {
+        return true;
+      } else {
+        error = res.message;
+        return false;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> resetPassword(ResetPasswordRequest request) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final res = await AuthService.resetPassword(request);
+      if (res.code != 200) {
+        error = res.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

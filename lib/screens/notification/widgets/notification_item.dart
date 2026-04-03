@@ -84,10 +84,10 @@ class NotificationItem extends StatelessWidget {
       case "CHAT":
         icon = Icons.chat_bubble_outline;
         break;
-      case "CHECKIN":
+      case "LOCATION":
         icon = Icons.location_on_outlined;
         break;
-      case "LOVE":
+      case "SYSTEM":
         icon = Icons.favorite_border;
         break;
       default:

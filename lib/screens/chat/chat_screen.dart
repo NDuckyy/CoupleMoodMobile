@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/screens/chat/widgets/group_avatar.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -216,29 +217,35 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           child: Row(
             children: [
               // Avatar
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: widget.conversation.getDisplayAvatar() != null
-                    ? NetworkImage(widget.conversation.getDisplayAvatar()!)
-                    : null,
-                onBackgroundImageError:
-                    widget.conversation.getDisplayAvatar() != null
-                    ? (exception, stackTrace) {
-                        print(
-                          'Error loading avatar in chat screen: $exception',
-                        );
-                      }
-                    : null,
-                child: widget.conversation.getDisplayAvatar() == null
-                    ? widget.conversation.type == 'GROUP'
-                          ? const Icon(Icons.group, size: 20)
-                          : Text(
-                              displayName[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 16),
-                            )
-                    : null,
-              ),
+              widget.conversation.getDisplayAvatar() != null
+                  ? CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(
+                        widget.conversation.getDisplayAvatar()!,
+                      ),
+                      backgroundColor: Colors.transparent,
+                    )
+                  : widget.conversation.type == 'GROUP'
+                  ? SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: GroupAvatar(
+                        members: widget.conversation.members,
+                        size: 36,
+                      ),
+                    )
+                  : CircleAvatar(
+                      radius: 18,
+                      backgroundColor: const Color(0xFFFDC5F5),
+                      child: Text(
+                        displayName[0].toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
               const SizedBox(width: 12),
 
               // Name and status
@@ -509,7 +516,11 @@ class _DateHeader extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(localDate.year, localDate.month, localDate.day);
+    final messageDate = DateTime(
+      localDate.year,
+      localDate.month,
+      localDate.day,
+    );
 
     if (messageDate == today) {
       return 'Hôm nay';

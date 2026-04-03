@@ -46,6 +46,7 @@ class RecommendationService {
       final res = await ApiClient.requestForContext(
         method: HttpMethod.post,
         data: {
+          "q": "",
           "personalize": {"userContext": context.data},
         },
       );

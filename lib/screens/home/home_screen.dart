@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
@@ -28,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _logout() {
     final auth = context.read<AuthProvider>();
     LocationService.stopListening();
+    context.read<CoupleLocationProvider>().disposeListener();
     auth.logout();
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
@@ -196,6 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // _getSpecialEvent();
     _getAdvertisement();
     _getContextRecommendation();
+    getDatePlanCalender();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
