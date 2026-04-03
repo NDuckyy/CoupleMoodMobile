@@ -17,7 +17,15 @@ class SubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final pricePerDay = (pkg.price / pkg.durationDays).round();
+    /// LABEL
+    String label;
+    if (pkg.isYearly) {
+      label = "YEARLY";
+    } else if (pkg.isMonthly) {
+      label = "MONTHLY";
+    } else {
+      label = "FREE";
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -39,6 +47,7 @@ class SubscriptionCard extends StatelessWidget {
           ),
         ],
       ),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -47,7 +56,7 @@ class SubscriptionCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                pkg.durationDays == 365 ? "YEARLY" : "MONTHLY",
+                label,
                 style: TextStyle(
                   color: highlight ? Colors.white70 : Colors.grey,
                   fontWeight: FontWeight.bold,
@@ -80,7 +89,7 @@ class SubscriptionCard extends StatelessWidget {
 
           /// PRICE
           Text(
-            "${pkg.price ~/ 1000}K",
+            pkg.isFree ? "FREE" : "${pkg.price ~/ 1000}K",
             style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
@@ -88,8 +97,9 @@ class SubscriptionCard extends StatelessWidget {
             ),
           ),
 
+          /// PRICE PER DAY
           Text(
-            "≈ ${pricePerDay}đ/ngày",
+            pkg.isFree ? "Miễn phí" : "≈ ${pkg.pricePerDay}đ/ngày",
             style: TextStyle(
               color: highlight ? Colors.white70 : Colors.grey,
               fontSize: 12,
@@ -98,6 +108,7 @@ class SubscriptionCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
+          /// DESCRIPTION
           Text(
             pkg.description ?? "",
             style: TextStyle(
@@ -111,7 +122,9 @@ class SubscriptionCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: isLoading ? null : onBuy,
+              onPressed: (isLoading || pkg.isFree)
+                  ? null
+                  : onBuy, // ✅ disable free
               style: ElevatedButton.styleFrom(
                 backgroundColor: highlight
                     ? Colors.white
@@ -135,9 +148,9 @@ class SubscriptionCard extends StatelessWidget {
                             : Colors.white,
                       ),
                     )
-                  : const Text(
-                      "MUA NGAY",
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  : Text(
+                      pkg.isFree ? "ĐANG SỬ DỤNG" : "MUA NGAY",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
             ),
           ),

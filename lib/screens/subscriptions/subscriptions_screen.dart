@@ -31,51 +31,78 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Nâng cấp tài khoản")),
       backgroundColor: const Color(0xFFF5F6FA),
-      body: ListView(
-        padding: const EdgeInsets.only(top: 10, bottom: 20),
-        children: [
-          const SizedBox(height: 10),
+      body: Builder(
+        builder: (context) {
+          final packages = provider.packages;
 
-          /// HEADER
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              "Chọn gói phù hợp 💜",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-          ),
+          final freePkg = packages.where((p) => p.isFree).cast().toList();
 
-          const SizedBox(height: 10),
+          final premiumPkgs = packages.where((p) => !p.isFree).toList();
 
-          ...provider.packages.map((pkg) {
-            final isYear = pkg.durationDays >= 365;
+          return ListView(
+            padding: const EdgeInsets.only(top: 10, bottom: 20),
+            children: [
+              const SizedBox(height: 10),
 
-            return SubscriptionCard(
-              pkg: pkg,
-              highlight: isYear,
-              isLoading:
-                  provider.isPaying && provider.selectedPackageId == pkg.id,
-              onBuy: () async {
-                final confirm = await _confirmBuy(context, pkg.packageName);
-                if (!confirm) return;
+              /// HEADER
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  "Chọn gói phù hợp 💜",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ),
 
-                final success = await context
-                    .read<SubscriptionProvider>()
-                    .buyPackage(pkg.id);
+              const SizedBox(height: 10),
 
-                if (!context.mounted) return;
+              /// ================= FREE =================
+              if (freePkg.isNotEmpty)
+                SubscriptionCard(pkg: freePkg.first, highlight: false),
 
-                showMsg(
-                  context,
-                  success
-                      ? "Đang chuyển tới thanh toán 💳"
-                      : "Thanh toán thất bại",
-                  success,
-                );
-              },
-            );
-          }),
-        ],
+              /// ================= PREMIUM =================
+              if (premiumPkgs.isNotEmpty) ...[
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text(
+                    "Nâng cấp Premium 🚀",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+
+                ...premiumPkgs.map((pkg) {
+                  return SubscriptionCard(
+                    pkg: pkg,
+                    highlight: pkg.isYearly,
+                    isLoading:
+                        provider.isPaying &&
+                        provider.selectedPackageId == pkg.id,
+                    onBuy: () async {
+                      final confirm = await _confirmBuy(
+                        context,
+                        pkg.packageName,
+                      );
+                      if (!confirm) return;
+
+                      final success = await context
+                          .read<SubscriptionProvider>()
+                          .buyPackage(pkg.id);
+
+                      if (!context.mounted) return;
+
+                      showMsg(
+                        context,
+                        success
+                            ? "Đang chuyển tới thanh toán 💳"
+                            : "Thanh toán thất bại",
+                        success,
+                      );
+                    },
+                  );
+                }),
+              ],
+            ],
+          );
+        },
       ),
     );
   }
