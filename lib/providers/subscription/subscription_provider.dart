@@ -1,6 +1,7 @@
+import 'package:couple_mood_mobile/models/subscription/member_subscription.dart';
 import 'package:couple_mood_mobile/models/subscription/subscription_package.dart';
-import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:couple_mood_mobile/services/payment/payment_service.dart';
+import 'package:couple_mood_mobile/services/subscription/subscription_service.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,20 +11,19 @@ class SubscriptionProvider extends ChangeNotifier {
   bool isPaying = false;
   int? selectedPackageId;
   String? error;
+  MemberSubscription? currentSubscription;
 
-  Future<void> fetchPackages() async {
+  Future<void> fetchAll() async {
     try {
       loading = true;
       notifyListeners();
 
-      final res = await ApiClient.request(
-        '/MemberSubscription/packages?pageNumber=1&pageSize=10',
-        method: HttpMethod.get,
-      );
+      final pkgRes = await SubscriptionPackageService.getMemberPackages();
 
-      final items = res['data']['items'] as List;
+      final subRes = await SubscriptionPackageService.getCurrentSubscription();
 
-      packages = items.map((e) => SubscriptionPackage.fromJson(e)).toList();
+      packages = pkgRes.data ?? [];
+      currentSubscription = subRes.data;
     } catch (e) {
       error = e.toString();
     } finally {
@@ -111,5 +111,10 @@ class SubscriptionProvider extends ChangeNotifier {
       selectedPackageId = null;
       notifyListeners();
     }
+  }
+
+  bool isCurrentPackage(int packageId) {
+    return currentSubscription?.packageId == packageId &&
+        currentSubscription?.status == "ACTIVE";
   }
 }

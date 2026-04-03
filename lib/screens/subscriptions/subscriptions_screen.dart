@@ -12,12 +12,12 @@ class SubscriptionScreen extends StatefulWidget {
 }
 
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  bool _isYearlySelected = false;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<SubscriptionProvider>().fetchPackages();
-    });
+    Future.microtask(() => context.read<SubscriptionProvider>().fetchAll());
   }
 
   @override
@@ -28,81 +28,157 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final packages = provider.packages;
+    final freePkg = packages.where((p) => p.isFree).firstOrNull;
+    final premiumPkgs = packages
+        .where((p) => !p.isFree && (p.isYearly == _isYearlySelected))
+        .toList();
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Nâng cấp tài khoản")),
-      backgroundColor: const Color(0xFFF5F6FA),
-      body: Builder(
-        builder: (context) {
-          final packages = provider.packages;
+      appBar: AppBar(
+        title: const Text("Nâng cấp tài khoản"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFF8F5FF), Color(0xFFF5F6FA)],
+          ),
+        ),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 40),
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Chọn gói phù hợp cho tình yêu của bạn 💜",
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Mở khóa trải nghiệm tuyệt vời hơn cho cả hai",
+                    style: TextStyle(fontSize: 15.5, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
 
-          final freePkg = packages.where((p) => p.isFree).cast().toList();
+            const SizedBox(height: 32),
 
-          final premiumPkgs = packages.where((p) => !p.isFree).toList();
-
-          return ListView(
-            padding: const EdgeInsets.only(top: 10, bottom: 20),
-            children: [
-              const SizedBox(height: 10),
-
-              /// HEADER
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  "Chọn gói phù hợp 💜",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            // Tab
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _isYearlySelected = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: !_isYearlySelected
+                                ? const Color(0xFF9C27B0)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "GÓI THÁNG",
+                              style: TextStyle(
+                                color: !_isYearlySelected
+                                    ? Colors.white
+                                    : Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _isYearlySelected = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: _isYearlySelected
+                                ? const Color(0xFF9C27B0)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "GÓI NĂM",
+                              style: TextStyle(
+                                color: _isYearlySelected
+                                    ? Colors.white
+                                    : Colors.grey,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 10),
+            const SizedBox(height: 24),
 
-              /// ================= FREE =================
-              if (freePkg.isNotEmpty)
-                SubscriptionCard(pkg: freePkg.first, highlight: false),
-
-              /// ================= PREMIUM =================
-              if (premiumPkgs.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text(
-                    "Nâng cấp Premium 🚀",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-
-                ...premiumPkgs.map((pkg) {
-                  return SubscriptionCard(
-                    pkg: pkg,
-                    highlight: pkg.isYearly,
-                    isLoading:
-                        provider.isPaying &&
-                        provider.selectedPackageId == pkg.id,
-                    onBuy: () async {
-                      final confirm = await _confirmBuy(
-                        context,
-                        pkg.packageName,
-                      );
-                      if (!confirm) return;
-
-                      final success = await context
-                          .read<SubscriptionProvider>()
-                          .buyPackage(pkg.id);
-
-                      if (!context.mounted) return;
-
-                      showMsg(
-                        context,
-                        success
-                            ? "Đang chuyển tới thanh toán 💳"
-                            : "Thanh toán thất bại",
-                        success,
-                      );
-                    },
+            // Premium Card
+            if (premiumPkgs.isNotEmpty)
+              SubscriptionCard(
+                pkg: premiumPkgs.first,
+                isHighlighted: _isYearlySelected,
+                isLoading:
+                    provider.isPaying &&
+                    provider.selectedPackageId == premiumPkgs.first.id,
+                isActive: provider.isCurrentPackage(premiumPkgs.first.id),
+                onBuy: () async {
+                  final confirm = await _confirmBuy(
+                    context,
+                    premiumPkgs.first.packageName,
                   );
-                }),
-              ],
-            ],
-          );
-        },
+                  if (!confirm) return;
+                  final success = await context
+                      .read<SubscriptionProvider>()
+                      .buyPackage(premiumPkgs.first.id);
+                  if (!context.mounted) return;
+                  showMsg(
+                    context,
+                    success
+                        ? "Đang chuyển tới thanh toán 💳"
+                        : "Thanh toán thất bại",
+                    success,
+                  );
+                },
+              ),
+
+            const SizedBox(height: 40),
+
+            // Free Card
+            if (freePkg != null)
+              SubscriptionCard(
+                pkg: freePkg,
+                isHighlighted: false,
+                isActive: true,
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -112,7 +188,7 @@ Future<bool> _confirmBuy(BuildContext context, String name) async {
   return await showDialog<bool>(
         context: context,
         builder: (_) => AlertDialog(
-          title: const Text("Xác nhận"),
+          title: const Text("Xác nhận mua gói"),
           content: Text("Bạn muốn mua gói \"$name\" không?"),
           actions: [
             TextButton(
@@ -121,7 +197,7 @@ Future<bool> _confirmBuy(BuildContext context, String name) async {
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text("Mua"),
+              child: const Text("Đồng ý"),
             ),
           ],
         ),
