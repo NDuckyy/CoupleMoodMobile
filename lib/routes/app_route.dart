@@ -1,12 +1,3 @@
-import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
-import 'package:couple_mood_mobile/screens/auth/forgot_password_screen.dart';
-import 'package:couple_mood_mobile/screens/auth/reset_password_screen.dart';
-import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
-import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
-import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
-import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
-import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
-import 'package:couple_mood_mobile/screens/test/test_history.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +18,7 @@ import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 
-//Member, user
+//Member, user, couple
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
 import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
@@ -47,10 +38,11 @@ import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
 
-//payment, subscription, wallet
+//payment, subscription, wallet, shop
 import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dart';
 import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
 import 'package:couple_mood_mobile/providers/wallet/wallet_provider.dart';
+import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 
 //---Screen
 //Chat
@@ -95,6 +87,7 @@ import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
+import 'package:couple_mood_mobile/screens/test/test_history.dart';
 
 //challenge
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
@@ -117,11 +110,12 @@ import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
-//payment, package, advertisement, wallet
+//payment, package, advertisement, wallet, shop
 import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
+import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
 
 //home, location, profile, review, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
@@ -132,6 +126,12 @@ import 'package:couple_mood_mobile/screens/user/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
 import 'package:couple_mood_mobile/screens/user/my_review_screen.dart';
 import 'package:couple_mood_mobile/screens/user/edit_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/forgot_password_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/reset_password_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
+import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
