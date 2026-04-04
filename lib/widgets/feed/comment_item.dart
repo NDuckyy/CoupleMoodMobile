@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/comment_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class CommentItem extends StatelessWidget {
   final CommentModel comment;
@@ -56,7 +57,7 @@ class CommentItem extends StatelessWidget {
                   radius: 18,
                   backgroundColor: Colors.grey.shade200,
                   backgroundImage: comment.author.avatar != null
-                      ? NetworkImage(comment.author.avatar!)
+                      ? CachedNetworkImageProvider(comment.author.avatar!)
                       : null,
                   child: comment.author.avatar == null
                       ? Text(
@@ -72,12 +73,15 @@ class CommentItem extends StatelessWidget {
                 if (frame?.thumbnailUrl != null &&
                     frame!.thumbnailUrl!.isNotEmpty)
                   Transform.scale(
-                    scale: 1.2, // nhỏ hơn shop, giống post header
-                    child: Image.network(
-                      frame.thumbnailUrl!,
-                      width: 36, // = 18 * 2
+                    scale: 1.2,
+                    child: CachedNetworkImage(
+                      imageUrl: frame.thumbnailUrl!,
+                      width: 36,
                       height: 36,
                       fit: BoxFit.cover,
+                      memCacheWidth: 100,
+                      placeholder: (_, __) => const SizedBox.shrink(),
+                      errorWidget: (_, __, ___) => const SizedBox.shrink(),
                     ),
                   ),
               ],
@@ -105,7 +109,7 @@ class CommentItem extends StatelessWidget {
                       children: [
                         /// NAME
                         Row(
-                          mainAxisSize: MainAxisSize.min, // 🔥 FIX quan trọng
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
                               comment.author.fullName,
@@ -118,10 +122,12 @@ class CommentItem extends StatelessWidget {
                             if (badge?.thumbnailUrl != null &&
                                 badge!.thumbnailUrl!.isNotEmpty) ...[
                               const SizedBox(width: 4),
-                              Image.network(
-                                badge.thumbnailUrl!,
+                              CachedNetworkImage(
+                                imageUrl: badge.thumbnailUrl!,
                                 width: 14,
                                 height: 14,
+                                fit: BoxFit.cover,
+                                memCacheWidth: 50,
                               ),
                             ],
                           ],

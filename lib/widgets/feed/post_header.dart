@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/post_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PostHeader extends StatelessWidget {
   final PostModel post;
@@ -98,11 +99,12 @@ class PostHeader extends StatelessWidget {
             /// AVATAR
             CircleAvatar(
               radius: 20,
+              backgroundColor: Colors.grey[200],
               backgroundImage: post.author?.avatar != null
-                  ? NetworkImage(post.author!.avatar!)
+                  ? CachedNetworkImageProvider(post.author!.avatar!)
                   : null,
               child: post.author?.avatar == null
-                  ? const Icon(Icons.person)
+                  ? const Icon(Icons.person, size: 20)
                   : null,
             ),
 
@@ -110,11 +112,14 @@ class PostHeader extends StatelessWidget {
             if (frame?.thumbnailUrl != null && frame!.thumbnailUrl!.isNotEmpty)
               Transform.scale(
                 scale: 1.2,
-                child: Image.network(
-                  frame.thumbnailUrl!,
+                child: CachedNetworkImage(
+                  imageUrl: frame.thumbnailUrl!,
                   width: 40,
                   height: 40,
                   fit: BoxFit.cover,
+                  memCacheWidth: 100,
+                  placeholder: (_, __) => const SizedBox.shrink(),
+                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
           ],
@@ -132,9 +137,16 @@ class PostHeader extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
 
-                  if (badge?.thumbnailUrl != null) ...[
+                  if (badge?.thumbnailUrl != null &&
+                      badge!.thumbnailUrl!.isNotEmpty) ...[
                     const SizedBox(width: 4),
-                    Image.network(badge!.thumbnailUrl!, width: 16, height: 16),
+                    CachedNetworkImage(
+                      imageUrl: badge.thumbnailUrl!,
+                      width: 16,
+                      height: 16,
+                      fit: BoxFit.cover,
+                      memCacheWidth: 50,
+                    ),
                   ],
                 ],
               ),

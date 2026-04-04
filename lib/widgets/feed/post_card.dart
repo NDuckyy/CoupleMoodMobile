@@ -70,49 +70,52 @@ class PostCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isOverflow = _isTextOverflow(context);
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
-      shadowColor: Colors.black12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            PostHeader(post: post),
-            const SizedBox(height: 12),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () => _openDetail(context),
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        elevation: 2,
+        shadowColor: Colors.black12,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              PostHeader(post: post),
+              const SizedBox(height: 12),
 
-            /// CONTENT (tap để mở detail)
-            GestureDetector(
-              onTap: () => _openDetail(context),
-              child: _buildContent(),
-            ),
-
-            if (isOverflow)
               GestureDetector(
                 onTap: () => _openDetail(context),
-                child: const Padding(
-                  padding: EdgeInsets.only(top: 4),
-                  child: Text(
-                    "Xem thêm",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500,
+                child: _buildContent(),
+              ),
+
+              if (isOverflow)
+                GestureDetector(
+                  onTap: () => _openDetail(context),
+                  child: const Padding(
+                    padding: EdgeInsets.only(top: 4),
+                    child: Text(
+                      "Xem thêm",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            if (post.mediaPayload.isNotEmpty)
-              PostMedia(mediaList: post.mediaPayload),
+              if (post.mediaPayload.isNotEmpty)
+                PostMedia(mediaList: post.mediaPayload),
 
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            PostActions(post: post),
-          ],
+              PostActions(post: post),
+            ],
+          ),
         ),
       ),
     );
