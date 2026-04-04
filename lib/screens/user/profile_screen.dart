@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
@@ -45,27 +46,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // HÀNG 1: Avatar + Name
                       Row(
                         children: [
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundColor: Colors.grey[200],
-                            backgroundImage: user?.avatarUrl != null
-                                ? NetworkImage(user!.avatarUrl!)
-                                : null,
-                            child: user?.avatarUrl == null
-                                ? const Icon(Icons.person)
-                                : null,
+                          // Phần Avatar + Frame trong ProfileScreen
+                          SizedBox(
+                            width: 72,
+                            height: 72,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                CircleAvatar(
+                                  radius: 32,
+                                  backgroundColor: Colors.grey[200],
+                                  backgroundImage: user?.avatarUrl != null
+                                      ? NetworkImage(user!.avatarUrl!)
+                                      : null,
+                                  child: user?.avatarUrl == null
+                                      ? const Icon(Icons.person, size: 32)
+                                      : null,
+                                ),
+                                if (user?.memberProfile?.equippedAccessories !=
+                                    null)
+                                  ...user!.memberProfile!.equippedAccessories!
+                                      .where((e) => e.type == "FRAME")
+                                      .take(1)
+                                      .map(
+                                        (frame) => Transform.scale(
+                                          scale: 2,
+                                          child: CachedNetworkImage(
+                                            imageUrl: frame.thumbnailUrl ?? '',
+                                            width: 72,
+                                            height: 72,
+                                            fit: BoxFit.contain,
+                                            errorWidget: (_, __, ___) =>
+                                                const SizedBox.shrink(),
+                                          ),
+                                        ),
+                                      ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 12),
+
+                          const SizedBox(width: 16),
+
+                          // Name + Email + Badge
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  user?.fullName ?? '',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      user?.fullName ?? '',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    // Badge
+                                    if (user
+                                            ?.memberProfile
+                                            ?.equippedAccessories !=
+                                        null)
+                                      ...user!
+                                          .memberProfile!
+                                          .equippedAccessories!
+                                          .where((e) => e.type == "BADGE")
+                                          .take(1)
+                                          .map(
+                                            (badge) => CachedNetworkImage(
+                                              imageUrl:
+                                                  badge.thumbnailUrl ?? '',
+                                              width: 24,
+                                              height: 24,
+                                              errorWidget: (_, __, ___) =>
+                                                  const SizedBox.shrink(),
+                                            ),
+                                          ),
+                                  ],
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
@@ -78,13 +135,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                           ),
+
                           IconButton(
                             icon: const Icon(Icons.edit),
                             onPressed: () async {
                               final result = await context.pushNamed(
                                 "edit_profile",
                               );
-
                               if (result == true) {
                                 context.read<UserProvider>().fetchMe();
                               }
