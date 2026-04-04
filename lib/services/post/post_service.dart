@@ -241,9 +241,13 @@ class PostService {
       query: {'pageNumber': pageNumber, 'pageSize': pageSize},
     );
 
-    return ApiResponse.fromJson(
-      res,
-      (data) => (data as List).map((item) => PostModel.fromJson(item)).toList(),
-    );
+    return ApiResponse.fromJson(res, (data) {
+      final items =
+          (data as Map<String, dynamic>)['items'] as List<dynamic>? ?? [];
+
+      return items
+          .map((item) => PostModel.fromJson(item as Map<String, dynamic>))
+          .toList();
+    });
   }
 }

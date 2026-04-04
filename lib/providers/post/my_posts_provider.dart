@@ -27,8 +27,10 @@ class MyPostsProvider extends ChangeNotifier {
       );
 
       if (res.code == 200 && res.data != null) {
-        posts = res.data!;
-        hasMore = res.data!.length == pageSize;
+        posts = res.data!; // giữ nguyên vì service trả về List
+        hasMore =
+            res.data!.length ==
+            pageSize; // hoặc dùng totalPages nếu muốn chính xác hơn
       }
     } catch (e) {
       debugPrint(e.toString());
