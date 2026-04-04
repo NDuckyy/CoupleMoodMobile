@@ -313,7 +313,7 @@ class VoucherCard extends StatelessWidget {
 
   Widget _placeholderImage() {
     return Image.asset(
-      'lib/assets/images/collection_placeholder.png',
+      'lib/assets/images/voucher_placeholder.png',
       fit: BoxFit.cover,
       colorBlendMode: BlendMode.darken,
       color: Colors.black.withOpacity(0.2),

@@ -279,7 +279,7 @@ class MyVoucherCard extends StatelessWidget {
 
   Widget _placeholderImage() {
     return Image.asset(
-      'lib/assets/images/collection_placeholder.png',
+      'lib/assets/images/voucher_placeholder.png',
       fit: BoxFit.cover,
       color: Colors.grey.shade200,
     );

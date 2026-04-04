@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
@@ -45,9 +46,7 @@ class _ShopScreenState extends State<ShopScreen> {
               padding: const EdgeInsets.all(16),
               children: [
                 if (user != null) _buildUserPreview(user),
-
                 const SizedBox(height: 20),
-
                 ...items.map((item) => _buildItem(item)).toList(),
               ],
             ),
@@ -55,7 +54,8 @@ class _ShopScreenState extends State<ShopScreen> {
   }
 
   /// ================= PREVIEW =================
-  Widget _buildUserPreview(user) {
+  Widget _buildUserPreview(dynamic user) {
+    // giữ dynamic để tránh lỗi type
     final equipped = user.memberProfile?.equippedAccessories ?? [];
 
     final frame =
@@ -88,22 +88,26 @@ class _ShopScreenState extends State<ShopScreen> {
                 radius: size / 2,
                 backgroundColor: Colors.grey[200],
                 backgroundImage: user.avatarUrl != null
-                    ? NetworkImage(user.avatarUrl!)
+                    ? CachedNetworkImageProvider(user.avatarUrl!)
                     : null,
                 child: user.avatarUrl == null
                     ? const Icon(Icons.person, size: 32)
                     : null,
               ),
 
-              /// FRAME (FIX CHUẨN)
+              /// FRAME
               if (frame.thumbnailUrl != null && frame.thumbnailUrl!.isNotEmpty)
                 Transform.scale(
-                  scale: 1.15, // 🔥 chỉnh 1.1–1.2 nếu lệch
-                  child: Image.network(
-                    frame.thumbnailUrl!,
+                  scale: 1.15,
+                  child: CachedNetworkImage(
+                    imageUrl: frame.thumbnailUrl!,
                     width: size,
                     height: size,
                     fit: BoxFit.cover,
+                    memCacheWidth: 200, // tối ưu RAM
+                    placeholder: (context, url) => const SizedBox.shrink(),
+                    errorWidget: (context, url, error) =>
+                        const SizedBox.shrink(),
                   ),
                 ),
             ],
@@ -124,11 +128,15 @@ class _ShopScreenState extends State<ShopScreen> {
             if (badge.thumbnailUrl != null &&
                 badge.thumbnailUrl!.isNotEmpty) ...[
               const SizedBox(width: 6),
-              Image.network(
-                badge.thumbnailUrl!,
+              CachedNetworkImage(
+                imageUrl: badge.thumbnailUrl!,
                 width: 18,
                 height: 18,
                 fit: BoxFit.cover,
+                memCacheWidth: 60,
+                placeholder: (_, __) => const SizedBox(width: 18, height: 18),
+                errorWidget: (_, __, ___) =>
+                    const Icon(Icons.error, size: 18, color: Colors.grey),
               ),
             ],
           ],
@@ -163,16 +171,23 @@ class _ShopScreenState extends State<ShopScreen> {
           /// Thumbnail
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              item.thumbnailUrl ?? '',
+            child: CachedNetworkImage(
+              imageUrl: item.thumbnailUrl ?? '',
               width: 60,
               height: 60,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
+              memCacheWidth: 120, // tối ưu RAM cho thumbnail
+              placeholder: (context, url) => Container(
                 width: 60,
                 height: 60,
                 color: Colors.grey[200],
-                child: const Icon(Icons.image),
+                child: const Icon(Icons.image, color: Colors.grey),
+              ),
+              errorWidget: (context, url, error) => Container(
+                width: 60,
+                height: 60,
+                color: Colors.grey[200],
+                child: const Icon(Icons.broken_image, color: Colors.grey),
               ),
             ),
           ),
@@ -203,7 +218,6 @@ class _ShopScreenState extends State<ShopScreen> {
           /// BUTTON GROUP
           Column(
             children: [
-              /// ===== CHƯA MUA =====
               if (!(item.isOwnedByMe ?? false)) ...[
                 OutlinedButton(
                   onPressed: () {
@@ -217,34 +231,25 @@ class _ShopScreenState extends State<ShopScreen> {
                   },
                   child: Text(isPreviewing ? "Bỏ thử" : "Thử"),
                 ),
-
                 const SizedBox(height: 6),
-
                 ElevatedButton(
                   onPressed: () async {
                     await context.read<ShopProvider>().purchase(
                       item.accessoryId,
                     );
-
-                    /// reload user để hiện frame ngoài app
                     await context.read<UserProvider>().fetchMe();
                   },
                   child: const Text("Đổi"),
                 ),
-              ]
-              /// ===== ĐÃ MUA =====
-              else ...[
+              ] else ...[
                 ElevatedButton(
                   onPressed: () async {
                     final provider = context.read<ShopProvider>();
-
                     if (item.isEquipped == true) {
                       await provider.unequip(item);
                     } else {
                       await provider.equip(item);
                     }
-
-                    /// reload user để sync UI toàn app
                     await context.read<UserProvider>().fetchMe();
                   },
                   style: ElevatedButton.styleFrom(
