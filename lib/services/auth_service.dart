@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/change_password_request.dart';
 import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/models/reset_password_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
@@ -120,6 +121,22 @@ class AuthService {
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi đặt lại mật khẩu: $e');
+    }
+  }
+
+  static Future<ApiResponse<void>> changePassword(
+    ChangePasswordRequest request,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/Auth/update-password',
+        method: HttpMethod.post,
+        data: request.toJson(),
+      );
+      return ApiResponse<void>.fromJson(res, (json) {});
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi đổi mật khẩu: $e');
     }
   }
 }

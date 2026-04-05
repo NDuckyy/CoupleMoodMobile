@@ -273,7 +273,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Tài khoản',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  _tile(Icons.lock_outline, "Mật khẩu", () {}),
+                  _tile(Icons.lock_outline, "Mật khẩu", () {
+                    context.pushNamed("change_password");
+                  }),
                   _tile(Icons.notifications_none, "Thông báo", () {
                     context.pushNamed("notification");
                   }),

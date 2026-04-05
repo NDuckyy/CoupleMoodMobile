@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
 import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -651,6 +652,19 @@ GoRouter createRouter(BuildContext context) {
         path: '/faq',
         name: 'faq',
         pageBuilder: (_, __) => const MaterialPage(child: HelpFaqScreen()),
+      ),
+
+      GoRoute(
+        path: '/change-password',
+        name: 'change_password',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => AuthProvider(),
+              child: const ChangePasswordScreen(),
+            ),
+          );
+        },
       ),
 
       GoRoute(
