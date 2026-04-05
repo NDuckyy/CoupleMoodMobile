@@ -59,7 +59,7 @@ class CreatePostBox extends StatelessWidget {
                   // Frame - Cách tiếp cận tương tự PostHeader nhưng điều chỉnh scale
                   if (frame?.thumbnailUrl?.isNotEmpty == true)
                     Transform.scale(
-                      scale: 1.8, // thử giá trị này trước (tăng từ 1.2)
+                      scale: 1.2,
                       child: CachedNetworkImage(
                         imageUrl: frame!.thumbnailUrl!,
                         width: 52, // bằng với SizedBox ngoài

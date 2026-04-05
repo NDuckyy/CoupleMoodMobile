@@ -84,7 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       .take(1)
                                       .map(
                                         (frame) => Transform.scale(
-                                          scale: 2,
+                                          scale: 1.3,
                                           child: CachedNetworkImage(
                                             imageUrl: frame.thumbnailUrl ?? '',
                                             width: 72,
@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }),
                   _tile(Icons.logout, "Đăng xuất", () {
                     _logout();
-                  })
+                  }),
                 ],
               ),
             ),

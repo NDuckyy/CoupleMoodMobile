@@ -58,7 +58,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
         ),
         if (frame?.thumbnailUrl != null && frame!.thumbnailUrl!.isNotEmpty)
           Transform.scale(
-            scale: 1.25,
+            scale: 1.3,
             child: CachedNetworkImage(
               imageUrl: frame.thumbnailUrl!,
               width: 40,
