@@ -1,5 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -19,6 +22,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     Future.microtask(() {
       context.read<UserProvider>().fetchMe();
+    });
+  }
+
+  void _logout() {
+    final auth = context.read<AuthProvider>();
+    LocationService.stopListening();
+    context.read<CoupleLocationProvider>().disposeListener();
+    auth.logout();
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      context.goNamed("login");
     });
   }
 
@@ -260,7 +274,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   _tile(Icons.lock_outline, "Mật khẩu", () {}),
-                  _tile(Icons.notifications_none, "Thông báo", () {}),
+                  _tile(Icons.notifications_none, "Thông báo", () {
+                    context.pushNamed("notification");
+                  }),
 
                   const SizedBox(height: 16),
                   const Text(
@@ -276,7 +292,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       queryParameters: {'tab': '0'},
                     ),
                   ),
-                  _tile(Icons.history, "Lịch sử hẹn hò", () {}),
                   _tile(Icons.rate_review_outlined, "Đánh giá của tôi", () {
                     context.pushNamed("my_reviews");
                   }),
@@ -286,8 +301,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Khác',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
-                  _tile(Icons.star_border, "Đánh giá", () {}),
-                  _tile(Icons.help_outline, "Trợ giúp", () {}),
+                  _tile(Icons.help_outline, "Trợ giúp", () {
+                    context.pushNamed("faq");
+                  }),
+                  _tile(Icons.logout, "Đăng xuất", () {
+                    _logout();
+                  })
                 ],
               ),
             ),

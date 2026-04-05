@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -644,6 +645,12 @@ GoRouter createRouter(BuildContext context) {
         name: 'sent_invitation',
         pageBuilder: (_, __) =>
             const MaterialPage(child: SentInvitationScreen()),
+      ),
+
+      GoRoute(
+        path: '/faq',
+        name: 'faq',
+        pageBuilder: (_, __) => const MaterialPage(child: HelpFaqScreen()),
       ),
 
       GoRoute(
