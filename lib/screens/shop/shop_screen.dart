@@ -98,7 +98,7 @@ class _ShopScreenState extends State<ShopScreen> {
               /// FRAME
               if (frame.thumbnailUrl != null && frame.thumbnailUrl!.isNotEmpty)
                 Transform.scale(
-                  scale: 1.15,
+                  scale: 1.3,
                   child: CachedNetworkImage(
                     imageUrl: frame.thumbnailUrl!,
                     width: size,

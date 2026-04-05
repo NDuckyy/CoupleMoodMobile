@@ -87,7 +87,7 @@ class VenueReviewItem extends StatelessWidget {
                           frame?.thumbnailUrl != null &&
                           frame!.thumbnailUrl!.isNotEmpty)
                         Transform.scale(
-                          scale: 1.15,
+                          scale: 1.3,
                           child: Image.network(
                             frame.thumbnailUrl!,
                             width: 44, // = radius * 2
@@ -97,20 +97,6 @@ class VenueReviewItem extends StatelessWidget {
                         ),
                     ],
                   ),
-
-                  /// FRAME
-                  if (!isAnonymous &&
-                      frame?.thumbnailUrl != null &&
-                      frame!.thumbnailUrl!.isNotEmpty)
-                    Transform.scale(
-                      scale: 1.15,
-                      child: Image.network(
-                        frame.thumbnailUrl!,
-                        width: 44, // = radius * 2
-                        height: 44,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
                 ],
               ),
 

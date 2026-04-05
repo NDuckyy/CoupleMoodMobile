@@ -47,7 +47,7 @@ class ProfileSummary extends StatelessWidget {
                 ),
                 if (frame?.thumbnailUrl?.isNotEmpty == true)
                   Transform.scale(
-                    scale: 2.2,
+                    scale: 1.3,
                     child: CachedNetworkImage(
                       imageUrl: frame!.thumbnailUrl!,
                       width: 56,
