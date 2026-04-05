@@ -5,7 +5,8 @@ class NotificationApp {
   final String type;
   final int? referenceId;
   final String? referenceType;
-  final bool isRead;
+  bool isRead;
+  final DataReview? data;
   final DateTime createdAt;
 
   NotificationApp({
@@ -16,6 +17,7 @@ class NotificationApp {
     this.referenceId,
     this.referenceType,
     required this.isRead,
+    this.data,
     required this.createdAt,
   });
 
@@ -28,6 +30,9 @@ class NotificationApp {
       referenceId: json['referenceId'] as int?,
       referenceType: json['referenceType'] as String?,
       isRead: json['isRead'] as bool,
+      data: json['data'] != null && (json['data'] as Map).isNotEmpty
+          ? DataReview.fromJson(json['data'] as Map<String, dynamic>)
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
@@ -35,7 +40,7 @@ class NotificationApp {
 
 class NotificationPagination {
   final List<NotificationApp> items;
-  final int pageNumber;
+  int pageNumber;
   final int pageSize;
   final int totalPages;
   final int totalCount;
@@ -64,5 +69,15 @@ class NotificationPagination {
       hasNextPage: json['hasNextPage'] as bool,
       hasPreviousPage: json['hasPreviousPage'] as bool,
     );
+  }
+}
+
+class DataReview {
+  final String venueLocationId;
+
+  DataReview({required this.venueLocationId});
+
+  factory DataReview.fromJson(Map<String, dynamic> json) {
+    return DataReview(venueLocationId: json['venueLocationId'] as String);
   }
 }

@@ -152,4 +152,16 @@ class NotificationService {
       throw Exception('Lỗi khi lấy thông báo: $e');
     }
   }
+
+  static Future<void> markAsRead(int notificationId) async {
+    try {
+      await ApiClient.request(
+        '/Notification/$notificationId/read',
+        method: HttpMethod.patch,
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      throw Exception('Lỗi khi đánh dấu thông báo đã đọc: $e');
+    }
+  }
 }
