@@ -130,7 +130,7 @@ class _TransactionsTabState extends State<TransactionsTab> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${isPositive ? '+' : ''}${formatVND(amount.abs())}đ",
+                    "${isPositive ? '+' : '-'}${formatVND(amount.abs())}đ",
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: isPositive ? Colors.green : Colors.red,
