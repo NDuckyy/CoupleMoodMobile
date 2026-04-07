@@ -24,38 +24,75 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
   }
 
   Future<void> _initDeepLinks() async {
-    // 1. Cold start: initial link khi app mở từ deep link
+    /// 1. Cold start
     try {
       final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null) _handleUri(initialUri);
+      if (initialUri != null) {
+        _handleUri(initialUri);
+      }
     } catch (e) {
-      debugPrint('Initial deep link error: $e');
+      debugPrint('❌ Initial deep link error: $e');
     }
 
-    // 2. Hot: khi app đang chạy, nhận link mới (MoMo callback foreground/background)
+    /// 2. Hot / resume
     _sub = _appLinks.uriLinkStream.listen((uri) {
-      if (uri != null) _handleUri(uri);
+      if (uri != null) {
+        _handleUri(uri);
+      }
     });
   }
 
   void _handleUri(Uri uri) {
-    debugPrint('Deep link received: $uri'); // Log để debug
+    debugPrint('🔗 Deep link received: $uri');
 
+    /// Chỉ xử lý scheme của app
     if (uri.scheme != 'couplemood') return;
 
+    /// Payment result
     if (uri.host == 'payment-result') {
-      final orderId = uri.queryParameters['orderId'];
-      if (orderId != null && orderId.isNotEmpty) {
-        // Optional: check payment status trước nếu cần (nhưng nên async & show loading nếu lâu)
-        // await _checkPayment(orderId); // nếu bạn muốn gọi API check ngay
+      final qp = uri.queryParameters;
 
-        // Navigate đến route đã define
-        widget.router.goNamed('payment-result', extra: orderId);
+      /// 🧠 Extract ID (đa gateway)
+      final orderId = qp['orderId']; // MoMo
+      final appTransId = qp['appTransID']; // ZaloPay
+      final transactionId = qp['transactionId']; // fallback
+
+      final id = orderId ?? appTransId ?? transactionId;
+
+      /// 🧠 Detect payment method (dynamic)
+      String? method;
+
+      if (orderId != null) {
+        method = 'MOMO';
+      } else if (appTransId != null) {
+        method = 'ZALOPAY';
+      } else {
+        /// fallback nếu backend có truyền thêm field sau này
+        method = qp['paymentMethod'];
       }
+
+      debugPrint('🧾 Parsed payment: id=$id | method=$method');
+
+      /// ❌ Không có id → bỏ
+      if (id == null || id.isEmpty) {
+        debugPrint('❌ Missing payment id in deep link');
+        return;
+      }
+
+      /// ⚠️ Không có method → vẫn cho đi nhưng BE có thể fail
+      if (method == null) {
+        debugPrint('⚠️ Missing payment method → may fail API');
+      }
+
+      /// 🚀 Navigate
+      widget.router.goNamed(
+        'payment-result',
+        extra: {'id': id, 'method': method},
+      );
     }
 
-    // Thêm case khác nếu sau này có deep link kiểu couplemood://invite?code=xxx
-    // else if (uri.host == 'invite') { ... }
+    /// 👉 Future: thêm deep link khác ở đây
+    /// else if (uri.host == 'invite') { ... }
   }
 
   @override

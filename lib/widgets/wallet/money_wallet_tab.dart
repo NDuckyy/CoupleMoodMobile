@@ -272,21 +272,7 @@ class _MoneyWalletTabState extends State<MoneyWalletTab> {
                                     .trim();
                                 final amount = int.parse(raw);
 
-                                final success = await wallet.topup(amount);
-                                if (success) {
-                                  showMsg(
-                                    context,
-                                    "Đang chuyển hướng đến MoMo...",
-                                    true,
-                                  );
-                                  _amountCtrl.clear();
-                                } else {
-                                  showMsg(
-                                    context,
-                                    wallet.error ?? "Nạp tiền thất bại",
-                                    false,
-                                  );
-                                }
+                                _showPaymentMethod(context, wallet, amount);
                               },
                         borderRadius: BorderRadius.circular(20),
                         splashColor: Colors.white.withOpacity(0.25),
@@ -330,7 +316,7 @@ class _MoneyWalletTabState extends State<MoneyWalletTab> {
                                       ),
                                       SizedBox(width: 12),
                                       Text(
-                                        "Nạp tiền qua MoMo",
+                                        "Nạp tiền",
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.w700,
@@ -391,4 +377,71 @@ class _MoneyWalletTabState extends State<MoneyWalletTab> {
       ],
     );
   }
+}
+
+void _showPaymentMethod(
+  BuildContext context,
+  WalletProvider wallet,
+  int amount,
+) {
+  showModalBottomSheet(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) {
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Chọn phương thức thanh toán",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+
+            /// MOMO
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet),
+              title: const Text("MoMo"),
+              onTap: () async {
+                Navigator.pop(context);
+
+                final success = await wallet.topup(amount, PaymentMethod.momo);
+
+                if (success) {
+                  showMsg(context, "Đang mở MoMo...", true);
+                } else {
+                  showMsg(context, wallet.error ?? "Lỗi", false);
+                }
+              },
+            ),
+
+            /// ZALOPAY
+            ListTile(
+              leading: const Icon(Icons.qr_code),
+              title: const Text("ZaloPay"),
+              onTap: () async {
+                Navigator.pop(context);
+
+                final success = await wallet.topup(
+                  amount,
+                  PaymentMethod.zalopay,
+                );
+
+                if (success) {
+                  showMsg(context, "Đang mở ZaloPay...", true);
+                } else {
+                  showMsg(context, wallet.error ?? "Lỗi", false);
+                }
+              },
+            ),
+
+            const SizedBox(height: 10),
+          ],
+        ),
+      );
+    },
+  );
 }

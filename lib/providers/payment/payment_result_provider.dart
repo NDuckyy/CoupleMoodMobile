@@ -7,13 +7,16 @@ class PaymentResultProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<void> fetchStatus(String orderId) async {
+  Future<void> fetchStatus(String orderId, String paymentMethod) async {
     isLoading = true;
     error = null;
     notifyListeners();
 
     try {
-      final res = await PaymentService.checkPaymentStatus(orderId);
+      final res = await PaymentService.checkPaymentStatus(
+        orderId,
+        paymentMethod,
+      );
 
       if (res.code == 200 && res.data != null) {
         status = res.data;

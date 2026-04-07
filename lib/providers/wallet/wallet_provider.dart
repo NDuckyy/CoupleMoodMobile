@@ -4,10 +4,13 @@ import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/models/wallet/exchange_rate.dart';
 import 'package:couple_mood_mobile/models/wallet/wallet_transaction.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/payment/payment_service.dart';
 import '../../utils/session_storage.dart';
+
+enum PaymentMethod { momo, zalopay }
 
 class WalletProvider extends ChangeNotifier {
   int moneyBalance = 0;
@@ -18,6 +21,8 @@ class WalletProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isLoadingConvert = false;
   String? error;
+
+  static const MethodChannel platform = MethodChannel('zalopay_channel');
 
   // ==================== LOAD + SYNC TỪ SERVER ====================
   Future<void> loadWalletData(BuildContext context) async {
@@ -59,7 +64,8 @@ class WalletProvider extends ChangeNotifier {
   }
 
   // ==================== TOPUP ====================
-  Future<bool> topup(int amount) async {
+
+  Future<bool> topup(int amount, PaymentMethod method) async {
     try {
       isLoading = true;
       error = null;
@@ -70,61 +76,10 @@ class WalletProvider extends ChangeNotifier {
         return false;
       }
 
-      final response = await PaymentService.momoTopup(amount: amount);
-
-      if (response.code != 200 || response.data == null) {
-        error = 'Topup failed: ${response.message ?? response.code}';
-        return false;
-      }
-
-      final data = response.data!;
-
-      final String deepLink = data.deepLink;
-      final String deeplinkMiniApp = data.deeplinkMiniApp;
-      final String payUrl = data.payUrl;
-
-      bool launched = false;
-
-      if (deepLink.isNotEmpty) {
-        launched = await launchUrl(
-          Uri.parse(deepLink),
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched && deeplinkMiniApp.isNotEmpty) {
-          launched = await launchUrl(
-            Uri.parse(deeplinkMiniApp),
-            mode: LaunchMode.externalApplication,
-          );
-        }
-        if (!launched && payUrl.isNotEmpty) {
-          launched = await launchUrl(
-            Uri.parse(payUrl),
-            mode: LaunchMode.externalApplication,
-          );
-        }
-      } else if (deeplinkMiniApp.isNotEmpty) {
-        launched = await launchUrl(
-          Uri.parse(deeplinkMiniApp),
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched && payUrl.isNotEmpty) {
-          launched = await launchUrl(
-            Uri.parse(payUrl),
-            mode: LaunchMode.externalApplication,
-          );
-        }
-      } else if (payUrl.isNotEmpty) {
-        launched = await launchUrl(
-          Uri.parse(payUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      }
-
-      if (launched) {
-        return true;
+      if (method == PaymentMethod.momo) {
+        return await _topupMomo(amount);
       } else {
-        error = "Không thể mở MoMo";
-        return false;
+        return await _topupZalo(amount);
       }
     } catch (e) {
       error = e.toString();
@@ -133,6 +88,77 @@ class WalletProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<bool> _topupMomo(int amount) async {
+    final response = await PaymentService.momoTopup(amount: amount);
+
+    if (response.code != 200 || response.data == null) {
+      error = 'Topup failed: ${response.message ?? response.code}';
+      return false;
+    }
+
+    final data = response.data!;
+
+    final deepLink = data.deepLink;
+    final mini = data.deeplinkMiniApp;
+    final payUrl = data.payUrl;
+
+    bool launched = false;
+
+    if (deepLink.isNotEmpty) {
+      launched = await _launch(deepLink);
+      if (!launched && mini.isNotEmpty) launched = await _launch(mini);
+      if (!launched && payUrl.isNotEmpty) launched = await _launch(payUrl);
+    } else if (mini.isNotEmpty) {
+      launched = await _launch(mini);
+      if (!launched && payUrl.isNotEmpty) launched = await _launch(payUrl);
+    } else if (payUrl.isNotEmpty) {
+      launched = await _launch(payUrl);
+    }
+
+    if (!launched) error = "Không thể mở MoMo";
+
+    return launched;
+  }
+
+  Future<bool> _topupZalo(int amount) async {
+    final response = await PaymentService.zaloTopup(amount: amount);
+
+    if (response.code != 200 || response.data == null) {
+      error = 'Topup failed: ${response.message ?? response.code}';
+      return false;
+    }
+
+    final data = response.data!;
+
+    final token = data.zpTransToken;
+    final orderUrl = data.orderUrl;
+
+    bool launched = false;
+
+    /// 1. Native SDK
+    if (token.isNotEmpty) {
+      try {
+        final result = await platform.invokeMethod('payOrder', {
+          "zptoken": token,
+        });
+
+        debugPrint("ZaloPay result: $result");
+        launched = result != null;
+      } catch (e) {
+        debugPrint("ZaloPay native fail: $e");
+      }
+    }
+
+    /// 2. fallback web
+    if (!launched && orderUrl.isNotEmpty) {
+      launched = await _launch(orderUrl);
+    }
+
+    if (!launched) error = "Không thể mở ZaloPay";
+
+    return launched;
   }
 
   // ==================== CONVERT MONEY → POINT ====================
@@ -197,4 +223,10 @@ class WalletProvider extends ChangeNotifier {
 
   Future<void> refresh(BuildContext context) async =>
       await loadWalletData(context);
+
+  /// LAUNCH URL HELPER
+  Future<bool> _launch(String url) async {
+    final uri = Uri.parse(url);
+    return await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
 }

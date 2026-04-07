@@ -163,18 +163,29 @@ GoRouter createRouter(BuildContext context) {
       );
 
       // 1. Xử lý custom scheme deep link (chạy trước auth để tránh miss cold start)
-      if (uri.scheme == 'couplemood') {
-        if (uri.host == 'payment-result') {
-          final orderId = uri.queryParameters['orderId'];
-          if (orderId != null && orderId.isNotEmpty) {
-            // Normalize về path nội bộ hợp lệ → GoRouter sẽ match route '/payment-result'
-            // Truyền orderId qua query (dễ lấy ở builder)
-            return '/payment-result?orderId=$orderId';
-          }
+      if (uri.scheme == 'couplemood' && uri.host == 'payment-result') {
+        final qp = uri.queryParameters;
+
+        final orderId = qp['orderId'];
+        final appTransId = qp['appTransID'];
+        final id = orderId ?? appTransId;
+
+        // 👇 detect payment method dynamic
+        String? method;
+
+        if (qp.containsKey('zpTransToken') || qp.containsKey('appTransID')) {
+          method = 'ZALOPAY';
+        } else if (qp.containsKey('orderId')) {
+          method = 'MOMO';
         }
-        // Nếu có deep link khác (ví dụ invite, reset pass) → thêm case ở đây
-        // fallback về splash hoặc home nếu không match
-        return '/splash'; // hoặc '/home' tùy logic
+        //  future:
+        // else if (qp.containsKey('vnp_TxnRef')) method = 'VNPAY';
+
+        if (id != null && id.isNotEmpty) {
+          return '/payment-result?id=$id${method != null ? '&method=$method' : ''}';
+        }
+
+        return '/payment-result';
       }
 
       // 2. Logic auth cũ của bạn (giữ nguyên, chỉ chạy nếu không phải deep link custom)
@@ -467,18 +478,38 @@ GoRouter createRouter(BuildContext context) {
         path: '/payment-result',
         name: 'payment-result',
         builder: (context, state) {
-          // Ưu tiên extra (từ goNamed/pushNamed), fallback về query (từ redirect cold start)
-          String? orderId = state.extra as String?;
-          orderId ??= state.uri.queryParameters['orderId'];
+          final extra = state.extra;
 
-          if (orderId == null || orderId.isEmpty) {
+          String? id;
+          String? method;
+
+          ///  1. Ưu tiên extra (DeepLinkHandler - app đang mở)
+          if (extra is Map<String, dynamic>) {
+            id = extra['id'];
+            method = extra['method'];
+          }
+
+          ///  2. Fallback query (cold start)
+          id ??= state.uri.queryParameters['id'];
+          method ??= state.uri.queryParameters['method'];
+
+          ///  Validate
+          if (id == null || id.isEmpty) {
             return const Scaffold(
-              body: Center(child: Text('OrderId trống hoặc không hợp lệ')),
+              body: Center(child: Text('Payment ID không hợp lệ')),
+            );
+          }
+
+          if (method == null || method.isEmpty) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Không xác định phương thức thanh toán'),
+              ),
             );
           }
 
           return ChangeNotifierProvider(
-            create: (_) => PaymentResultProvider()..fetchStatus(orderId!),
+            create: (_) => PaymentResultProvider()..fetchStatus(id!, method!),
             child: const PaymentResultScreen(),
           );
         },
