@@ -1,6 +1,7 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/payment/momo_payment_data.dart';
 import 'package:couple_mood_mobile/models/payment/payment_status.dart';
+import 'package:couple_mood_mobile/models/payment/vnpay_payment_data.dart';
 import 'package:couple_mood_mobile/models/payment/zalo_payment_data.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
@@ -102,6 +103,47 @@ class PaymentService {
     return ApiResponse<ZaloPaymentData>.fromJson(
       res as Map<String, dynamic>,
       (json) => ZaloPaymentData.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<VnpayPaymentData>> vnpayPay({
+    required int packageId,
+    String? description,
+    String? couponCode,
+  }) async {
+    final res = await ApiClient.request(
+      '/Payment/member/vnpay',
+      method: HttpMethod.post,
+      data: {
+        "packageId": packageId,
+        "paymentMethod": "VNPAY",
+        "description": description,
+        "couponCode": couponCode,
+      },
+    );
+
+    return ApiResponse<VnpayPaymentData>.fromJson(
+      res as Map<String, dynamic>,
+      (json) => VnpayPaymentData.fromJson(json),
+    );
+  }
+
+  static Future<ApiResponse<VnpayPaymentData>> vnpayTopup({
+    required int amount,
+  }) async {
+    if (amount < 1000) {
+      throw "Số tiền tối thiểu là 1000 VND";
+    }
+
+    final res = await ApiClient.request(
+      '/Payment/member/vnpay-topup',
+      method: HttpMethod.post,
+      data: {"amount": amount},
+    );
+
+    return ApiResponse<VnpayPaymentData>.fromJson(
+      res as Map<String, dynamic>,
+      (json) => VnpayPaymentData.fromJson(json),
     );
   }
 }

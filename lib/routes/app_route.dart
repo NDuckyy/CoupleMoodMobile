@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -117,6 +116,7 @@ import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_sc
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
+import 'package:couple_mood_mobile/screens/payment/vnpay_webview_screen.dart';
 
 //home, location, profile, review, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
@@ -133,6 +133,7 @@ import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.d
 import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
+import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -170,7 +171,7 @@ GoRouter createRouter(BuildContext context) {
         final appTransId = qp['appTransID'];
         final id = orderId ?? appTransId;
 
-        // 👇 detect payment method dynamic
+        // detect payment method dynamic
         String? method;
 
         if (qp.containsKey('zpTransToken') || qp.containsKey('appTransID')) {
@@ -512,6 +513,15 @@ GoRouter createRouter(BuildContext context) {
             create: (_) => PaymentResultProvider()..fetchStatus(id!, method!),
             child: const PaymentResultScreen(),
           );
+        },
+      ),
+
+      GoRoute(
+        path: '/vnpay-webview',
+        name: 'vnpay-webview',
+        builder: (context, state) {
+          final url = state.extra as String;
+          return VnpayWebviewScreen(url: url);
         },
       ),
 

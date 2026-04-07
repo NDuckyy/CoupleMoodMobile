@@ -41,6 +41,12 @@ Future<PaymentMethod?> _selectPaymentMethod(BuildContext context) async {
               onTap: () => Navigator.pop(context, PaymentMethod.zalopay),
             ),
 
+            ListTile(
+              leading: const Icon(Icons.account_balance),
+              title: const Text("VNPay"),
+              onTap: () => Navigator.pop(context, PaymentMethod.vnpay),
+            ),
+
             const SizedBox(height: 20),
           ],
         ),
@@ -198,7 +204,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
                   final success = await context
                       .read<SubscriptionProvider>()
-                      .buyPackage(premiumPkgs.first.id, method);
+                      .buyPackage(context, premiumPkgs.first.id, method);
 
                   if (!context.mounted) return;
 

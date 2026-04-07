@@ -3,10 +3,11 @@ import 'package:couple_mood_mobile/models/subscription/subscription_package.dart
 import 'package:couple_mood_mobile/services/payment/payment_service.dart';
 import 'package:couple_mood_mobile/services/subscription/subscription_service.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
-enum PaymentMethod { momo, zalopay }
+enum PaymentMethod { momo, zalopay, vnpay }
 
 class SubscriptionProvider extends ChangeNotifier {
   List<SubscriptionPackage> packages = [];
@@ -40,11 +41,18 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   /// PUBLIC METHOD
-  Future<bool> buyPackage(int packageId, PaymentMethod method) async {
-    if (method == PaymentMethod.momo) {
-      return _buyMomo(packageId);
-    } else {
-      return _buyZaloPay(packageId);
+  Future<bool> buyPackage(
+    BuildContext context,
+    int packageId,
+    PaymentMethod method,
+  ) async {
+    switch (method) {
+      case PaymentMethod.momo:
+        return _buyMomo(packageId);
+      case PaymentMethod.zalopay:
+        return _buyZaloPay(packageId);
+      case PaymentMethod.vnpay:
+        return _buyVnpay(context, packageId);
     }
   }
 
@@ -145,6 +153,36 @@ class SubscriptionProvider extends ChangeNotifier {
       }
 
       return launched;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      _finishPaying();
+    }
+  }
+
+  Future<bool> _buyVnpay(BuildContext context, int packageId) async {
+    try {
+      _startPaying(packageId);
+
+      final response = await PaymentService.vnpayPay(packageId: packageId);
+
+      if (response.code != 200 || response.data == null) {
+        error = 'Payment init failed: ${response.message ?? response.code}';
+        return false;
+      }
+
+      final payUrl = response.data!.payUrl;
+
+      if (payUrl.isEmpty) {
+        error = 'Không lấy được link VNPAY';
+        return false;
+      }
+
+      /// dùng context trực tiếp
+      context.pushNamed('vnpay-webview', extra: payUrl);
+
+      return true;
     } catch (e) {
       error = e.toString();
       return false;

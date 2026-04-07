@@ -5,12 +5,13 @@ import 'package:couple_mood_mobile/models/wallet/exchange_rate.dart';
 import 'package:couple_mood_mobile/models/wallet/wallet_transaction.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../services/payment/payment_service.dart';
 import '../../utils/session_storage.dart';
 
-enum PaymentMethod { momo, zalopay }
+enum PaymentMethod { momo, zalopay, vnpay }
 
 class WalletProvider extends ChangeNotifier {
   int moneyBalance = 0;
@@ -65,7 +66,11 @@ class WalletProvider extends ChangeNotifier {
 
   // ==================== TOPUP ====================
 
-  Future<bool> topup(int amount, PaymentMethod method) async {
+  Future<bool> topup(
+    BuildContext context,
+    int amount,
+    PaymentMethod method,
+  ) async {
     try {
       isLoading = true;
       error = null;
@@ -76,10 +81,13 @@ class WalletProvider extends ChangeNotifier {
         return false;
       }
 
-      if (method == PaymentMethod.momo) {
-        return await _topupMomo(amount);
-      } else {
-        return await _topupZalo(amount);
+      switch (method) {
+        case PaymentMethod.momo:
+          return await _topupMomo(amount);
+        case PaymentMethod.zalopay:
+          return await _topupZalo(amount);
+        case PaymentMethod.vnpay:
+          return await _topupVnpay(context, amount);
       }
     } catch (e) {
       error = e.toString();
@@ -159,6 +167,31 @@ class WalletProvider extends ChangeNotifier {
     if (!launched) error = "Không thể mở ZaloPay";
 
     return launched;
+  }
+
+  Future<bool> _topupVnpay(BuildContext context, int amount) async {
+    try {
+      final response = await PaymentService.vnpayTopup(amount: amount);
+
+      if (response.code != 200 || response.data == null) {
+        error = 'Topup failed: ${response.message ?? response.code}';
+        return false;
+      }
+
+      final payUrl = response.data!.payUrl;
+
+      if (payUrl.isEmpty) {
+        error = "Không lấy được link VNPAY";
+        return false;
+      }
+
+      context.pushNamed('vnpay-webview', extra: payUrl);
+
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    }
   }
 
   // ==================== CONVERT MONEY → POINT ====================

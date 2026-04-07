@@ -408,7 +408,11 @@ void _showPaymentMethod(
               onTap: () async {
                 Navigator.pop(context);
 
-                final success = await wallet.topup(amount, PaymentMethod.momo);
+                final success = await wallet.topup(
+                  context,
+                  amount,
+                  PaymentMethod.momo,
+                );
 
                 if (success) {
                   showMsg(context, "Đang mở MoMo...", true);
@@ -426,12 +430,33 @@ void _showPaymentMethod(
                 Navigator.pop(context);
 
                 final success = await wallet.topup(
+                  context,
                   amount,
                   PaymentMethod.zalopay,
                 );
 
                 if (success) {
                   showMsg(context, "Đang mở ZaloPay...", true);
+                } else {
+                  showMsg(context, wallet.error ?? "Lỗi", false);
+                }
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.language),
+              title: const Text("VNPay"),
+              onTap: () async {
+                Navigator.pop(context);
+
+                final success = await wallet.topup(
+                  context,
+                  amount,
+                  PaymentMethod.vnpay,
+                );
+
+                if (success) {
+                  showMsg(context, "Đang mở VNPay...", true);
                 } else {
                   showMsg(context, wallet.error ?? "Lỗi", false);
                 }
