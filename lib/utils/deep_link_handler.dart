@@ -46,9 +46,10 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
     debugPrint('🔗 Deep link received: $uri');
 
     /// ===============================
-    /// 1. PAYMENT (custom scheme)
+    /// 1. CUSTOM SCHEME
     /// ===============================
     if (uri.scheme == 'couplemood') {
+      /// PAYMENT
       if (uri.host == 'payment-result') {
         final qp = uri.queryParameters;
 
@@ -73,27 +74,18 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
           'payment-result',
           extra: {'id': id, 'method': method},
         );
+      } else if (uri.host == 'post') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+
+          widget.router.goNamed(
+            'post_detail_from_share',
+            pathParameters: {'code': code},
+          );
+        }
       }
 
       return;
-
-      /// ⛔ dừng tại đây cho scheme
-    }
-
-    /// ===============================
-    /// 2. SHARE POST (https app link)
-    /// ===============================
-    if (uri.scheme == 'https' && uri.host == 'couplemood.io.vn') {
-      if (uri.pathSegments.length >= 3 &&
-          uri.pathSegments[0] == 'share' &&
-          uri.pathSegments[1] == 'p') {
-        final code = uri.pathSegments[2];
-
-        widget.router.pushNamed(
-          'post_detail_from_share',
-          pathParameters: {'code': code},
-        );
-      }
     }
   }
 

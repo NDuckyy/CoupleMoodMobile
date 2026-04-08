@@ -155,6 +155,7 @@ GoRouter createRouter(BuildContext context) {
     initialLocation: '/splash',
     // để router refresh khi auth notifyListeners
     refreshListenable: auth,
+    routerNeglect: true,
 
     redirect: (ctx, state) {
       final uri =
@@ -190,6 +191,13 @@ GoRouter createRouter(BuildContext context) {
         }
 
         return '/payment-result';
+      }
+
+      if (uri.scheme == 'couplemood' && uri.host == 'post') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+          return '/share/post/$code';
+        }
       }
 
       // 2. Logic auth cũ của bạn (giữ nguyên, chỉ chạy nếu không phải deep link custom)
@@ -530,7 +538,7 @@ GoRouter createRouter(BuildContext context) {
 
       GoRoute(
         name: 'post_detail_from_share',
-        path: '/share/p/:code',
+        path: '/share/post/:code',
         builder: (context, state) {
           final code = state.pathParameters['code']!;
           return ChangeNotifierProvider(

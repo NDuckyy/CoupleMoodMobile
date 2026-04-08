@@ -82,7 +82,13 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.goNamed('home');
+            }
+          },
         ),
         title: const Text("News Feed"),
         centerTitle: true,
