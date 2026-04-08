@@ -48,4 +48,8 @@ flutter {
 }
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    implementation(files("libs/zpdk-release-v3.1.aar"))
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("commons-codec:commons-codec:1.15")
 }

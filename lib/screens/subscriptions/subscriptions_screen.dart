@@ -11,6 +11,50 @@ class SubscriptionScreen extends StatefulWidget {
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();
 }
 
+Future<PaymentMethod?> _selectPaymentMethod(BuildContext context) async {
+  return showModalBottomSheet<PaymentMethod>(
+    context: context,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (_) {
+      return SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            const Text(
+              "Chọn phương thức thanh toán",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet),
+              title: const Text("MoMo"),
+              onTap: () => Navigator.pop(context, PaymentMethod.momo),
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.qr_code),
+              title: const Text("ZaloPay"),
+              onTap: () => Navigator.pop(context, PaymentMethod.zalopay),
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.account_balance),
+              title: const Text("VNPay"),
+              onTap: () => Navigator.pop(context, PaymentMethod.vnpay),
+            ),
+
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    },
+  );
+}
+
 class _SubscriptionScreenState extends State<SubscriptionScreen> {
   bool _isYearlySelected = false;
 
@@ -154,10 +198,16 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                     premiumPkgs.first.packageName,
                   );
                   if (!confirm) return;
+
+                  final method = await _selectPaymentMethod(context);
+                  if (method == null) return;
+
                   final success = await context
                       .read<SubscriptionProvider>()
-                      .buyPackage(premiumPkgs.first.id);
+                      .buyPackage(context, premiumPkgs.first.id, method);
+
                   if (!context.mounted) return;
+
                   showMsg(
                     context,
                     success
