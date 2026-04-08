@@ -45,54 +45,56 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
   void _handleUri(Uri uri) {
     debugPrint('🔗 Deep link received: $uri');
 
-    /// Chỉ xử lý scheme của app
-    if (uri.scheme != 'couplemood') return;
+    /// ===============================
+    /// 1. PAYMENT (custom scheme)
+    /// ===============================
+    if (uri.scheme == 'couplemood') {
+      if (uri.host == 'payment-result') {
+        final qp = uri.queryParameters;
 
-    /// Payment result
-    if (uri.host == 'payment-result') {
-      final qp = uri.queryParameters;
+        final orderId = qp['orderId'];
+        final appTransId = qp['appTransID'];
+        final transactionId = qp['transactionId'];
 
-      /// 🧠 Extract ID (đa gateway)
-      final orderId = qp['orderId']; // MoMo
-      final appTransId = qp['appTransID']; // ZaloPay
-      final transactionId = qp['transactionId']; // fallback
+        final id = orderId ?? appTransId ?? transactionId;
 
-      final id = orderId ?? appTransId ?? transactionId;
+        String? method;
+        if (orderId != null) {
+          method = 'MOMO';
+        } else if (appTransId != null) {
+          method = 'ZALOPAY';
+        } else {
+          method = qp['paymentMethod'];
+        }
 
-      /// 🧠 Detect payment method (dynamic)
-      String? method;
+        if (id == null || id.isEmpty) return;
 
-      if (orderId != null) {
-        method = 'MOMO';
-      } else if (appTransId != null) {
-        method = 'ZALOPAY';
-      } else {
-        /// fallback nếu backend có truyền thêm field sau này
-        method = qp['paymentMethod'];
+        widget.router.goNamed(
+          'payment-result',
+          extra: {'id': id, 'method': method},
+        );
       }
 
-      debugPrint('🧾 Parsed payment: id=$id | method=$method');
+      return;
 
-      /// ❌ Không có id → bỏ
-      if (id == null || id.isEmpty) {
-        debugPrint('❌ Missing payment id in deep link');
-        return;
-      }
-
-      /// ⚠️ Không có method → vẫn cho đi nhưng BE có thể fail
-      if (method == null) {
-        debugPrint('⚠️ Missing payment method → may fail API');
-      }
-
-      /// 🚀 Navigate
-      widget.router.goNamed(
-        'payment-result',
-        extra: {'id': id, 'method': method},
-      );
+      /// ⛔ dừng tại đây cho scheme
     }
 
-    /// 👉 Future: thêm deep link khác ở đây
-    /// else if (uri.host == 'invite') { ... }
+    /// ===============================
+    /// 2. SHARE POST (https app link)
+    /// ===============================
+    if (uri.scheme == 'https' && uri.host == 'couplemood.io.vn') {
+      if (uri.pathSegments.length >= 3 &&
+          uri.pathSegments[0] == 'share' &&
+          uri.pathSegments[1] == 'p') {
+        final code = uri.pathSegments[2];
+
+        widget.router.pushNamed(
+          'post_detail_from_share',
+          pathParameters: {'code': code},
+        );
+      }
+    }
   }
 
   @override

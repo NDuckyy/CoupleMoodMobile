@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/models/post/comment_model.dart';
 import 'package:couple_mood_mobile/models/post/media_model.dart';
 import 'package:couple_mood_mobile/models/post/post_detail_model.dart';
 import 'package:couple_mood_mobile/models/post/post_model.dart';
+import 'package:couple_mood_mobile/models/post/share_link_model.dart';
 
 import '../../models/api_response.dart';
 import '../../models/post/feed_response.dart';
@@ -249,5 +250,27 @@ class PostService {
           .map((item) => PostModel.fromJson(item as Map<String, dynamic>))
           .toList();
     });
+  }
+
+  /// GET SHARE LINK
+  static Future<ApiResponse<ShareLinkModel>> getShareLink(int postId) async {
+    final res = await ApiClient.request(
+      '/Post/$postId/share-link',
+      method: HttpMethod.get,
+    );
+
+    return ApiResponse.fromJson(res, (data) => ShareLinkModel.fromJson(data));
+  }
+
+  /// GET POST BY SHARE CODE
+  static Future<ApiResponse<PostDetailModel>> getPostByShareCode(
+    String code,
+  ) async {
+    final res = await ApiClient.request(
+      '/Post/share/$code',
+      method: HttpMethod.get,
+    );
+
+    return ApiResponse.fromJson(res, (data) => PostDetailModel.fromJson(data));
   }
 }

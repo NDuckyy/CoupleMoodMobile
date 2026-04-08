@@ -1,3 +1,5 @@
+import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -134,6 +136,7 @@ import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_scr
 import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
 import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -526,6 +529,18 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        name: 'post_detail_from_share',
+        path: '/share/p/:code',
+        builder: (context, state) {
+          final code = state.pathParameters['code']!;
+          return ChangeNotifierProvider(
+            create: (_) => PostShareProvider(),
+            child: PostDetailFromShareScreen(code: code),
+          );
+        },
+      ),
+
+      GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/wallet',
         name: 'wallet',
@@ -692,6 +707,19 @@ GoRouter createRouter(BuildContext context) {
         path: '/faq',
         name: 'faq',
         pageBuilder: (_, __) => const MaterialPage(child: HelpFaqScreen()),
+      ),
+
+      GoRoute(
+        path: '/change-password',
+        name: 'change_password',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => AuthProvider(),
+              child: const ChangePasswordScreen(),
+            ),
+          );
+        },
       ),
 
       GoRoute(

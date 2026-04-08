@@ -11,12 +11,35 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().getNotifications(1, 10, "LOCATION");
+      context.read<NotificationProvider>().getNotifications(1, 10, "");
     });
+
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() async {
+    final provider = context.read<NotificationProvider>();
+
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !provider.isLoadingMore &&
+        provider.notifications != null &&
+        provider.notifications!.hasNextPage) {
+      await provider.loadMoreNotifications("");
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -25,14 +48,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: Text("Thông báo"), backgroundColor: Colors.white),
+      appBar: AppBar(
+        title: const Text("Thông báo"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
       body: RefreshIndicator(
-        color: Color(0xFF8093F1),
+        color: const Color(0xFF8093F1),
         onRefresh: () async {
           await context.read<NotificationProvider>().getNotifications(
             1,
             10,
-            "LOCATION",
+            "",
           );
         },
         child: _buildBody(provider),
@@ -42,13 +70,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Widget _buildBody(NotificationProvider provider) {
     if (provider.isLoading && provider.notifications == null) {
-      return Center(child: CircularProgressIndicator());
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (provider.notifications == null ||
         provider.notifications!.items.isEmpty) {
       return ListView(
-        children: [
+        children: const [
           SizedBox(height: 200),
           Center(child: Text("Không có thông báo")),
         ],
@@ -56,12 +84,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
 
     return ListView.builder(
-      physics: AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.all(12),
-      itemCount: provider.notifications!.items.length,
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(12),
+      itemCount:
+          provider.notifications!.items.length +
+          (provider.notifications!.hasNextPage ? 1 : 0),
       itemBuilder: (context, index) {
-        final item = provider.notifications!.items[index];
-        return NotificationItem(notification: item);
+        if (index < provider.notifications!.items.length) {
+          final item = provider.notifications!.items[index];
+          return NotificationItem(notification: item);
+        }
+
+        if (provider.isLoadingMore) {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16),
+          child: Center(
+            child: Text(
+              "Bạn đã xem hết thông báo 🎉",
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        );
       },
     );
   }
