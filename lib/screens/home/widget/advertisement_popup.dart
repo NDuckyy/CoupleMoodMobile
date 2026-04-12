@@ -5,11 +5,7 @@ class AdvertisementPopup extends StatelessWidget {
   final String bannerUrl;
   final VoidCallback? onTap;
 
-  const AdvertisementPopup({
-    super.key,
-    required this.bannerUrl,
-    this.onTap,
-  });
+  const AdvertisementPopup({super.key, required this.bannerUrl, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +21,24 @@ class AdvertisementPopup extends StatelessWidget {
               child: Image.network(
                 bannerUrl,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    height: 200,
+                    color: Colors.grey.shade200,
+                    alignment: Alignment.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.broken_image, size: 40, color: Colors.grey),
+                        SizedBox(height: 8),
+                        Text(
+                          "Không tải được quảng cáo",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -40,11 +54,7 @@ class AdvertisementPopup extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 padding: const EdgeInsets.all(6),
-                child: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                  size: 18,
-                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 18),
               ),
             ),
           ),

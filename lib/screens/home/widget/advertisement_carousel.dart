@@ -76,13 +76,48 @@ class AdvertisementCarousel extends StatelessWidget {
                     } else {
                       return InkWell(
                         onTap: () => _onClickAd(context, ad),
-                        child: Container(
+                        child: SizedBox(
                           width: 300,
-                          decoration: BoxDecoration(
+                          child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
-                            image: DecorationImage(
-                              image: NetworkImage(ad.bannerUrl!),
+                            child: Image.network(
+                              ad.bannerUrl!,
                               fit: BoxFit.cover,
+
+                              // loading
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return const SizedBox(
+                                  height: 150,
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              },
+
+                              // error
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  height: 150,
+                                  color: Colors.grey.shade200,
+                                  alignment: Alignment.center,
+                                  child: const Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        size: 40,
+                                        color: Colors.grey,
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        "Ảnh lỗi",
+                                        style: TextStyle(color: Colors.grey),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
