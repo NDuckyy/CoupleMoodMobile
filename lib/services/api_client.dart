@@ -6,7 +6,7 @@ enum HttpMethod { get, post, put, delete, patch }
 class ApiClient {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://couplemood.io.vn/api',
+      baseUrl: 'https://dev.couplemood.io.vn/api',
       connectTimeout: const Duration(seconds: 100),
       receiveTimeout: const Duration(seconds: 100),
     ),
