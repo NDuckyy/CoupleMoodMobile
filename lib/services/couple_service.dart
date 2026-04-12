@@ -30,4 +30,16 @@ class CoupleService {
       throw Exception('Lỗi khi cập nhật thông tin cặp đôi: $e');
     }
   }
+
+  static Future<ApiResponse<void>> breakupCouple() async {
+    try {
+      final res = await ApiClient.request(
+        "/couple-invitations/breakup",
+        method: HttpMethod.post,
+      );
+      return ApiResponse.fromJson(res, (data) {});
+    } catch (e) {
+      throw Exception('Lỗi khi chia tay: $e');
+    }
+  }
 }

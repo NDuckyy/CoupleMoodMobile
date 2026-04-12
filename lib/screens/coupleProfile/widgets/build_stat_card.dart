@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class BuildStatCard extends StatelessWidget {
-  final String anniversaryDate;
-  final int totalPoints;
-  final int interactionPoints;
+  final String? anniversaryDate;
+  final int? totalPoints;
+  final int? interactionPoints;
   final double? budgetMin;
   final double? budgetMax;
 
@@ -21,6 +21,9 @@ class BuildStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd-MM-yyyy');
+    final parsedDate = anniversaryDate != null
+        ? DateTime.tryParse(anniversaryDate!)
+        : null;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 16),
@@ -44,7 +47,9 @@ class BuildStatCard extends StatelessWidget {
                 icon: Icons.favorite,
                 color: const Color(0xFFF7AEF8),
                 label: "Kỷ niệm",
-                value: formatter.format(DateTime.parse(anniversaryDate)),
+                value: parsedDate != null
+                    ? formatter.format(parsedDate)
+                    : "Chưa câp nhật",
               ),
 
               _divider(),

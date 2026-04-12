@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/screens/coupleProfile/widgets/build_info_card
 import 'package:couple_mood_mobile/screens/coupleProfile/widgets/build_stat_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/loading.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,19 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<CoupleProvider>().fetchCoupleProfile();
     });
+  }
+
+  void _breakupCouple() async {
+    final coupleProvider = context.read<CoupleProvider>();
+    await coupleProvider.breakupCouple();
+    if (coupleProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, coupleProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Chia tay thành công', true);
+      context.goNamed("home");
+    }
   }
 
   @override
@@ -181,6 +195,46 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                           ),
 
                           const SizedBox(height: 30),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 50,
+                              child: Material(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(25),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(25),
+                                  onTap: () => _breakupCouple(),
+                                  child: Ink(
+                                    decoration: const BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.centerLeft,
+                                        end: Alignment.centerRight,
+                                        colors: [
+                                          Color(0xFFB388EB),
+                                          Color(0xFFF7AEF8),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(25),
+                                      ),
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'Chia tay',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
               ),

@@ -46,4 +46,23 @@ class CoupleProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> breakupCouple() async {
+    try {
+      isLoading = true;
+      error = null;
+      notifyListeners();
+      final response = await CoupleService.breakupCouple();
+      if (response.code != 200) {
+        error = response.message;
+      } else {
+        couple = null;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
