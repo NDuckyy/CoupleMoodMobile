@@ -10,6 +10,7 @@ import 'package:couple_mood_mobile/widgets/feed/comment_item_skeleton.dart';
 import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/post/post_detail_provider.dart';
@@ -303,6 +304,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Chi tiết bài viết"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop(); // có stack → back bình thường
+            } else {
+              context.goNamed('newsfeed'); // deep link → về feed
+            }
+          },
+        ),
         actions: [
           if (post.isOwner)
             IconButton(

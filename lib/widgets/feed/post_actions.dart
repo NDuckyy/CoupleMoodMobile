@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/post/post_model.dart';
 import '../../providers/post/post_detail_provider.dart';
 import '../../widgets/feed/post_comment_bottom_sheet.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PostActions extends StatelessWidget {
   final PostModel post;
@@ -89,6 +90,32 @@ class PostActions extends StatelessWidget {
                 post.commentCount.toString(),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
+            ],
+          ),
+        ),
+
+        const SizedBox(width: 24),
+
+        /// SHARE BUTTON
+        GestureDetector(
+          onTap: () async {
+            final provider = context.read<PostProvider>();
+
+            final link = await provider.getShareLink(post.id);
+
+            if (link != null) {
+              Share.share("Xem bài viết này nè 👀\n$link");
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Không lấy được link chia sẻ")),
+              );
+            }
+          },
+          child: Row(
+            children: const [
+              Icon(Icons.share_outlined),
+              SizedBox(width: 6),
+              Text("Chia sẻ", style: TextStyle(fontWeight: FontWeight.w600)),
             ],
           ),
         ),

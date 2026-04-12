@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -28,11 +31,29 @@ android {
         versionName = flutter.versionName
     }
 
+/*
+    signingConfigs {
+        create("release") {
+            val keystorePropertiesFile = rootProject.file("key.properties") 
+            val keystoreProperties = Properties()
+            keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = rootProject.file(keystoreProperties["storeFile"] as String) // relative to android/
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+*/
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+             signingConfig = signingConfigs.getByName("debug")
+            // signingConfig = signingConfigs.getByName("release") 
+            isMinifyEnabled = false 
+            isShrinkResources = false
         }
     }
 }
@@ -48,4 +69,8 @@ flutter {
 }
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+
+    implementation(files("libs/zpdk-release-v3.1.aar"))
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
+    implementation("commons-codec:commons-codec:1.15")
 }

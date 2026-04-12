@@ -176,7 +176,7 @@ class ChallengeCard extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: onJoin,
                       icon: const Icon(Icons.play_arrow, size: 18),
-                      label: const Text("Join"),
+                      label: const Text("Tham gia"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue.shade600,
                         foregroundColor: Colors.white,

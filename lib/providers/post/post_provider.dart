@@ -254,6 +254,20 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> getShareLink(int postId) async {
+    try {
+      final res = await PostService.getShareLink(postId);
+
+      if (res.code == 200 && res.data != null) {
+        return res.data!.shareLinkUrl;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    return null;
+  }
+
   void increaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
     if (index == -1) return;
