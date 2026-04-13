@@ -198,7 +198,7 @@ class CoupleLocationProvider extends ChangeNotifier {
           icon: isMe
               ? (myAvatar ?? BitmapDescriptor.defaultMarker)
               : (partnerAvatar ?? BitmapDescriptor.defaultMarker),
-          infoWindow: InfoWindow(title: isMe ? "You 📍" : "Your Partner ❤️"),
+          infoWindow: InfoWindow(title: isMe ? "Bạn 📍" : "Người yêu ❤️"),
         ),
       );
 

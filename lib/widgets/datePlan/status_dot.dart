@@ -5,6 +5,25 @@ class StatusDot extends StatelessWidget {
 
   const StatusDot({super.key, required this.status});
 
+  String _getStatusText(String status) {
+    switch (status) {
+      case 'DRAFTED':
+        return 'Nháp';
+      case 'PENDING':
+        return 'Chờ duyệt';
+      case 'SCHEDULED':
+        return 'Đã duyệt';
+      case 'IN_PROGRESS':
+        return 'Đang diễn ra';
+      case 'COMPLETED':
+        return 'Đã hoàn thành';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final color = status == 'DRAFTED'
@@ -27,7 +46,7 @@ class StatusDot extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: Text(
-          status,
+          _getStatusText(status).toUpperCase(),
           style: const TextStyle(
             color: Colors.white,
             fontSize: 12,
