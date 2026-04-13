@@ -5,6 +5,18 @@ class RelationshipBadge extends StatelessWidget {
 
   const RelationshipBadge({super.key, required this.status});
 
+  String getStatusText() {
+    switch (status) {
+      case "SINGLE":
+        return "Độc thân";
+      case "IN_RELATIONSHIP":
+        return "Đã có đôi";
+      default:
+        return "Phức tạp";
+    }
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -13,7 +25,7 @@ class RelationshipBadge extends StatelessWidget {
         color: Colors.white.withOpacity(0.25),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(status, style: const TextStyle(color: Colors.white)),
+      child: Text(getStatusText(), style: const TextStyle(color: Colors.white)),
     );
   }
 }

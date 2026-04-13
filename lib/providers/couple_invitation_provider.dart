@@ -9,6 +9,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
   int currentPage = 1;
   bool isLoading = true;
   bool hasMore = true;
+  bool isSendingInvitation = false;
 
   int inviteCount = 0;
   List<MemberResponse> users = [];
@@ -19,6 +20,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
   Future<void> searchMembers(String? keyword, int page) async {
     error = null;
     isLoading = true;
+    users = [];
     notifyListeners();
     try {
       final response = await CoupleInvitationService.searchMembers(
@@ -127,7 +129,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
   }
 
   Future<void> sendInvitation(int receiverMemberId, String message) async {
-    isLoading = true;
+    isSendingInvitation = true;
     error = null;
     notifyListeners();
 
@@ -142,7 +144,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isSendingInvitation = false;
       notifyListeners();
     }
   }
