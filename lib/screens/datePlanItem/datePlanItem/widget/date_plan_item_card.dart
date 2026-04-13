@@ -34,105 +34,159 @@ class DatePlanItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final isInactive = item.venueLocation.status.toUpperCase() == "INACTIVE";
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12), // 🔥 chuyển ra đây
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Stack(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    width: 90,
-                    height: 90,
-                    child: VenueImage(
-                      imageUrl: item.venueLocation.coverImage.isNotEmpty
-                          ? item.venueLocation.coverImage[0]
-                          : '',
-                    ),
-                  ),
+            Opacity(
+              opacity: isInactive ? 0.5 : 1,
+              child: Card(
+                margin: EdgeInsets.zero, // 🔥 QUAN TRỌNG
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
                 ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: SizedBox(
+                              width: 90,
+                              height: 90,
+                              child: VenueImage(
+                                imageUrl:
+                                    item.venueLocation.coverImage.isNotEmpty
+                                    ? item.venueLocation.coverImage[0]
+                                    : '',
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(width: 10),
+
                           Expanded(
-                            child: VenueTitle(
-                              name: item.venueLocation.name,
-                              venueId: item.venueLocation.id,
-                            ),
-                          ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: VenueTitle(
+                                        name: item.venueLocation.name,
+                                        venueId: item.venueLocation.id,
+                                      ),
+                                    ),
 
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline, size: 18),
-                            color: Colors.redAccent,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                            onPressed: () => showConfirmDeleteDialog(
-                              context: context,
-                              onConfirm: onDelete,
-                            ),
-                          ),
+                                    IconButton(
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        size: 18,
+                                      ),
+                                      color: Colors.redAccent,
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      onPressed: () => showConfirmDeleteDialog(
+                                        context: context,
+                                        onConfirm: onDelete,
+                                      ),
+                                    ),
 
-                          ReorderableDragStartListener(
-                            index: index,
-                            child: const Icon(Icons.drag_handle, size: 18),
+                                    ReorderableDragStartListener(
+                                      index: index,
+                                      child: const Icon(
+                                        Icons.drag_handle,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 6),
+
+                                TimeRangeBadge(
+                                  startTime: item.startTime,
+                                  endTime: item.endTime,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 10),
 
-                      TimeRangeBadge(
-                        startTime: item.startTime,
-                        endTime: item.endTime,
+                      VenueAddress(address: item.venueLocation.address),
+
+                      const SizedBox(height: 8),
+
+                      NoteSection(note: item.note),
+
+                      const SizedBox(height: 8),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => _onEditPressed(context),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            "Chỉnh sửa",
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF8093F1),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
 
-            const SizedBox(height: 10),
-
-            VenueAddress(address: item.venueLocation.address),
-
-            const SizedBox(height: 8),
-
-            NoteSection(note: item.note),
-
-            const SizedBox(height: 8),
-
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => _onEditPressed(context),
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            if (isInactive)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(color: Colors.black.withOpacity(0.1)),
                 ),
-                child: const Text(
-                  "Chỉnh sửa",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF8093F1),
-                    fontWeight: FontWeight.w600,
+              ),
+
+            if (isInactive)
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade800,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    "Không khả dụng",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

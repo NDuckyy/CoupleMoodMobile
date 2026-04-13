@@ -83,6 +83,7 @@ class DatePlanService {
     try {
       final res = await ApiClient.request(
         '/DatePlan/$datePlanId/items',
+        query: {'pageNumber': 1, 'pageSize': 100},
         method: HttpMethod.get,
       );
       return ApiResponse<DatePlanItemResponse>.fromJson(
