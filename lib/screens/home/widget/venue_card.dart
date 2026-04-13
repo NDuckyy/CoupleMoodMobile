@@ -12,6 +12,7 @@ const lavender = Color(0xFFB388EB);
 const softBlue = Color(0xFF8093F1);
 const mint = Color(0xFF72DDF7);
 const softGrey = Color(0xFFF5F5F7);
+const double highPriceThreshold = 100000000;
 
 class VenueCard extends StatelessWidget {
   final Recommendation r;
@@ -157,7 +158,10 @@ class VenueCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '≈ ${CurrencyUtils.formatVND(r.averageCost?.toDouble() ?? 0)}',
+                      CurrencyUtils.getPriceText(
+                        r.priceMin?.toDouble(),
+                        r.priceMax?.toDouble(),
+                      ),
                       style: const TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Color(0xFF3B2E5A),
