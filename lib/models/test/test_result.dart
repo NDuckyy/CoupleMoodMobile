@@ -1,21 +1,22 @@
-class TestResponse{
+class TestResponse {
   final String status;
   final TestResult result;
 
-  TestResponse({
-    required this.status,
-    required this.result,
-  });
+  TestResponse({required this.status, required this.result});
 
-  factory TestResponse.fromJson(Map<String, dynamic> json) {
+  factory TestResponse.fromJson({
+    required Map<String, dynamic> json,
+    required String dataKey,
+  }) {
     return TestResponse(
       status: json['status']?.toString() ?? '',
-      result: json['result'] is Map<String, dynamic>
-          ? TestResult.fromJson(json['result'] as Map<String, dynamic>)
+      result: json[dataKey] is Map<String, dynamic>
+          ? TestResult.fromJson(json[dataKey] as Map<String, dynamic>)
           : TestResult(mbtiCode: '', name: '', description: []),
     );
   }
 }
+
 class TestResult {
   final String mbtiCode;
   final String name;

@@ -96,6 +96,21 @@ class TestProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchTestResult(int testId) async {
+    error = null;
+    _testResult = null;
+    try {
+      final res = await _testService.getTestResult(testId);
+      if (res.code == 200 && res.data != null) {
+        _testResult = res;
+      } else {
+        throw Exception(res.message);
+      }
+    } catch (e) {
+      throw Exception('Lỗi khi lấy kết quả bài test: $e');
+    }
+  }
+
   Future<String> getUserPersonality() async {
     error = null;
     try {

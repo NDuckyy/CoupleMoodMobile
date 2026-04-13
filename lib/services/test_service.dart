@@ -70,7 +70,7 @@ class TestService {
       );
       return ApiResponse<TestResponse>.fromJson(
         res,
-        (json) => TestResponse.fromJson(json),
+        (json) => TestResponse.fromJson(json: json, dataKey: "result"),
       );
     } catch (e) {
       throw Exception('Lỗi khi nộp bài test: $e');
@@ -130,11 +130,25 @@ class TestService {
       );
       return ApiResponse<String>.fromJson(
         res,
-        (json) =>
-            (json as Map<String, dynamic>)['resultCode'] as String,
+        (json) => (json as Map<String, dynamic>)['resultCode'] as String,
       );
     } catch (e) {
       throw Exception('Lỗi khi lấy tính cách của tôi: $e');
+    }
+  }
+
+  Future<ApiResponse<TestResponse>> getTestResult(int testId) async {
+    try {
+      final res = await ApiClient.request(
+        "/PersonalityTest/$testId",
+        method: HttpMethod.get,
+      );
+      return ApiResponse<TestResponse>.fromJson(
+        res,
+        (json) => TestResponse.fromJson(json: json, dataKey: "summary"),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy kết quả bài test: $e');
     }
   }
 }

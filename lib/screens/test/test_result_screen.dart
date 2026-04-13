@@ -58,7 +58,7 @@ class TestResultScreen extends StatelessWidget {
 
                     TestActionsRow(
                       onHome: () =>
-                          context.goNamed('home'), // đổi đúng route name
+                          context.goNamed('home'),
                       onBack: () => context.pop(),
                     ),
                   ],
