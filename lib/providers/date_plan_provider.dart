@@ -23,6 +23,7 @@ class DatePlanProvider extends ChangeNotifier {
   String? error;
   bool isFetching = false;
   bool isUpdatingOrder = false;
+  bool isUpdateDatePlanLoading = false;
 
   int pageNumber = 1;
   final int pageSize = 5;
@@ -159,7 +160,7 @@ class DatePlanProvider extends ChangeNotifier {
     required DatePlanCreateAndUpdateRequest request,
   }) async {
     error = null;
-    isLoading = true;
+    isUpdateDatePlanLoading = true;
     notifyListeners();
     try {
       final response = await DatePlanService.updateDatePlan(id, request);
@@ -169,7 +170,7 @@ class DatePlanProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isUpdateDatePlanLoading = false;
       notifyListeners();
     }
   }

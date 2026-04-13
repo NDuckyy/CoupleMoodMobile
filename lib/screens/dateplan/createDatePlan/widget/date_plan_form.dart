@@ -48,6 +48,14 @@ class _DatePlanFormState extends State<DatePlanForm> {
     }
 
     final estimatedBudget = double.tryParse(budgetCtrl.text.trim()) ?? 0;
+    if (estimatedBudget < 0) {
+      showMsg(context, "Ngân sách ước tính không được âm", false);
+      return;
+    }
+    if (estimatedBudget > 1000000000) {
+      showMsg(context, "Ngân sách không vượt quá 1 tỷ", false);
+      return;
+    }
 
     final request = DatePlanCreateAndUpdateRequest(
       title: titleCtrl.text.trim(),

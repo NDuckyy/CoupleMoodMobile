@@ -54,6 +54,7 @@ class DatePlanDetails {
   final double estimatedBudget;
   final String status;
   final String? note;
+  final String? durationMode;
 
   DatePlanDetails({
     required this.id,
@@ -64,6 +65,7 @@ class DatePlanDetails {
     required this.estimatedBudget,
     required this.status,
     this.note,
+    this.durationMode,
   });
 
   factory DatePlanDetails.fromJson(Map<String, dynamic> json) {
@@ -76,6 +78,7 @@ class DatePlanDetails {
       estimatedBudget: json['estimatedBudget'].toDouble(),
       status: json['status'],
       note: json['note'],
+      durationMode: json['durationMode'],
     );
   }
 }
