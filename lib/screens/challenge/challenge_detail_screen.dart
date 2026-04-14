@@ -240,7 +240,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     showMsg(context, "Không thể rời thử thách", false);
                   }
                 },
-                child: const Text("Leave Challenge"),
+                child: const Text("Rời thử thách"),
               ),
             ),
         ],
