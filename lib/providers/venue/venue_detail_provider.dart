@@ -1,7 +1,11 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/checkin/checkin_payload.dart';
+import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item_summary.dart';
 import 'package:couple_mood_mobile/models/venue/venue_model.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item.dart';
+import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/services/review_service.dart';
 import 'package:couple_mood_mobile/services/venue/venue_service.dart';
 import 'package:couple_mood_mobile/services/collection/collection_service.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +16,10 @@ class VenueDetailProvider extends ChangeNotifier {
   bool loading = false;
   bool favoriteLoading = false;
   String? error;
+
+  bool checkInLoading = false;
+  String? checkInError;
+  bool checkInSuccess = false;
 
   bool isFavorite = false;
   int favoriteCount = 0;
@@ -112,5 +120,40 @@ class VenueDetailProvider extends ChangeNotifier {
       collectionId: collectionId,
       venueId: venue!.id,
     );
+  }
+
+  Future<bool> handleCheckInFlow(int venueId) async {
+    checkInLoading = true;
+    checkInError = null;
+    notifyListeners();
+
+    try {
+      final position = await LocationService.getCurrentPosition();
+
+      if (position == null) {
+        throw Exception("Vui lòng bật GPS để check-in 📍");
+      }
+
+      final payload = CheckInPayload(
+        venueLocationId: venueId,
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
+      CheckInSession.lastCheckIn = payload;
+
+      await ReviewService.triggerCheckIn(payload);
+
+      checkInSuccess = true;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      checkInError = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      return false;
+    } finally {
+      checkInLoading = false;
+      notifyListeners();
+    }
   }
 }

@@ -7,18 +7,36 @@ import 'package:flutter/material.dart';
 
 class ReviewService {
   static Future<void> triggerCheckIn(CheckInPayload payload) async {
-    final res = await ApiClient.request(
-      "/Review/check-in-trigger",
-      method: HttpMethod.post,
-      data: payload.toJson(),
-    );
+    try {
+      final res = await ApiClient.request(
+        "/Review/check-in-trigger",
+        method: HttpMethod.post,
+        data: payload.toJson(),
+      );
 
-    if (res != null && res["checkInId"] != null) {
-      CheckInSession.checkInId = res["checkInId"];
+      if (res == null) {
+        throw Exception("Không nhận được phản hồi từ server");
+      }
+
+      if (res["code"] != 200) {
+        throw Exception(res["message"] ?? "Check-in thất bại");
+      }
+
+      final checkInId = res["data"];
+      if (checkInId == null) {
+        throw Exception("Không nhận được checkInId");
+      }
+
+      CheckInSession.checkInId = (checkInId as num).toInt();
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
-  static Future<ApiResponse<int>> validateCheckIn(int checkInId, ValidateCondition condition) async {
+  static Future<ApiResponse<int>> validateCheckIn(
+    int checkInId,
+    ValidateCondition condition,
+  ) async {
     try {
       final res = await ApiClient.request(
         "/Review/validate-condition",
