@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/voucher/voucher_location.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 
 class MemberVoucherItem {
   final int voucherItemId;
@@ -48,7 +49,7 @@ class MemberVoucherItem {
       return "-${discountPercent?.toStringAsFixed(0) ?? 0}%";
     }
     if (discountType == "FIXED_AMOUNT") {
-      return "-${discountAmount ?? 0}";
+      return "${CurrencyUtils.formatVND(discountAmount!)} GIẢM";
     }
     return "";
   }

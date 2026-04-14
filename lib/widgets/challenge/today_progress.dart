@@ -15,7 +15,7 @@ class TodayProgress extends StatelessWidget {
         const SizedBox(width: 6),
 
         Text(
-          "$done / $total completed today",
+          "$done / $total đã hoàn thành hôm nay",
           style: const TextStyle(fontSize: 13),
         ),
       ],
