@@ -90,7 +90,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
             }
           },
         ),
-        title: const Text("News Feed"),
+        title: const Text("Bảng tin"),
         centerTitle: true,
       ),
       body: RefreshIndicator(
