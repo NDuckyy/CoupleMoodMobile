@@ -1,16 +1,16 @@
 class TestHistory {
   final int id;
   final int testTypeId;
-  final String resultCode;
+  final String? resultCode;
   final String status;
-  final String takenAt;
+  final String? takenAt;
 
   TestHistory({
     required this.id,
     required this.testTypeId,
-    required this.resultCode,
+    this.resultCode,
     required this.status,
-    required this.takenAt,
+    this.takenAt,
   });
 
   factory TestHistory.fromJson(Map<String, dynamic> json) {

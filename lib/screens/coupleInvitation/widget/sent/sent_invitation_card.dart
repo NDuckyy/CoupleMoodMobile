@@ -12,10 +12,7 @@ class SentInvitationCard extends StatelessWidget {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF3EDFF),
-          ],
+          colors: [Color(0xFFFFFFFF), Color(0xFFF3EDFF)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -122,26 +119,30 @@ class SentInvitationCard extends StatelessWidget {
 
   Widget _buildStatusBadge() {
     Color color;
+    String text;
 
     switch (invitation.status) {
       case "ACCEPTED":
-        color = const Color(0xFF72DDF7);
+        color = const Color(0xFF4CAF50);
+        text = "Đã chấp nhận";
         break;
-      case "PENDING":
-        color = const Color(0xFF8093F1);
+      case "REJECTED":
+        color = const Color(0xFFE57373);
+        text = "Đã từ chối";
         break;
       default:
-        color = Colors.redAccent;
+        color = const Color(0xFFB388EB);
+        text = "Đang chờ";
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        invitation.status,
+        text,
         style: TextStyle(
           color: color,
           fontSize: 12,

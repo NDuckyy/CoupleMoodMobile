@@ -14,10 +14,7 @@ class VenueCardGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.pushNamed(
-          "venue_detail",
-          extra: {"venueId": r.id},
-        );
+        context.pushNamed("venue_detail", extra: {"venueId": r.id});
       },
       child: Container(
         decoration: BoxDecoration(
@@ -147,19 +144,31 @@ class VenueCardGrid extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+                            Text(
+                              '(${r.reviewCount})',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: Colors.black54,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      const Spacer(),
-                      Text(
-                        "≈ ${CurrencyUtils.formatVND(r.averageCost?.toDouble() ?? 0)}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Color(0xFFB388EB),
-                        ),
-                      ),
                     ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    CurrencyUtils.getPriceText(
+                      r.priceMin?.toDouble(),
+                      r.priceMax?.toDouble(),
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF3B2E5A),
+                      fontSize: 11
+                    ),
                   ),
 
                   const SizedBox(height: 6),

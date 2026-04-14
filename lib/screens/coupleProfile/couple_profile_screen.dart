@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/couple_provider.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/dialog/show_breakup_confirm_dialog.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/widgets/build_avatar.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/widgets/build_info_card.dart';
 import 'package:couple_mood_mobile/screens/coupleProfile/widgets/build_stat_card.dart';
@@ -36,6 +37,10 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
       showMsg(context, 'Chia tay thành công', true);
       context.goNamed("home");
     }
+  }
+
+  void _onBreakupPressed() {
+    showBreakupConfirmDialog(context: context, onConfirm: _breakupCouple);
   }
 
   @override
@@ -205,7 +210,7 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                 borderRadius: BorderRadius.circular(25),
                                 child: InkWell(
                                   borderRadius: BorderRadius.circular(25),
-                                  onTap: () => _breakupCouple(),
+                                  onTap: () => _onBreakupPressed(),
                                   child: Ink(
                                     decoration: const BoxDecoration(
                                       gradient: LinearGradient(

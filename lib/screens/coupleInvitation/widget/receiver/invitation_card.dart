@@ -7,7 +7,13 @@ class InvitationCard extends StatelessWidget {
   final VoidCallback onReject;
   final InvitationResponse invitation;
 
-  const InvitationCard({required this.onAccept, required this.onReject, required this.invitation, super.key});
+  const InvitationCard({
+    required this.onAccept,
+    required this.onReject,
+    required this.invitation,
+    super.key,
+  });
+
 
   @override
   Widget build(BuildContext context) {
@@ -175,13 +181,16 @@ class InvitationCard extends StatelessWidget {
 
   Widget _buildStatusBadge() {
     Color color;
+    String text;
 
     switch (invitation.status) {
       case "ACCEPTED":
         color = const Color(0xFF4CAF50);
+        text = "Đã chấp nhận";
         break;
       default:
         color = const Color(0xFFE57373);
+        text = "Đã từ chối";
     }
 
     return Container(
@@ -191,7 +200,7 @@ class InvitationCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        invitation.status,
+        text,
         style: TextStyle(
           color: color,
           fontSize: 12,
