@@ -22,7 +22,7 @@ class UserSearchBar extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFFB388EB).withOpacity(0.25),
+              color: const Color(0xFFB388EB).withOpacity(0.25),
               blurRadius: 15,
               offset: const Offset(0, 6),
             ),
@@ -38,17 +38,54 @@ class UserSearchBar extends StatelessWidget {
             children: [
               const Icon(Icons.search, color: Color(0xFF8093F1)),
               const SizedBox(width: 10),
+
+              /// 🔥 TEXT FIELD + CLEAR BUTTON
               Expanded(
-                child: TextField(
-                  controller: controller,
-                  cursorColor: Color(0xFFB388EB),
-                  decoration: const InputDecoration(
-                    hintText: "Tìm kiếm bạn bè 💕",
-                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
-                    border: InputBorder.none,
-                  ),
-                  onSubmitted: (value) {
-                    onSearch(value.isEmpty ? "" : value);
+                child: ValueListenableBuilder(
+                  valueListenable: controller,
+                  builder: (context, TextEditingValue value, _) {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: controller,
+                            cursorColor: const Color(0xFFB388EB),
+                            decoration: const InputDecoration(
+                              hintText: "Tìm kiếm bạn bè 💕",
+                              hintStyle: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                              border: InputBorder.none,
+                            ),
+                            onSubmitted: (value) {
+                              onSearch(value.isEmpty ? "" : value);
+                            },
+                          ),
+                        ),
+
+                        /// ❌ CLEAR BUTTON
+                        if (value.text.isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              controller.clear(); // clear text
+                              onSearch(""); // 🔥 gọi lại API
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.2),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                      ],
+                    );
                   },
                 ),
               ),

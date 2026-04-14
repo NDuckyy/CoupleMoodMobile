@@ -20,7 +20,6 @@ class CoupleInvitationProvider extends ChangeNotifier {
   Future<void> searchMembers(String? keyword, int page) async {
     error = null;
     isLoading = true;
-    users = [];
     notifyListeners();
     try {
       final response = await CoupleInvitationService.searchMembers(
