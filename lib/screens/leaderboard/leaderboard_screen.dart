@@ -67,7 +67,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
-                /// 🔥 BACKGROUND DYNAMIC
+                ///  BACKGROUND DYNAMIC
                 Positioned(
                   top: screenHeight * (0.33 - 0.45 * progress),
                   left: -20,
