@@ -24,7 +24,6 @@ class TestResultScreen extends StatelessWidget {
           'Kết quả 💕',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),

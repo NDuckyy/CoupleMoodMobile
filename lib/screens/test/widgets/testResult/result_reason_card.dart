@@ -11,37 +11,40 @@ class ResultReasonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 14),
             decoration: const BoxDecoration(
-              color: Color(0xFFF7AEF8),
-              shape: BoxShape.circle,
+              color: Color(0xFF8093F1),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
-            padding: const EdgeInsets.all(8),
-            child: const Icon(
-              Icons.favorite_rounded,
-              color: Colors.white,
-              size: 18,
+            child: const Center(
+              child: Icon(
+                Icons.favorite,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
-          const SizedBox(width: 12),
 
-          Expanded(
+          Padding(
+            padding: const EdgeInsets.all(16),
             child: Text(
               reason,
               style: const TextStyle(
