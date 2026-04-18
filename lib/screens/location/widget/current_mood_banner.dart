@@ -7,7 +7,7 @@ class CurrentMoodBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayMood = mood ?? "Đang tải...";
+    final displayMood = mood ?? "Chưa xác định";
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
