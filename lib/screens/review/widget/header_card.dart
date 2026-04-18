@@ -19,11 +19,11 @@ class HeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final moods = coupleMoodTypes;
     final venueProvider = context.watch<VenueDetailProvider>();
     return Container(
       padding: const EdgeInsets.all(16),
       width: double.infinity,
-      height: 130,
       decoration: BoxDecoration(
         color: const Color(0xFFF7AEF8).withOpacity(0.2),
         borderRadius: BorderRadius.circular(24),
@@ -90,9 +90,14 @@ class HeaderCard extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 6,
-                        children: coupleMoodTypes
-                            .map((mood) => _MoodChip(label: mood.name))
-                            .toList(),
+                        children: [
+                          ...moods
+                              .take(2)
+                              .map((mood) => _MoodChip(label: mood.name)),
+
+                          if (moods.length > 2)
+                            _MoodChip(label: '+${moods.length - 2} more'),
+                        ],
                       ),
                     ],
                   ),

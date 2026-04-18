@@ -75,6 +75,16 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
       return;
     }
 
+    if (endAt!.isBefore(startAt!)) {
+      showMsg(context, "Thời gian kết thúc phải sau thời gian bắt đầu", false);
+      return;
+    }
+
+    if (endAt!.difference(startAt!).inMinutes < 60) {
+      showMsg(context, "Thời gian cuộc hẹn phải dài hơn 1 tiếng", false);
+      return;
+    }
+
     final provider = context.read<DatePlanProvider>();
     final estimatedBudget = double.tryParse(budgetCtrl.text.trim()) ?? 0;
     if (estimatedBudget < 0) {
@@ -93,7 +103,9 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
         plannedEndAt: endAt!.toUtc(),
         estimatedBudget: estimatedBudget,
         note: noteCtrl.text.trim(),
-        durationMode: durationModeCtrl.text.trim().isNotEmpty ? durationModeCtrl.text.trim() : null,
+        durationMode: durationModeCtrl.text.trim().isNotEmpty
+            ? durationModeCtrl.text.trim()
+            : null,
         version: provider.selectedDatePlan?.data?.version ?? 1,
       ),
     );

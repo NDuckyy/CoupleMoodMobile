@@ -106,7 +106,7 @@ class _GuestScreenState extends State<GuestScreen> {
                 )
               else if (recommendationProvider.error != null)
                 SliverFillRemaining(
-                  hasScrollBody: false,
+                  hasScrollBody: true,
                   child: Center(
                     child: Text(
                       recommendationProvider.error!,

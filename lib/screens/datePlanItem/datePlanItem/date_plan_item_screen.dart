@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_card.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/date_plan_item_header.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/datePlanItem/widget/update_loading.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_AI_reason_dialog.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -118,7 +119,7 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
     if (provider.error != null) {
       showMsg(context, provider.error!, false);
     } else {
-      showMsg(context, "Đã tạo lịch hẹn hò bằng AI thành công 💖", true);
+      showAIReasonDialog(context: context, reason: provider.reason);
       _reload();
     }
   }

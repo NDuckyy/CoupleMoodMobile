@@ -40,6 +40,25 @@ class DatePlanChatCard extends StatelessWidget {
     }
   }
 
+  String getStatusText(String status) {
+    switch (status) {
+      case 'DRAFTED':
+        return 'NHÁP';
+      case 'PENDING':
+        return 'CHỜ DUYỆT';
+      case 'SCHEDULED':
+        return 'ĐÃ DUYỆT';
+      case 'IN_PROGRESS':
+        return 'ĐANG DIỄN RA';
+      case 'COMPLETED':
+        return 'ĐÃ HOÀN THÀNH';
+      case 'CANCELLED':
+        return 'ĐÃ HỦY';
+      default:
+        return status;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final start = formatDate(datePlanInfo["plannedStartAt"]);
@@ -105,7 +124,7 @@ class DatePlanChatCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        datePlanInfo["status"],
+                        getStatusText(datePlanInfo["status"]),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,

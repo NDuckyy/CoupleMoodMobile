@@ -55,6 +55,7 @@ class DatePlanDetails {
   final String status;
   final String? note;
   final String? durationMode;
+  final bool? isCreator;
 
   DatePlanDetails({
     required this.id,
@@ -66,6 +67,7 @@ class DatePlanDetails {
     required this.status,
     this.note,
     this.durationMode,
+    this.isCreator,
   });
 
   factory DatePlanDetails.fromJson(Map<String, dynamic> json) {
@@ -79,6 +81,7 @@ class DatePlanDetails {
       status: json['status'],
       note: json['note'],
       durationMode: json['durationMode'],
+      isCreator: json['isCreator'],
     );
   }
 }

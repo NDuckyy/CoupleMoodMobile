@@ -23,6 +23,7 @@ class RecommendationService {
       );
     } catch (e) {
       debugPrint(e.toString());
+      print('Lỗi khi lấy gợi ý địa điểm: $e');
       throw Exception('Lỗi khi lấy gợi ý địa điểm: $e');
     }
   }
