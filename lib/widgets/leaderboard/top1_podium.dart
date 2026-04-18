@@ -188,8 +188,8 @@ class Top1Podium extends StatelessWidget {
       child: Text(
         name,
         textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
+        // maxLines: 1,
+        // overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontSize: 12),
       ),
     );
