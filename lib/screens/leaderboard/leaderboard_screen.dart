@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/widgets/leaderboard/leaderboard_card.dart';
 import 'package:couple_mood_mobile/widgets/leaderboard/top1_podium.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:couple_mood_mobile/widgets/leaderboard/leaderboard_info_button.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
@@ -52,7 +53,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final isEmpty = provider.rankings.isEmpty;
 
-    /// 🔥 PROGRESS ANIMATION (0 -> 1)
+    ///  PROGRESS ANIMATION (0 -> 1)
     final progress = Curves.easeOut.transform((_offset / 300).clamp(0.0, 1.0));
 
     return Scaffold(
@@ -60,6 +61,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       appBar: AppBar(
         title: const Text("Bảng xếp hạng"),
         backgroundColor: const Color.fromARGB(255, 230, 70, 123),
+        actions: const [LeaderboardInfoButton()],
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
