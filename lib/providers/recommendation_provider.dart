@@ -41,6 +41,7 @@ class RecommendationProvider extends ChangeNotifier {
 
   Future<void> fetchRecommendations(RecommendationRequest request) async {
     page = 1;
+    error = null;
     try {
       isLoading = true;
       notifyListeners();
@@ -93,6 +94,7 @@ class RecommendationProvider extends ChangeNotifier {
   Future<void> popularNearby() async {
     try {
       isLoading = true;
+      error = null;
       notifyListeners();
       _recommendationResponse =
           await RecommendationService.fetchRecommendations(
@@ -134,6 +136,7 @@ class RecommendationProvider extends ChangeNotifier {
 
   Future<void> fetchLocationsByContext() async {
     page = 1;
+    error = null;
     try {
       isContextLoading = true;
       _contextRecommendationResponse = null;
@@ -191,7 +194,7 @@ class RecommendationProvider extends ChangeNotifier {
 
   Future<void> fetchAllCategories() async {
     if (allCategories.isNotEmpty) return;
-
+    error = null;
     try {
       isCategoryLoading = true;
       notifyListeners();
@@ -236,7 +239,6 @@ class RecommendationProvider extends ChangeNotifier {
 
   void searchCategory(String keyword) {
     categoryKeyword = keyword;
-
     if (keyword.isEmpty) {
       filteredCategories = allCategories;
     } else {
