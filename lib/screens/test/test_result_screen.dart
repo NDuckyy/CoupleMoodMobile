@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/screens/test/widgets/testResult/result_reason_card.dart';
 import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_action_row.dart';
 import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_breakdown_card.dart';
 import 'package:couple_mood_mobile/screens/test/widgets/testResult/test_description_card.dart';
@@ -23,7 +24,6 @@ class TestResultScreen extends StatelessWidget {
           'Kết quả 💕',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),
@@ -39,8 +39,16 @@ class TestResultScreen extends StatelessWidget {
                     TestHeaderCard(
                       mbtiCode: testResult.result.mbtiCode,
                       name: (testResult.result.name),
+                      imageUrl: testResult.resultImage,
                     ),
                     const SizedBox(height: 14),
+
+                    if (testResult.resultReason != null) ...[
+                      TestSectionTitle(title: 'Giải thích kết quả'),
+                      const SizedBox(height: 10),
+                      ResultReasonCard(reason: testResult.resultReason!),
+                    ],
+                    const SizedBox(height: 18),
 
                     if (testResult.result.breakdown?.percent != null) ...[
                       TestSectionTitle(title: 'Tổng quan tính cách'),
@@ -57,8 +65,7 @@ class TestResultScreen extends StatelessWidget {
                     const SizedBox(height: 18),
 
                     TestActionsRow(
-                      onHome: () =>
-                          context.goNamed('home'),
+                      onHome: () => context.goNamed('home'),
                       onBack: () => context.pop(),
                     ),
                   ],

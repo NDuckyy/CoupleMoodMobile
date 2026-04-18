@@ -18,7 +18,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().getNotifications(1, 10, "");
+      context.read<NotificationProvider>().getNotifications(1, 1, "");
     });
 
     _scrollController.addListener(_onScroll);

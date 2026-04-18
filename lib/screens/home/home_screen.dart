@@ -182,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return AdvertisementPopup(
             bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+            targetUrl: advertismentProvider.popup?.targetUrl ?? "",
             onTap: () {
               context.pop();
             },
@@ -486,14 +487,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
 
-                    HomeIconButton(
-                      icon: Icons.logout,
-                      label: "Đăng xuất",
-                      color: const Color(0xFFB388EB),
-                      onTap: () {
-                        _logout();
-                      },
-                    ),
                   ],
                 ),
               ),

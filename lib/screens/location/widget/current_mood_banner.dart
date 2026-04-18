@@ -7,7 +7,7 @@ class CurrentMoodBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayMood = mood ?? "Đang tải...";
+    final displayMood = mood ?? "Chưa xác định";
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -18,7 +18,7 @@ class CurrentMoodBanner extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [ Color(0xFF8093F1), Color(0xFF72DDF7)],
+            colors: [Color(0xFF8093F1), Color(0xFF72DDF7)],
           ),
           boxShadow: [
             BoxShadow(
@@ -44,9 +44,8 @@ class CurrentMoodBanner extends StatelessWidget {
 
             /// TEXT
             Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+              child: Text.rich(
+                TextSpan(
                   children: [
                     const TextSpan(
                       text: "Tâm trạng cặp đôi hiện tại: ",
@@ -54,13 +53,13 @@ class CurrentMoodBanner extends StatelessWidget {
                     ),
                     TextSpan(
                       text: displayMood,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

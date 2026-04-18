@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AdvertisementPopup extends StatelessWidget {
   final String bannerUrl;
+  final String targetUrl;
   final VoidCallback? onTap;
 
-  const AdvertisementPopup({super.key, required this.bannerUrl, this.onTap});
+  const AdvertisementPopup({
+    super.key,
+    required this.bannerUrl,
+    required this.targetUrl,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +22,16 @@ class AdvertisementPopup extends StatelessWidget {
       child: Stack(
         children: [
           GestureDetector(
-            onTap: () {},
+            onTap: () async {
+              try {
+                await launchUrl(
+                  Uri.parse(targetUrl),
+                  mode: LaunchMode.externalApplication,
+                );
+              } catch (e) {
+                debugPrint("Không mở được link: $targetUrl");
+              }
+            },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: Image.network(

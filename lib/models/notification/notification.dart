@@ -1,39 +1,39 @@
 class NotificationApp {
   final int id;
-  final String title;
-  final String message;
-  final String type;
+  final String? title;
+  final String? message;
+  final String? type;
   final int? referenceId;
   final String? referenceType;
   bool isRead;
   final DataReview? data;
-  final DateTime createdAt;
+  final DateTime? createdAt;
 
   NotificationApp({
     required this.id,
-    required this.title,
-    required this.message,
-    required this.type,
+    this.title,
+    this.message,
+    this.type,
     this.referenceId,
     this.referenceType,
     required this.isRead,
     this.data,
-    required this.createdAt,
+    this.createdAt,
   });
 
   factory NotificationApp.fromJson(Map<String, dynamic> json) {
     return NotificationApp(
       id: json['id'] as int,
-      title: json['title'] as String,
-      message: json['message'] as String,
-      type: json['type'] as String,
+      title: json['title'] as String?,
+      message: json['message'] as String?,
+      type: json['type'] as String?,
       referenceId: json['referenceId'] as int?,
       referenceType: json['referenceType'] as String?,
       isRead: json['isRead'] as bool,
       data: json['data'] != null && (json['data'] as Map).isNotEmpty
           ? DataReview.fromJson(json['data'] as Map<String, dynamic>)
           : null,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] != null ? DateTime.parse(json['createdAt'] as String) : null,
     );
   }
 }

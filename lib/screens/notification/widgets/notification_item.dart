@@ -47,7 +47,7 @@ class NotificationItem extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                _buildIcon(notification.type, isUnread),
+                _buildIcon(notification.type ?? '', isUnread),
                 const SizedBox(width: 12),
 
                 Expanded(
@@ -55,7 +55,7 @@ class NotificationItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        notification.title,
+                        notification.title ?? '',
                         style: TextStyle(
                           fontWeight: isUnread
                               ? FontWeight.bold
@@ -66,7 +66,7 @@ class NotificationItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        notification.message,
+                        notification.message ?? '',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
@@ -78,7 +78,7 @@ class NotificationItem extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        _formatTime(notification.createdAt),
+                        _formatTime(notification.createdAt ?? DateTime.now()),
                         style: const TextStyle(
                           fontSize: 12,
                           color: Color(0xFF999999),
@@ -196,7 +196,7 @@ class NotificationItem extends StatelessWidget {
               const SizedBox(height: 16),
 
               Text(
-                notification.title,
+                notification.title ?? '',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 18,
@@ -208,7 +208,7 @@ class NotificationItem extends StatelessWidget {
               const SizedBox(height: 10),
 
               Text(
-                notification.message,
+                notification.message ?? '',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
