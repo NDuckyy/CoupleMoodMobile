@@ -30,6 +30,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   bool _isLoadingMore = false;
   late ChatProvider chatProvider;
   StreamSubscription? _conversationSub;
+  final Set<int> _deletedMessageIds = {};
 
   @override
   void initState() {
@@ -47,6 +48,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (!mounted) return;
     // Load messages
     await chatProvider.loadMessages(widget.conversation.id);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final messages = chatProvider.getMessages(widget.conversation.id);
+      _autoDeleteDraftedMessages(messages);
+    });
   }
 
   void _onScroll() {
@@ -164,6 +170,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     ) {
       if (conversation.id == widget.conversation.id) {
         chatProvider.loadMessages(widget.conversation.id);
+        final messages = chatProvider.getMessages(widget.conversation.id);
+        _autoDeleteDraftedMessages(messages);
       }
     });
   }
@@ -181,12 +189,36 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  void _autoDeleteDraftedMessages(List<Message> messages) async {
+    for (var msg in messages) {
+      if (msg.messageType == 'DATE_PLAN' &&
+          msg.datePlanInfo?['status'] == 'DRAFTED') {
+        if (!_deletedMessageIds.contains(msg.id)) {
+          _deletedMessageIds.add(msg.id);
+
+          unawaited(chatProvider.deleteMessage(msg.id));
+        }
+      }
+    }
+  }
+
+  List<Message> _filterDraftedMessages(List<Message> rawMessages) {
+    return rawMessages.where((msg) {
+      if (msg.messageType == 'DATE_PLAN' &&
+          msg.datePlanInfo?['status']?.toString() == 'DRAFTED') {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final displayName = widget.conversation.getDisplayName();
     final isOnline = widget.conversation.getOnlineStatus();
-    final messages = chatProvider.getMessages(widget.conversation.id);
+    final rawMessages = chatProvider.getMessages(widget.conversation.id);
+    final messages = _filterDraftedMessages(rawMessages);
     final isLoading = chatProvider.isLoadingMessages(widget.conversation.id);
     final typingUsers = chatProvider.getTypingUsers(widget.conversation.id);
 
