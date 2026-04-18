@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:flutter/material.dart';
 
 class MoodCarousel extends StatefulWidget {
-  final List moods;
-  final Function(dynamic) onSelect;
+  final List<MoodType> moods;
+  final Function(MoodType) onSelect;
 
   const MoodCarousel({super.key, required this.moods, required this.onSelect});
 
@@ -14,6 +16,7 @@ class MoodCarousel extends StatefulWidget {
 class _MoodCarouselState extends State<MoodCarousel> {
   final PageController _controller = PageController(viewportFraction: 0.45);
   int currentIndex = 0;
+  Timer? _debounce;
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +29,19 @@ class _MoodCarouselState extends State<MoodCarousel> {
           setState(() {
             currentIndex = index;
           });
-          widget.onSelect(widget.moods[index]);
+          _debounce?.cancel();
+          _debounce = Timer(const Duration(milliseconds: 150), () {
+            widget.onSelect(widget.moods[index]);
+          });
         },
         itemBuilder: (context, index) {
           final MoodType mood = widget.moods[index];
           final isSelected = index == currentIndex;
 
           return Center(
+            key: ValueKey(mood.id),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 200),
               margin: EdgeInsets.zero,
               transform: Matrix4.identity()..scale(isSelected ? 1.15 : 0.9),
               child: GestureDetector(
