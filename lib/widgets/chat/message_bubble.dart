@@ -155,6 +155,7 @@ class MessageBubble extends StatelessWidget {
               )
             : DatePlanChatCard(
                 datePlanInfo: message.datePlanInfo ?? {},
+                isMine: message.isMine,
                 onTap: () {
                   context.pushNamed(
                     'date_plan_item',
