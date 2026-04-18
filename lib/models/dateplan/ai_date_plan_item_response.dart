@@ -1,10 +1,12 @@
 class AiDatePlanItemResponse {
+  final String? reason;
   final List<VenueItem> items;
 
-  AiDatePlanItemResponse({required this.items});
+  AiDatePlanItemResponse({required this.items, this.reason});
 
   factory AiDatePlanItemResponse.fromJson(Map<String, dynamic> json) {
     return AiDatePlanItemResponse(
+      reason: json['reason'],
       items: (json['items'] as List<dynamic>)
           .map((e) => VenueItem.fromJson(e as Map<String, dynamic>))
           .toList(),

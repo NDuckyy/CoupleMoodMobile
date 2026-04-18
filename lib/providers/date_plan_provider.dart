@@ -19,6 +19,7 @@ class DatePlanProvider extends ChangeNotifier {
   ApiResponse<DatePlanCalender>? datePlanCalender;
   ApiResponse<ListDatePlanItem>? selectedDatePlanItem;
   ApiResponse<AiDatePlanItemResponse>? aiDatePlanItem;
+  String reason = '';
   bool isLoading = true;
   String? error;
   bool isFetching = false;
@@ -428,6 +429,7 @@ class DatePlanProvider extends ChangeNotifier {
     AiDatePlanItemRequest request,
     int datePlanId,
   ) async {
+    reason = '';
     error = null;
     isUpdatingOrder = true;
     notifyListeners();
@@ -440,6 +442,7 @@ class DatePlanProvider extends ChangeNotifier {
         error = response.message;
         return;
       }
+      reason = response.data?.reason ?? '';
 
       List<ItemRequest> requests = [];
       for (var item in response.data!.items) {
