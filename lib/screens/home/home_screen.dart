@@ -182,6 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return AdvertisementPopup(
             bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+            targetUrl: advertismentProvider.popup?.targetUrl ?? "",
             onTap: () {
               context.pop();
             },

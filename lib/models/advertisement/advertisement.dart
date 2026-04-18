@@ -4,6 +4,7 @@ class Advertisement {
   final int? venueId;
   final int? specialEventId;
   final String? bannerUrl;
+  final String? targetUrl;
 
   Advertisement({
     required this.type,
@@ -11,6 +12,7 @@ class Advertisement {
     this.venueId,
     this.specialEventId,
     this.bannerUrl,
+    this.targetUrl,
   });
 
   factory Advertisement.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Advertisement {
       venueId: json['venueId'] as int?,
       specialEventId: json['specialEventId'] as int?,
       bannerUrl: json['bannerUrl'] as String?,
+      targetUrl: json['targetUrl'] as String?,
     );
   }
 
