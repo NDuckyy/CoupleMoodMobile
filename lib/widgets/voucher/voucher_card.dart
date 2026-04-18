@@ -118,17 +118,25 @@ class VoucherCard extends StatelessWidget {
                     ),
                   ],
 
-                  /// VOUCHER text
                   Positioned(
                     bottom: 20,
                     left: 20,
-                    child: Text(
-                      "VOUCHER",
-                      style: TextStyle(
-                        fontSize: screenWidth * 0.07, // 👈 responsive luôn
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white.withOpacity(0.95),
-                        letterSpacing: 1.5,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.45),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _buildExpireText(voucher),
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -301,8 +309,7 @@ class VoucherCard extends StatelessWidget {
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           const Icon(
-                                            Icons
-                                                .card_giftcard_rounded, // hoặc Icons.swap_horiz
+                                            Icons.card_giftcard_rounded,
                                             color: Colors.white,
                                             size: 20,
                                           ),
@@ -373,4 +380,13 @@ Color _usageColor(VoucherItem v) {
   if (remain <= 0) return Colors.red;
   if (remain <= 2) return Colors.orange;
   return Colors.grey.shade700;
+}
+
+String _buildExpireText(VoucherItem v) {
+  final now = DateTime.now();
+  final diff = v.endDate.difference(now).inDays;
+
+  if (diff < 0) return "Đã hết hạn";
+  if (diff <= 3) return "Còn $diff ngày";
+  return "Hết hạn: ${v.endDate.day}/${v.endDate.month}";
 }

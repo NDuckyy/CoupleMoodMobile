@@ -111,13 +111,7 @@ class PostActions extends StatelessWidget {
               );
             }
           },
-          child: Row(
-            children: const [
-              Icon(Icons.share_outlined),
-              SizedBox(width: 6),
-              Text("Chia sẻ", style: TextStyle(fontWeight: FontWeight.w600)),
-            ],
-          ),
+          child: const Icon(Icons.share_outlined),
         ),
       ],
     );

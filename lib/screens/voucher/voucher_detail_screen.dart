@@ -1,9 +1,13 @@
+import 'package:couple_mood_mobile/models/voucher/voucher_item_model.dart';
 import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
+import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
+import 'package:couple_mood_mobile/widgets/voucher/voucher_info_card.dart';
 
 class VoucherDetailScreen extends StatefulWidget {
   final int voucherId;
@@ -26,6 +30,8 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
@@ -60,7 +66,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    // ==================== VOUCHER HEADER CARD (Đẹp hơn) ====================
+                    // VOUCHER HEADER CARD
                     Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
@@ -119,73 +125,71 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                   ),
                                 ),
 
-                                // Discount Badge
-                                Positioned(
-                                  top: 20,
-                                  left: 20,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 9,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFE53935),
-                                      borderRadius: BorderRadius.circular(30),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black26,
-                                          blurRadius: 8,
+                                // Discount Badge and status badge
+                                if (isSmallScreen)
+                                  Positioned(
+                                    top: 12,
+                                    left: 12,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        VoucherDiscountBadge(
+                                          screenWidth: screenWidth,
+                                          discountText: v.discountAmount != null
+                                              ? CurrencyUtils.formatVND(
+                                                  v.discountAmount!,
+                                                )
+                                              : "${v.discountPercent?.toStringAsFixed(0)}%",
+                                        ),
+                                        const SizedBox(height: 6),
+                                        VoucherStatusBadge(
+                                          screenWidth: screenWidth,
                                         ),
                                       ],
                                     ),
-                                    child: Text(
-                                      v.discountAmount != null
-                                          ? "${CurrencyUtils.formatVND(v.discountAmount!)} GIẢM"
-                                          : "${v.discountPercent?.toStringAsFixed(0)}% GIẢM",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 21,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  )
+                                else ...[
+                                  Positioned(
+                                    top: 20,
+                                    left: 20,
+                                    child: VoucherDiscountBadge(
+                                      screenWidth: screenWidth,
+                                      discountText: v.discountAmount != null
+                                          ? CurrencyUtils.formatVND(
+                                              v.discountAmount!,
+                                            )
+                                          : "${v.discountPercent?.toStringAsFixed(0)}%",
                                     ),
                                   ),
-                                ),
+                                  Positioned(
+                                    top: 20,
+                                    right: 20,
+                                    child: VoucherStatusBadge(
+                                      screenWidth: screenWidth,
+                                    ),
+                                  ),
+                                ],
 
-                                // Status
                                 Positioned(
-                                  top: 20,
-                                  right: 20,
+                                  bottom: 20,
+                                  left: 20,
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 14,
-                                      vertical: 7,
+                                      horizontal: 10,
+                                      vertical: 5,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Colors.green.shade600,
-                                      borderRadius: BorderRadius.circular(25),
+                                      color: Colors.black.withOpacity(0.45),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
-                                    child: const Text(
-                                      "ĐANG HOẠT ĐỘNG",
-                                      style: TextStyle(
+                                    child: Text(
+                                      _buildExpireText(v),
+                                      style: const TextStyle(
+                                        fontSize: 12.5,
                                         color: Colors.white,
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.bold,
+                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ),
-                                  ),
-                                ),
-
-                                // VOUCHER Text
-                                const Positioned(
-                                  bottom: 24,
-                                  left: 24,
-                                  child: Text(
-                                    "VOUCHER",
-                                    style: TextStyle(
-                                      fontSize: 31,
-                                      fontWeight: FontWeight.w900,
-                                      color: Colors.white,
-                                      letterSpacing: 1.8,
                                     ),
                                   ),
                                 ),
@@ -297,37 +301,118 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                     const SizedBox(height: 24),
 
                     // Mô tả
-                    _buildInfoCard(title: "Mô tả", content: v.description),
+                    VoucherInfoCard(
+                      title: "Mô tả",
+                      icon: Icons.description_rounded,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            v.description,
+                            style: const TextStyle(fontSize: 15, height: 1.5),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Start date
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.play_circle_outline,
+                                size: 18,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Phát hành: ${formatDateTimeVN(v.startDate)}",
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 6),
+
+                          // End date
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.timer_outlined,
+                                size: 18,
+                                color: Colors.red,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Hết hạn: ${formatDateTimeVN(v.endDate)}",
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
 
                     const SizedBox(height: 16),
 
-                    // Áp dụng tại - Giữ icon venue như cũ
-                    _buildInfoCard(
+                    // áp dụng
+                    VoucherInfoCard(
                       title: "Áp dụng tại",
+                      icon: Icons.store_rounded,
                       child: Column(
                         children: v.locations.map((loc) {
-                          return ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(
-                              Icons.store,
-                              color: Color(0xFF7E57C2),
-                              size: 28,
-                            ), // ← Giữ icon venue đẹp
-                            title: Text(
-                              loc.venueLocationName,
-                              style: const TextStyle(fontSize: 15.5),
+                          return Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () {
+                                context.pushNamed(
+                                  'venue_detail',
+                                  extra: {'venueId': loc.venueLocationId},
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFFFF0F5),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.store,
+                                        color: Color(0xFFFF4E9E),
+                                        size: 26,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        loc.venueLocationName,
+                                        style: const TextStyle(
+                                          fontSize: 15.5,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 18,
+                                      color: Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            trailing: const Icon(
-                              Icons.arrow_forward_ios,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                            onTap: () {
-                              context.pushNamed(
-                                'venue_detail',
-                                extra: {'venueId': loc.venueLocationId},
-                              );
-                            },
                           );
                         }).toList(),
                       ),
@@ -372,7 +457,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF7E57C2),
+                        backgroundColor: const Color(0xFFFF4E9E),
                         disabledBackgroundColor: Colors.grey.shade400,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -388,13 +473,24 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                 color: Colors.white,
                               ),
                             )
-                          : const Text(
-                              "ĐỔI VOUCHER NGAY",
-                              style: TextStyle(
-                                fontSize: 16.5,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.card_giftcard_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 10),
+                                Text(
+                                  "ĐỔI VOUCHER NGAY",
+                                  style: TextStyle(
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                     ),
                   ),
@@ -449,5 +545,14 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
         ],
       ),
     );
+  }
+
+  String _buildExpireText(VoucherItem v) {
+    final now = DateTime.now();
+    final diff = v.endDate.difference(now).inDays;
+
+    if (diff < 0) return "Đã hết hạn";
+    if (diff <= 3) return "Còn $diff ngày";
+    return "Hết hạn: ${v.endDate.day}/${v.endDate.month}";
   }
 }

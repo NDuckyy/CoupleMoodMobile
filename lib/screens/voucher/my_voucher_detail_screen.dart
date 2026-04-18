@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
+import 'package:couple_mood_mobile/widgets/voucher/voucher_info_card.dart';
 
 class MyVoucherDetailScreen extends StatefulWidget {
   final int voucherItemId;
@@ -43,6 +45,9 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
 
     final bool isUsed = v.isUsed;
     final bool isExpired = v.isExpired;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = screenWidth < 360;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
@@ -107,61 +112,72 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                               ),
                             ),
 
-                            // Discount Badge
-                            Positioned(
-                              top: 20,
-                              left: 20,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 9,
+                            //  Badges
+                            if (isSmallScreen)
+                              Positioned(
+                                top: 16,
+                                left: 16,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    VoucherDiscountBadge(
+                                      screenWidth: screenWidth,
+                                      discountText: v.discountText,
+                                    ),
+                                    const SizedBox(height: 6),
+                                    VoucherStatusBadge(
+                                      screenWidth: screenWidth,
+                                      text: isUsed
+                                          ? "ĐÃ DÙNG"
+                                          : isExpired
+                                          ? "HẾT HẠN"
+                                          : "SẴN SÀNG",
+                                      color: isUsed
+                                          ? Colors.orange
+                                          : isExpired
+                                          ? Colors.red
+                                          : Colors.green.shade600,
+                                      icon: isUsed
+                                          ? Icons.check_circle
+                                          : isExpired
+                                          ? Icons.cancel
+                                          : Icons.verified,
+                                    ),
+                                  ],
                                 ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE53935),
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Text(
-                                  v.discountText,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              )
+                            else ...[
+                              Positioned(
+                                top: 20,
+                                left: 20,
+                                child: VoucherDiscountBadge(
+                                  screenWidth: screenWidth,
+                                  discountText: v.discountText,
                                 ),
                               ),
-                            ),
-
-                            // Status
-                            Positioned(
-                              top: 20,
-                              right: 20,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 7,
-                                ),
-                                decoration: BoxDecoration(
+                              Positioned(
+                                top: 20,
+                                right: 20,
+                                child: VoucherStatusBadge(
+                                  screenWidth: screenWidth,
+                                  text: isUsed
+                                      ? "ĐÃ DÙNG"
+                                      : isExpired
+                                      ? "HẾT HẠN"
+                                      : "SẴN SÀNG",
                                   color: isUsed
                                       ? Colors.orange
                                       : isExpired
                                       ? Colors.red
                                       : Colors.green.shade600,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  isUsed
-                                      ? "ĐÃ DÙNG"
+                                  icon: isUsed
+                                      ? Icons.check_circle
                                       : isExpired
-                                      ? "HẾT HẠN"
-                                      : "SẴN SÀNG",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                      ? Icons.cancel
+                                      : Icons.verified,
                                 ),
                               ),
-                            ),
+                            ],
 
                             // Voucher Code
                             Positioned(
@@ -235,100 +251,184 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
 
                 const SizedBox(height: 24),
 
-                // ==================== QR CODE ====================
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.06),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      const Text(
-                        "Mã QR Voucher",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200),
-                        ),
-                        child: Image.network(
-                          v.qrCodeUrl,
-                          height: 200,
-                          width: 200,
-                          errorBuilder: (_, __, ___) => const Icon(
-                            Icons.qr_code,
-                            size: 120,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SelectableText(
-                        v.itemCode,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 3,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        "Chụp ảnh hoặc quét mã này để sử dụng",
-                        style: TextStyle(fontSize: 13, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                ),
-
+                // ==================== QR CODE CARD ====================
                 const SizedBox(height: 24),
 
-                // ==================== CHI TIẾT & ĐỊA ĐIỂM ====================
-                _buildInfoCard(
-                  title: "Chi tiết voucher",
-                  content: v.voucherDescription ?? "Không có mô tả thêm",
+                // ==================== QR CODE - CARD ĐẶC BIỆT ====================
+                VoucherInfoCard(
+                  padding: EdgeInsets.zero, // Để QR chiếm hết không gian đẹp
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: const Color(0xFFFF4E9E).withOpacity(0.15),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        // Title với icon
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.qr_code_2_rounded,
+                              color: const Color(0xFFFF4E9E),
+                              size: 28,
+                            ),
+                            const SizedBox(width: 10),
+                            const Text(
+                              "Mã QR Voucher",
+                              style: TextStyle(
+                                fontSize: 17.5,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF2C2C2C),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+
+                        // QR Container
+                        Container(
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 15,
+                                offset: const Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Image.network(
+                            v.qrCodeUrl,
+                            height: 210,
+                            width: 210,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.qr_code,
+                              size: 140,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 18),
+
+                        // Mã code
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF8E1F0),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: SelectableText(
+                            v.itemCode,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 4,
+                              color: Color(0xFF5D4037),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+                        Text(
+                          "Quét mã này để sử dụng voucher",
+                          style: TextStyle(
+                            fontSize: 13.5,
+                            color: Colors.grey.shade600,
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
 
+                // ==================== CHI TIẾT VOUCHER ====================
+                VoucherInfoCard(
+                  title: "Chi tiết voucher",
+                  icon: Icons.description_rounded,
+                  child: Text(
+                    v.voucherDescription ?? "Không có mô tả thêm",
+                    style: const TextStyle(
+                      fontSize: 15.5,
+                      height: 1.6,
+                      color: Color(0xFF424242),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // ==================== ÁP DỤNG TẠI ====================
                 if (v.locations.isNotEmpty)
-                  _buildInfoCard(
+                  VoucherInfoCard(
                     title: "Áp dụng tại",
+                    icon: Icons.store_rounded,
                     child: Column(
                       children: v.locations.map((loc) {
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: const Icon(
-                            Icons.store,
-                            color: Color(0xFF7E57C2),
-                            size: 28,
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(14),
+                            onTap: () {
+                              context.pushNamed(
+                                'venue_detail',
+                                extra: {'venueId': loc.venueLocationId},
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 14,
+                                horizontal: 4,
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF0F5),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: const Icon(
+                                      Icons.store,
+                                      color: Color(0xFFFF4E9E),
+                                      size: 26,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Text(
+                                      loc.venueLocationName,
+                                      style: const TextStyle(
+                                        fontSize: 15.5,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios_rounded,
+                                    size: 18,
+                                    color: Colors.grey,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                          title: Text(loc.venueLocationName),
-                          trailing: const Icon(
-                            Icons.arrow_forward_ios,
-                            size: 16,
-                          ),
-                          onTap: () {
-                            context.pushNamed(
-                              'venue_detail',
-                              extra: {'venueId': loc.venueLocationId},
-                            );
-                          },
                         );
                       }).toList(),
                     ),
@@ -346,40 +446,6 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
       'lib/assets/images/collection_placeholder.png',
       fit: BoxFit.cover,
       color: Colors.grey.shade200,
-    );
-  }
-
-  Widget _buildInfoCard({
-    required String title,
-    String? content,
-    Widget? child,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          if (content != null)
-            Text(content, style: const TextStyle(fontSize: 15, height: 1.5)),
-          if (child != null) child,
-        ],
-      ),
     );
   }
 }

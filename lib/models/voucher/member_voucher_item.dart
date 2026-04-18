@@ -49,7 +49,7 @@ class MemberVoucherItem {
       return "-${discountPercent?.toStringAsFixed(0) ?? 0}%";
     }
     if (discountType == "FIXED_AMOUNT") {
-      return "${CurrencyUtils.formatVND(discountAmount!)} GIẢM";
+      return "${CurrencyUtils.formatVND(discountAmount!)}";
     }
     return "";
   }
