@@ -29,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final auth = context.read<AuthProvider>();
     LocationService.stopListening();
     context.read<CoupleLocationProvider>().disposeListener();
+    context.read<CoupleLocationProvider>().reset();
     auth.logout();
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;

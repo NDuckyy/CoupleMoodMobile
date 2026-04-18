@@ -6,6 +6,7 @@ import 'package:couple_mood_mobile/widgets/datePlan/duration_mode_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/note_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/submit_button.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/title_input.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_match_required_dialog.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +64,9 @@ class _DatePlanFormState extends State<DatePlanForm> {
       plannedStartAt: plannedStartAt!,
       plannedEndAt: plannedEndAt!,
       estimatedBudget: estimatedBudget,
-      durationMode: durationModeCtrl.text.trim().isNotEmpty ? durationModeCtrl.text.trim() : null,
+      durationMode: durationModeCtrl.text.trim().isNotEmpty
+          ? durationModeCtrl.text.trim()
+          : null,
     );
 
     final provider = context.read<DatePlanProvider>();
@@ -72,6 +75,10 @@ class _DatePlanFormState extends State<DatePlanForm> {
     if (!mounted) return;
 
     if (provider.error != null) {
+      if (provider.error!.contains("chưa thuộc cặp đôi")) {
+        showMatchRequiredDialog(context: context, title: "Yêu cầu ghép đôi", description: "Bạn cần ghép đôi để tạo kế hoạch hẹn hò. Bạn có muốn ghép đôi ngay bây giờ không?");
+        return;
+      }
       showMsg(context, provider.error!, false);
     } else {
       showMsg(context, "Tạo kế hoạch hẹn hò thành công", true);

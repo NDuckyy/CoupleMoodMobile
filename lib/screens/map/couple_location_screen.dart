@@ -11,8 +11,7 @@ class CoupleLocationScreen extends StatefulWidget {
   const CoupleLocationScreen({super.key});
 
   @override
-  State<CoupleLocationScreen> createState() =>
-      _CoupleLocationScreenState();
+  State<CoupleLocationScreen> createState() => _CoupleLocationScreenState();
 }
 
 class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
@@ -25,6 +24,27 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
   late DatePlanProvider _datePlanProvider;
   late MoodProvider _moodProvider;
 
+  void _onCoupleChanged() {
+    final coupleId = _moodProvider.coupleCurrentMood?.coupleProfileId;
+    final memberId = _moodProvider.coupleCurrentMood?.memberId;
+
+    print("🔄 Couple changed: $coupleId");
+
+    // luôn stop trước
+    LocationService.stopListening();
+    _provider.disposeListener();
+    _provider.reset();
+
+    if (coupleId == null || memberId == null) {
+      print("❌ Không có couple → stop");
+      return;
+    }
+
+    // 🔥 start lại
+    _provider.listenLocation(coupleId.toString(), memberId.toString());
+    LocationService.startListening(coupleId.toString(), memberId.toString());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +55,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
     _moodProvider = context.read<MoodProvider>();
 
     _init();
+    _moodProvider.addListener(_onCoupleChanged);
   }
 
   Future<void> _init() async {
@@ -49,17 +70,17 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
     await Geolocator.requestPermission();
 
-    final coupleId =
-        _moodProvider.coupleCurrentMood?.coupleProfileId.toString() ??
-        "unknown_couple";
+    final coupleId = _moodProvider.coupleCurrentMood?.coupleProfileId;
 
-    final memberId =
-        _moodProvider.coupleCurrentMood?.memberId.toString() ??
-        "unknown_user";
+    final memberId = _moodProvider.coupleCurrentMood?.memberId;
 
     // 🔥 START LISTEN
-    _provider.listenLocation(coupleId, memberId);
-    LocationService.startListening(coupleId, memberId);
+    if (coupleId == null || memberId == null) {
+      print("❌ Không start location vì thiếu coupleId hoặc memberId");
+      return;
+    }
+    _provider.listenLocation(coupleId.toString(), memberId.toString());
+    LocationService.startListening(coupleId.toString(), memberId.toString());
 
     // 🔥 LISTENER DATE PLAN
     _datePlanListener = () {
@@ -67,9 +88,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
 
       final items = _datePlanProvider.datePlanItems;
 
-      if (items != null &&
-          items.data != null &&
-          items.data!.items.isNotEmpty) {
+      if (items != null && items.data != null && items.data!.items.isNotEmpty) {
         final currentHash = items.data!.items
             .map((e) => "${e.id}-${e.orderIndex}")
             .join(",");
@@ -78,13 +97,13 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
           _lastVenueHash = currentHash;
 
           LocationService.updateVenues(
-            coupleId,
-            memberId,
+            coupleId.toString(),
+            memberId.toString(),
             items.data!.items,
           );
         }
       } else {
-        LocationService.clearVenues(coupleId);
+        LocationService.clearVenues(coupleId.toString());
       }
     };
 
@@ -93,9 +112,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
     // 🔥 MOVE CAMERA SAFE
     if (pos != null && _mapController != null) {
       _mapController!.animateCamera(
-        CameraUpdate.newLatLng(
-          LatLng(pos.latitude, pos.longitude),
-        ),
+        CameraUpdate.newLatLng(LatLng(pos.latitude, pos.longitude)),
       );
     }
 
@@ -111,6 +128,7 @@ class _CoupleLocationScreenState extends State<CoupleLocationScreen> {
     // 🔥 STOP ALL trước khi widget chết
     LocationService.stopListening();
     _provider.disposeListener(); // 👈 phải có trong provider
+    _moodProvider.removeListener(_onCoupleChanged); 
 
     if (_datePlanListener != null) {
       _datePlanProvider.removeListener(_datePlanListener!);

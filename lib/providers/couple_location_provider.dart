@@ -52,9 +52,12 @@ class CoupleLocationProvider extends ChangeNotifier {
     );
   }
 
-  void listenLocation(String coupleId, String currentUserId) {
+  void listenLocation(String? coupleId, String currentUserId) {
     _locationSub?.cancel();
-
+    if (coupleId == null) {
+      print("❌ Không listen location vì coupleId trống");
+      return;
+    }
     _locationSub = _dbRef.child(coupleId).onValue.listen((event) async {
       final data = event.snapshot.value as Map?;
       if (data == null) return;

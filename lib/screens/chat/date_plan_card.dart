@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 class DatePlanChatCard extends StatelessWidget {
   final Map<String, dynamic> datePlanInfo;
   final VoidCallback? onTap;
+  final bool isMine;
   final Function(int datePlanId) onAccept;
   final Function(int datePlanId) onReject;
 
@@ -12,6 +13,7 @@ class DatePlanChatCard extends StatelessWidget {
     super.key,
     required this.datePlanInfo,
     this.onTap,
+    required this.isMine,
     required this.onAccept,
     required this.onReject,
   });
@@ -135,7 +137,7 @@ class DatePlanChatCard extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 /// BUTTON
-                datePlanInfo["status"] == "PENDING"
+                datePlanInfo["status"] == "PENDING" && !isMine
                     ? Row(
                         children: [
                           Expanded(
