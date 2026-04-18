@@ -58,6 +58,16 @@ class _DatePlanFormState extends State<DatePlanForm> {
       return;
     }
 
+    if (plannedEndAt!.isBefore(plannedStartAt!)) {
+      showMsg(context, "Thời gian kết thúc phải sau thời gian bắt đầu", false);
+      return;
+    }
+
+    if (plannedEndAt!.difference(plannedStartAt!).inMinutes < 60) {
+      showMsg(context, "Thời gian cuộc hẹn phải dài hơn 1 tiếng", false);
+      return;
+    }
+
     final request = DatePlanCreateAndUpdateRequest(
       title: titleCtrl.text.trim(),
       note: noteCtrl.text.trim(),
@@ -76,7 +86,12 @@ class _DatePlanFormState extends State<DatePlanForm> {
 
     if (provider.error != null) {
       if (provider.error!.contains("chưa thuộc cặp đôi")) {
-        showMatchRequiredDialog(context: context, title: "Yêu cầu ghép đôi", description: "Bạn cần ghép đôi để tạo kế hoạch hẹn hò. Bạn có muốn ghép đôi ngay bây giờ không?");
+        showMatchRequiredDialog(
+          context: context,
+          title: "Yêu cầu ghép đôi",
+          description:
+              "Bạn cần ghép đôi để tạo kế hoạch hẹn hò. Bạn có muốn ghép đôi ngay bây giờ không?",
+        );
         return;
       }
       showMsg(context, provider.error!, false);
