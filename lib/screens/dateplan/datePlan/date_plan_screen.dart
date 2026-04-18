@@ -54,6 +54,32 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     }
   }
 
+  void _onAcceptDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    await datePlanProvider.acceptDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Đã đồng ý lịch hẹn', true);
+      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+    }
+  }
+
+  void _onRejectDatePlan(int datePlanId) async {
+    final datePlanProvider = context.read<DatePlanProvider>();
+    await datePlanProvider.rejectDatePlan(datePlanId);
+    if (datePlanProvider.error != null) {
+      if (!mounted) return;
+      showMsg(context, datePlanProvider.error!, false);
+    } else {
+      if (!mounted) return;
+      showMsg(context, 'Đã từ chối lịch hẹn', true);
+      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+    }
+  }
+
   void _cancelDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
     await datePlanProvider.cancelDatePlan(datePlanId);
@@ -156,6 +182,12 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                                 },
                                 onComplete: () {
                                   _completeDatePlan(items[index].id);
+                                },
+                                onAccept: () {
+                                  _onAcceptDatePlan(items[index].id);
+                                },
+                                onReject: () {
+                                  _onRejectDatePlan(items[index].id);
                                 },
                               ),
                             );
