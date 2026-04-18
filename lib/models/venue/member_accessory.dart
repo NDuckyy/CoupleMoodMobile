@@ -1,5 +1,5 @@
 class MemberAccessory {
-  final int? memberAccessoryId; // nullable
+  final int? memberAccessoryId;
   final int accessoryId;
   final String code;
   final String name;
@@ -8,15 +8,17 @@ class MemberAccessory {
   final String? thumbnailUrl;
   final String? resourceUrl;
 
-  //  shop fields
+  // Shop fields
   final int? pricePoint;
   final bool? isLimited;
   final int? totalQuantity;
   final int? remainingQuantity;
   final String? status;
+  final bool? canPurchase;
+
+  // User state
   final bool? isOwnedByMe;
   final bool? isOwnedByPartner;
-  final bool? canPurchase;
   final bool? isEquipped;
 
   MemberAccessory({
@@ -27,15 +29,14 @@ class MemberAccessory {
     required this.type,
     this.thumbnailUrl,
     this.resourceUrl,
-
     this.pricePoint,
     this.isLimited,
     this.totalQuantity,
     this.remainingQuantity,
     this.status,
+    this.canPurchase,
     this.isOwnedByMe,
     this.isOwnedByPartner,
-    this.canPurchase,
     this.isEquipped,
   });
 
@@ -46,8 +47,6 @@ class MemberAccessory {
       code: '',
       name: '',
       type: '',
-      thumbnailUrl: null,
-      resourceUrl: null,
     );
   }
 
@@ -60,16 +59,54 @@ class MemberAccessory {
       type: json['type'] ?? '',
       thumbnailUrl: json['thumbnailUrl'],
       resourceUrl: json['resourceUrl'],
-
       pricePoint: json['pricePoint'],
       isLimited: json['isLimited'],
       totalQuantity: json['totalQuantity'],
       remainingQuantity: json['remainingQuantity'],
       status: json['status'],
+      canPurchase: json['canPurchase'],
       isOwnedByMe: json['isOwnedByMe'],
       isOwnedByPartner: json['isOwnedByPartner'],
-      canPurchase: json['canPurchase'],
       isEquipped: json['isEquipped'],
+    );
+  }
+
+  // ==================== COPY WITH ====================
+  MemberAccessory copyWith({
+    int? memberAccessoryId,
+    int? accessoryId,
+    String? code,
+    String? name,
+    String? type,
+    String? thumbnailUrl,
+    String? resourceUrl,
+    int? pricePoint,
+    bool? isLimited,
+    int? totalQuantity,
+    int? remainingQuantity,
+    String? status,
+    bool? canPurchase,
+    bool? isOwnedByMe,
+    bool? isOwnedByPartner,
+    bool? isEquipped,
+  }) {
+    return MemberAccessory(
+      memberAccessoryId: memberAccessoryId ?? this.memberAccessoryId,
+      accessoryId: accessoryId ?? this.accessoryId,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      type: type ?? this.type,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      resourceUrl: resourceUrl ?? this.resourceUrl,
+      pricePoint: pricePoint ?? this.pricePoint,
+      isLimited: isLimited ?? this.isLimited,
+      totalQuantity: totalQuantity ?? this.totalQuantity,
+      remainingQuantity: remainingQuantity ?? this.remainingQuantity,
+      status: status ?? this.status,
+      canPurchase: canPurchase ?? this.canPurchase,
+      isOwnedByMe: isOwnedByMe ?? this.isOwnedByMe,
+      isOwnedByPartner: isOwnedByPartner ?? this.isOwnedByPartner,
+      isEquipped: isEquipped ?? this.isEquipped,
     );
   }
 }

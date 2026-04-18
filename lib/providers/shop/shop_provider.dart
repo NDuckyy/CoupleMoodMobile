@@ -11,20 +11,15 @@ class ShopProvider extends ChangeNotifier {
   int page = 1;
   int totalPages = 1;
 
-  /// INIT
+  /// ==================== INIT & LOAD ====================
   Future<void> fetchInitial() async {
     page = 1;
-    totalPages = 1;
     items.clear();
-
     isLoading = true;
     notifyListeners();
 
     try {
-      /// 1. gọi shop
       final shopRes = await MemberAccessoryService.getShop(page: page);
-
-      /// 2. gọi inventory
       final invRes = await MemberAccessoryService.getMyAccessories(
         page: 1,
         pageSize: 100,
@@ -32,36 +27,12 @@ class ShopProvider extends ChangeNotifier {
 
       if (shopRes.code == 200 && shopRes.data != null) {
         final shopItems = shopRes.data!.items;
-
         final inventory = invRes.data?.items ?? [];
+        final invMap = {for (var e in inventory) e.accessoryId: e};
 
-        /// map inventory theo accessoryId
-        final map = {for (var e in inventory) e.accessoryId: e};
-
-        /// merge
         items = shopItems.map((shopItem) {
-          final inv = map[shopItem.accessoryId];
-
-          return MemberAccessory(
-            memberAccessoryId: inv?.memberAccessoryId,
-            accessoryId: shopItem.accessoryId,
-            code: shopItem.code,
-            name: shopItem.name,
-            type: shopItem.type,
-            thumbnailUrl: shopItem.thumbnailUrl,
-            resourceUrl: shopItem.resourceUrl,
-
-            pricePoint: shopItem.pricePoint,
-            isLimited: shopItem.isLimited,
-            totalQuantity: shopItem.totalQuantity,
-            remainingQuantity: shopItem.remainingQuantity,
-            status: shopItem.status,
-            canPurchase: shopItem.canPurchase,
-
-            ///  merge state
-            isOwnedByMe: inv != null,
-            isEquipped: inv?.isEquipped ?? false,
-          );
+          final inv = invMap[shopItem.accessoryId];
+          return _mergeAccessory(shopItem, inv);
         }).toList();
 
         totalPages = shopRes.data!.totalPages;
@@ -74,17 +45,14 @@ class ShopProvider extends ChangeNotifier {
     }
   }
 
-  /// LOAD MORE
   Future<void> loadMore() async {
-    if (isLoadingMore || isLoading) return;
-    if (page >= totalPages) return;
+    if (isLoadingMore || isLoading || page >= totalPages) return;
 
     isLoadingMore = true;
     notifyListeners();
 
     try {
       final nextPage = page + 1;
-
       final shopRes = await MemberAccessoryService.getShop(page: nextPage);
       final invRes = await MemberAccessoryService.getMyAccessories(
         page: 1,
@@ -93,34 +61,15 @@ class ShopProvider extends ChangeNotifier {
 
       if (shopRes.code == 200 && shopRes.data != null) {
         final inventory = invRes.data?.items ?? [];
-        final map = {for (var e in inventory) e.accessoryId: e};
+        final invMap = {for (var e in inventory) e.accessoryId: e};
 
         final newItems = shopRes.data!.items.map((shopItem) {
-          final inv = map[shopItem.accessoryId];
-
-          return MemberAccessory(
-            memberAccessoryId: inv?.memberAccessoryId,
-            accessoryId: shopItem.accessoryId,
-            code: shopItem.code,
-            name: shopItem.name,
-            type: shopItem.type,
-            thumbnailUrl: shopItem.thumbnailUrl,
-            resourceUrl: shopItem.resourceUrl,
-
-            pricePoint: shopItem.pricePoint,
-            isLimited: shopItem.isLimited,
-            totalQuantity: shopItem.totalQuantity,
-            remainingQuantity: shopItem.remainingQuantity,
-            status: shopItem.status,
-            canPurchase: shopItem.canPurchase,
-
-            isOwnedByMe: inv != null,
-            isEquipped: inv?.isEquipped ?? false,
-          );
+          final inv = invMap[shopItem.accessoryId];
+          return _mergeAccessory(shopItem, inv);
         }).toList();
 
-        page = nextPage;
         items.addAll(newItems);
+        page = nextPage;
         totalPages = shopRes.data!.totalPages;
       }
     } catch (e) {
@@ -131,40 +80,69 @@ class ShopProvider extends ChangeNotifier {
     }
   }
 
-  /// REFRESH
-  Future<void> refresh() async {
-    await fetchInitial();
+  MemberAccessory _mergeAccessory(dynamic shopItem, dynamic inv) {
+    return MemberAccessory(
+      memberAccessoryId: inv?.memberAccessoryId,
+      accessoryId: shopItem.accessoryId,
+      code: shopItem.code,
+      name: shopItem.name,
+      type: shopItem.type,
+      thumbnailUrl: shopItem.thumbnailUrl,
+      resourceUrl: shopItem.resourceUrl,
+      pricePoint: shopItem.pricePoint,
+      isLimited: shopItem.isLimited,
+      totalQuantity: shopItem.totalQuantity,
+      remainingQuantity: shopItem.remainingQuantity,
+      status: shopItem.status,
+      canPurchase: shopItem.canPurchase,
+      isOwnedByMe: inv != null,
+      isOwnedByPartner: inv?.isOwnedByPartner,
+      isEquipped: inv?.isEquipped ?? false,
+    );
   }
 
+  /// ==================== ACTIONS ====================
   Future<void> purchase(int accessoryId) async {
     try {
       await MemberAccessoryService.purchase(accessoryId);
 
-      /// reload shop + user
-      await fetchInitial();
+      final index = items.indexWhere((e) => e.accessoryId == accessoryId);
+      if (index != -1) {
+        items[index] = items[index].copyWith(
+          isOwnedByMe: true,
+          isEquipped: false,
+        );
+        notifyListeners();
+      }
     } catch (e) {
       debugPrint("purchase error: $e");
+      rethrow;
     }
   }
 
   Future<void> equip(MemberAccessory item) async {
     try {
-      /// tìm cái đang equip cùng type
-      final current = items.firstWhere(
+      // Tháo item cùng loại nếu đang equip
+      final currentEquippedIndex = items.indexWhere(
         (e) => e.type == item.type && e.isEquipped == true,
-        orElse: () => MemberAccessory.empty(),
       );
 
-      /// nếu có cái khác đang equip → tháo nó
-      if (current.memberAccessoryId != null &&
-          current.memberAccessoryId != item.memberAccessoryId) {
-        await MemberAccessoryService.unequip(current.memberAccessoryId!);
+      if (currentEquippedIndex != -1) {
+        items[currentEquippedIndex] = items[currentEquippedIndex].copyWith(
+          isEquipped: false,
+        );
       }
 
-      /// equip cái mới
-      await MemberAccessoryService.equip(item.memberAccessoryId!);
+      // Equip item mới
+      final targetIndex = items.indexWhere(
+        (e) => e.accessoryId == item.accessoryId,
+      );
+      if (targetIndex != -1) {
+        items[targetIndex] = items[targetIndex].copyWith(isEquipped: true);
+      }
 
-      await fetchInitial();
+      await MemberAccessoryService.equip(item.memberAccessoryId!);
+      notifyListeners();
     } catch (e) {
       debugPrint("equip error: $e");
     }
@@ -172,10 +150,17 @@ class ShopProvider extends ChangeNotifier {
 
   Future<void> unequip(MemberAccessory item) async {
     try {
+      final index = items.indexWhere((e) => e.accessoryId == item.accessoryId);
+      if (index != -1) {
+        items[index] = items[index].copyWith(isEquipped: false);
+      }
+
       await MemberAccessoryService.unequip(item.memberAccessoryId!);
-      await fetchInitial();
+      notifyListeners();
     } catch (e) {
       debugPrint("unequip error: $e");
     }
   }
+
+  Future<void> refresh() async => await fetchInitial();
 }

@@ -2,8 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
+import 'package:couple_mood_mobile/widgets/shop/point_shop_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:couple_mood_mobile/widgets/shop/shop_accessory_card.dart';
 
 class ShopScreen extends StatefulWidget {
   const ShopScreen({super.key});
@@ -39,15 +42,72 @@ class _ShopScreenState extends State<ShopScreen> {
     final items = shopProvider.items;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Cửa hàng")),
+      appBar: AppBar(
+        title: const Text("Cửa hàng"),
+        actions: [
+          Consumer<UserProvider>(
+            builder: (context, userProvider, child) {
+              final points = userProvider.user?.points ?? 0;
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: PointShopCard(
+                  points: points,
+                  onTap: () {
+                    context.pushNamed(
+                      'wallet',
+                      queryParameters: {'tab': '1'}, // Mở tab "Ví Điểm"
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: shopProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 if (user != null) _buildUserPreview(user),
-                const SizedBox(height: 20),
-                ...items.map((item) => _buildItem(item)).toList(),
+                const SizedBox(height: 24),
+                ...items.map((item) {
+                  final isPreviewing =
+                      (item.type == "FRAME" &&
+                          previewFrame?.accessoryId == item.accessoryId) ||
+                      (item.type == "BADGE" &&
+                          previewBadge?.accessoryId == item.accessoryId);
+
+                  return ShopAccessoryCard(
+                    item: item,
+                    isPreviewing: isPreviewing,
+                    onTryToggle: () {
+                      setState(() {
+                        if (item.type == "FRAME") {
+                          previewFrame = isPreviewing ? null : item;
+                        } else if (item.type == "BADGE") {
+                          previewBadge = isPreviewing ? null : item;
+                        }
+                      });
+                    },
+                    onPurchase: () async {
+                      await context.read<ShopProvider>().purchase(
+                        item.accessoryId,
+                      );
+                      await context.read<UserProvider>().fetchMe();
+                    },
+                    onEquipToggle: () async {
+                      final provider = context.read<ShopProvider>();
+                      if (item.isEquipped == true) {
+                        await provider.unequip(item);
+                      } else {
+                        await provider.equip(item);
+                      }
+                      await context.read<UserProvider>().fetchMe();
+                    },
+                  );
+                }).toList(),
               ],
             ),
     );
@@ -142,128 +202,6 @@ class _ShopScreenState extends State<ShopScreen> {
           ],
         ),
       ],
-    );
-  }
-
-  /// ================= ITEM =================
-  Widget _buildItem(MemberAccessory item) {
-    final isPreviewing =
-        (item.type == "FRAME" &&
-            previewFrame?.accessoryId == item.accessoryId) ||
-        (item.type == "BADGE" && previewBadge?.accessoryId == item.accessoryId);
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          /// Thumbnail
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CachedNetworkImage(
-              imageUrl: item.thumbnailUrl ?? '',
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-              memCacheWidth: 120, // tối ưu RAM cho thumbnail
-              placeholder: (context, url) => Container(
-                width: 60,
-                height: 60,
-                color: Colors.grey[200],
-                child: const Icon(Icons.image, color: Colors.grey),
-              ),
-              errorWidget: (context, url, error) => Container(
-                width: 60,
-                height: 60,
-                color: Colors.grey[200],
-                child: const Icon(Icons.broken_image, color: Colors.grey),
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 12),
-
-          /// Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "${item.pricePoint} points",
-                  style: const TextStyle(fontSize: 13, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-
-          /// BUTTON GROUP
-          Column(
-            children: [
-              if (!(item.isOwnedByMe ?? false)) ...[
-                OutlinedButton(
-                  onPressed: () {
-                    setState(() {
-                      if (item.type == "FRAME") {
-                        previewFrame = isPreviewing ? null : item;
-                      } else if (item.type == "BADGE") {
-                        previewBadge = isPreviewing ? null : item;
-                      }
-                    });
-                  },
-                  child: Text(isPreviewing ? "Bỏ thử" : "Thử"),
-                ),
-                const SizedBox(height: 6),
-                ElevatedButton(
-                  onPressed: () async {
-                    await context.read<ShopProvider>().purchase(
-                      item.accessoryId,
-                    );
-                    await context.read<UserProvider>().fetchMe();
-                  },
-                  child: const Text("Đổi"),
-                ),
-              ] else ...[
-                ElevatedButton(
-                  onPressed: () async {
-                    final provider = context.read<ShopProvider>();
-                    if (item.isEquipped == true) {
-                      await provider.unequip(item);
-                    } else {
-                      await provider.equip(item);
-                    }
-                    await context.read<UserProvider>().fetchMe();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: item.isEquipped == true
-                        ? Colors.grey
-                        : Colors.blue,
-                  ),
-                  child: Text(item.isEquipped == true ? "Tháo" : "Trang bị"),
-                ),
-              ],
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
