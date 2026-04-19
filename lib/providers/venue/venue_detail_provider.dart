@@ -175,7 +175,7 @@ class VenueDetailProvider extends ChangeNotifier {
       checkInSuccess = true;
       notifyListeners();
 
-      return (true, message); // 👈 trả message BE
+      return (true, message); //  trả message BE
     } catch (e) {
       checkInError = e.toString().replaceFirst('Exception: ', '');
       notifyListeners();
