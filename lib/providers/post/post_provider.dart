@@ -75,7 +75,7 @@ class PostProvider extends ChangeNotifier {
     final index = posts.indexWhere((p) => p.id == post.id);
     if (index == -1) return;
 
-    /// 🔒 lock theo id
+    ///  lock theo id
     if (_likingPostIds.contains(post.id)) return;
     _likingPostIds.add(post.id);
 
@@ -115,7 +115,7 @@ class PostProvider extends ChangeNotifier {
       notifyListeners();
       myPostsProvider?.updatePost(current);
     } finally {
-      /// 🔓 unlock
+      ///  unlock
       _likingPostIds.remove(post.id);
     }
   }
