@@ -11,7 +11,7 @@ class UserService {
     return ApiResponse.fromJson(res, (data) => UserModel.fromJson(data));
   }
 
-  static Future<ApiResponse<UpdateProfileResponse>> updateProfile(
+  static Future<ApiResponse<void>> updateProfile(
     UpdateProfileRequest request,
   ) async {
     final res = await ApiClient.request(
@@ -20,9 +20,6 @@ class UserService {
       data: request.toJson(),
     );
 
-    return ApiResponse.fromJson(
-      res,
-      (data) => UpdateProfileResponse.fromJson(data),
-    );
+    return ApiResponse.fromJson(res, (data) {});
   }
 }
