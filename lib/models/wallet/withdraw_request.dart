@@ -23,7 +23,7 @@ class WithdrawRequest {
     return WithdrawRequest(
       id: json['id'],
       walletId: json['walletId'],
-      amount: json['amount'],
+      amount: (json['amount'] as num).toInt(),
       bankInfo: BankInfo.fromJson(json['bankInfo']),
       status: json['status'],
       rejectionReason: json['rejectionReason'],

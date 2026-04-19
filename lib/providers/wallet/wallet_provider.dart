@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/wallet/withdraw_request.dart';
 import 'package:couple_mood_mobile/services/wallet/wallet_service.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/models/session.dart';
@@ -18,6 +19,7 @@ class WalletProvider extends ChangeNotifier {
   int pointsBalance = 0;
   ExchangeRate? exchangeRate;
   List<WalletTransaction> transactions = [];
+  List<WithdrawRequest> withdrawRequests = [];
 
   bool isLoading = false;
   bool isLoadingConvert = false;
@@ -55,6 +57,10 @@ class WalletProvider extends ChangeNotifier {
         transactions = (transRes.data!.items ?? []).map((tx) {
           return tx;
         }).toList();
+      }
+      final withdrawRes = await WalletService.getWithdrawRequests();
+      if (withdrawRes.code == 200 && withdrawRes.data != null) {
+        withdrawRequests = withdrawRes.data!;
       }
     } catch (e, stackTrace) {
       error = e.toString();
@@ -250,6 +256,43 @@ class WalletProvider extends ChangeNotifier {
       return false;
     } finally {
       isLoadingConvert = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> requestWithdraw({
+    required int amount,
+    required BankInfo bankInfo,
+    required BuildContext context,
+  }) async {
+    isLoading = true; // hoặc tạo isLoadingWithdraw riêng nếu muốn
+    error = null;
+    notifyListeners();
+
+    try {
+      if (amount < 1000 || moneyBalance < amount) {
+        // min 1k VND thường gặp
+        error = amount < 1000 ? "Tối thiểu 1.000đ" : "Số dư không đủ";
+        return false;
+      }
+
+      final response = await WalletService.withdraw(
+        amount: amount,
+        bankInfo: bankInfo,
+      );
+
+      if ((response.code != 200 && response.code != 201) ||
+          response.data == null) {
+        error = response.message ?? "Tạo yêu cầu rút tiền thất bại";
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }
