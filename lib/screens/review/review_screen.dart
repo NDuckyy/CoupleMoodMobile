@@ -13,6 +13,7 @@ import 'widget/header_card.dart';
 import 'widget/rating_section.dart';
 import 'widget/review_content_field.dart';
 import 'widget/review_image_picker.dart';
+import 'widget/match_switch.dart';
 
 class ReviewScreen extends StatefulWidget {
   final int venueLocationId;
@@ -35,6 +36,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   int rating = 0;
   bool isAnonymous = false;
+  bool isMatched = true;
   final TextEditingController contentController = TextEditingController();
   List<String> oldImages = [];
   List<String> newImages = [];
@@ -56,6 +58,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     if (review != null) {
       rating = review.rating;
       isAnonymous = review.isAnonymous;
+      isMatched = review.isMatched!;
       contentController.text = review.content;
 
       /// ảnh cũ là URL
@@ -86,6 +89,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
+        isMatched: isMatched,
 
         /// ảnh gốc từ BE
         originalImages: widget.initialReview!.imageUrls,
@@ -109,6 +113,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
+        isMatched: isMatched,
         localImagePaths: newImages,
       );
     }
@@ -169,6 +174,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   rating: rating,
                   onChanged: (value) {
                     setState(() => rating = value);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                MatchSwitch(
+                  value: isMatched,
+                  onChanged: (val) {
+                    setState(() => isMatched = val);
                   },
                 ),
 

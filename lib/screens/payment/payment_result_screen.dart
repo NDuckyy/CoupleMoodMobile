@@ -122,7 +122,7 @@ class PaymentResultScreen extends StatelessWidget {
                   _row("Loại giao dịch", "Nạp ví"),
                 ],
 
-                /// 👇 luôn có
+                ///  luôn có
                 _row("Thanh toán", isSuccess ? "Thành công" : "Thất bại"),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/voucher/member_voucher_item.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
 
 class MyVoucherCard extends StatelessWidget {
   final MemberVoucherItem voucher;
@@ -13,12 +14,12 @@ class MyVoucherCard extends StatelessWidget {
   String get discountDisplay {
     if (voucher.discountType == "PERCENTAGE") {
       final percent = voucher.discountPercent?.toStringAsFixed(0) ?? "0";
-      return "$percent% GIẢM";
+      return "$percent%"; // 👈 chỉ trả value
     } else if (voucher.discountType == "FIXED_AMOUNT" &&
         voucher.discountAmount != null) {
-      return "${CurrencyUtils.formatVND(voucher.discountAmount!)} GIẢM";
+      return CurrencyUtils.formatVND(voucher.discountAmount!); // 👈 chỉ value
     }
-    return "GIẢM GIÁ";
+    return "";
   }
 
   String get statusText {
@@ -46,6 +47,8 @@ class MyVoucherCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDisabled = voucher.isExpired || voucher.isUsed;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isSmallScreen = screenWidth < 360;
 
     return Opacity(
       opacity: isDisabled ? 0.75 : 1.0,
@@ -104,67 +107,48 @@ class MyVoucherCard extends StatelessWidget {
                         ),
                       ),
 
-                      // Discount Badge - ĐÃ SỬA ĐỂ ĐỒNG BỘ
-                      Positioned(
-                        top: 16,
-                        left: 16,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 18,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFE53935),
-                            borderRadius: BorderRadius.circular(30),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black26,
-                                blurRadius: 6,
-                                offset: const Offset(2, 2),
-                              ),
-                            ],
-                          ),
-                          child: Text(
-                            discountDisplay, // ← DÙNG HÀM MỚI
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Status Badge
-                      Positioned(
-                        top: 16,
-                        right: 16,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.95),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                      // Badges
+                      if (isSmallScreen)
+                        Positioned(
+                          top: 12,
+                          left: 12,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(statusIcon, color: Colors.white, size: 15),
-                              const SizedBox(width: 5),
-                              Text(
-                                statusText,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11.5,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              VoucherDiscountBadge(
+                                screenWidth: screenWidth,
+                                discountText: discountDisplay,
+                              ),
+                              const SizedBox(height: 6),
+                              VoucherStatusBadge(
+                                screenWidth: screenWidth,
+                                text: statusText,
+                                color: statusColor,
+                                icon: statusIcon,
                               ),
                             ],
                           ),
+                        )
+                      else ...[
+                        Positioned(
+                          top: 16,
+                          left: 16,
+                          child: VoucherDiscountBadge(
+                            screenWidth: screenWidth,
+                            discountText: discountDisplay,
+                          ),
                         ),
-                      ),
+                        Positioned(
+                          top: 16,
+                          right: 16,
+                          child: VoucherStatusBadge(
+                            screenWidth: screenWidth,
+                            text: statusText,
+                            color: statusColor,
+                            icon: statusIcon,
+                          ),
+                        ),
+                      ],
 
                       // Voucher Code
                       Positioned(

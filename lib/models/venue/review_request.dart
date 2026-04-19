@@ -4,6 +4,7 @@ class ReviewRequest {
   final String content;
   final int rating;
   final bool isAnonymous;
+  final bool isMatched;
   final List<String>? imageUrls;
 
   ReviewRequest({
@@ -12,6 +13,7 @@ class ReviewRequest {
     required this.content,
     required this.rating,
     required this.isAnonymous,
+    required this.isMatched,
     this.imageUrls,
   });
 
@@ -22,6 +24,7 @@ class ReviewRequest {
       "content": content,
       "rating": rating,
       "isAnonymous": isAnonymous,
+      "isMatched": isMatched,
       "images": imageUrls,
     };
   }

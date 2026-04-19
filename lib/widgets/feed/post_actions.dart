@@ -28,15 +28,19 @@ class PostActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final postProvider = context.watch<PostProvider>();
 
+    final current = postProvider.posts.firstWhere((p) => p.id == post.id);
+
     return Row(
       children: [
         ///  LIKE BUTTON
         GestureDetector(
-          onTap: () => postProvider.toggleLike(post),
+          onTap: current.isLiking
+              ? null
+              : () => postProvider.toggleLike(current),
           child: Row(
             children: [
               AnimatedScale(
-                scale: post.isLikedByMe ? 1.25 : 1,
+                scale: current.isLikedByMe ? 1.25 : 1,
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.elasticOut,
                 child: AnimatedContainer(
@@ -44,7 +48,7 @@ class PostActions extends StatelessWidget {
                   curve: Curves.easeOut,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    boxShadow: post.isLikedByMe
+                    boxShadow: current.isLikedByMe
                         ? [
                             BoxShadow(
                               color: Colors.red.withOpacity(0.4),
@@ -55,8 +59,12 @@ class PostActions extends StatelessWidget {
                         : [],
                   ),
                   child: Icon(
-                    post.isLikedByMe ? Icons.favorite : Icons.favorite_border,
-                    color: post.isLikedByMe ? Colors.red : Colors.grey.shade700,
+                    current.isLikedByMe
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                    color: current.isLikedByMe
+                        ? Colors.red
+                        : Colors.grey.shade700,
                   ),
                 ),
               ),
@@ -68,8 +76,8 @@ class PostActions extends StatelessWidget {
                 transitionBuilder: (child, animation) =>
                     ScaleTransition(scale: animation, child: child),
                 child: Text(
-                  post.likeCount.toString(),
-                  key: ValueKey(post.likeCount),
+                  current.likeCount.toString(),
+                  key: ValueKey(current.likeCount),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
@@ -111,13 +119,7 @@ class PostActions extends StatelessWidget {
               );
             }
           },
-          child: Row(
-            children: const [
-              Icon(Icons.share_outlined),
-              SizedBox(width: 6),
-              Text("Chia sẻ", style: TextStyle(fontWeight: FontWeight.w600)),
-            ],
-          ),
+          child: const Icon(Icons.share_outlined),
         ),
       ],
     );

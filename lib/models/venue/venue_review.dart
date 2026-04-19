@@ -17,7 +17,7 @@ class VenueReview {
   final DateTime? updatedAt;
   final VenueReviewMember member;
   final List<String> imageUrls;
-  final String? matchedTag;
+  final bool? isMatched;
 
   final bool isOwner;
   final VenueReviewReply? reviewReply;
@@ -36,7 +36,7 @@ class VenueReview {
     required this.updatedAt,
     required this.member,
     required this.imageUrls,
-    this.matchedTag,
+    this.isMatched,
     required this.isOwner,
     this.reviewReply,
   });
@@ -65,7 +65,7 @@ class VenueReview {
       member: VenueReviewMember.fromJson(json['member']),
       imageUrls:
           (json['imageUrls'] as List?)?.map((e) => e.toString()).toList() ?? [],
-      matchedTag: json['matchedTag'],
+      isMatched: json['isMatched'],
       isOwner: json['isOwner'] ?? false,
       reviewReply: json['reviewReply'] != null
           ? VenueReviewReply.fromJson(json['reviewReply'])

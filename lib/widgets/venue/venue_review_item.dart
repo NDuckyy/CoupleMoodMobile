@@ -1,11 +1,9 @@
 import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
-import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../models/venue/venue_review.dart';
 
 class VenueReviewItem extends StatelessWidget {
@@ -330,8 +328,8 @@ class VenueReviewItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (review.matchedTag != null)
-                          _buildTag(review.matchedTag!),
+                        if (review.isMatched != null)
+                          _buildMatchTag(review.isMatched!),
                         if (showAnonymousTag) ...[
                           const SizedBox(width: 6),
                           _buildAnonymousTag(),
@@ -409,16 +407,16 @@ class VenueReviewItem extends StatelessWidget {
     );
   }
 
-  Widget _buildTag(String tag) {
-    final isNegative = tag.toLowerCase().contains("không");
+  Widget _buildMatchTag(bool isMatched) {
+    final bgColor = isMatched
+        ? Colors.green.withOpacity(0.1)
+        : Colors.red.withOpacity(0.1);
 
-    final bgColor = isNegative
-        ? Colors.red.withOpacity(0.1)
-        : Colors.green.withOpacity(0.1);
+    final textColor = isMatched ? Colors.green : Colors.red;
 
-    final textColor = isNegative ? Colors.red : Colors.green;
+    final icon = isMatched ? Icons.check_circle : Icons.cancel;
 
-    final icon = isNegative ? Icons.cancel : Icons.check_circle;
+    final text = isMatched ? "Phù hợp" : "Không phù hợp";
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -427,11 +425,12 @@ class VenueReviewItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 12, color: textColor),
           const SizedBox(width: 4),
           Text(
-            tag,
+            text,
             style: TextStyle(
               fontSize: 11,
               color: textColor,

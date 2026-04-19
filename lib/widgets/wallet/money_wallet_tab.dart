@@ -34,7 +34,7 @@ class _MoneyWalletTabState extends State<MoneyWalletTab> {
 
     return CustomScrollView(
       slivers: [
-        // === Ví 3D Hero - Giữ nguyên thiết kế cũ ===
+        // === Ví 3D Hero  ===
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),

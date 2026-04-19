@@ -107,26 +107,31 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
 
                   return AnimatedVoucherItem(
                     index: index,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await context.pushNamed(
-                          'voucher_detail',
-                          extra: {'voucherId': v.id},
-                        );
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () async {
+                          if (provider.isExchanging(v.id)) return;
+                          await context.pushNamed(
+                            'voucher_detail',
+                            extra: {'voucherId': v.id},
+                          );
 
-                        /// khi pop về  reload
-                        context.read<VoucherProvider>().fetchVouchers(
-                          refresh: true,
-                        );
-                      },
-                      child: VoucherCard(
-                        voucher: v,
-                        onExchange: () async {
-                          await context.read<VoucherProvider>().exchangeVoucher(
-                            context,
-                            v,
+                          context.read<VoucherProvider>().fetchVouchers(
+                            refresh: true,
                           );
                         },
+                        child: VoucherCard(
+                          key: ValueKey(v.id),
+                          voucher: v,
+                          isLoading: provider.isExchanging(v.id),
+                          onExchange: () async {
+                            await context
+                                .read<VoucherProvider>()
+                                .exchangeVoucher(context, v);
+                          },
+                        ),
                       ),
                     ),
                   );

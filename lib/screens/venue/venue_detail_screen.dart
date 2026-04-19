@@ -1,4 +1,3 @@
-import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
 import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
@@ -16,8 +15,6 @@ import '../../widgets/venue/venue_cover_image.dart';
 import '../../widgets/venue/venue_basic_info.dart';
 import '../../widgets/venue/venue_image_slider.dart';
 import '../../widgets/venue/venue_review_section.dart';
-import '../../services/review_service.dart';
-import '../../models/checkin/checkin_payload.dart';
 
 class VenueDetailScreen extends StatefulWidget {
   final int venueId;
@@ -38,32 +35,120 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
   }
 
   Future<void> _handleCheckIn() async {
-    final venue = context.read<VenueDetailProvider>().venue;
+    final provider = context.read<VenueDetailProvider>();
+    final venue = provider.venue;
+
     if (venue == null) return;
 
-    final position = await LocationService.getCurrentPosition();
-
-    if (position == null) {
-      showMsg(context, "Vui lòng bật GPS để check-in 📍", false);
-      return;
-    }
-
-    final payload = CheckInPayload(
-      venueLocationId: venue.id,
-      latitude: position.latitude,
-      longitude: position.longitude,
-    );
-
-    CheckInSession.lastCheckIn = payload;
-
-    await ReviewService.triggerCheckIn(payload);
+    final (success, message) = await provider.handleCheckInFlow(venue.id);
 
     if (!mounted) return;
 
-    showMsg(
-      context,
-      "Check-in thành công! Hãy ở lại 10 phút để có thể review 📍",
-      true,
+    if (success) {
+      showMsg(
+        context,
+        message ?? (success ? "Check-in thành công" : "Check-in thất bại"),
+        success,
+      );
+    } else {
+      showMsg(context, provider.checkInError ?? "Check-in thất bại", false);
+    }
+  }
+
+  Widget _buildCheckInButton(VenueDetailProvider provider) {
+    final isLoading = provider.checkInLoading;
+    final isDisabled = provider.isCheckInDisabled;
+    final disabledText = provider.checkInDisabledMessage;
+
+    return GestureDetector(
+      onTap: (isLoading || isDisabled) ? null : _handleCheckIn,
+      child: AnimatedScale(
+        scale: isLoading ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 180),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 280),
+          width: double.infinity,
+          height: 58,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: (isLoading || isDisabled)
+                  ? [Colors.grey.shade400, Colors.grey.shade600]
+                  : [const Color(0xFFFF1E7E), const Color(0xFF9C27FF)],
+            ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              if (!isLoading)
+                BoxShadow(
+                  color: const Color(0xFFFF1E7E).withOpacity(0.35),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+            ],
+          ),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              splashColor: Colors.white.withOpacity(0.22),
+              highlightColor: Colors.white.withOpacity(0.15),
+              onTap: (isLoading || isDisabled) ? null : _handleCheckIn,
+              child: Center(
+                child: Center(
+                  child: isLoading
+                      ? const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.8,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(width: 14),
+                            Text(
+                              "Đang check-in...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isDisabled
+                                  ? Icons.lock_rounded
+                                  : Icons.check_circle_rounded,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              isDisabled
+                                  ? (disabledText ?? "Không thể check-in")
+                                  : "Check-in ngay",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -145,26 +230,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
                     horizontal: 16,
                     vertical: 8,
                   ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _handleCheckIn,
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text("Check-in tại địa điểm này"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.pinkAccent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        textStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ),
-                  ),
+                  child: _buildCheckInButton(provider),
                 ),
 
                 /// ĐỊA CHỈ

@@ -18,6 +18,7 @@ class ReviewProvider extends ChangeNotifier {
     required int rating,
     required String content,
     required bool isAnonymous,
+    required bool isMatched,
     required List<String> localImagePaths,
   }) async {
     try {
@@ -65,6 +66,7 @@ class ReviewProvider extends ChangeNotifier {
         content: content,
         rating: rating,
         isAnonymous: isAnonymous,
+        isMatched: isMatched,
         imageUrls: uploadedUrls,
       );
 
@@ -91,7 +93,7 @@ class ReviewProvider extends ChangeNotifier {
     required int rating,
     required String content,
     required bool isAnonymous,
-
+    required bool isMatched,
     required List<String> originalImages, // từ BE
     required List<String> currentOldImages, // sau khi user edit
     required List<String> newLocalImages,
@@ -127,6 +129,7 @@ class ReviewProvider extends ChangeNotifier {
         rating: rating,
         content: content,
         isAnonymous: isAnonymous,
+        isMatched: isMatched,
         deletedImageUrls: deletedImages.isEmpty ? null : deletedImages,
         newImages: newUploadedUrls.isEmpty ? null : newUploadedUrls,
       );

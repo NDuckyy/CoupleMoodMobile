@@ -23,7 +23,7 @@ class SubscriptionCard extends StatelessWidget {
     final isYearly = pkg.isYearly;
 
     final String label = isFree
-        ? "GÓI MIỄN PHÍ"
+        ? "GÓI MẶC ĐỊNH"
         : isYearly
         ? "GÓI NĂM"
         : "GÓI THÁNG";
@@ -122,7 +122,7 @@ class SubscriptionCard extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              isFree ? "MIỄN PHÍ" : "${pkg.price ~/ 1000}K",
+              isFree ? "0K" : "${pkg.price ~/ 1000}K",
               style: TextStyle(
                 fontSize: isFree ? 38 : 52,
                 fontWeight: FontWeight.w800,

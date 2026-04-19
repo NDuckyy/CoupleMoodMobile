@@ -19,6 +19,10 @@ class VoucherProvider extends ChangeNotifier {
 
   List<VoucherItem> get vouchers => _response?.data?.items ?? [];
 
+  final Set<int> _exchangingIds = {};
+
+  bool isExchanging(int id) => _exchangingIds.contains(id);
+
   /// INITIAL LOAD / REFRESH
   Future<void> fetchVouchers({bool refresh = false}) async {
     if (isLoading) return;
@@ -89,6 +93,12 @@ class VoucherProvider extends ChangeNotifier {
     BuildContext context,
     VoucherItem voucher,
   ) async {
+    /// 🚫 CHẶN SPAM
+    if (_exchangingIds.contains(voucher.id)) return false;
+
+    _exchangingIds.add(voucher.id);
+    notifyListeners();
+
     try {
       final res = await VoucherService.exchangeVoucher(
         items: [ExchangeItem(voucherId: voucher.id, quantity: 1)],
@@ -108,6 +118,10 @@ class VoucherProvider extends ChangeNotifier {
     } catch (e) {
       showMsg(context, e.toString(), false);
       return false;
+    } finally {
+      ///  LUÔN remove để unlock button
+      _exchangingIds.remove(voucher.id);
+      notifyListeners();
     }
   }
 
