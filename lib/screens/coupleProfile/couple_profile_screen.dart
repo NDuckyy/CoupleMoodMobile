@@ -78,160 +78,172 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
       body: coupleProvider.isLoading
           ? const Center(child: Loading())
           : SafeArea(
-              child: SingleChildScrollView(
-                child: couple == null
-                    ? SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: const Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 30),
-                            child: EmptyStateWidget(
-                              icon: Icons.people_outline,
-                              title: "Chưa có cặp đôi",
-                              description:
-                                  "Hãy kết nối với người yêu để bắt đầu hành trình 💕",
-                            ),
-                          ),
-                        ),
-                      )
-                    : Column(
-                        children: [
-                          const SizedBox(height: 10),
-                          Text(
-                            couple.coupleName ?? "Cặp đôi chưa đặt tên",
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          /// Avatars
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              BuildAvatar(url: couple.member1AvatarUrl),
-
-                              const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Icon(
-                                  Icons.favorite,
-                                  color: Colors.redAccent,
-                                  size: 32,
-                                ),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await coupleProvider.fetchCoupleProfile();
+                },
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: couple == null
+                      ? SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 30),
+                              child: EmptyStateWidget(
+                                icon: Icons.people_outline,
+                                title: "Chưa có cặp đôi",
+                                description:
+                                    "Hãy kết nối với người yêu để bắt đầu hành trình 💕",
                               ),
-
-                              BuildAvatar(url: couple.member2AvatarUrl),
-                            ],
+                            ),
                           ),
+                        )
+                      : Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            Text(
+                              couple.coupleName ?? "Cặp đôi chưa đặt tên",
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
 
-                          const SizedBox(height: 16),
+                            const SizedBox(height: 20),
 
-                          /// Names
-                          RichText(
-                            text: TextSpan(
-                              style: const TextStyle(fontSize: 18),
+                            /// Avatars
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                TextSpan(
-                                  text: couple.member1Name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF8093F1),
+                                BuildAvatar(url: couple.member1AvatarUrl),
+
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  child: Icon(
+                                    Icons.favorite,
+                                    color: Colors.redAccent,
+                                    size: 32,
                                   ),
                                 ),
-                                const TextSpan(
-                                  text: "  &  ",
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                                TextSpan(
-                                  text: couple.member2Name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFFB388EB),
-                                  ),
-                                ),
+
+                                BuildAvatar(url: couple.member2AvatarUrl),
                               ],
                             ),
-                          ),
 
-                          const SizedBox(height: 30),
+                            const SizedBox(height: 16),
 
-                          BuildStatCard(
-                            anniversaryDate: couple.aniversaryDate ?? "Chưa có",
-                            totalPoints: couple.totalPoints,
-                            interactionPoints: couple.interactionPoints,
-                            budgetMin: couple.budgetMin,
-                            budgetMax: couple.budgetMax,
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          BuildInfoCard(
-                            title: "Tính cách cặp đôi",
-                            value:
-                                couple.couplePersonalityTypeName?.isNotEmpty ==
-                                    true
-                                ? couple.couplePersonalityTypeName!
-                                : "Chưa có",
-                            description:
-                                couple
-                                        .couplePersonalityTypeDescription
-                                        ?.isNotEmpty ==
-                                    true
-                                ? couple.couplePersonalityTypeDescription!
-                                : "Hãy hoàn thành bài trắc nghiệm tính cách để khám phá tính cách cặp đôi của bạn",
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          /// Mood
-                          BuildInfoCard(
-                            title: "Mood cặp đôi",
-                            value: couple.coupleMoodTypeName?.isNotEmpty == true
-                                ? couple.coupleMoodTypeName!
-                                : "Chưa có",
-                            description:
-                                couple.coupleMoodTypeDescription?.isNotEmpty ==
-                                    true
-                                ? couple.coupleMoodTypeDescription!
-                                : "Hãy chia sẻ cảm xúc hàng ngày để khám phá mood cặp đôi của bạn",
-                          ),
-
-                          const SizedBox(height: 30),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: Material(
-                                color: Colors.transparent,
-                                borderRadius: BorderRadius.circular(25),
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(25),
-                                  onTap: () => _onBreakupPressed(),
-                                  child: Ink(
-                                    decoration: const BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.centerLeft,
-                                        end: Alignment.centerRight,
-                                        colors: [
-                                          Color(0xFFB388EB),
-                                          Color(0xFFF7AEF8),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(25),
-                                      ),
+                            /// Names
+                            RichText(
+                              text: TextSpan(
+                                style: const TextStyle(fontSize: 18),
+                                children: [
+                                  TextSpan(
+                                    text: couple.member1Name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF8093F1),
                                     ),
-                                    child: const Center(
-                                      child: Text(
-                                        'Chia tay',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
+                                  ),
+                                  const TextSpan(
+                                    text: "  &  ",
+                                    style: TextStyle(color: Colors.black54),
+                                  ),
+                                  TextSpan(
+                                    text: couple.member2Name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFB388EB),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            BuildStatCard(
+                              anniversaryDate:
+                                  couple.aniversaryDate ?? "Chưa có",
+                              totalPoints: couple.totalPoints,
+                              interactionPoints: couple.interactionPoints,
+                              budgetMin: couple.budgetMin,
+                              budgetMax: couple.budgetMax,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            BuildInfoCard(
+                              title: "Tính cách cặp đôi",
+                              value:
+                                  couple
+                                          .couplePersonalityTypeName
+                                          ?.isNotEmpty ==
+                                      true
+                                  ? couple.couplePersonalityTypeName!
+                                  : "Chưa có",
+                              description:
+                                  couple
+                                          .couplePersonalityTypeDescription
+                                          ?.isNotEmpty ==
+                                      true
+                                  ? couple.couplePersonalityTypeDescription!
+                                  : "Hãy hoàn thành bài trắc nghiệm tính cách để khám phá tính cách cặp đôi của bạn",
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            /// Mood
+                            BuildInfoCard(
+                              title: "Mood cặp đôi",
+                              value:
+                                  couple.coupleMoodTypeName?.isNotEmpty == true
+                                  ? couple.coupleMoodTypeName!
+                                  : "Chưa có",
+                              description:
+                                  couple
+                                          .coupleMoodTypeDescription
+                                          ?.isNotEmpty ==
+                                      true
+                                  ? couple.coupleMoodTypeDescription!
+                                  : "Hãy chia sẻ cảm xúc hàng ngày để khám phá mood cặp đôi của bạn",
+                            ),
+
+                            const SizedBox(height: 30),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(25),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(25),
+                                    onTap: () => _onBreakupPressed(),
+                                    child: Ink(
+                                      decoration: const BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.centerLeft,
+                                          end: Alignment.centerRight,
+                                          colors: [
+                                            Color(0xFFB388EB),
+                                            Color(0xFFF7AEF8),
+                                          ],
+                                        ),
+                                        borderRadius: BorderRadius.all(
+                                          Radius.circular(25),
+                                        ),
+                                      ),
+                                      child: const Center(
+                                        child: Text(
+                                          'Chia tay',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -239,9 +251,9 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                ),
               ),
             ),
     );

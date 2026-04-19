@@ -41,16 +41,22 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
   void _sendDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
     final chatProvider = context.read<ChatProvider>();
-    await datePlanProvider.sendDatePlan(datePlanId);
-    final conversationId = await chatProvider.getCoupleConversationId();
-    await chatProvider.sendDatePlan(conversationId, "", datePlanId);
-    if (datePlanProvider.error != null) {
+    try {
+      await datePlanProvider.sendDatePlan(datePlanId);
+      final conversationId = await chatProvider.getCoupleConversationId();
+      if (datePlanProvider.error != null) {
+        if (!mounted) return;
+        showMsg(context, datePlanProvider.error!, false);
+        return;
+      } else {
+        if (!mounted) return;
+        showMsg(context, 'Gửi lịch hẹn thành công', true);
+        datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      }
+      await chatProvider.sendDatePlan(conversationId, "", datePlanId);
+    } catch (e) {
       if (!mounted) return;
-      showMsg(context, datePlanProvider.error!, false);
-    } else {
-      if (!mounted) return;
-      showMsg(context, 'Gửi lịch hẹn thành công', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      showMsg(context, 'Gửi lịch hẹn thất bại', false);
     }
   }
 

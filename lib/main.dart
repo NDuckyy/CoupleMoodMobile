@@ -100,6 +100,7 @@ class _MyAppState extends State<MyApp> {
     return DeepLinkHandler(
       router: _router,
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         routerConfig: _router,
         title: 'Couple Mood',
         theme: ThemeData(

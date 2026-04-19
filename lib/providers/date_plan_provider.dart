@@ -348,6 +348,7 @@ class DatePlanProvider extends ChangeNotifier {
       final response = await DatePlanService.sendDatePlan(datePlanId);
       if (response.code != 200) {
         error = response.message;
+        throw Exception(response.message);
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
