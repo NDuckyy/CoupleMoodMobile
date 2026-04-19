@@ -27,6 +27,8 @@ class PostProvider extends ChangeNotifier {
   List<PostTopic> topics = [];
   bool loadingTopics = false;
 
+  final Set<int> _likingPostIds = {};
+
   Future<void> loadFeeds() async {
     loading = true;
     notifyListeners();
@@ -73,19 +75,21 @@ class PostProvider extends ChangeNotifier {
     final index = posts.indexWhere((p) => p.id == post.id);
     if (index == -1) return;
 
-    final oldPost = posts[index];
-    final oldLiked = oldPost.isLikedByMe;
+    /// 🔒 lock theo id
+    if (_likingPostIds.contains(post.id)) return;
+    _likingPostIds.add(post.id);
+
+    final current = posts[index];
+    final oldLiked = current.isLikedByMe;
 
     /// optimistic update
-    final updatedPost = oldPost.copyWith(
+    final updatedPost = current.copyWith(
       isLikedByMe: !oldLiked,
-      likeCount: oldLiked ? oldPost.likeCount - 1 : oldPost.likeCount + 1,
+      likeCount: oldLiked ? current.likeCount - 1 : current.likeCount + 1,
     );
 
     posts[index] = updatedPost;
     notifyListeners();
-
-    ///  sync sang MyPosts
     myPostsProvider?.updatePost(updatedPost);
 
     try {
@@ -101,16 +105,18 @@ class PostProvider extends ChangeNotifier {
 
         posts[index] = newPost;
         notifyListeners();
-
-        /// sync lại
         myPostsProvider?.updatePost(newPost);
+      } else {
+        throw Exception("API failed");
       }
     } catch (e) {
       /// rollback
-      posts[index] = oldPost;
+      posts[index] = current;
       notifyListeners();
-
-      myPostsProvider?.updatePost(oldPost);
+      myPostsProvider?.updatePost(current);
+    } finally {
+      /// 🔓 unlock
+      _likingPostIds.remove(post.id);
     }
   }
 

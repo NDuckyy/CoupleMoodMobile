@@ -58,7 +58,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     if (review != null) {
       rating = review.rating;
       isAnonymous = review.isAnonymous;
-      isMatched = review.isMatched ?? true;
+      isMatched = review.isMatched!;
       contentController.text = review.content;
 
       /// ảnh cũ là URL
