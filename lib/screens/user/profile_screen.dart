@@ -204,37 +204,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 24),
 
                   /// QUICK ACTIONS
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _actionButton(
-                        icon: Icons.article_outlined,
-                        label: "Tường nhà",
-                        onTap: () {
-                          context.pushNamed("my_posts");
-                        },
-                      ),
-                      _actionButton(
-                        icon: Icons.favorite_border,
-                        label: "Hẹn hò",
-                        onTap: () {},
-                      ),
-                      _actionButton(
-                        icon: Icons.photo_library_outlined,
-                        label: "Ảnh",
-                        onTap: () {},
-                      ),
-                      _actionButton(
-                        icon: Icons.notifications,
-                        label: "Test Noti",
-                        onTap: () async {
-                          await NotificationService().showTestNotification();
-                        },
-                      ),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     _actionButton(
+                  //       icon: Icons.article_outlined,
+                  //       label: "Tường nhà",
+                  //       onTap: () {
+                  //         context.pushNamed("my_posts");
+                  //       },
+                  //     ),
+                  //     _actionButton(
+                  //       icon: Icons.favorite_border,
+                  //       label: "Hẹn hò",
+                  //       onTap: () {},
+                  //     ),
+                  //     _actionButton(
+                  //       icon: Icons.photo_library_outlined,
+                  //       label: "Ảnh",
+                  //       onTap: () {},
+                  //     ),
+                  //     _actionButton(
+                  //       icon: Icons.notifications,
+                  //       label: "Test Noti",
+                  //       onTap: () async {
+                  //         await NotificationService().showTestNotification();
+                  //       },
+                  //     ),
+                  //   ],
+                  // ),
 
-                  const SizedBox(height: 24),
+                  // const SizedBox(height: 24),
 
                   /// PREMIUM CARD
                   InkWell(
@@ -274,6 +274,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Tài khoản',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
+                  _tile(Icons.article_outlined, "Tường nhà", () {
+                    context.pushNamed("my_posts");
+                  }),
                   _tile(Icons.lock_outline, "Mật khẩu", () {
                     context.pushNamed("change_password");
                   }),
