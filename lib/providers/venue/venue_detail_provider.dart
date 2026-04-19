@@ -30,6 +30,34 @@ class VenueDetailProvider extends ChangeNotifier {
 
   List<CollectionItemSummary> collections = [];
 
+  bool get isCheckInDisabled {
+    final state = venue?.userState;
+    if (state == null) return false;
+
+    if (state.hasReviewedBefore) return true;
+
+    if (state.activeCheckInId != null && !state.canReview) {
+      return true;
+    }
+
+    return false;
+  }
+
+  String? get checkInDisabledMessage {
+    final state = venue?.userState;
+    if (state == null) return null;
+
+    if (state.hasReviewedBefore) {
+      return "Bạn đã review địa điểm này rồi 💬";
+    }
+
+    if (state.activeCheckInId != null && !state.canReview) {
+      return "Chờ để có thể review ⏳";
+    }
+
+    return null;
+  }
+
   /// ================= LOAD VENUE =================
   Future<void> loadVenue(int id) async {
     loading = true;
@@ -122,7 +150,7 @@ class VenueDetailProvider extends ChangeNotifier {
     );
   }
 
-  Future<bool> handleCheckInFlow(int venueId) async {
+  Future<(bool, String?)> handleCheckInFlow(int venueId) async {
     checkInLoading = true;
     checkInError = null;
     notifyListeners();
@@ -142,15 +170,16 @@ class VenueDetailProvider extends ChangeNotifier {
 
       CheckInSession.lastCheckIn = payload;
 
-      await ReviewService.triggerCheckIn(payload);
+      final message = await ReviewService.triggerCheckIn(payload);
 
       checkInSuccess = true;
       notifyListeners();
-      return true;
+
+      return (true, message); // 👈 trả message BE
     } catch (e) {
       checkInError = e.toString().replaceFirst('Exception: ', '');
       notifyListeners();
-      return false;
+      return (false, checkInError);
     } finally {
       checkInLoading = false;
       notifyListeners();

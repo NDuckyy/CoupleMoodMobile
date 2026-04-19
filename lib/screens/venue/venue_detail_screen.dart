@@ -40,15 +40,15 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
 
     if (venue == null) return;
 
-    final success = await provider.handleCheckInFlow(venue.id);
+    final (success, message) = await provider.handleCheckInFlow(venue.id);
 
     if (!mounted) return;
 
     if (success) {
       showMsg(
         context,
-        "Check-in thành công! Hãy ở lại 10 phút để có thể review 📍",
-        true,
+        message ?? (success ? "Check-in thành công" : "Check-in thất bại"),
+        success,
       );
     } else {
       showMsg(context, provider.checkInError ?? "Check-in thất bại", false);
@@ -57,9 +57,11 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
 
   Widget _buildCheckInButton(VenueDetailProvider provider) {
     final isLoading = provider.checkInLoading;
+    final isDisabled = provider.isCheckInDisabled;
+    final disabledText = provider.checkInDisabledMessage;
 
     return GestureDetector(
-      onTap: isLoading ? null : _handleCheckIn,
+      onTap: (isLoading || isDisabled) ? null : _handleCheckIn,
       child: AnimatedScale(
         scale: isLoading ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 180),
@@ -71,12 +73,9 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
             gradient: LinearGradient(
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
-              colors: isLoading
+              colors: (isLoading || isDisabled)
                   ? [Colors.grey.shade400, Colors.grey.shade600]
-                  : [
-                      const Color(0xFFFF1E7E), // Hồng đậm
-                      const Color(0xFF9C27FF), // Tím sang
-                    ],
+                  : [const Color(0xFFFF1E7E), const Color(0xFF9C27FF)],
             ),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
@@ -95,52 +94,56 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
               borderRadius: BorderRadius.circular(18),
               splashColor: Colors.white.withOpacity(0.22),
               highlightColor: Colors.white.withOpacity(0.15),
-              onTap: isLoading ? null : _handleCheckIn,
+              onTap: (isLoading || isDisabled) ? null : _handleCheckIn,
               child: Center(
-                child: isLoading
-                    ? const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.8,
-                              color: Colors.white,
+                child: Center(
+                  child: isLoading
+                      ? const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.8,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 14),
-                          Text(
-                            "Đang check-in...",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 17,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.3,
+                            SizedBox(width: 14),
+                            Text(
+                              "Đang check-in...",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 17,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
-                          ),
-                        ],
-                      )
-                    : const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.check_circle_rounded,
-                            color: Colors.white,
-                            size: 26,
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "Check-in ngay",
-                            style: TextStyle(
+                          ],
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isDisabled
+                                  ? Icons.lock_rounded
+                                  : Icons.check_circle_rounded,
                               color: Colors.white,
-                              fontSize: 17.5,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.4,
+                              size: 26,
                             ),
-                          ),
-                        ],
-                      ),
+                            const SizedBox(width: 12),
+                            Text(
+                              isDisabled
+                                  ? (disabledText ?? "Không thể check-in")
+                                  : "Check-in ngay",
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 17.5,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ),
           ),

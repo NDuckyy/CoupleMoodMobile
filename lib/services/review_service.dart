@@ -6,7 +6,7 @@ import 'package:couple_mood_mobile/models/checkin/checkin_payload.dart';
 import 'package:flutter/material.dart';
 
 class ReviewService {
-  static Future<void> triggerCheckIn(CheckInPayload payload) async {
+  static Future<String> triggerCheckIn(CheckInPayload payload) async {
     try {
       final res = await ApiClient.request(
         "/Review/check-in-trigger",
@@ -28,6 +28,9 @@ class ReviewService {
       }
 
       CheckInSession.checkInId = (checkInId as num).toInt();
+
+      // 👉 RETURN message từ BE
+      return res["message"] ?? "Check-in thành công";
     } catch (e) {
       throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }

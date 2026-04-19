@@ -1,6 +1,7 @@
 import 'location_tag_model.dart';
 import 'venue_owner_model.dart';
 import 'today_opening_hour.dart';
+import 'userstate.dart';
 
 class Venue {
   final int id;
@@ -39,6 +40,8 @@ class Venue {
 
   final List<String> categories;
 
+  final UserState? userState;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -69,6 +72,7 @@ class Venue {
     this.venueOwner,
     this.todayOpeningHour,
     this.todayDayName,
+    this.userState,
     this.createdAt,
     this.updatedAt,
   });
@@ -121,6 +125,10 @@ class Venue {
       isOwnerVerified: json['isOwnerVerified'] ?? false,
 
       categories: List<String>.from(json['category'] ?? []),
+
+      userState: json['userState'] != null
+          ? UserState.fromJson(json['userState'])
+          : null,
 
       createdAt: json['createdAt'] != null
           ? DateTime.tryParse(json['createdAt'])
