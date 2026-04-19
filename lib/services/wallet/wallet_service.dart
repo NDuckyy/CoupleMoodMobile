@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/models/paginated_response.dart';
 import 'package:couple_mood_mobile/models/wallet/convert_money_response.dart';
 import 'package:couple_mood_mobile/models/wallet/exchange_rate.dart';
 import 'package:couple_mood_mobile/models/wallet/wallet_transaction.dart';
+import 'package:couple_mood_mobile/models/wallet/withdraw_request.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
 class WalletService {
@@ -46,7 +47,7 @@ class WalletService {
     }
   }
 
-  /// 🔹 POST convert money → point
+  ///  POST convert money → point
   static Future<ApiResponse<ConvertMoneyResponse>> convertMoneyToPoint({
     required int amount,
   }) async {
@@ -63,6 +64,44 @@ class WalletService {
       );
     } catch (e) {
       throw Exception('Lỗi khi chuyển tiền thành điểm: $e');
+    }
+  }
+
+  static Future<ApiResponse<WithdrawRequest>> withdraw({
+    required int amount,
+    required BankInfo bankInfo,
+  }) async {
+    try {
+      final res = await ApiClient.request(
+        '/Wallet/withdraw',
+        method: HttpMethod.post,
+        data: {"amount": amount, "bankInfo": bankInfo.toJson()},
+      );
+
+      return ApiResponse<WithdrawRequest>.fromJson(
+        res,
+        (json) => WithdrawRequest.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi tạo yêu cầu rút tiền: $e');
+    }
+  }
+
+  static Future<ApiResponse<List<WithdrawRequest>>>
+  getWithdrawRequests() async {
+    try {
+      final res = await ApiClient.request(
+        '/Wallet/withdraw-requests',
+        method: HttpMethod.get,
+      );
+
+      return ApiResponse<List<WithdrawRequest>>.fromJson(
+        res,
+        (json) =>
+            (json as List).map((e) => WithdrawRequest.fromJson(e)).toList(),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy danh sách rút tiền: $e');
     }
   }
 }

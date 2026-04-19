@@ -78,7 +78,7 @@ class _VenueDetailScreenState extends State<VenueDetailScreen> {
             ),
             borderRadius: BorderRadius.circular(18),
             boxShadow: [
-              if (!isLoading)
+              if (!isLoading && !isDisabled)
                 BoxShadow(
                   color: const Color(0xFFFF1E7E).withOpacity(0.35),
                   blurRadius: 20,
