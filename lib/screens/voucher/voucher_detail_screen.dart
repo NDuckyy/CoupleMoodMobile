@@ -57,8 +57,14 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
 
           final bool isOutOfStock = v.remainingQuantity <= 0;
           final bool isExpired = v.endDate.isBefore(DateTime.now());
+          final bool isOutOfUsage =
+              v.usageLimitPerMember != null &&
+              (v.remainingUsagePerMember ?? 0) <= 0;
           final bool canExchange =
-              !isOutOfStock && !isExpired && !provider.isExchanging;
+              !isOutOfStock &&
+              !isExpired &&
+              !isOutOfUsage &&
+              !provider.isExchanging;
 
           return Column(
             children: [
@@ -345,7 +351,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                "Hết hạn: ${formatDateTimeVN(v.endDate)}",
+                                "Hết đổi: ${formatDateTimeVN(v.endDate)}",
                                 style: const TextStyle(
                                   fontSize: 13.5,
                                   color: Colors.red,
@@ -353,6 +359,41 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                 ),
                               ),
                             ],
+                          ),
+
+                          if (v.usageValidDays != null) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.event_repeat,
+                                  size: 18,
+                                  color: Colors.blue,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    "Hạn sử dụng: ${v.usageValidDays} ngày kể từ khi đổi",
+                                    style: const TextStyle(
+                                      fontSize: 13.5,
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          const SizedBox(height: 12),
+
+                          Text(
+                            _buildUsageText(v),
+                            style: TextStyle(
+                              fontSize: 13.5,
+                              color: _usageColor(v),
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),
@@ -475,16 +516,22 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                             )
                           : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(
+                              children: [
+                                const Icon(
                                   Icons.card_giftcard_rounded,
                                   color: Colors.white,
                                   size: 20,
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
-                                  "ĐỔI VOUCHER NGAY",
-                                  style: TextStyle(
+                                  isOutOfStock
+                                      ? "HẾT HÀNG"
+                                      : isOutOfUsage
+                                      ? "HẾT LƯỢT ĐỔI"
+                                      : isExpired
+                                      ? "ĐÃ HẾT HẠN"
+                                      : "ĐỔI VOUCHER NGAY",
+                                  style: const TextStyle(
                                     fontSize: 16.5,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -513,38 +560,19 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
     );
   }
 
-  Widget _buildInfoCard({
-    required String title,
-    Widget? child,
-    String? content,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 16.5, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          if (content != null)
-            Text(content, style: const TextStyle(fontSize: 15, height: 1.5)),
-          if (child != null) child,
-        ],
-      ),
-    );
+  String _buildUsageText(VoucherItem v) {
+    if (v.usageLimitPerMember == null) return "Không giới hạn lượt đổi";
+    final remain = v.remainingUsagePerMember ?? 0;
+    if (remain <= 0) return "Đã hết lượt đổi";
+    return "Còn $remain/${v.usageLimitPerMember} lượt đổi";
+  }
+
+  Color _usageColor(VoucherItem v) {
+    if (v.usageLimitPerMember == null) return Colors.blueGrey;
+    final remain = v.remainingUsagePerMember ?? 0;
+    if (remain <= 0) return Colors.red;
+    if (remain <= 2) return Colors.orange;
+    return Colors.grey.shade700;
   }
 
   String _buildExpireText(VoucherItem v) {
