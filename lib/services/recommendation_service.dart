@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/recommendation/category.dart';
+import 'package:couple_mood_mobile/models/recommendation/context.dart';
 import 'package:couple_mood_mobile/models/recommendation/context_recommendation.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/models/recommendation/recommendation_response.dart';
@@ -28,13 +29,13 @@ class RecommendationService {
     }
   }
 
-  static Future<ApiResponse<String>> fetchContext() async {
+  static Future<ApiResponse<Context>> fetchContext() async {
     try {
       final res = await ApiClient.request(
         '/v1/user-context',
         method: HttpMethod.get,
       );
-      return ApiResponse.fromJson(res, (json) => json as String);
+      return ApiResponse.fromJson(res, (json) => Context.fromJson(json));
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi lấy ngữ cảnh người dùng: $e');
@@ -47,8 +48,8 @@ class RecommendationService {
       final res = await ApiClient.requestForContext(
         method: HttpMethod.post,
         data: {
-          "q": "",
-          "personalize": {"userContext": context.data},
+          "q": context.data?.searchHistories ?? "",
+          "personalize": {"userContext": context.data?.userContext ?? ""},
         },
       );
       return ContextRecommendation.fromJson(res);
