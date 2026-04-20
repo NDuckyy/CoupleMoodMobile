@@ -87,7 +87,7 @@ class VenueReviewService {
     return ApiResponse<int>.fromJson(res, (json) => json as int);
   }
 
-  static Future<ApiResponse<int>> updateReview({
+  static Future<ApiResponse<void>> updateReview({
     required int reviewId,
     required UpdateReviewRequest request,
   }) async {
@@ -97,6 +97,6 @@ class VenueReviewService {
       data: request.toJson(),
     );
 
-    return ApiResponse<int>.fromJson(res, (json) => json as int);
+    return ApiResponse<void>.fromJson(res, (json) {});
   }
 }
