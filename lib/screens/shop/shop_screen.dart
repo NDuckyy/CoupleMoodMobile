@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
+import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/widgets/shop/point_shop_card.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -30,6 +32,8 @@ class _ShopScreenState extends State<ShopScreen> {
       }
 
       context.read<ShopProvider>().fetchInitial();
+      //TODO đang lượn mượn couple profile, hỏi lại Nam xem có api riêng ko hoặc xài bên authme
+      context.read<CoupleProvider>().fetchCoupleProfile();
     });
   }
 
@@ -37,6 +41,7 @@ class _ShopScreenState extends State<ShopScreen> {
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
     final shopProvider = context.watch<ShopProvider>();
+    final coupleProvider = context.watch<CoupleProvider>();
 
     final user = userProvider.user;
     final items = shopProvider.items;
@@ -47,7 +52,7 @@ class _ShopScreenState extends State<ShopScreen> {
         actions: [
           Consumer<UserProvider>(
             builder: (context, userProvider, child) {
-              final points = userProvider.user?.points ?? 0;
+              final points = coupleProvider.couple?.totalPoints ?? 0;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 12),
@@ -92,10 +97,17 @@ class _ShopScreenState extends State<ShopScreen> {
                       });
                     },
                     onPurchase: () async {
-                      await context.read<ShopProvider>().purchase(
-                        item.accessoryId,
-                      );
-                      await context.read<UserProvider>().fetchMe();
+                      try {
+                        await context.read<ShopProvider>().purchase(
+                          item.accessoryId,
+                        );
+
+                        await context.read<UserProvider>().fetchMe();
+
+                        showMsg(context, "Mua thành công", true);
+                      } catch (e) {
+                        showMsg(context, e.toString(), false);
+                      }
                     },
                     onEquipToggle: () async {
                       final provider = context.read<ShopProvider>();

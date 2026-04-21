@@ -104,7 +104,11 @@ class ShopProvider extends ChangeNotifier {
   /// ==================== ACTIONS ====================
   Future<void> purchase(int accessoryId) async {
     try {
-      await MemberAccessoryService.purchase(accessoryId);
+      final res = await MemberAccessoryService.purchase(accessoryId);
+
+      if (res.code != 200) {
+        throw (res.message ?? "Đổi thất bại");
+      }
 
       final index = items.indexWhere((e) => e.accessoryId == accessoryId);
       if (index != -1) {
