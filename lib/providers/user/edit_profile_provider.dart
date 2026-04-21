@@ -18,6 +18,15 @@ class EditProfileProvider extends ChangeNotifier {
     double? budgetMin,
     double? budgetMax,
     File? avatarFile,
+    String? jobTitle,
+    String? educationLevel,
+    int? height,
+    int? weight,
+    String? city,
+    String? district,
+    List<String>? favoritePets,
+    bool? hasPet,
+    bool? smoking,
   }) async {
     try {
       isLoading = true;
@@ -33,17 +42,32 @@ class EditProfileProvider extends ChangeNotifier {
         }
       }
 
+      final profile = user.memberProfile;
+
       final request = UpdateProfileRequest(
-        fullName: fullName,
+        fullName: fullName ,
         phoneNumber: phoneNumber,
-        dateOfBirth: dateOfBirth,
+        dateOfBirth: dateOfBirth ,
         gender: gender,
-        avatarUrl: avatarUrl,
-        bio: bio,
-        homeLatitude: user.memberProfile?.homeLatitude,
-        homeLongitude: user.memberProfile?.homeLongitude,
-        budgetMin: budgetMin,
-        budgetMax: budgetMax,
+        avatarUrl: avatarUrl ?? user.avatarUrl,
+        bio: bio ?? profile?.bio,
+
+        jobTitle: jobTitle ?? profile?.jobTitle,
+        educationLevel: educationLevel ?? profile?.educationLevel,
+        height: height ?? profile?.height,
+        weight: weight ?? profile?.weight,
+        city: city ?? profile?.city,
+        district: district ?? profile?.district,
+
+        homeLatitude: profile?.homeLatitude,
+        homeLongitude: profile?.homeLongitude,
+
+        budgetMin: budgetMin ?? profile?.budgetMin,
+        budgetMax: budgetMax ?? profile?.budgetMax,
+
+        favoritePets: favoritePets ?? profile?.favoritePets,
+        hasPet: hasPet ?? profile?.hasPet,
+        smoking: smoking ?? profile?.smoking,
       );
 
       final res = await UserService.updateProfile(request);

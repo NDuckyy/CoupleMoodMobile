@@ -123,7 +123,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
                           crossAxisCount: 2,
                           crossAxisSpacing: 16,
                           mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
+                          childAspectRatio: 0.85,
                         ),
                   ),
                 ),

@@ -43,7 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = userProvider.user;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Thông tin của tôi'),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
@@ -110,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 Row(
                                   children: [
                                     Text(
-                                      user?.fullName ?? '',
+                                      user?.memberProfile?.fullName ?? '',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16,

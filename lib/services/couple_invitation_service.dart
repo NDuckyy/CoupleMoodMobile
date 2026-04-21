@@ -36,7 +36,7 @@ class CoupleInvitationService {
       final res = await ApiClient.request(
         '/couple-invitations/received',
         method: HttpMethod.get,
-        query: {'filter': filter, 'page': page, 'pageSize': 10},
+        query: {'filter': filter, 'page': page, 'pageSize': 100},
       );
       return ApiResponse<SearchResponse<InvitationResponse>>.fromJson(
         res,
@@ -57,7 +57,7 @@ class CoupleInvitationService {
       final res = await ApiClient.request(
         '/couple-invitations/sent',
         method: HttpMethod.get,
-        query: {'filter': filter, 'page': page, 'pageSize': 20},
+        query: {'filter': filter, 'page': page, 'pageSize': 100},
       );
       return ApiResponse<SearchResponse<InvitationResponse>>.fromJson(
         res,

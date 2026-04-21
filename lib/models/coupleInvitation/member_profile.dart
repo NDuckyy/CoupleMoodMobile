@@ -5,10 +5,19 @@ class MemberProfile {
   final String? gender;
   final String? bio;
   final String relationshipStatus;
+  final String? jobTitle;
+  final String? educationLevel;
+  final double? height;
+  final double? weight;
+  final String? city;
+  final String? district;
   final double? homeLatitude;
   final double? homeLongitude;
   final double? budgetMin;
   final double? budgetMax;
+  final List<String>? favoritePets;
+  final bool? hasPet;
+  final bool? smoking;
 
   MemberProfile({
     required this.id,
@@ -17,10 +26,19 @@ class MemberProfile {
     this.gender,
     this.bio,
     required this.relationshipStatus,
+    this.jobTitle,
+    this.educationLevel,
+    this.height,
+    this.weight,
+    this.city,
+    this.district,
     this.homeLatitude,
     this.homeLongitude,
     this.budgetMin,
     this.budgetMax,
+    this.favoritePets,
+    this.hasPet,
+    this.smoking,
   });
 
   factory MemberProfile.fromJson(Map<String, dynamic> json) {
@@ -33,6 +51,17 @@ class MemberProfile {
       gender: json['gender'],
       bio: json['bio'],
       relationshipStatus: json['relationshipStatus'] ?? 'SINGLE',
+      jobTitle: json['jobTitle'],
+      educationLevel: json['educationLevel'],
+      height: json['height'] == null
+          ? null
+          : (json['height'] as num).toDouble(),
+      weight: json['weight'] == null
+          ? null
+          : (json['weight'] as num).toDouble(),
+      city: json['city'],
+      district: json['district'],
+
       homeLatitude: json['homeLatitude'] == null
           ? null
           : (json['homeLatitude'] as num).toDouble(),
@@ -45,6 +74,9 @@ class MemberProfile {
       budgetMax: json['budgetMax'] == null
           ? null
           : (json['budgetMax'] as num).toDouble(),
+      favoritePets: json['favoritePets'] is List ? (json['favoritePets'] as List).cast<String>() : null,
+      hasPet: json['hasPet'],
+      smoking: json['smoking'],
     );
   }
 
@@ -60,6 +92,15 @@ class MemberProfile {
       'homeLongitude': homeLongitude,
       'budgetMin': budgetMin,
       'budgetMax': budgetMax,
+      'jobTitle': jobTitle,
+      'educationLevel': educationLevel,
+      'height': height,
+      'weight': weight,
+      'city': city,
+      'district': district,
+      'favoritePets': favoritePets,
+      'hasPet': hasPet,
+      'smoking': smoking,
     };
   }
 

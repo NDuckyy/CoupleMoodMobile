@@ -58,7 +58,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
         return;
       } else {
         receivedInvitations = response.data?.data ?? [];
-        inviteCount = response.data?.pagination.total ?? 0;
+        inviteCount = response.data?.pendingCount ?? 0;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');

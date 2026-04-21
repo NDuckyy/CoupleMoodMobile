@@ -14,6 +14,16 @@ class MemberProfileModel {
   final String? interests;
   final String? availableTime;
   final String? inviteCode;
+  final String? jobTitle;
+  final String? educationLevel;
+  final int? height;
+  final int? weight;
+  final String? city;
+  final String? district;
+
+  final List<String>? favoritePets;
+  final bool? hasPet;
+  final bool? smoking;
 
   final List<MemberAccessory>? equippedAccessories;
 
@@ -31,6 +41,15 @@ class MemberProfileModel {
     this.interests,
     this.availableTime,
     this.inviteCode,
+    this.jobTitle,
+    this.educationLevel,
+    this.height,
+    this.weight,
+    this.city,
+    this.district,
+    this.favoritePets,
+    this.hasPet,
+    this.smoking,
     this.equippedAccessories,
   });
 
@@ -49,6 +68,17 @@ class MemberProfileModel {
       interests: json['interests'],
       availableTime: json['availableTime'],
       inviteCode: json['inviteCode'],
+
+      jobTitle: json['jobTitle'],
+      educationLevel: json['educationLevel'],
+      height: (json['height'] as num?)?.toInt(),
+      weight: (json['weight'] as num?)?.toInt(),
+      city: json['city'],
+      district: json['district'],
+
+      favoritePets: (json['favoritePets'] as List?)?.cast<String>(),
+      hasPet: json['hasPet'],
+      smoking: json['smoking'],
 
       equippedAccessories: (json['equippedAccessories'] as List?)
           ?.map((e) => MemberAccessory.fromJson(e))

@@ -12,10 +12,11 @@ class RecommendationProvider extends ChangeNotifier {
   int page = 1;
   final int pageSize = 10;
   bool isLoadingMore = false;
-
+  bool isRefreshing = false;
   double? latitude;
   double? longitude;
   ApiResponse<RecommendationResponse>? _recommendationResponse;
+  ApiResponse<RecommendationResponse>? _homeRecommendationResponse;
   ContextRecommendation? _contextRecommendationResponse;
   List<dynamic> autoCompleteResult = [];
   List<SearchHistoryItem> searchHistory = [];
@@ -36,22 +37,32 @@ class RecommendationProvider extends ChangeNotifier {
   RecommendationResponse? get recommendationResponse =>
       _recommendationResponse?.data;
 
+  RecommendationResponse? get homeRecommendationResponse =>
+      _homeRecommendationResponse?.data;
+
   ContextRecommendation? get contextRecommendationResponse =>
       _contextRecommendationResponse;
 
   Future<void> fetchRecommendations(RecommendationRequest request) async {
     page = 1;
     error = null;
-    try {
+    if (recommendationResponse == null) {
       isLoading = true;
-      notifyListeners();
+    } else {
+      isRefreshing = true;
+    }
+    notifyListeners();
+    try {
       _recommendationResponse =
           await RecommendationService.fetchRecommendations(request);
-      isLoading = false;
-      notifyListeners();
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
       isLoading = false;
+      isRefreshing = false;
+      notifyListeners();
+    } finally {
+      isLoading = false;
+      isRefreshing = false;
       notifyListeners();
     }
   }
@@ -96,7 +107,7 @@ class RecommendationProvider extends ChangeNotifier {
       isLoading = true;
       error = null;
       notifyListeners();
-      _recommendationResponse =
+      _homeRecommendationResponse =
           await RecommendationService.fetchRecommendations(
             RecommendationRequest(
               lat: latitude,

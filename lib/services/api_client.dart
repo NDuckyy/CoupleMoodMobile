@@ -111,7 +111,7 @@ class ApiClient {
       final session = await SessionStorage.load();
       final token = session?.accessToken;
       final res = await _dio.request(
-        "http://134.209.108.208:7700/indexes/venue_locations/search",
+        "http://178.128.219.250:7701/indexes/venue_locations/search",
         data: data,
         queryParameters: query,
         options: Options(
