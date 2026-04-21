@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/widget/ch
 import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -77,21 +78,26 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
 
   Future<void> _onRefresh(BuildContext context) async {
     final recommendationProvider = context.read<RecommendationProvider>();
-    await recommendationProvider.fetchRecommendations(
-      RecommendationRequest(
-        lat: recommendationProvider.latitude,
-        lng: recommendationProvider.longitude,
-      ),
-    );
+    final moodProvider = context.read<MoodProvider>();
+    try {
+      await recommendationProvider.fetchRecommendations(
+        RecommendationRequest(
+          lat: recommendationProvider.latitude,
+          lng: recommendationProvider.longitude,
+        ),
+      );
+      await moodProvider.getCurrentMood();
+    } catch (e) {
+      if (!context.mounted) return;
+      showMsg(context, 'Làm mới thất bại: ${e.toString()}', false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final recommendationProvider = context.watch<RecommendationProvider>();
-    final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
     final recs = page?.items ?? [];
-    final coupleMood = moodProvider.coupleCurrentMood?.coupleMood;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -109,8 +115,14 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
 
             SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
 
+            SliverToBoxAdapter(child: CurrentMoodBanner()),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
             SliverToBoxAdapter(
-              child: CurrentMoodBanner(mood: coupleMood),
+              child: recommendationProvider.isRefreshing
+                  ? const LinearProgressIndicator()
+                  : const SizedBox(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),

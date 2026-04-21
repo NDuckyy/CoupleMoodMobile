@@ -423,7 +423,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           if (typingUsers.isNotEmpty) ...[
             TypingIndicatorWidget(userCount: typingUsers.length),
             // Debug info
-            if (true) // Set to false to hide debug
+            if (false) // Set to false to hide debug
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,

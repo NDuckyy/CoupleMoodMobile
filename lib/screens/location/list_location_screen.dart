@@ -7,6 +7,7 @@ import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart'
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/loading.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:go_router/go_router.dart';
@@ -81,18 +82,24 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
   Future<void> _onRefresh(BuildContext context) async {
     final recommendationProvider = context.read<RecommendationProvider>();
-    await recommendationProvider.fetchRecommendations(
-      RecommendationRequest(
-        lat: recommendationProvider.latitude,
-        lng: recommendationProvider.longitude,
-      ),
-    );
+    final moodProvider = context.read<MoodProvider>();
+    try {
+      await recommendationProvider.fetchRecommendations(
+        RecommendationRequest(
+          lat: recommendationProvider.latitude,
+          lng: recommendationProvider.longitude,
+        ),
+      );
+      await moodProvider.getCurrentMood();
+    } catch (e) {
+      if (!context.mounted) return;
+      showMsg(context, 'Làm mới thất bại: ${e.toString()}', false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final recommendationProvider = context.watch<RecommendationProvider>();
-    final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
     final recs = List.of(page?.items ?? []);
 
@@ -133,14 +140,20 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
 
             /// MOOD
+            SliverToBoxAdapter(child: CurrentMoodBanner()),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
             SliverToBoxAdapter(
-              child: CurrentMoodBanner(mood: moodProvider.coupleMood),
+              child: recommendationProvider.isRefreshing
+                  ? const LinearProgressIndicator()
+                  : const SizedBox(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
             /// CONTENT
-            if (recommendationProvider.isLoading)
+            if (recommendationProvider.isLoading && recs.isEmpty)
               const SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recommendationProvider.error != null)
               SliverFillRemaining(
@@ -155,7 +168,11 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             else if (recs.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyStateWidget(icon: Icons.location_off_outlined, title: "Không có địa điểm phù hợp", description: "Hãy thử thay đổi tiêu chí tìm kiếm của bạn."),
+                child: EmptyStateWidget(
+                  icon: Icons.location_off_outlined,
+                  title: "Không có địa điểm phù hợp",
+                  description: "Hãy thử thay đổi tiêu chí tìm kiếm của bạn.",
+                ),
               )
             else
               SliverPadding(

@@ -1,13 +1,14 @@
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CurrentMoodBanner extends StatelessWidget {
-  final String? mood;
-
-  const CurrentMoodBanner({super.key, required this.mood});
+  const CurrentMoodBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final displayMood = mood ?? "Chưa xác định";
+    final moodProvider = context.watch<MoodProvider>();
+    final displayMood = moodProvider.coupleMood ?? "Chưa xác định";
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -51,10 +52,23 @@ class CurrentMoodBanner extends StatelessWidget {
                       text: "Tâm trạng cặp đôi hiện tại: ",
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    TextSpan(
-                      text: displayMood,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    if (moodProvider.isLoading)
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    else
+                      TextSpan(
+                        text: displayMood,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
                   ],
                 ),
                 style: const TextStyle(color: Colors.white, fontSize: 14),

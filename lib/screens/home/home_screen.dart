@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final advertisementProvider = context.watch<AdvertisementProvider>();
     final recs =
-        recommendationProvider.recommendationResponse?.recommendations.items ??
+        recommendationProvider.homeRecommendationResponse?.recommendations.items ??
         [];
     final contextRecs =
         recommendationProvider.contextRecommendationResponse?.hits ?? [];
