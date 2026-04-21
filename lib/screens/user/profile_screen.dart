@@ -43,7 +43,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final user = userProvider.user;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('Thông tin của tôi'),
         surfaceTintColor: Colors.transparent,
         elevation: 0,

@@ -1,9 +1,9 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/invite_dialog.dart';
-import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/budget_card.dart';
-import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/profile_section_title.dart';
-import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/relationship_badge.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/info_chip.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/profile_section_card.dart';
+import 'package:couple_mood_mobile/utils/profile_utils.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -29,22 +29,18 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
   }
 
   void _sendInvitation(int memberProfileId, String message) async {
-    final invitationProvider = context.read<CoupleInvitationProvider>();
-    try {
-      await invitationProvider.sendInvitation(memberProfileId, message);
-      if (invitationProvider.error != null) {
-        if (!mounted) return;
-        showMsg(context, "${invitationProvider.error}", false);
-        context.pop();
-        return;
-      }
-      if (!mounted) return;
-      showMsg(context, "Lời mời đã được gửi thành công", true);
-      invitationProvider.searchMembers(null, 1);
-      context.pop();
-    } catch (e) {
-      showMsg(context, "Lỗi khi gửi lời mời: ${e.toString()}", false);
+    final provider = context.read<CoupleInvitationProvider>();
+    await provider.sendInvitation(memberProfileId, message);
+
+    if (!mounted) return;
+
+    if (provider.error != null) {
+      showMsg(context, provider.error!, false);
+      return;
     }
+
+    showMsg(context, "Đã gửi lời mời 💖", true);
+    context.pop();
   }
 
   @override
@@ -76,10 +72,11 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
         child: SafeArea(
           child: Column(
             children: [
-              Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
+              /// 🔹 BACK
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
                   child: _glassButton(
                     icon: Icons.arrow_back,
                     onTap: () => context.pop(),
@@ -87,34 +84,24 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                 ),
               ),
 
+              /// 🔹 HEADER
               Column(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFFDC5F5), Color(0xFF8093F1)],
-                      ),
-                    ),
-                    child: CircleAvatar(
-                      radius: 55,
-                      backgroundImage: user?.avatarUrl != null
-                          ? NetworkImage(user!.avatarUrl!)
-                          : null,
-                      backgroundColor: Colors.white24,
-                      child: user?.avatarUrl == null
-                          ? const Icon(
-                              Icons.person,
-                              size: 50,
-                              color: Colors.white,
-                            )
-                          : null,
-                    ),
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: user?.avatarUrl != null
+                        ? NetworkImage(user!.avatarUrl!)
+                        : null,
+                    backgroundColor: Colors.white24,
+                    child: user?.avatarUrl == null
+                        ? const Icon(
+                            Icons.person,
+                            size: 50,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
-
-                  const SizedBox(height: 12),
-
+                  const SizedBox(height: 10),
                   Text(
                     age != null
                         ? "${profile.fullName}, $age"
@@ -125,76 +112,130 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                       color: Colors.white,
                     ),
                   ),
-
                   const SizedBox(height: 6),
-
-                  RelationshipBadge(status: profile.relationshipStatus),
+                  _statusBadge(profile.relationshipStatus),
                 ],
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
+              /// 🔹 CONTENT
               Expanded(
-                child: Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 20,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ListView(
-                    children: [
-                      const ProfileSectionTitle("Giới thiệu"),
-                      const SizedBox(height: 8),
-                      Text(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    /// BIO
+                    ProfileSectionCard(
+                      title: "Giới thiệu",
+                      child: Text(
                         profile.bio?.isNotEmpty == true
                             ? profile.bio!
                             : "Người này hơi bí ẩn đó 🥺",
                       ),
+                    ),
 
-                      const SizedBox(height: 20),
-
-                      if (profile.gender != null) ...[
-                        const ProfileSectionTitle("Giới tính"),
-                        const SizedBox(height: 8),
-                        Text(profile.gender!),
-                        const SizedBox(height: 20),
-                      ],
-
-                      const ProfileSectionTitle("Ngân sách hẹn hò"),
-                      const SizedBox(height: 12),
-                      BudgetCard(
-                        min: profile.budgetMin ?? 0,
-                        max: profile.budgetMax,
+                    /// BASIC
+                    if (profile.gender != null ||
+                        profile.height != null ||
+                        profile.weight != null ||
+                        age != null)
+                      ProfileSectionCard(
+                        title: "Thông tin cơ bản",
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (profile.gender != null)
+                              InfoChip(profile.gender!),
+                            if (age != null) InfoChip("$age tuổi"),
+                            if (profile.height != null)
+                              InfoChip("${profile.height} cm"),
+                            if (profile.weight != null)
+                              InfoChip("${profile.weight} kg"),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
+
+                    /// JOB
+                    if (profile.jobTitle != null ||
+                        profile.educationLevel != null)
+                      ProfileSectionCard(
+                        title: "Công việc & học vấn",
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (profile.jobTitle != null)
+                              Text("💼 ${profile.jobTitle}"),
+                            if (profile.educationLevel != null)
+                              Text("🎓 ${profile.educationLevel}"),
+                          ],
+                        ),
+                      ),
+
+                    /// LOCATION
+                    if (profile.city != null || profile.district != null)
+                      ProfileSectionCard(
+                        title: "Khu vực",
+                        child: Text(
+                          formatLocation(profile.city, profile.district),
+                        ),
+                      ),
+
+                    /// LIFESTYLE
+                    if (profile.smoking != null ||
+                        profile.hasPet != null ||
+                        profile.favoritePets != null)
+                      ProfileSectionCard(
+                        title: "Lối sống",
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (profile.smoking != null)
+                              InfoChip(
+                                profile.smoking!
+                                    ? "🚬 Hút thuốc"
+                                    : "🚭 Không hút",
+                              ),
+                            if (profile.hasPet != null)
+                              InfoChip(
+                                profile.hasPet!
+                                    ? "🐶 Có thú cưng"
+                                    : "❌ Không nuôi",
+                              ),
+                            if (profile.favoritePets != null)
+                              InfoChip("Thích ${profile.favoritePets}"),
+                          ],
+                        ),
+                      ),
+
+                    /// BUDGET
+                    if (profile.budgetMin != null || profile.budgetMax != null)
+                      ProfileSectionCard(
+                        title: "Ngân sách hẹn hò",
+                        child: Text(
+                          formatBudget(profile.budgetMin, profile.budgetMax),
+                        ),
+                      ),
+                  ],
                 ),
               ),
 
+              /// 🔹 CTA
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
                 child: GestureDetector(
                   onTap: () {
                     showInviteDialog(
                       context: context,
                       user: MemberResponse(
-                        memberProfileId: user!.memberProfile!.id,
-                        userId: user.id,
+                        memberProfileId: profile.id,
+                        userId: user!.id,
                         fullName: user.fullName,
-                        relationshipStatus:
-                            user.memberProfile!.relationshipStatus,
+                        relationshipStatus: profile.relationshipStatus,
                         canSendInvitation: true,
                       ),
-                      onSend: (message) =>
-                          _sendInvitation(user.memberProfile!.id, message),
+                      onSend: (message) => _sendInvitation(profile.id, message),
                     );
                   },
                   child: Container(
@@ -204,32 +245,15 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                       gradient: const LinearGradient(
                         colors: [Color(0xFF8093F1), Color(0xFFB388EB)],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 12,
-                        ),
-                      ],
                     ),
-                    child: Center(
-                      child: provider.isSendingInvitation
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
-                              ),
-                            )
-                          : Text(
-                              "Gửi lời mời 💖",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    child: const Center(
+                      child: Text(
+                        "Gửi lời mời 💖",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -240,21 +264,36 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
       ),
     );
   }
-}
 
-Widget _glassButton({required IconData icon, required VoidCallback onTap}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: const EdgeInsets.all(10),
+  Widget _glassButton({required IconData icon, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.9),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon),
+      ),
+    );
+  }
+
+  Widget _statusBadge(String status) {
+    if (status.isEmpty) return const SizedBox.shrink();
+    
+    if (status == "SINGLE") {
+      status = "Độc thân";
+    } else if (status == "IN_RELATIONSHIP") {
+      status = "Đang hẹn hò";
+    }
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.9),
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10),
-        ],
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, size: 22),
-    ),
-  );
+      child: Text(status),
+    );
+  }
 }

@@ -30,7 +30,7 @@ class DatePlanService {
     }
   }
 
-  static Future<ApiResponse<int>> createDatePlan(
+  static Future<ApiResponse<void>> createDatePlan(
     DatePlanCreateAndUpdateRequest request,
   ) async {
     try {
@@ -39,7 +39,7 @@ class DatePlanService {
         method: HttpMethod.post,
         data: request.toJson(),
       );
-      return ApiResponse<int>.fromJson(res, (json) => json as int);
+      return ApiResponse<void>.fromJson(res, (_) {});
     } catch (e) {
       throw Exception('Lỗi khi tạo kế hoạch hẹn hò: $e');
     }
