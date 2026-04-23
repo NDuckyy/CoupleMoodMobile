@@ -24,6 +24,7 @@ class UpdateProfileRequest {
 
   final String? avatarUrl;
   final String phoneNumber;
+  final List<String>? interests;
 
   const UpdateProfileRequest({
     required this.fullName,
@@ -46,6 +47,7 @@ class UpdateProfileRequest {
     this.hasPet,
     this.smoking,
     this.avatarUrl,
+    this.interests,
   });
 
   Map<String, dynamic> toJson() {
@@ -75,6 +77,7 @@ class UpdateProfileRequest {
 
       "avatarUrl": avatarUrl,
       "phoneNumber": phoneNumber,
+      "interests": interests,
     }..removeWhere((key, value) => value == null);
   }
 }

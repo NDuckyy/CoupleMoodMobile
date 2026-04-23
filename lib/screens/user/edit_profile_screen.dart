@@ -1,15 +1,17 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/screens/user/sheet/education_picker.dart';
+import 'package:couple_mood_mobile/screens/user/sheet/interest_picker_sheet.dart';
+import 'package:couple_mood_mobile/screens/user/sheet/pet_picker_sheet.dart';
+import 'package:couple_mood_mobile/screens/user/widget/box_section.dart';
+import 'package:couple_mood_mobile/screens/user/widget/edit_section.dart';
+import 'package:couple_mood_mobile/screens/user/widget/input_section.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../providers/user/user_provider.dart';
 import '../../providers/user/edit_profile_provider.dart';
 import '../../widgets/snack_bar.dart';
-
-import 'widget/profile_input.dart';
-import 'widget/profile_section.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -33,7 +35,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String gender = "MALE";
   DateTime? dateOfBirth;
 
-  /// 🔥 education dropdown
+  List<String> favoritePets = [];
+  List<String> interests = [];
+  bool hasPet = false;
+  bool smoking = false;
+
+  File? selectedAvatar;
   String? selectedEducation;
 
   final List<String> educationOptions = [
@@ -46,21 +53,46 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     "Sau đại học",
   ];
 
-  /// pets
-  List<String> favoritePets = [];
-  bool hasPet = false;
-  bool smoking = false;
+  Future<void> _openInterestPicker() async {
+    final result = await openInterestPicker(
+      context: context,
+      interests: interests,
+    );
 
-  File? selectedAvatar;
+    if (result != null) {
+      setState(() {
+        interests = result;
+      });
+    }
+  }
+
+  Future<void> _openPetPicker() async {
+    final result = await openPetPicker(
+      context: context,
+      favoritePets: favoritePets,
+    );
+
+    if (result != null) {
+      setState(() {
+        favoritePets = result;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
 
+    final provider = context.read<EditProfileProvider>();
+    provider.fetchAnimals();
+    provider.fetchInterests();
+
     final user = context.read<UserProvider>().user;
     final profile = user?.memberProfile;
 
-    fullNameController = TextEditingController(text: user?.fullName ?? "");
+    fullNameController = TextEditingController(
+      text: user?.memberProfile?.fullName ?? "",
+    );
     phoneController = TextEditingController(text: user?.phoneNumber ?? "");
     bioController = TextEditingController(text: profile?.bio ?? "");
     jobController = TextEditingController(text: profile?.jobTitle ?? "");
@@ -82,8 +114,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: profile?.budgetMax?.toString() ?? "",
     );
 
-    selectedEducation = profile?.educationLevel;
-
     gender = profile?.gender ?? "MALE";
     favoritePets = profile?.favoritePets ?? [];
     hasPet = profile?.hasPet ?? false;
@@ -92,6 +122,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (profile?.dateOfBirth != null) {
       dateOfBirth = DateTime.tryParse(profile!.dateOfBirth!);
     }
+
+    interests = (profile?.interests ?? []).map((e) => e).toList();
+    selectedEducation = profile?.educationLevel;
   }
 
   Future<void> _pickImage() async {
@@ -128,8 +161,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         budgetMin: double.tryParse(budgetMinController.text),
         budgetMax: double.tryParse(budgetMaxController.text),
         avatarFile: selectedAvatar,
-
-        /// NEW
         jobTitle: jobController.text,
         educationLevel: selectedEducation,
         height: int.tryParse(heightController.text),
@@ -139,6 +170,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         favoritePets: favoritePets,
         hasPet: hasPet,
         smoking: smoking,
+        interests: interests,
       );
 
       if (!mounted) return;
@@ -159,7 +191,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final user = context.watch<UserProvider>().user;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF9F9FB),
       appBar: AppBar(
         title: const Text("Chỉnh sửa hồ sơ"),
         backgroundColor: Colors.white,
@@ -171,14 +203,34 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           Center(
             child: GestureDetector(
               onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 50,
-                backgroundImage: selectedAvatar != null
-                    ? FileImage(selectedAvatar!)
-                    : (user?.avatarUrl != null
-                              ? NetworkImage(user!.avatarUrl!)
-                              : null)
-                          as ImageProvider?,
+              child: Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 55,
+                    backgroundColor: Colors.white,
+                    child: CircleAvatar(
+                      radius: 50,
+                      backgroundImage: selectedAvatar != null
+                          ? FileImage(selectedAvatar!)
+                          : (user?.avatarUrl != null
+                                    ? NetworkImage(user!.avatarUrl!)
+                                    : null)
+                                as ImageProvider?,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.camera_alt, size: 18),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -186,115 +238,127 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(height: 20),
 
           /// BASIC
-          ProfileSection(
-            "Thông tin cơ bản",
-            children: [
-              ProfileInput(controller: fullNameController, hint: "Họ và tên"),
-              ProfileInput(controller: phoneController, hint: "SĐT"),
+          editSection("Thông tin cơ bản", [
+            inputSection(fullNameController, "Họ và tên"),
+            inputSection(phoneController, "SĐT"),
 
-              /// DOB
-              GestureDetector(
-                onTap: _pickDate,
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.black12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        dateOfBirth != null
-                            ? dateOfBirth!.toString().split(" ")[0]
-                            : "Chọn ngày sinh",
-                      ),
-                      const Icon(Icons.calendar_today, size: 18),
-                    ],
-                  ),
+            GestureDetector(
+              onTap: _pickDate,
+              child: boxSection(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateOfBirth != null
+                          ? dateOfBirth!.toString().split(" ")[0]
+                          : "Chọn ngày sinh",
+                    ),
+                    const Icon(Icons.calendar_today, size: 18),
+                  ],
                 ),
               ),
+            ),
 
-              ProfileInput(controller: bioController, hint: "Bio"),
-            ],
-          ),
+            inputSection(bioController, "Bio"),
+          ]),
+
+          editSection("Sở thích (${interests.length}/5)", [
+            GestureDetector(
+              onTap: _openInterestPicker,
+              child: boxSection(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      interests.isEmpty
+                          ? "Chọn sở thích"
+                          : "${interests.length} sở thích đã chọn",
+                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 16),
+                  ],
+                ),
+              ),
+            ),
+
+            if (interests.isNotEmpty)
+              Wrap(
+                spacing: 6,
+                children: interests.map((e) {
+                  return Chip(
+                    label: Text(e),
+                    backgroundColor: const Color(0xFFF1F2F6),
+                  );
+                }).toList(),
+              ),
+          ]),
 
           /// JOB
-          ProfileSection(
-            "Công việc",
-            children: [
-              ProfileInput(controller: jobController, hint: "Nghề nghiệp"),
+          editSection("Công việc", [
+            inputSection(jobController, "Nghề nghiệp"),
+          ]),
 
-              /// EDUCATION DROPDOWN
-              Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.black12),
-                ),
-                child: DropdownButtonFormField<String>(
-                  value: selectedEducation,
-                  hint: const Text("Chọn học vấn"),
-                  items: educationOptions.map((e) {
-                    return DropdownMenuItem(value: e, child: Text(e));
-                  }).toList(),
-                  onChanged: (v) {
-                    setState(() => selectedEducation = v);
-                  },
-                  decoration: const InputDecoration(border: InputBorder.none),
-                ),
-              ),
-            ],
-          ),
+          editSection("Công việc", [
+            inputSection(jobController, "Nghề nghiệp"),
+
+            EducationPickerField(
+              value: selectedEducation,
+              options: educationOptions,
+              onChanged: (val) {
+                setState(() => selectedEducation = val);
+              },
+            ),
+          ]),
 
           /// BODY
-          ProfileSection(
-            "Cơ thể",
-            children: [
-              ProfileInput(
-                controller: heightController,
-                hint: "Chiều cao (cm)",
-                keyboard: TextInputType.number,
-              ),
-              ProfileInput(
-                controller: weightController,
-                hint: "Cân nặng (kg)",
-                keyboard: TextInputType.number,
-              ),
-            ],
-          ),
+          editSection("Cơ thể", [
+            inputSection(
+              heightController,
+              "Chiều cao (cm)",
+              type: TextInputType.number,
+            ),
+            inputSection(
+              weightController,
+              "Cân nặng (kg)",
+              type: TextInputType.number,
+            ),
+          ]),
 
           /// LOCATION
-          ProfileSection(
-            "Địa chỉ",
-            children: [
-              ProfileInput(controller: cityController, hint: "Thành phố"),
-              ProfileInput(controller: districtController, hint: "Quận"),
-            ],
-          ),
+          editSection("Địa chỉ", [
+            inputSection(cityController, "Thành phố"),
+            inputSection(districtController, "Quận"),
+          ]),
 
-          /// BUDGET
-          ProfileSection(
-            "Ngân sách",
-            children: [
-              ProfileInput(
-                controller: budgetMinController,
-                hint: "Min",
-                keyboard: TextInputType.number,
+          editSection("Thú cưng yêu thích", [
+            GestureDetector(
+              onTap: _openPetPicker,
+              child: boxSection(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      favoritePets.isEmpty
+                          ? "Chọn thú cưng"
+                          : "${favoritePets.length} đã chọn",
+                    ),
+                    const Icon(Icons.arrow_forward_ios, size: 16),
+                  ],
+                ),
               ),
-              ProfileInput(
-                controller: budgetMaxController,
-                hint: "Max",
-                keyboard: TextInputType.number,
-              ),
-            ],
-          ),
+            ),
 
-          /// SWITCH
+            if (favoritePets.isNotEmpty)
+              Wrap(
+                spacing: 6,
+                children: favoritePets.map((e) {
+                  return Chip(
+                    label: Text(e),
+                    backgroundColor: const Color(0xFFF1F2F6),
+                  );
+                }).toList(),
+              ),
+          ]),
+
           SwitchListTile(
             title: const Text("Có nuôi thú"),
             value: hasPet,
@@ -309,53 +373,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
           const SizedBox(height: 20),
 
-          SizedBox(
-            width: double.infinity,
-            child: GestureDetector(
-              onTap: provider.isLoading ? null : _submit,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: provider.isLoading
-                      ? const LinearGradient(colors: [Colors.grey, Colors.grey])
-                      : const LinearGradient(
-                          colors: [
-                            Color(0xFF8093F1),
-                            Color(0xFFB388EB),
-                            Color(0xFFF7AEF8),
-                          ],
+          /// BUTTON
+          GestureDetector(
+            onTap: provider.isLoading ? null : _submit,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: provider.isLoading
+                    ? const LinearGradient(colors: [Colors.grey, Colors.grey])
+                    : const LinearGradient(
+                        colors: [
+                          Color(0xFF8093F1),
+                          Color(0xFFB388EB),
+                          Color(0xFFF7AEF8),
+                        ],
+                      ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFFB388EB).withOpacity(0.4),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: provider.isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Lưu thay đổi",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: provider.isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                      : const Text(
-                          "Lưu thay đổi",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                ),
+                      ),
               ),
             ),
           ),

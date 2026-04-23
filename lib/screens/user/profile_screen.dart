@@ -3,7 +3,6 @@ import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
-import 'package:couple_mood_mobile/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
