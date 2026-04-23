@@ -65,4 +65,11 @@ class CoupleProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void reset() {
+    couple = null;
+    error = null;
+    isLoading = false;
+    notifyListeners();
+  }
 }

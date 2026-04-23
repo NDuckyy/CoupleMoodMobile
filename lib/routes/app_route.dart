@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +118,7 @@ import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
-import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
+import 'package:couple_mood_mobile/screens/shop/shop_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/payment/vnpay_webview_screen.dart';
 
 //home, location, profile, review, user related, etc..
@@ -428,7 +429,7 @@ GoRouter createRouter(BuildContext context) {
           return MaterialPage(
             child: ChangeNotifierProvider(
               create: (_) => ShopProvider(),
-              child: const ShopScreen(),
+              child: const ShopHubScreen(),
             ),
           );
         },

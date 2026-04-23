@@ -44,12 +44,18 @@ class MemberAccessoryService {
     int pageSize = 10,
     bool? equippedOnly,
     String? type,
+    String? keyword,
+    String sortBy = 'acquiredAt',
+    String orderBy = 'desc',
   }) async {
     final query = {
       'PageNumber': page.toString(),
       'PageSize': pageSize.toString(),
+      'SortBy': sortBy,
+      'OrderBy': orderBy,
       if (equippedOnly != null) 'EquippedOnly': equippedOnly.toString(),
       if (type != null) 'Type': type,
+      if (keyword != null && keyword.isNotEmpty) 'Keyword': keyword,
     };
 
     final res = await ApiClient.request(
