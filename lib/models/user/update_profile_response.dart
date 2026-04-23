@@ -12,8 +12,7 @@ class UpdateProfileResponse {
   final double homeLongitude;
   final double budgetMin;
   final double? budgetMax;
-  final String? interests;
-  final String? availableTime;
+  final List<String>? interests;
   final String? address;
   final String? area;
   final String inviteCode;
@@ -34,7 +33,6 @@ class UpdateProfileResponse {
     required this.budgetMin,
     this.budgetMax,
     this.interests,
-    this.availableTime,
     this.address,
     this.area,
     required this.inviteCode,
@@ -56,8 +54,7 @@ class UpdateProfileResponse {
       homeLongitude: (json['homeLongitude'] as num).toDouble(),
       budgetMin: (json['budgetMin'] as num).toDouble(),
       budgetMax: (json['budgetMax'] as num?)?.toDouble(),
-      interests: json['interests'],
-      availableTime: json['availableTime'],
+      interests: (json['interests'] as List?)?.cast<String>(),
       address: json['address'],
       area: json['area'],
       inviteCode: json['inviteCode'],

@@ -45,11 +45,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
-                  "Forgot Password 💔",
+                  "Quên mật khẩu 💔",
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
-                const Text("Enter your email to receive OTP 💌"),
+                const Text("Nhập email của bạn để nhận OTP 💌"),
 
                 const SizedBox(height: 20),
 
@@ -97,7 +97,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     child: provider.isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
-                            "Send OTP 💌",
+                            "Gửi OTP 💌",
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

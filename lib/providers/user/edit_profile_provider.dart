@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/models/user/interest_model.dart';
 import 'package:flutter/material.dart';
 import '../../models/user/update_profile_request.dart';
 import '../../models/user/user_model.dart';
@@ -7,6 +8,8 @@ import '../../utils/upload_util.dart';
 
 class EditProfileProvider extends ChangeNotifier {
   bool isLoading = false;
+  List<String>? animals;
+  List<InterestModel>? interests;
 
   Future<bool> updateProfile({
     required UserModel user,
@@ -27,6 +30,7 @@ class EditProfileProvider extends ChangeNotifier {
     List<String>? favoritePets,
     bool? hasPet,
     bool? smoking,
+    List<String>? interests,
   }) async {
     try {
       isLoading = true;
@@ -34,7 +38,6 @@ class EditProfileProvider extends ChangeNotifier {
 
       String? avatarUrl = user.avatarUrl;
 
-      /// upload avatar nếu có
       if (avatarFile != null) {
         final urls = await UploadUtil.mediaUpload([avatarFile]);
         if (urls.isNotEmpty) {
@@ -45,9 +48,9 @@ class EditProfileProvider extends ChangeNotifier {
       final profile = user.memberProfile;
 
       final request = UpdateProfileRequest(
-        fullName: fullName ,
+        fullName: fullName,
         phoneNumber: phoneNumber,
-        dateOfBirth: dateOfBirth ,
+        dateOfBirth: dateOfBirth,
         gender: gender,
         avatarUrl: avatarUrl ?? user.avatarUrl,
         bio: bio ?? profile?.bio,
@@ -68,6 +71,7 @@ class EditProfileProvider extends ChangeNotifier {
         favoritePets: favoritePets ?? profile?.favoritePets,
         hasPet: hasPet ?? profile?.hasPet,
         smoking: smoking ?? profile?.smoking,
+        interests: interests ?? profile?.interests,
       );
 
       final res = await UserService.updateProfile(request);
@@ -82,6 +86,30 @@ class EditProfileProvider extends ChangeNotifier {
     } finally {
       isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> fetchAnimals() async {
+    try {
+      final res = await UserService.getAnimal();
+      if (res.code == 200 && res.data != null) {
+        animals = res.data;
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Fetch animals error: $e");
+    }
+  }
+
+  Future<void> fetchInterests() async {
+    try {
+      final res = await UserService.getInterests();
+      if (res.code == 200 && res.data != null) {
+        interests = res.data;
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Fetch interests error: $e");
     }
   }
 }

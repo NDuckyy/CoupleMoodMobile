@@ -11,8 +11,7 @@ class MemberProfileModel {
   final double? homeLongitude;
   final double? budgetMin;
   final double? budgetMax;
-  final String? interests;
-  final String? availableTime;
+  final List<String>? interests;
   final String? inviteCode;
   final String? jobTitle;
   final String? educationLevel;
@@ -39,7 +38,6 @@ class MemberProfileModel {
     this.budgetMin,
     this.budgetMax,
     this.interests,
-    this.availableTime,
     this.inviteCode,
     this.jobTitle,
     this.educationLevel,
@@ -65,8 +63,7 @@ class MemberProfileModel {
       homeLongitude: (json['homeLongitude'] as num?)?.toDouble(),
       budgetMin: (json['budgetMin'] as num?)?.toDouble(),
       budgetMax: (json['budgetMax'] as num?)?.toDouble(),
-      interests: json['interests'],
-      availableTime: json['availableTime'],
+      interests: (json['interests'] as List?)?.cast<String>(),
       inviteCode: json['inviteCode'],
 
       jobTitle: json['jobTitle'],

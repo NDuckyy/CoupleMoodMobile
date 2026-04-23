@@ -3,6 +3,7 @@ class MemberProfile {
   final String fullName;
   final DateTime? dateOfBirth;
   final String? gender;
+  final List<String>? personalityDescription;
   final String? bio;
   final String relationshipStatus;
   final String? jobTitle;
@@ -24,6 +25,7 @@ class MemberProfile {
     required this.fullName,
     this.dateOfBirth,
     this.gender,
+    this.personalityDescription,
     this.bio,
     required this.relationshipStatus,
     this.jobTitle,
@@ -49,6 +51,9 @@ class MemberProfile {
           ? DateTime.tryParse(json['dateOfBirth'])
           : null,
       gender: json['gender'],
+      personalityDescription: json['personalityDescription'] is List
+          ? (json['personalityDescription'] as List).cast<String>()
+          : null,
       bio: json['bio'],
       relationshipStatus: json['relationshipStatus'] ?? 'SINGLE',
       jobTitle: json['jobTitle'],
@@ -74,7 +79,9 @@ class MemberProfile {
       budgetMax: json['budgetMax'] == null
           ? null
           : (json['budgetMax'] as num).toDouble(),
-      favoritePets: json['favoritePets'] is List ? (json['favoritePets'] as List).cast<String>() : null,
+      favoritePets: json['favoritePets'] is List
+          ? (json['favoritePets'] as List).cast<String>()
+          : null,
       hasPet: json['hasPet'],
       smoking: json['smoking'],
     );
@@ -87,6 +94,7 @@ class MemberProfile {
       'dateOfBirth': dateOfBirth?.toIso8601String(),
       'gender': gender,
       'bio': bio,
+      'personalityDescription': personalityDescription,
       'relationshipStatus': relationshipStatus,
       'homeLatitude': homeLatitude,
       'homeLongitude': homeLongitude,
