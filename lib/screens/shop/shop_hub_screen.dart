@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-import 'shop_tab.dart';
-import 'inventory_tab.dart';
+import '../../widgets/shop/shop_tab.dart';
+import '../../widgets/shop/inventory_tab.dart';
 
 class ShopHubScreen extends StatefulWidget {
   final int initialTab;
