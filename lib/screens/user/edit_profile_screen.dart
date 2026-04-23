@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/screens/user/sheet/interest_picker_sheet.dart
 import 'package:couple_mood_mobile/screens/user/sheet/pet_picker_sheet.dart';
 import 'package:couple_mood_mobile/screens/user/widget/box_section.dart';
 import 'package:couple_mood_mobile/screens/user/widget/edit_section.dart';
+import 'package:couple_mood_mobile/screens/user/sheet/gender_picker.dart';
 import 'package:couple_mood_mobile/screens/user/widget/input_section.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -260,6 +261,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
 
             inputSection(bioController, "Bio"),
+            const SizedBox(height: 10),
+
+            GenderPickerField(
+              value: gender,
+              onChanged: (val) {
+                setState(() => gender = val);
+              },
+            ),
           ]),
 
           editSection("Sở thích (${interests.length}/5)", [
