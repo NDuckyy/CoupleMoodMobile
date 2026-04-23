@@ -10,12 +10,13 @@ class CoupleInvitationService {
   static Future<ApiResponse<SearchResponse<MemberResponse>>> searchMembers(
     String? query,
     int page,
+    Map<String, dynamic>? filter,
   ) async {
     try {
       final res = await ApiClient.request(
         '/couple-invitations/search',
         method: HttpMethod.get,
-        query: {'query': query, 'page': page, 'pageSize': 6},
+        query: {'query': query, 'page': page, 'pageSize': 6, ...?filter},
       );
       return ApiResponse<SearchResponse<MemberResponse>>.fromJson(
         res,
