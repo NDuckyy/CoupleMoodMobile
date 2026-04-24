@@ -10,6 +10,7 @@ class EditProfileProvider extends ChangeNotifier {
   bool isLoading = false;
   List<String>? animals;
   List<InterestModel>? interests;
+  List<String>? jobTitles;
 
   Future<bool> updateProfile({
     required UserModel user,
@@ -110,6 +111,18 @@ class EditProfileProvider extends ChangeNotifier {
       }
     } catch (e) {
       print("Fetch interests error: $e");
+    }
+  }
+
+  Future<void> fetchJobTitles() async {
+    try {
+      final res = await UserService.getJobTitles();
+      if (res.code == 200 && res.data != null) {
+        jobTitles = res.data;
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Fetch job titles error: $e");
     }
   }
 }

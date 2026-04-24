@@ -196,7 +196,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
                 child: Opacity(
                   opacity: properties.swipeProgress.abs().clamp(0, 1),
                   child: _SwipeLabel(
-                    text: isRight ? "Thích 💖" : "Bỏ qua",
+                    text: isRight ? "Gửi lời mời" : "Bỏ qua",
                     isLike: isRight,
                   ),
                 ),

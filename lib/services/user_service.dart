@@ -30,6 +30,14 @@ class UserService {
 
   static Future<ApiResponse<List<InterestModel>>> getInterests() async {
     final res = await ApiClient.request("/Interest", method: HttpMethod.get);
-    return ApiResponse.fromJson(res, (data) => (data as List).map((e) => InterestModel.fromJson(e)).toList());
+    return ApiResponse.fromJson(
+      res,
+      (data) => (data as List).map((e) => InterestModel.fromJson(e)).toList(),
+    );
+  }
+
+  static Future<ApiResponse<List<String>>> getJobTitles() async {
+    final res = await ApiClient.request("/Job", method: HttpMethod.get);
+    return ApiResponse.fromJson(res, (data) => (data as List).cast<String>());
   }
 }
