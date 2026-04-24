@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
@@ -90,12 +91,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _getPopularNearby() async {
     final position = await LocationService.getCurrentPosition();
+    if (!mounted) return;
+    final positionProvier = context.read<PositionProvider>();
+    final memberId = context.read<MoodProvider>().coupleCurrentMood?.memberId;
     if (position != null) {
       if (!mounted) return;
       final recommendationProvider = context.read<RecommendationProvider>();
       recommendationProvider.latitude = position.latitude;
       recommendationProvider.longitude = position.longitude;
       debugPrint('User location: ${position.latitude}, ${position.longitude}');
+      if (memberId != null) {
+        await positionProvier.updatePosition(
+          memberId,
+          position.latitude,
+          position.longitude,
+        );
+      }
       await recommendationProvider.popularNearby();
     }
   }
@@ -212,7 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final advertisementProvider = context.watch<AdvertisementProvider>();
     final recs =
-        recommendationProvider.homeRecommendationResponse?.recommendations.items ??
+        recommendationProvider
+            .homeRecommendationResponse
+            ?.recommendations
+            .items ??
         [];
     final contextRecs =
         recommendationProvider.contextRecommendationResponse?.hits ?? [];

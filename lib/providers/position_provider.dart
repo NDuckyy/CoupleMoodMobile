@@ -1,10 +1,14 @@
-
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/foundation.dart';
 
 class PositionProvider extends ChangeNotifier {
   double? latitude;
   double? longitude;
+
+  double? recommendedLatitude;
+  double? recommendedLongitude;
+
+  String? error;
 
   void getCurrentPosition() async {
     try {
@@ -17,6 +21,32 @@ class PositionProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
+    }
+  }
+
+  Future<void> updatePosition(int memberId, double lat, double lng) async {
+    try {
+      await LocationService.updateUserPosition(memberId, lat, lng);
+      debugPrint('Updated user location: $lat, $lng');
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating location: $e');
+    }
+  }
+
+  Future<void> getUserPosition(int memberId) async {
+    try {
+      error = null;
+      final res = await LocationService.getPosition(memberId);
+      recommendedLatitude = res.data!.homeLatitude;
+      recommendedLongitude = res.data!.homeLongitude;
+      debugPrint(
+        'Fetched user location: $recommendedLatitude, $recommendedLongitude',
+      );
+      notifyListeners();
+    } catch (e) {
+      error = 'Failed to fetch user location';
+      debugPrint('Error fetching user location: $e');
     }
   }
 }

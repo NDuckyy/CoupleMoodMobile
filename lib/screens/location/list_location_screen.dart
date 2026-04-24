@@ -1,7 +1,9 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
+import 'package:couple_mood_mobile/screens/location/widget/location_source_selector.dart';
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
@@ -22,6 +24,8 @@ class ListLocationScreen extends StatefulWidget {
 
 class _ListLocationScreenState extends State<ListLocationScreen> {
   late ScrollController _scrollController;
+  LocationSource _source = LocationSource.self;
+  bool isSwitchingLocation = false;
 
   @override
   void initState() {
@@ -55,6 +59,58 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
       context.read<MoodProvider>().getCurrentMood();
     });
+  }
+
+  Future<void> _changeLocationSource(LocationSource source) async {
+    if (isSwitchingLocation) return;
+
+    setState(() {
+      _source = source;
+      isSwitchingLocation = true;
+    });
+
+    final recommendationProvider = context.read<RecommendationProvider>();
+    final moodProvider = context.read<MoodProvider>();
+    final positionProvider = context.read<PositionProvider>();
+
+    try {
+      double? lat;
+      double? lng;
+
+      if (source == LocationSource.self) {
+        final position = await LocationService.getCurrentPosition();
+        if (position == null) return;
+
+        lat = position.latitude;
+        lng = position.longitude;
+      } else {
+        final partnerId = moodProvider.coupleCurrentMood?.partnerMemberId;
+        if (partnerId == null) return;
+
+        await positionProvider.getUserPosition(partnerId);
+
+        if (positionProvider.error != null) {
+          showMsg(context, "Không lấy được vị trí đối phương", false);
+          return;
+        }
+
+        lat = positionProvider.recommendedLatitude;
+        lng = positionProvider.recommendedLongitude;
+      }
+
+      recommendationProvider.latitude = lat;
+      recommendationProvider.longitude = lng;
+
+      await recommendationProvider.fetchRecommendations(
+        RecommendationRequest(lat: lat, lng: lng),
+      );
+    } catch (e) {
+      showMsg(context, "Lỗi lấy vị trí", false);
+    } finally {
+      if (mounted) {
+        setState(() => isSwitchingLocation = false);
+      }
+    }
   }
 
   void _onSearch(String query) {
@@ -135,6 +191,26 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   },
                 ),
               ],
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: LocationSourceSelector(
+                  selected: _source,
+                  hasPartner:
+                      context
+                          .watch<MoodProvider>()
+                          .coupleCurrentMood
+                          ?.partnerMemberId !=
+                      null,
+                  onChanged: (source) {
+                    if (!isSwitchingLocation) {
+                      _changeLocationSource(source);
+                    }
+                  },
+                ),
+              ),
             ),
 
             SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
