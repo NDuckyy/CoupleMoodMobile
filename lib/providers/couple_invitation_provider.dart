@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/coupleInvitation/member_filter.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/user_data.dart';
@@ -17,7 +18,11 @@ class CoupleInvitationProvider extends ChangeNotifier {
   UserData? userData;
   List<InvitationResponse> sentInvitations = [];
 
-  Future<void> searchMembers(String? keyword, int page) async {
+  Future<void> searchMembers(
+    String? keyword,
+    int page, {
+    MemberFilter? filter,
+  }) async {
     error = null;
     isLoading = true;
     notifyListeners();
@@ -25,6 +30,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
       final response = await CoupleInvitationService.searchMembers(
         keyword,
         page,
+        filter?.toQuery(),
       );
       fetchReceivedInvitations(null, page);
       if (page == 1) {
