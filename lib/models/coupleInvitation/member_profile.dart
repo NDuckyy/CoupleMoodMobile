@@ -3,6 +3,7 @@ class MemberProfile {
   final String fullName;
   final DateTime? dateOfBirth;
   final String? gender;
+  final int? age;
   final List<String>? personalityDescription;
   final String? bio;
   final String relationshipStatus;
@@ -19,12 +20,14 @@ class MemberProfile {
   final List<String>? favoritePets;
   final bool? hasPet;
   final bool? smoking;
+  final List<String>? interests;
 
   MemberProfile({
     required this.id,
     required this.fullName,
     this.dateOfBirth,
     this.gender,
+    this.age,
     this.personalityDescription,
     this.bio,
     required this.relationshipStatus,
@@ -41,6 +44,7 @@ class MemberProfile {
     this.favoritePets,
     this.hasPet,
     this.smoking,
+    this.interests,
   });
 
   factory MemberProfile.fromJson(Map<String, dynamic> json) {
@@ -51,6 +55,7 @@ class MemberProfile {
           ? DateTime.tryParse(json['dateOfBirth'])
           : null,
       gender: json['gender'],
+      age: json['age'],
       personalityDescription: json['personalityDescription'] is List
           ? (json['personalityDescription'] as List).cast<String>()
           : null,
@@ -84,6 +89,9 @@ class MemberProfile {
           : null,
       hasPet: json['hasPet'],
       smoking: json['smoking'],
+      interests: json['interests'] is List
+          ? (json['interests'] as List).cast<String>()
+          : null,
     );
   }
 
@@ -109,20 +117,7 @@ class MemberProfile {
       'favoritePets': favoritePets,
       'hasPet': hasPet,
       'smoking': smoking,
+      'interests': interests,
     };
-  }
-
-  int? get age {
-    if (dateOfBirth == null) return null;
-
-    final today = DateTime.now();
-    int age = today.year - dateOfBirth!.year;
-
-    if (today.month < dateOfBirth!.month ||
-        (today.month == dateOfBirth!.month && today.day < dateOfBirth!.day)) {
-      age--;
-    }
-
-    return age;
   }
 }

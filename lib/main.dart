@@ -11,6 +11,7 @@ import 'package:couple_mood_mobile/providers/notification_provider.dart';
 import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/providers/test_provider.dart';
+import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/venue/venue_review_provider.dart';
@@ -67,6 +68,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CoupleLocationProvider()),
         ChangeNotifierProvider(create: (_) => TestProvider()),
         ChangeNotifierProvider(create: (_) => PositionProvider()),
+        ChangeNotifierProvider(create: (_) => EditProfileProvider()),
       ],
       child: const MyApp(),
     ),

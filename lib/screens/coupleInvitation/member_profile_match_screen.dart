@@ -144,6 +144,19 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                     ),
                   ),
 
+                  if (profile.personalityDescription != null &&
+                      profile.personalityDescription!.isNotEmpty)
+                    ProfileSectionCard(
+                      title: "Tính cách",
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: profile.personalityDescription!
+                            .map((e) => InfoChip("✨ $e"))
+                            .toList(),
+                      ),
+                    ),
+
                   /// BASIC
                   if (profile.gender != null ||
                       profile.height != null ||
@@ -223,6 +236,19 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                               "Thích ${profile.favoritePets!.join(", ")}",
                             ),
                         ],
+                      ),
+                    ),
+
+                  if (profile.interests != null &&
+                      profile.interests!.isNotEmpty)
+                    ProfileSectionCard(
+                      title: "Sở thích",
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: profile.interests!
+                            .map((e) => InfoChip(e))
+                            .toList(),
                       ),
                     ),
 
