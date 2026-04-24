@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/filter_sheet.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/member_search_header.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/swipe_hint.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/user_card.dart';
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
@@ -110,6 +111,8 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
             ),
 
             const SizedBox(height: 10),
+
+            SwipeHint(),
 
             /// CONTENT
             Expanded(child: _buildContent(provider)),

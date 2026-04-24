@@ -334,7 +334,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
               ]),
 
-              /// JOB
               editSection("Công việc", [
                 JobPickerField(
                   value: jobController.text.isEmpty ? null : jobController.text,
