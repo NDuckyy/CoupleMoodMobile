@@ -1,7 +1,9 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation_request.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
+import 'package:couple_mood_mobile/screens/location/widget/location_source_selector.dart';
 import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/screens/location/widget/venue_card_grid.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
@@ -22,6 +24,7 @@ class ListLocationScreen extends StatefulWidget {
 
 class _ListLocationScreenState extends State<ListLocationScreen> {
   late ScrollController _scrollController;
+  LocationSource _source = LocationSource.self;
 
   @override
   void initState() {
@@ -55,6 +58,56 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
       context.read<MoodProvider>().getCurrentMood();
     });
+  }
+
+  Future<void> _changeLocationSource(LocationSource source) async {
+    setState(() => _source = source);
+
+    final recommendationProvider = context.read<RecommendationProvider>();
+    final moodProvider = context.read<MoodProvider>();
+    final positionProvider = context.read<PositionProvider>();
+
+    try {
+      if (source == LocationSource.self) {
+        final position = await LocationService.getCurrentPosition();
+        if (position == null) return;
+
+        recommendationProvider.latitude = position.latitude;
+        recommendationProvider.longitude = position.longitude;
+
+        await recommendationProvider.fetchRecommendations(
+          RecommendationRequest(
+            lat: position.latitude,
+            lng: position.longitude,
+          ),
+        );
+      } else {
+        final coupleMemberId = moodProvider.coupleCurrentMood?.partnerMemberId;
+
+        if (coupleMemberId == null) return;
+
+        await positionProvider.getUserPosition(coupleMemberId);
+        if (positionProvider.error != null) {
+          if (!mounted) return;
+          showMsg(context, "Không lấy được vị trí của đối phương", false);
+          return;
+        }
+
+        recommendationProvider.latitude = positionProvider.recommendedLatitude;
+        recommendationProvider.longitude =
+            positionProvider.recommendedLongitude;
+
+        await recommendationProvider.fetchRecommendations(
+          RecommendationRequest(
+            lat: positionProvider.recommendedLatitude,
+            lng: positionProvider.recommendedLongitude,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      showMsg(context, "Không lấy được vị trí", false);
+    }
   }
 
   void _onSearch(String query) {
@@ -135,6 +188,22 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   },
                 ),
               ],
+            ),
+
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: LocationSourceSelector(
+                  selected: _source,
+                  hasPartner:
+                      context
+                          .watch<MoodProvider>()
+                          .coupleCurrentMood
+                          ?.partnerMemberId !=
+                      null,
+                  onChanged: _changeLocationSource,
+                ),
+              ),
             ),
 
             SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),

@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
+import 'package:couple_mood_mobile/models/user/geo_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -165,6 +167,19 @@ class LocationService {
       );
     } catch (e) {
       debugPrint("❌ UPDATE USER POSITION ERROR: $e");
+    }
+  }
+
+  static Future<ApiResponse<GeoResponse>> getPosition(int memberId) async {
+    try {
+      final res = await ApiClient.request(
+        "/geo/$memberId",
+        method: HttpMethod.get,
+      );
+      return ApiResponse.fromJson(res, (json) => GeoResponse.fromJson(json));
+    } catch (e) {
+      debugPrint("❌ GET USER POSITION ERROR: $e");
+      throw Exception('Lỗi khi lấy vị trí người dùng: $e');
     }
   }
 }

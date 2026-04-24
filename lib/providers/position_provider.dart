@@ -5,6 +5,11 @@ class PositionProvider extends ChangeNotifier {
   double? latitude;
   double? longitude;
 
+  double? recommendedLatitude;
+  double? recommendedLongitude;
+
+  String? error;
+
   void getCurrentPosition() async {
     try {
       final position = await LocationService.getCurrentPosition();
@@ -26,6 +31,22 @@ class PositionProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error updating location: $e');
+    }
+  }
+
+  Future<void> getUserPosition(int memberId) async {
+    try {
+      error = null;
+      final res = await LocationService.getPosition(memberId);
+      recommendedLatitude = res.data!.homeLatitude;
+      recommendedLongitude = res.data!.homeLongitude;
+      debugPrint(
+        'Fetched user location: $recommendedLatitude, $recommendedLongitude',
+      );
+      notifyListeners();
+    } catch (e) {
+      error = 'Failed to fetch user location';
+      debugPrint('Error fetching user location: $e');
     }
   }
 }
