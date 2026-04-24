@@ -1,6 +1,8 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_item_response.dart';
+import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'checkin_watcher.dart';
@@ -43,7 +45,7 @@ class LocationService {
   }
 
   static StreamSubscription<Position>? _positionSub;
-  
+
   static Future<void> startListening(String coupleId, String userId) async {
     if (_isListening) return;
     _isListening = true;
@@ -148,5 +150,21 @@ class LocationService {
   static Future<void> stopListening() async {
     _positionSub?.cancel();
     _isListening = false;
+  }
+
+  static Future<void> updateUserPosition(
+    int memberId,
+    double lat,
+    double lng,
+  ) async {
+    try {
+      await ApiClient.request(
+        "/geo/$memberId",
+        method: HttpMethod.put,
+        data: {"homeLatitude": lat, "homeLongitude": lng},
+      );
+    } catch (e) {
+      debugPrint("❌ UPDATE USER POSITION ERROR: $e");
+    }
   }
 }

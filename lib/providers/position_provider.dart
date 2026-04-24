@@ -1,4 +1,3 @@
-
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/foundation.dart';
 
@@ -17,6 +16,16 @@ class PositionProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('Error getting location: $e');
+    }
+  }
+
+  Future<void> updatePosition(int memberId, double lat, double lng) async {
+    try {
+      await LocationService.updateUserPosition(memberId, lat, lng);
+      debugPrint('Updated user location: $lat, $lng');
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error updating location: $e');
     }
   }
 }
