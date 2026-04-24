@@ -45,4 +45,10 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  void reset() {
+    user = null;
+    isLoading = false;
+    notifyListeners();
+  }
 }

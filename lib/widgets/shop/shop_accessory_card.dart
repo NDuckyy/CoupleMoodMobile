@@ -43,25 +43,56 @@ class ShopAccessoryCard extends StatelessWidget {
         child: Row(
           children: [
             // Thumbnail
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: CachedNetworkImage(
-                imageUrl: item.thumbnailUrl ?? '',
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                memCacheWidth: 150,
-                placeholder: (context, url) => Container(
+            GestureDetector(
+              onTap: () {
+                if (item.thumbnailUrl != null &&
+                    item.thumbnailUrl!.trim().isNotEmpty) {
+                  showDialog(
+                    context: context,
+                    builder: (_) => Dialog(
+                      backgroundColor: Colors.transparent,
+                      insetPadding: const EdgeInsets.all(16),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: InteractiveViewer(
+                          child: CachedNetworkImage(
+                            imageUrl: item.thumbnailUrl!,
+                            fit: BoxFit.contain,
+                            placeholder: (_, __) => const SizedBox(
+                              height: 200,
+                              child: Center(child: CircularProgressIndicator()),
+                            ),
+                            errorWidget: (_, __, ___) => const SizedBox(
+                              height: 200,
+                              child: Center(child: Icon(Icons.broken_image)),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: CachedNetworkImage(
+                  imageUrl: item.thumbnailUrl ?? '',
                   width: 72,
                   height: 72,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.image, color: Colors.grey),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  width: 72,
-                  height: 72,
-                  color: Colors.grey[200],
-                  child: const Icon(Icons.broken_image, color: Colors.grey),
+                  fit: BoxFit.cover,
+                  memCacheWidth: 150,
+                  placeholder: (context, url) => Container(
+                    width: 72,
+                    height: 72,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    width: 72,
+                    height: 72,
+                    color: Colors.grey[200],
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  ),
                 ),
               ),
             ),

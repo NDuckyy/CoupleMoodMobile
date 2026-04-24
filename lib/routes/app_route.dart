@@ -1,5 +1,7 @@
 import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -117,7 +119,7 @@ import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
 import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
-import 'package:couple_mood_mobile/screens/shop/shop_screen.dart';
+import 'package:couple_mood_mobile/screens/shop/shop_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/payment/vnpay_webview_screen.dart';
 
 //home, location, profile, review, user related, etc..
@@ -416,8 +418,19 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/voucher',
         name: 'voucher',
-        pageBuilder: (_, __) {
-          return const MaterialPage(child: VoucherHubScreen());
+        pageBuilder: (_, state) {
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
+          return MaterialPage(
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => VoucherProvider()),
+                ChangeNotifierProvider(create: (_) => MyVoucherProvider()),
+              ],
+              child: VoucherHubScreen(initialTab: tab.clamp(0, 1)),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -428,7 +441,7 @@ GoRouter createRouter(BuildContext context) {
           return MaterialPage(
             child: ChangeNotifierProvider(
               create: (_) => ShopProvider(),
-              child: const ShopScreen(),
+              child: const ShopHubScreen(),
             ),
           );
         },
@@ -457,16 +470,6 @@ GoRouter createRouter(BuildContext context) {
             ),
           );
         },
-      ),
-      GoRoute(
-        path: '/my-voucher',
-        name: 'my_voucher',
-        pageBuilder: (_, __) => MaterialPage(
-          child: ChangeNotifierProvider(
-            create: (_) => MyVoucherProvider()..fetchMyVouchers(refresh: true),
-            child: const MyVoucherScreen(),
-          ),
-        ),
       ),
 
       GoRoute(

@@ -1,4 +1,7 @@
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_provider.dart';
+import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/google_login_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
@@ -38,8 +41,14 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (ok) {
-
       await Future.delayed(const Duration(milliseconds: 300));
+
+      await Future.wait([
+        context.read<UserProvider>().fetchMe(),
+        context.read<CoupleProvider>().fetchCoupleProfile(),
+        context.read<ShopProvider>().fetchInitial(),
+        context.read<ShopProvider>().fetchInventory(),
+      ]);
 
       if (!mounted) return;
       context.goNamed("home");

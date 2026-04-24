@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     LocationService.stopListening();
     context.read<CoupleLocationProvider>().disposeListener();
     context.read<CoupleLocationProvider>().reset();
+    context.read<CoupleProvider>().reset();
+    context.read<UserProvider>().reset();
     auth.logout();
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
@@ -290,7 +293,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Dịch vụ',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  _tile(Icons.confirmation_number_outlined, "Voucher", () {}),
+                  _tile(
+                    Icons.confirmation_number_outlined,
+                    "Voucher",
+                    () => context.pushNamed(
+                      'voucher',
+                      queryParameters: {'tab': '1'},
+                    ),
+                  ),
                   _tile(
                     Icons.account_balance_wallet_outlined,
                     "Ví",

@@ -4,12 +4,21 @@ import 'package:flutter/material.dart';
 
 class ShopProvider extends ChangeNotifier {
   List<MemberAccessory> items = [];
+  List<MemberAccessory> inventoryItems = [];
 
   bool isLoading = false;
   bool isLoadingMore = false;
 
+  bool isInventoryLoading = false;
+
   int page = 1;
   int totalPages = 1;
+
+  int inventoryPage = 1;
+  int inventoryTotalPages = 1;
+
+  String keyword = '';
+  String? selectedType; // "FRAME" | "BADGE" | null
 
   /// ==================== INIT & LOAD ====================
   Future<void> fetchInitial() async {
@@ -19,7 +28,12 @@ class ShopProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final shopRes = await MemberAccessoryService.getShop(page: page);
+      final shopRes = await MemberAccessoryService.getShop(
+        page: page,
+        keyword: keyword.isNotEmpty ? keyword : null,
+        type: selectedType,
+      );
+
       final invRes = await MemberAccessoryService.getMyAccessories(
         page: 1,
         pageSize: 100,
@@ -104,7 +118,11 @@ class ShopProvider extends ChangeNotifier {
   /// ==================== ACTIONS ====================
   Future<void> purchase(int accessoryId) async {
     try {
-      await MemberAccessoryService.purchase(accessoryId);
+      final res = await MemberAccessoryService.purchase(accessoryId);
+
+      if (res.code != 200) {
+        throw (res.message ?? "Đổi thất bại");
+      }
 
       final index = items.indexWhere((e) => e.accessoryId == accessoryId);
       if (index != -1) {
@@ -122,7 +140,7 @@ class ShopProvider extends ChangeNotifier {
 
   Future<void> equip(MemberAccessory item) async {
     try {
-      // Tháo item cùng loại nếu đang equip
+      /// ===== SHOP LIST =====
       final currentEquippedIndex = items.indexWhere(
         (e) => e.type == item.type && e.isEquipped == true,
       );
@@ -133,15 +151,35 @@ class ShopProvider extends ChangeNotifier {
         );
       }
 
-      // Equip item mới
       final targetIndex = items.indexWhere(
         (e) => e.accessoryId == item.accessoryId,
       );
+
       if (targetIndex != -1) {
         items[targetIndex] = items[targetIndex].copyWith(isEquipped: true);
       }
 
+      /// ===== INVENTORY LIST (THÊM ĐOẠN NÀY) =====
+      final currentInvIndex = inventoryItems.indexWhere(
+        (e) => e.type == item.type && e.isEquipped == true,
+      );
+
+      if (currentInvIndex != -1) {
+        inventoryItems[currentInvIndex] = inventoryItems[currentInvIndex]
+            .copyWith(isEquipped: false);
+      }
+
+      final targetInvIndex = inventoryItems.indexWhere(
+        (e) => e.accessoryId == item.accessoryId,
+      );
+
+      if (targetInvIndex != -1) {
+        inventoryItems[targetInvIndex] = inventoryItems[targetInvIndex]
+            .copyWith(isEquipped: true);
+      }
+
       await MemberAccessoryService.equip(item.memberAccessoryId!);
+
       notifyListeners();
     } catch (e) {
       debugPrint("equip error: $e");
@@ -150,17 +188,89 @@ class ShopProvider extends ChangeNotifier {
 
   Future<void> unequip(MemberAccessory item) async {
     try {
+      /// shop list
       final index = items.indexWhere((e) => e.accessoryId == item.accessoryId);
+
       if (index != -1) {
         items[index] = items[index].copyWith(isEquipped: false);
       }
 
+      /// inventory list (THÊM)
+      final invIndex = inventoryItems.indexWhere(
+        (e) => e.accessoryId == item.accessoryId,
+      );
+
+      if (invIndex != -1) {
+        inventoryItems[invIndex] = inventoryItems[invIndex].copyWith(
+          isEquipped: false,
+        );
+      }
+
       await MemberAccessoryService.unequip(item.memberAccessoryId!);
+
       notifyListeners();
     } catch (e) {
       debugPrint("unequip error: $e");
     }
   }
 
+  Future<void> fetchInventory() async {
+    inventoryPage = 1;
+    inventoryItems.clear();
+    isInventoryLoading = true;
+    notifyListeners();
+
+    try {
+      final res = await MemberAccessoryService.getMyAccessories(
+        page: inventoryPage,
+        pageSize: 20,
+        type: selectedType,
+        keyword: keyword,
+      );
+
+      if (res.code == 200 && res.data != null) {
+        inventoryItems = res.data!.items;
+        inventoryTotalPages = res.data!.totalPages;
+      }
+    } catch (e) {
+      debugPrint("fetchInventory error: $e");
+    } finally {
+      isInventoryLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadMoreInventory() async {
+    if (isInventoryLoading || inventoryPage >= inventoryTotalPages) return;
+
+    try {
+      final nextPage = inventoryPage + 1;
+
+      final res = await MemberAccessoryService.getMyAccessories(
+        page: nextPage,
+        pageSize: 20,
+        type: selectedType,
+        keyword: keyword,
+      );
+
+      if (res.code == 200 && res.data != null) {
+        inventoryItems.addAll(res.data!.items);
+        inventoryPage = nextPage;
+        inventoryTotalPages = res.data!.totalPages;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint("loadMoreInventory error: $e");
+    }
+  }
+
   Future<void> refresh() async => await fetchInitial();
+
+  void updateKeyword(String value) {
+    keyword = value;
+  }
+
+  void updateType(String? type) {
+    selectedType = type;
+  }
 }

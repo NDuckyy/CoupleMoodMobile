@@ -36,12 +36,6 @@ class _MyVoucherScreenState extends State<MyVoucherScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!_initialized) {
-      final provider = context.read<MyVoucherProvider>();
-      provider.setStatus("ALL"); // Mặc định là Tất cả
-      provider.fetchMyVouchers(refresh: true);
-      _initialized = true;
-    }
   }
 
   void _handleTabChange() {
