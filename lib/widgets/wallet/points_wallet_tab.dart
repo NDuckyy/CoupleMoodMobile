@@ -154,7 +154,10 @@ class PointsWalletTab extends StatelessWidget {
                           color: colorScheme.primary,
                         ),
                         onTap: () {
-                          context.pushNamed('voucher');
+                          context.pushNamed(
+                            'voucher',
+                            queryParameters: {'tab': '0'},
+                          );
                         },
                       ),
                       const Divider(),

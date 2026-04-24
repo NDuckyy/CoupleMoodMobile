@@ -293,7 +293,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Dịch vụ',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
-                  _tile(Icons.confirmation_number_outlined, "Voucher", () {}),
+                  _tile(
+                    Icons.confirmation_number_outlined,
+                    "Voucher",
+                    () => context.pushNamed(
+                      'voucher',
+                      queryParameters: {'tab': '1'},
+                    ),
+                  ),
                   _tile(
                     Icons.account_balance_wallet_outlined,
                     "Ví",
