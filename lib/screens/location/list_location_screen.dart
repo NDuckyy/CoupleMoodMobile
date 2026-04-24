@@ -25,6 +25,7 @@ class ListLocationScreen extends StatefulWidget {
 class _ListLocationScreenState extends State<ListLocationScreen> {
   late ScrollController _scrollController;
   LocationSource _source = LocationSource.self;
+  bool isSwitchingLocation = false;
 
   @override
   void initState() {
@@ -61,52 +62,54 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
   }
 
   Future<void> _changeLocationSource(LocationSource source) async {
-    setState(() => _source = source);
+    if (isSwitchingLocation) return;
+
+    setState(() {
+      _source = source;
+      isSwitchingLocation = true;
+    });
 
     final recommendationProvider = context.read<RecommendationProvider>();
     final moodProvider = context.read<MoodProvider>();
     final positionProvider = context.read<PositionProvider>();
 
     try {
+      double? lat;
+      double? lng;
+
       if (source == LocationSource.self) {
         final position = await LocationService.getCurrentPosition();
         if (position == null) return;
 
-        recommendationProvider.latitude = position.latitude;
-        recommendationProvider.longitude = position.longitude;
-
-        await recommendationProvider.fetchRecommendations(
-          RecommendationRequest(
-            lat: position.latitude,
-            lng: position.longitude,
-          ),
-        );
+        lat = position.latitude;
+        lng = position.longitude;
       } else {
-        final coupleMemberId = moodProvider.coupleCurrentMood?.partnerMemberId;
+        final partnerId = moodProvider.coupleCurrentMood?.partnerMemberId;
+        if (partnerId == null) return;
 
-        if (coupleMemberId == null) return;
+        await positionProvider.getUserPosition(partnerId);
 
-        await positionProvider.getUserPosition(coupleMemberId);
         if (positionProvider.error != null) {
-          if (!mounted) return;
-          showMsg(context, "Không lấy được vị trí của đối phương", false);
+          showMsg(context, "Không lấy được vị trí đối phương", false);
           return;
         }
 
-        recommendationProvider.latitude = positionProvider.recommendedLatitude;
-        recommendationProvider.longitude =
-            positionProvider.recommendedLongitude;
-
-        await recommendationProvider.fetchRecommendations(
-          RecommendationRequest(
-            lat: positionProvider.recommendedLatitude,
-            lng: positionProvider.recommendedLongitude,
-          ),
-        );
+        lat = positionProvider.recommendedLatitude;
+        lng = positionProvider.recommendedLongitude;
       }
+
+      recommendationProvider.latitude = lat;
+      recommendationProvider.longitude = lng;
+
+      await recommendationProvider.fetchRecommendations(
+        RecommendationRequest(lat: lat, lng: lng),
+      );
     } catch (e) {
-      if (!mounted) return;
-      showMsg(context, "Không lấy được vị trí", false);
+      showMsg(context, "Lỗi lấy vị trí", false);
+    } finally {
+      if (mounted) {
+        setState(() => isSwitchingLocation = false);
+      }
     }
   }
 
@@ -201,7 +204,11 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                           .coupleCurrentMood
                           ?.partnerMemberId !=
                       null,
-                  onChanged: _changeLocationSource,
+                  onChanged: (source) {
+                    if (!isSwitchingLocation) {
+                      _changeLocationSource(source);
+                    }
+                  },
                 ),
               ),
             ),
