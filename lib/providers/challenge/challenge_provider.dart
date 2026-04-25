@@ -11,8 +11,15 @@ class ChallengeProvider extends ChangeNotifier {
   /// giữ template challenge để restore khi leave
   Map<int, ChallengeItem> templateMap = {};
 
+  /// loading tổng (chỉ dùng lần đầu)
   bool isLoading = false;
 
+  /// loading từng tab (optional UI)
+  bool isLoadingDiscover = false;
+  bool isLoadingDoing = false;
+  bool isLoadingCompleted = false;
+
+  /// ================= LOAD =================
   Future<void> loadChallenges() async {
     isLoading = true;
     notifyListeners();
@@ -27,14 +34,17 @@ class ChallengeProvider extends ChangeNotifier {
       /// build template map
       templateMap = {for (var c in templateItems) c.id: c};
 
+      /// doing
       doingChallenges = coupleItems
           .where((c) => c.status == "IN_PROGRESS")
           .toList();
 
+      /// completed
       completedChallenges = coupleItems
           .where((c) => c.status == "COMPLETED")
           .toList();
 
+      /// discover
       discoverChallenges = templateItems
           .where((c) => c.isJoined == false)
           .toList();
@@ -46,16 +56,23 @@ class ChallengeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// JOIN CHALLENGE
+  /// ================= JOIN =================
   Future<bool> joinChallenge(int challengeId) async {
     try {
       final res = await ChallengeService.joinChallenge(challengeId);
       final newCouple = res.data;
 
       if (newCouple != null) {
+        /// remove khỏi discover
         discoverChallenges.removeWhere((c) => c.id == challengeId);
 
+        /// add vào doing
         doingChallenges.insert(0, newCouple);
+
+        /// sync template
+        if (templateMap.containsKey(challengeId)) {
+          templateMap[challengeId]!.isJoined = true;
+        }
 
         notifyListeners();
         return true;
@@ -67,7 +84,7 @@ class ChallengeProvider extends ChangeNotifier {
     return false;
   }
 
-  /// LEAVE CHALLENGE
+  /// ================= LEAVE =================
   Future<bool> leaveChallenge(int coupleChallengeId) async {
     try {
       await ChallengeService.leaveChallenge(coupleChallengeId);
@@ -84,6 +101,7 @@ class ChallengeProvider extends ChangeNotifier {
       final template = templateMap[removed.challengeId];
 
       if (template != null) {
+        template.isJoined = false;
         discoverChallenges.insert(0, template);
       }
 
@@ -96,11 +114,12 @@ class ChallengeProvider extends ChangeNotifier {
     return false;
   }
 
+  /// ================= CLAIM =================
   Future<bool> claimReward(int coupleChallengeId) async {
     try {
       await ChallengeService.claimReward(coupleChallengeId);
 
-      /// reload list để lấy trạng thái mới
+      /// reload full (vì cần sync server)
       await loadChallenges();
 
       return true;
