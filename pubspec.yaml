@@ -45,6 +45,7 @@ dependencies:
   webview_flutter: ^4.13.1
   share_plus: ^12.0.2
   swipable_stack: ^2.0.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -70,6 +71,7 @@ flutter_native_splash:
 
 flutter:
   assets:
+    - .env
     - lib/assets/images/
 
   uses-material-design: true

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../utils/session_storage.dart';
 
 enum HttpMethod { get, post, put, delete, patch }
@@ -6,7 +7,7 @@ enum HttpMethod { get, post, put, delete, patch }
 class ApiClient {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'https://dev.couplemood.io.vn/api',
+      baseUrl: dotenv.env['BASE_URL']!,
       connectTimeout: const Duration(seconds: 100),
       receiveTimeout: const Duration(seconds: 100),
     ),
@@ -111,14 +112,14 @@ class ApiClient {
       final session = await SessionStorage.load();
       final token = session?.accessToken;
       final res = await _dio.request(
-        "http://178.128.219.250:7701/indexes/venue_locations/search",
+        dotenv.env['CONTEXT_URL']!,
         data: data,
         queryParameters: query,
         options: Options(
           method: method.name.toUpperCase(),
           headers: {
             if (token != null && token.isNotEmpty)
-              'Authorization': 'Bearer couplemood123',
+              'Authorization': 'Bearer ${dotenv.env['TOKEN_KEY']!}',
           },
           validateStatus: (status) => status != null && status < 500,
         ),
@@ -145,14 +146,14 @@ class ApiClient {
       final session = await SessionStorage.load();
       final token = session?.accessToken;
       final res = await _dio.request(
-        "http://167.99.68.193:7700/indexes/venue_locations/search",
+        dotenv.env['AUTO_COMPLETE_URL']!,
         data: data,
         queryParameters: query,
         options: Options(
           method: method.name.toUpperCase(),
           headers: {
             if (token != null && token.isNotEmpty)
-              'Authorization': 'Bearer couplemood123',
+              'Authorization': 'Bearer ${dotenv.env['TOKEN_KEY']!}',
           },
           validateStatus: (status) => status != null && status < 500,
         ),

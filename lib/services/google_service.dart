@@ -1,9 +1,10 @@
 import 'package:flutter/rendering.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email'],
-  serverClientId: '1063525637223-kfv24p4kgbjl0d15g8jgb5eg4j41c9u6.apps.googleusercontent.com'
+  serverClientId: dotenv.env['GOOGLE_SIGN_IN']!
   );
 
   Future<String?> signInAndGetIdToken() async {

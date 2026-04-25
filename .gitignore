@@ -47,3 +47,5 @@ app.*.map.json
 # Android keystore & signing files
 couplemood-release.jks
 key.properties
+.env
+google-services.json
