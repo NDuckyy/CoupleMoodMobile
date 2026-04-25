@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'checkin_watcher.dart';
@@ -14,7 +15,7 @@ class LocationService {
   final dbRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL:
-        "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app/",
+        dotenv.env['REALTIME_DATABASE_URL']!,
   ).ref("locations");
 
   static Future<Position?> getCurrentPosition() async {
@@ -94,8 +95,7 @@ class LocationService {
 
     final dbRef = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL:
-          "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: dotenv.env['REALTIME_DATABASE_URL']!,
     ).ref("locations");
 
     try {
@@ -118,8 +118,7 @@ class LocationService {
   ) async {
     final ref = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL:
-          "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: dotenv.env['REALTIME_DATABASE_URL']!,
     ).ref("locations");
 
     await ref
@@ -142,8 +141,7 @@ class LocationService {
   static Future<void> clearVenues(String coupleId) async {
     final ref = FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL:
-          "https://couplemood-firebase-default-rtdb.asia-southeast1.firebasedatabase.app",
+      databaseURL: dotenv.env['REALTIME_DATABASE_URL']!,
     ).ref("locations");
 
     await ref.child(coupleId).child("venues").remove();
