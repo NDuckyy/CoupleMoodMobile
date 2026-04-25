@@ -31,35 +31,29 @@ class LeaderboardInfoButton extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 16),
 
                 /// CONTENT
                 const Text(
-                  "Điểm trên bảng xếp hạng phản ánh mức độ yêu thích và tương tác mà cộng đồng dành cho bạn.",
+                  "Điểm trên bảng xếp hạng được tính dựa trên số thử thách mà bạn (và người ấy) hoàn thành.",
                   style: TextStyle(fontSize: 14, height: 1.5),
                 ),
-
                 const SizedBox(height: 12),
-
                 const Text(
-                  "💖 Mỗi lượt thích vào bài viết hoặc review của bạn đều giúp tăng điểm.\n\n"
-                  "✨ Nội dung càng thú vị, chân thật và cảm xúc thì càng dễ nhận được nhiều lượt tương tác.\n\n"
-                  "🏆 Các cặp đôi có tổng điểm cao nhất trong tháng sẽ dẫn đầu bảng xếp hạng.",
+                  "🏆 Mỗi thử thách hoàn thành sẽ mang lại một lượng điểm nhất định.\n\n"
+                  "🛒 Điểm tích lũy có thể dùng để mua phụ kiện trang trí trong Shop.\n\n"
+                  "🎁 Cặp đôi đứng Top 1 bảng xếp hạng vào cuối tháng sẽ nhận được khung avatar đặc biệt.",
                   style: TextStyle(fontSize: 14, height: 1.5),
                 ),
-
                 const SizedBox(height: 12),
-
                 const Text(
-                  "💡 Gợi ý: Hãy chia sẻ những khoảnh khắc đáng nhớ, review địa điểm hoặc câu chuyện của riêng bạn để thu hút nhiều lượt thích hơn!",
+                  "💡 Gợi ý: Hãy cùng nhau hoàn thành nhiều thử thách thú vị nhất có thể để tích điểm nhanh và lên top bảng xếp hạng!",
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.black54,
                     height: 1.4,
                   ),
                 ),
-
                 const SizedBox(height: 20),
 
                 /// BUTTON
