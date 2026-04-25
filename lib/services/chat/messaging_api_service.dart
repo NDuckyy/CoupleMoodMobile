@@ -153,7 +153,7 @@ class MessagingApiService {
 
   /// Send a message (text or file)
   /// POST /api/messaging/messages
-  static Future<Message> sendMessage({
+  static Future<dynamic> sendMessage({
     required int conversationId,
     required String messageType, // "TEXT" | "IMAGE" | "VIDEO" | "AUDIO" | "FILE"
     String? content,
@@ -189,7 +189,6 @@ class MessagingApiService {
         data['fileUrl'] = fileUrl;
         data['fileName'] = fileName;
         data['fileSize'] = fileSize;
-        data['content'] = content ?? fileName ?? '';
       }
       
       if (metadata != null) {
@@ -203,7 +202,7 @@ class MessagingApiService {
       );
       return Message.fromJson(response as Map<String, dynamic>);
     } catch (e) {
-      throw Exception('Failed to send message: ${e.toString()}');
+      // throw Exception('Failed to send message: ${e.toString()}');
     }
   }
 

@@ -1,6 +1,6 @@
 class ConversationMember {
   final int userId;
-  final String? username;
+  final String?   username;
   final String? fullName;
   final String? avatar;
   final String role;

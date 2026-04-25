@@ -1,3 +1,7 @@
+import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -5,9 +9,6 @@ import 'package:provider/provider.dart';
 //---Provider
 //auth
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
-
-//Recommendation
-import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 
 //Dateplan
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
@@ -21,15 +22,31 @@ import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 
-//test
-import 'package:couple_mood_mobile/providers/test_provider.dart';
-
-//Member, user
+//Member, user, couple
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/member_provider.dart';
+import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
+
+//review
+import 'package:couple_mood_mobile/providers/review/review_provider.dart';
+import 'package:couple_mood_mobile/providers/user/my_review_provider.dart';
 
 //mood
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+
+//voucher
+import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
+
+//leaderboard
+import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
+
+//payment, subscription, wallet, shop
+import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dart';
+import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
+import 'package:couple_mood_mobile/providers/wallet/wallet_provider.dart';
+import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 
 //---Screen
 //Chat
@@ -74,9 +91,19 @@ import 'package:couple_mood_mobile/screens/test/test_type_screen.dart';
 import 'package:couple_mood_mobile/screens/venue/venue_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/chat/conversation_list_screen.dart';
 import 'package:couple_mood_mobile/widgets/splash_screen.dart';
+import 'package:couple_mood_mobile/screens/test/test_history.dart';
 
 //challenge
 import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
+
+//leaderboard
+import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
+
+//voucher
+import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/my_voucher_screen.dart';
+import 'package:couple_mood_mobile/screens/voucher/voucher_hub_screen.dart';
 
 //auth
 import 'package:couple_mood_mobile/screens/auth/login_screen.dart';
@@ -87,23 +114,37 @@ import 'package:couple_mood_mobile/screens/mood/choose_mood_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/choose_mood_method_screen.dart';
 import 'package:couple_mood_mobile/screens/mood/emotion_camera_screen.dart';
 
-//package, advertisement, subscription..
+//payment, package, advertisement, wallet, shop
+import 'package:couple_mood_mobile/screens/payment/payment_result_screen.dart';
 import 'package:couple_mood_mobile/screens/advertisement/advertisement_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/subscriptions/subscriptions_screen.dart';
+import 'package:couple_mood_mobile/screens/wallet/wallet_hub_screen.dart';
+import 'package:couple_mood_mobile/screens/shop/shop_hub_screen.dart';
+import 'package:couple_mood_mobile/screens/payment/vnpay_webview_screen.dart';
 
-//home, location, profile, user related, etc..
+//home, location, profile, review, user related, etc..
 import 'package:couple_mood_mobile/screens/home/home_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_screen.dart';
 import 'package:couple_mood_mobile/screens/location/filter_location_screen.dart';
 import 'package:couple_mood_mobile/screens/review/review_screen.dart';
-import 'package:couple_mood_mobile/screens/profile/profile_screen.dart';
+import 'package:couple_mood_mobile/screens/user/profile_screen.dart';
 import 'package:couple_mood_mobile/screens/guest/guest_screen.dart';
+import 'package:couple_mood_mobile/screens/user/my_review_screen.dart';
+import 'package:couple_mood_mobile/screens/user/edit_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/forgot_password_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/reset_password_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/coupleProfile/edit_couple_profile_screen.dart';
+import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
+import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
+import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
 final _searchTabNavKey = GlobalKey<NavigatorState>();
 final _chatTabNavKey = GlobalKey<NavigatorState>();
-final _hotTabNavKey = GlobalKey<NavigatorState>();
+final _mapTabNavKey = GlobalKey<NavigatorState>();
 final _worldTabNavKey = GlobalKey<NavigatorState>();
 final _collectionTabNavKey = GlobalKey<NavigatorState>();
 final _profileTabNavKey = GlobalKey<NavigatorState>();
@@ -116,26 +157,69 @@ GoRouter createRouter(BuildContext context) {
     initialLocation: '/splash',
     // để router refresh khi auth notifyListeners
     refreshListenable: auth,
+    routerNeglect: true,
 
     redirect: (ctx, state) {
-      final isLoggedIn = auth.isLoggedIn; // bạn tự map theo provider của bạn
-      final loc = state.uri.toString();
+      final uri =
+          state.uri; // Dùng state.uri để lấy đầy đủ scheme/host/path/query
+
+      // Debug để xem chính xác GoRouter nhận URI gì khi cold start từ MoMo
+      debugPrint('🔍 Redirect called | Full URI: $uri');
+      debugPrint(
+        '   Scheme: ${uri.scheme} | Host: ${uri.host} | Path: ${uri.path} | Query: ${uri.queryParameters}',
+      );
+
+      // 1. Xử lý custom scheme deep link (chạy trước auth để tránh miss cold start)
+      if (uri.scheme == 'couplemood' && uri.host == 'payment-result') {
+        final qp = uri.queryParameters;
+
+        final orderId = qp['orderId'];
+        final appTransId = qp['appTransID'];
+        final id = orderId ?? appTransId;
+
+        // detect payment method dynamic
+        String? method;
+
+        if (qp.containsKey('zpTransToken') || qp.containsKey('appTransID')) {
+          method = 'ZALOPAY';
+        } else if (qp.containsKey('orderId')) {
+          method = 'MOMO';
+        }
+        //  future:
+        // else if (qp.containsKey('vnp_TxnRef')) method = 'VNPAY';
+
+        if (id != null && id.isNotEmpty) {
+          return '/payment-result?id=$id${method != null ? '&method=$method' : ''}';
+        }
+
+        return '/payment-result';
+      }
+
+      if (uri.scheme == 'couplemood' && uri.host == 'post') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+          return '/share/post/$code';
+        }
+      }
+
+      // 2. Logic auth cũ của bạn (giữ nguyên, chỉ chạy nếu không phải deep link custom)
+      final isLoggedIn = auth.isLoggedIn;
+      final loc = uri.toString(); // hoặc state.matchedLocation nếu chỉ cần path
 
       final isAuthRoute =
           loc.startsWith('/login') ||
           loc.startsWith('/register') ||
-          loc.startsWith('/guest');
+          loc.startsWith('/guest') ||
+          loc.startsWith('/forgot-password') ||
+          loc.startsWith('/reset-password');
       final isSplash = loc == '/splash';
 
-      // Nếu đang splash thì để Splash tự quyết (hoặc redirect theo auth)
       if (isSplash) {
         return null;
       }
 
-      // Chưa login mà không ở auth routes => đá về login
       if (!isLoggedIn && !isAuthRoute) return '/guest';
 
-      // Đã login mà còn ở login/register => đá về home
       if (isLoggedIn && isAuthRoute) return '/home';
 
       return null;
@@ -163,6 +247,23 @@ GoRouter createRouter(BuildContext context) {
         name: 'register',
         pageBuilder: (_, __) => const MaterialPage(child: RegisterScreen()),
       ),
+      GoRoute(
+        path: '/forgot-password',
+        name: 'forgot_password',
+        pageBuilder: (_, __) {
+          return const MaterialPage(child: ForgotPasswordScreen());
+        },
+      ),
+      GoRoute(
+        path: '/reset-password',
+        name: 'reset_password',
+        pageBuilder: (_, __) {
+          final extra = __.extra as Map<String, dynamic>;
+          return MaterialPage(
+            child: ResetPasswordScreen(email: extra['email']),
+          );
+        },
+      ),
 
       /// SHELL: sau khi login mới vào đây => có bottom bar
       StatefulShellRoute.indexedStack(
@@ -183,28 +284,15 @@ GoRouter createRouter(BuildContext context) {
               GoRoute(
                 path: '/list-location',
                 name: 'listLocation',
-                pageBuilder: (_, __) => NoTransitionPage(
-                  child: MultiProvider(
-                    providers: [
-                      ChangeNotifierProvider(
-                        create: (_) => RecommendationProvider(),
-                      ),
-                      ChangeNotifierProvider(create: (_) => MoodProvider()),
-                    ],
-                    child: const ListLocationScreen(),
-                  ),
-                ),
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: ListLocationScreen()),
               ),
 
               GoRoute(
                 path: '/test',
                 name: 'test',
-                pageBuilder: (_, __) => NoTransitionPage(
-                  child: ChangeNotifierProvider(
-                    create: (_) => TestProvider(),
-                    child: const TestTypeScreen(),
-                  ),
-                ),
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: TestTypeScreen()),
               ),
             ],
           ),
@@ -233,13 +321,13 @@ GoRouter createRouter(BuildContext context) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _hotTabNavKey,
+            navigatorKey: _mapTabNavKey,
             routes: [
               GoRoute(
-                path: '/hot',
-                name: 'hot',
+                path: '/map',
+                name: 'map',
                 pageBuilder: (_, __) =>
-                    const NoTransitionPage(child: _Placeholder('Hot')),
+                    const NoTransitionPage(child: CoupleLocationScreen()),
               ),
             ],
           ),
@@ -287,42 +375,35 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       /// Mood flow ngoài shell => ẩn bottom bar
-      ShellRoute(
-        parentNavigatorKey:
-            _rootNavKey, // ngoài main shell => không có bottom bar
-        builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => MoodProvider(),
-            child: child, // các màn con sẽ dùng CHUNG provider này
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/mood/icon',
-            name: 'moodChooseByIcon',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/method',
-            name: 'moodChooseMethod',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: ChooseMoodMethodScreen()),
-          ),
-          GoRoute(
-            path: '/mood/camera',
-            name: 'emotionCamera',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: EmotionCameraScreen()),
-          ),
-        ],
+      GoRoute(
+        path: '/mood/icon',
+        name: 'moodChooseByIcon',
+        pageBuilder: (_, __) => const MaterialPage(child: ChooseMoodScreen()),
       ),
+      GoRoute(
+        path: '/mood/method',
+        name: 'moodChooseMethod',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: ChooseMoodMethodScreen()),
+      ),
+      GoRoute(
+        path: '/mood/camera',
+        name: 'emotionCamera',
+        pageBuilder: (_, __) =>
+            const MaterialPage(child: EmotionCameraScreen()),
+      ),
+
       GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/subscriptions',
         name: 'subscriptions',
         pageBuilder: (_, __) {
-          return const MaterialPage(child: SubscriptionsScreen());
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => SubscriptionProvider(),
+              child: const SubscriptionScreen(),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -334,35 +415,214 @@ GoRouter createRouter(BuildContext context) {
         },
       ),
       GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/voucher',
+        name: 'voucher',
+        pageBuilder: (_, state) {
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
+          return MaterialPage(
+            child: MultiProvider(
+              providers: [
+                ChangeNotifierProvider(create: (_) => VoucherProvider()),
+                ChangeNotifierProvider(create: (_) => MyVoucherProvider()),
+              ],
+              child: VoucherHubScreen(initialTab: tab.clamp(0, 1)),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/shop',
+        name: 'shop',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => ShopProvider(),
+              child: const ShopHubScreen(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        name: "leaderboard",
+        path: "/leaderboard",
+        pageBuilder: (_, __) => MaterialPage(
+          child: ChangeNotifierProvider(
+            create: (_) => LeaderboardProvider(),
+            child: const LeaderboardScreen(),
+          ),
+        ),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/voucher-detail',
+        name: 'voucher_detail',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => VoucherDetailProvider(),
+              child: VoucherDetailScreen(voucherId: extra['voucherId']),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/my-voucher-detail',
+        name: 'my_voucher_detail',
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => MyVoucherDetailProvider(),
+              child: MyVoucherDetailScreen(
+                voucherItemId: extra['voucherItemId'],
+              ),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/payment-result',
+        name: 'payment-result',
+        builder: (context, state) {
+          final extra = state.extra;
+
+          String? id;
+          String? method;
+
+          ///  1. Ưu tiên extra (DeepLinkHandler - app đang mở)
+          if (extra is Map<String, dynamic>) {
+            id = extra['id'];
+            method = extra['method'];
+          }
+
+          ///  2. Fallback query (cold start)
+          id ??= state.uri.queryParameters['id'];
+          method ??= state.uri.queryParameters['method'];
+
+          ///  Validate
+          if (id == null || id.isEmpty) {
+            return const Scaffold(
+              body: Center(child: Text('Payment ID không hợp lệ')),
+            );
+          }
+
+          if (method == null || method.isEmpty) {
+            return const Scaffold(
+              body: Center(
+                child: Text('Không xác định phương thức thanh toán'),
+              ),
+            );
+          }
+
+          return ChangeNotifierProvider(
+            create: (_) => PaymentResultProvider()..fetchStatus(id!, method!),
+            child: const PaymentResultScreen(),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/vnpay-webview',
+        name: 'vnpay-webview',
+        builder: (context, state) {
+          final url = state.extra as String;
+          return VnpayWebviewScreen(url: url);
+        },
+      ),
+
+      GoRoute(
+        name: 'post_detail_from_share',
+        path: '/share/post/:code',
+        builder: (context, state) {
+          final code = state.pathParameters['code']!;
+          return ChangeNotifierProvider(
+            create: (_) => PostShareProvider(),
+            child: PostDetailFromShareScreen(code: code),
+          );
+        },
+      ),
+
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/wallet',
+        name: 'wallet',
+        pageBuilder: (_, state) {
+          // Lấy tab từ query parameter (nếu có)
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => WalletProvider(),
+              child: WalletHubScreen(
+                initialTab: tab.clamp(0, 2),
+              ), // giới hạn 0-2
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        parentNavigatorKey: _rootNavKey,
+        path: '/my-reviews',
+        name: 'my_reviews',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => MyReviewProvider(),
+              child: const MyReviewScreen(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: '/edit-profile',
+        name: 'edit_profile',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => EditProfileProvider(),
+              child: const EditProfileScreen(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
         path: '/filter-location',
         name: 'filter_location',
         pageBuilder: (_, __) {
           return const NoTransitionPage(child: FilterLocationScreen());
         },
       ),
-      ShellRoute(
-        parentNavigatorKey: _rootNavKey,
-        builder: (context, state, child) {
-          return ChangeNotifierProvider(
-            create: (_) => TestProvider(),
-            child: child,
-          );
-        },
-        routes: [
-          GoRoute(
-            path: '/test-detail',
-            name: 'test_detail',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: TestDetailScreen()),
-          ),
-          GoRoute(
-            path: '/test-result',
-            name: 'test_result',
-            pageBuilder: (_, __) =>
-                const MaterialPage(child: TestResultScreen()),
-          ),
-        ],
+
+      GoRoute(
+        path: '/test-detail',
+        name: 'test_detail',
+        pageBuilder: (_, __) => const MaterialPage(child: TestDetailScreen()),
       ),
+      GoRoute(
+        path: '/test-result',
+        name: 'test_result',
+        pageBuilder: (_, __) => const MaterialPage(child: TestResultScreen()),
+      ),
+
+      GoRoute(
+        path: '/test-history',
+        name: 'test_history',
+        pageBuilder: (_, __) => const MaterialPage(child: TestHistoryScreen()),
+      ),
+
       GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/venue-detail',
@@ -455,11 +715,56 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        path: '/faq',
+        name: 'faq',
+        pageBuilder: (_, __) => const MaterialPage(child: HelpFaqScreen()),
+      ),
+
+      GoRoute(
+        path: '/change-password',
+        name: 'change_password',
+        pageBuilder: (_, __) {
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => AuthProvider(),
+              child: const ChangePasswordScreen(),
+            ),
+          );
+        },
+      ),
+
+      GoRoute(
         path: '/member-profile-match',
         name: 'member_profile_match',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
           return MemberProfileMatchScreen(userId: extra['userId']);
+        },
+      ),
+
+      GoRoute(
+        path: '/couple-profile',
+        name: 'couple_profile',
+        pageBuilder: (_, __) => const MaterialPage(child: CoupleProfilePage()),
+      ),
+
+      GoRoute(
+        path: '/notification',
+        name: 'notification',
+        pageBuilder: (_, __) => const MaterialPage(child: NotificationScreen()),
+      ),
+
+      GoRoute(
+        path: '/couple-profile/edit',
+        name: 'edit_couple_profile',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return EditCoupleProfilePage(
+            coupleName: extra['coupleName'],
+            anniversaryDate: extra['anniversaryDate'],
+            budgetMin: extra['budgetMin'],
+            budgetMax: extra['budgetMax'],
+          );
         },
       ),
 
@@ -490,9 +795,13 @@ GoRouter createRouter(BuildContext context) {
         name: 'review_venue',
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>;
-          return ReviewScreen(
-            venueLocationId: extra['venueLocationId'],
-            checkInId: extra['checkInId'],
+          return ChangeNotifierProvider(
+            create: (_) => ReviewProvider(),
+            child: ReviewScreen(
+              venueLocationId: extra['venueLocationId'],
+              checkInId: extra['checkInId'], // có thể null
+              initialReview: extra['review'],
+            ),
           );
         },
       ),
@@ -581,7 +890,19 @@ GoRouter createRouter(BuildContext context) {
         builder: (context, state, child) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (_) => PostProvider()),
+              /// 1. MyPostsProvider (nguồn dữ liệu riêng)
+              ChangeNotifierProvider(create: (_) => MyPostsProvider()),
+
+              /// 2. PostProvider phụ thuộc MyPostsProvider
+              ChangeNotifierProxyProvider<MyPostsProvider, PostProvider>(
+                create: (_) => PostProvider(null),
+                update: (_, myPostsProvider, previous) {
+                  previous!.setMyPostsProvider(myPostsProvider);
+                  return previous;
+                },
+              ),
+
+              /// 3. User
               ChangeNotifierProvider(create: (_) => UserProvider()..fetchMe()),
             ],
             child: child,
@@ -598,10 +919,7 @@ GoRouter createRouter(BuildContext context) {
             name: "my_posts",
             path: "/my-posts",
             builder: (context, state) {
-              return ChangeNotifierProvider(
-                create: (_) => MyPostsProvider(),
-                child: const MyPostsScreen(),
-              );
+              return const MyPostsScreen();
             },
           ),
           GoRoute(
@@ -657,6 +975,7 @@ class MainShell extends StatelessWidget {
       shape: const CircularNotchedRectangle(),
       notchMargin: 6,
       height: 60,
+      color: Colors.white,
       child: SizedBox(
         height: 60,
         child: Row(
@@ -665,7 +984,7 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.local_fire_department, 3, currentIndex),
+                _buildItem(Icons.map, 3, currentIndex),
                 const SizedBox(width: 16),
                 _buildItem(Icons.chat_outlined, 2, currentIndex),
               ],
@@ -750,4 +1069,10 @@ void navigateToReviewVenue({required int venueId, required int checkInId}) {
     'review_venue',
     extra: {'venueLocationId': venueId, 'checkInId': checkInId},
   );
+}
+
+void navigateToChatScreen({required conversation}) {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed('chat_screen', extra: {'conversation': conversation});
 }

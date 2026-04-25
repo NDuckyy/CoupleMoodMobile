@@ -17,11 +17,11 @@ class ChatProvider with ChangeNotifier {
   Map<int, int> _currentPage = {};
   Map<int, bool> _hasMoreMessages = {};
   Map<int, Set<int>> _typingUsers = {};
-  
-  bool _isLoadingConversations = false;
+
+  bool _isLoadingConversations = true;
   String? _error;
   int? _currentUserId;
-  
+
   // Subscriptions
   StreamSubscription? _messageReceivedSub;
   StreamSubscription? _messageSeenSub;
@@ -67,7 +67,7 @@ class ChatProvider with ChangeNotifier {
 
       // Connect to SignalR
       await _signalR.connect();
-      
+
       // Update online status
       await _signalR.updateOnlineStatus(true);
 
@@ -76,9 +76,9 @@ class ChatProvider with ChangeNotifier {
 
       // Load conversations
       await loadConversations();
-      
+
       // Start periodic refresh for online status (every 30 seconds)
-      _startOnlineStatusRefresh();
+      // _startOnlineStatusRefresh();
     } catch (e) {
       print('ChatProvider initialization error: $e');
       _error = e.toString();
@@ -86,15 +86,15 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Timer? _onlineStatusRefreshTimer;
-  
-  void _startOnlineStatusRefresh() {
-    _onlineStatusRefreshTimer?.cancel();
-    _onlineStatusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      print('ChatProvider: Refreshing online status...');
-      loadConversations(); // Reload to get updated online status
-    });
-  }
+  // Timer? _onlineStatusRefreshTimer;
+
+  // void _startOnlineStatusRefresh() {
+  //   _onlineStatusRefreshTimer?.cancel();
+  //   _onlineStatusRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+  //     print('ChatProvider: Refreshing online status...');
+  //     loadConversations(); // Reload to get updated online status
+  //   });
+  // }
 
   /// Setup SignalR event listeners
   void _setupSignalRListeners() {
@@ -129,12 +129,16 @@ class ChatProvider with ChangeNotifier {
     });
 
     // Conversation updated
-    _conversationUpdatedSub = _signalR.onConversationUpdated.listen((conversation) {
+    _conversationUpdatedSub = _signalR.onConversationUpdated.listen((
+      conversation,
+    ) {
       _handleConversationUpdated(conversation);
     });
 
     // Conversation deleted
-    _conversationDeletedSub = _signalR.onConversationDeleted.listen((conversationId) {
+    _conversationDeletedSub = _signalR.onConversationDeleted.listen((
+      conversationId,
+    ) {
       _handleConversationDeleted(conversationId);
     });
 
@@ -157,14 +161,16 @@ class ChatProvider with ChangeNotifier {
 
     try {
       _conversations = await MessagingApiService.getAllConversations();
-      
+
       // Log online status for debugging
       for (var conv in _conversations) {
         if (conv.type == 'DIRECT' && conv.otherUser != null) {
-          print('ChatProvider: Conversation ${conv.id} - ${conv.otherUser!.fullName} isOnline: ${conv.otherUser!.isOnline}');
+          print(
+            'ChatProvider: Conversation ${conv.id} - ${conv.otherUser!.fullName} isOnline: ${conv.otherUser!.isOnline}',
+          );
         }
       }
-      
+
       _isLoadingConversations = false;
       notifyListeners();
     } catch (e) {
@@ -219,24 +225,23 @@ class ChatProvider with ChangeNotifier {
 
   /// Send a text message
   Future<Message?> sendTextMessage(int conversationId, String content) async {
+    // Create optimistic message
+    final optimisticMessage = Message(
+      id: DateTime.now().millisecondsSinceEpoch,
+      conversationId: conversationId,
+      senderId: _currentUserId ?? 0,
+      senderName: 'You',
+      content: content,
+      messageType: 'TEXT',
+      createdAt: DateTime.now(),
+      isMine: true,
+      status: MessageStatus.sending,
+      localId: DateTime.now().millisecondsSinceEpoch.toString(),
+    );
+
+    // Add to UI immediately
+    _addMessageToConversation(conversationId, optimisticMessage);
     try {
-      // Create optimistic message
-      final optimisticMessage = Message(
-        id: DateTime.now().millisecondsSinceEpoch,
-        conversationId: conversationId,
-        senderId: _currentUserId ?? 0,
-        senderName: 'You',
-        content: content,
-        messageType: 'TEXT',
-        createdAt: DateTime.now(),
-        isMine: true,
-        status: MessageStatus.sending,
-        localId: DateTime.now().millisecondsSinceEpoch.toString(),
-      );
-
-      // Add to UI immediately
-      _addMessageToConversation(conversationId, optimisticMessage);
-
       // Send to server
       final sentMessage = await MessagingApiService.sendMessage(
         conversationId: conversationId,
@@ -245,17 +250,35 @@ class ChatProvider with ChangeNotifier {
       );
 
       // Replace optimistic message with real one
-      _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
+      _replaceOptimisticMessage(
+        conversationId,
+        optimisticMessage.localId!,
+        sentMessage,
+      );
 
       return sentMessage;
     } catch (e) {
+      final failedMessage = optimisticMessage.copyWith(
+        status: MessageStatus.failed,
+      );
+
+      _replaceOptimisticMessage(
+        conversationId,
+        optimisticMessage.localId!,
+        failedMessage,
+      );
+
       _error = e.toString();
       notifyListeners();
       return null;
     }
   }
 
-  Future<Message?> sendDatePlan(int conversationId, String content, int referenceId) async {
+  Future<Message?> sendDatePlan(
+    int conversationId,
+    String content,
+    int referenceId,
+  ) async {
     try {
       // Create optimistic message
       final optimisticMessage = Message(
@@ -284,7 +307,11 @@ class ChatProvider with ChangeNotifier {
       );
 
       // Replace optimistic message with real one
-      _replaceOptimisticMessage(conversationId, optimisticMessage.localId!, sentMessage);
+      _replaceOptimisticMessage(
+        conversationId,
+        optimisticMessage.localId!,
+        sentMessage,
+      );
 
       return sentMessage;
     } catch (e) {
@@ -293,7 +320,6 @@ class ChatProvider with ChangeNotifier {
       return null;
     }
   }
-
 
   /// Send file message
   Future<Message?> sendFileMessage({
@@ -334,10 +360,12 @@ class ChatProvider with ChangeNotifier {
   Future<void> joinConversation(int conversationId) async {
     try {
       await _signalR.joinConversation(conversationId);
-      
+
       // Request online status update for all members
       // This might trigger UserOnline events
-      print('ChatProvider: Joined conversation $conversationId, requesting online status updates');
+      print(
+        'ChatProvider: Joined conversation $conversationId, requesting online status updates',
+      );
     } catch (e) {
       print('Error joining conversation: $e');
     }
@@ -384,8 +412,9 @@ class ChatProvider with ChangeNotifier {
   /// Create or get direct conversation
   Future<Conversation?> getOrCreateDirectConversation(int otherUserId) async {
     try {
-      final conversation = await MessagingApiService.getOrCreateDirectConversation(otherUserId);
-      
+      final conversation =
+          await MessagingApiService.getOrCreateDirectConversation(otherUserId);
+
       // Add to list if not exists
       final index = _conversations.indexWhere((c) => c.id == conversation.id);
       if (index == -1) {
@@ -394,7 +423,7 @@ class ChatProvider with ChangeNotifier {
         _conversations[index] = conversation;
       }
       notifyListeners();
-      
+
       return conversation;
     } catch (e) {
       _error = e.toString();
@@ -414,10 +443,10 @@ class ChatProvider with ChangeNotifier {
         name: name,
         memberIds: memberIds,
       );
-      
+
       _conversations.insert(0, conversation);
       notifyListeners();
-      
+
       return conversation;
     } catch (e) {
       _error = e.toString();
@@ -427,7 +456,10 @@ class ChatProvider with ChangeNotifier {
   }
 
   /// Add members to group
-  Future<bool> addMembersToGroup(int conversationId, List<int> memberIds) async {
+  Future<bool> addMembersToGroup(
+    int conversationId,
+    List<int> memberIds,
+  ) async {
     try {
       await MessagingApiService.addMembersToGroup(
         conversationId: conversationId,
@@ -460,11 +492,11 @@ class ChatProvider with ChangeNotifier {
   Future<bool> leaveConversationPermanently(int conversationId) async {
     try {
       await MessagingApiService.leaveConversation(conversationId);
-      
+
       _conversations.removeWhere((c) => c.id == conversationId);
       _messagesByConversation.remove(conversationId);
       notifyListeners();
-      
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -486,14 +518,16 @@ class ChatProvider with ChangeNotifier {
     _addMessageToConversation(message.conversationId, message);
 
     // Update last message in conversation list
-    final index = _conversations.indexWhere((c) => c.id == message.conversationId);
+    final index = _conversations.indexWhere(
+      (c) => c.id == message.conversationId,
+    );
     if (index != -1) {
       final conversation = _conversations[index];
       final updatedConversation = conversation.copyWith(
         lastMessage: message,
         unreadCount: message.isMine ? 0 : conversation.unreadCount + 1,
       );
-      
+
       // Move to top
       _conversations.removeAt(index);
       _conversations.insert(0, updatedConversation);
@@ -506,7 +540,8 @@ class ChatProvider with ChangeNotifier {
     final messages = _messagesByConversation[event.conversationId];
     if (messages != null) {
       for (var i = 0; i < messages.length; i++) {
-        if (messages[i].senderId == _currentUserId && messages[i].id <= event.messageId) {
+        if (messages[i].senderId == _currentUserId &&
+            messages[i].id <= event.messageId) {
           messages[i] = messages[i].copyWith(status: MessageStatus.read);
         }
       }
@@ -515,8 +550,10 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _handleTypingIndicator(TypingIndicator typing) {
-    print('ChatProvider: Handling typing indicator - conversationId: ${typing.conversationId}, userId: ${typing.userId}, isTyping: ${typing.isTyping}, currentUserId: $_currentUserId');
-    
+    print(
+      'ChatProvider: Handling typing indicator - conversationId: ${typing.conversationId}, userId: ${typing.userId}, isTyping: ${typing.isTyping}, currentUserId: $_currentUserId',
+    );
+
     if (typing.userId == _currentUserId) {
       print('ChatProvider: Ignoring own typing indicator');
       return; // Ignore own typing
@@ -526,46 +563,67 @@ class ChatProvider with ChangeNotifier {
     final users = Set<int>.from(_typingUsers[typing.conversationId] ?? <int>{});
     if (typing.isTyping) {
       users.add(typing.userId);
-      print('ChatProvider: Added user ${typing.userId} to typing users. Total: ${users.length}');
+      print(
+        'ChatProvider: Added user ${typing.userId} to typing users. Total: ${users.length}',
+      );
     } else {
       users.remove(typing.userId);
-      print('ChatProvider: Removed user ${typing.userId} from typing users. Total: ${users.length}');
+      print(
+        'ChatProvider: Removed user ${typing.userId} from typing users. Total: ${users.length}',
+      );
     }
-    
+
     // Always create new Set to trigger rebuild
     _typingUsers[typing.conversationId] = Set<int>.from(users);
-    print('ChatProvider: Updated typing users for conversation ${typing.conversationId}: $users');
+    print(
+      'ChatProvider: Updated typing users for conversation ${typing.conversationId}: $users',
+    );
     notifyListeners();
   }
 
   void _updateUserOnlineStatus(int userId, bool isOnline) {
-    print('ChatProvider: Updating online status - userId: $userId, isOnline: $isOnline');
+    print(
+      'ChatProvider: Updating online status - userId: $userId, isOnline: $isOnline',
+    );
     bool updated = false;
-    
+
     for (var i = 0; i < _conversations.length; i++) {
       final conversation = _conversations[i];
-      
+
       // Update otherUser if DIRECT conversation
-      if (conversation.type == 'DIRECT' && conversation.otherUser?.userId == userId) {
-        print('ChatProvider: Updating DIRECT conversation ${conversation.id} - otherUser ${userId} to $isOnline');
-        final updatedOtherUser = conversation.otherUser!.copyWith(isOnline: isOnline);
+      if (conversation.type == 'DIRECT' &&
+          conversation.otherUser?.userId == userId) {
+        print(
+          'ChatProvider: Updating DIRECT conversation ${conversation.id} - otherUser ${userId} to $isOnline',
+        );
+        final updatedOtherUser = conversation.otherUser!.copyWith(
+          isOnline: isOnline,
+        );
         _conversations[i] = conversation.copyWith(otherUser: updatedOtherUser);
         updated = true;
       }
-      
+
       // Update in members list
-      final memberIndex = conversation.members.indexWhere((m) => m.userId == userId);
+      final memberIndex = conversation.members.indexWhere(
+        (m) => m.userId == userId,
+      );
       if (memberIndex != -1) {
-        print('ChatProvider: Updating member in conversation ${conversation.id} - userId ${userId} to $isOnline');
-        final updatedMember = conversation.members[memberIndex].copyWith(isOnline: isOnline);
-        final updatedMembers = List<ConversationMember>.from(conversation.members);
+        print(
+          'ChatProvider: Updating member in conversation ${conversation.id} - userId ${userId} to $isOnline',
+        );
+        final updatedMember = conversation.members[memberIndex].copyWith(
+          isOnline: isOnline,
+        );
+        final updatedMembers = List<ConversationMember>.from(
+          conversation.members,
+        );
         updatedMembers[memberIndex] = updatedMember;
-        
+
         _conversations[i] = conversation.copyWith(members: updatedMembers);
         updated = true;
       }
     }
-    
+
     if (updated) {
       print('ChatProvider: Online status updated, notifying listeners');
       notifyListeners();
@@ -575,7 +633,9 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _handleMemberAdded(MemberAddedEvent event) {
-    final index = _conversations.indexWhere((c) => c.id == event.conversationId);
+    final index = _conversations.indexWhere(
+      (c) => c.id == event.conversationId,
+    );
     if (index != -1) {
       final conversation = _conversations[index];
       final updatedMembers = [...conversation.members, event.member];
@@ -585,10 +645,14 @@ class ChatProvider with ChangeNotifier {
   }
 
   void _handleMemberRemoved(MemberRemovedEvent event) {
-    final index = _conversations.indexWhere((c) => c.id == event.conversationId);
+    final index = _conversations.indexWhere(
+      (c) => c.id == event.conversationId,
+    );
     if (index != -1) {
       final conversation = _conversations[index];
-      final updatedMembers = conversation.members.where((m) => m.userId != event.memberId).toList();
+      final updatedMembers = conversation.members
+          .where((m) => m.userId != event.memberId)
+          .toList();
       _conversations[index] = conversation.copyWith(members: updatedMembers);
       notifyListeners();
     }
@@ -635,7 +699,7 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  Future<int> getCoupleConversationId() async{
+  Future<int> getCoupleConversationId() async {
     return await MessagingApiService.getCoupleConversationId();
   }
 
@@ -643,7 +707,7 @@ class ChatProvider with ChangeNotifier {
 
   void _addMessageToConversation(int conversationId, Message message) {
     final messages = _messagesByConversation[conversationId] ?? [];
-    
+
     // Check if message already exists
     if (!messages.any((m) => m.id == message.id)) {
       messages.insert(0, message);
@@ -652,7 +716,11 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
-  void _replaceOptimisticMessage(int conversationId, String localId, Message realMessage) {
+  void _replaceOptimisticMessage(
+    int conversationId,
+    String localId,
+    Message realMessage,
+  ) {
     final messages = _messagesByConversation[conversationId];
     if (messages != null) {
       final index = messages.indexWhere((m) => m.localId == localId);
@@ -677,11 +745,11 @@ class ChatProvider with ChangeNotifier {
     _newConversationSub?.cancel();
     _conversationDeletedSub?.cancel();
     _messageDeletedSub?.cancel();
-    
+
     // Update online status before disconnect
     _signalR.updateOnlineStatus(false);
     _signalR.disconnect();
-    
+
     super.dispose();
   }
 }

@@ -32,11 +32,17 @@ class Conversation {
       createdBy: json['createdBy'] as int,
       createdAt: DateTime.parse(json['createdAt'] as String),
       otherUser: json['otherUser'] != null
-          ? ConversationMember.fromJson(json['otherUser'] as Map<String, dynamic>)
+          ? ConversationMember.fromJson(
+              json['otherUser'] as Map<String, dynamic>,
+            )
           : null,
-      members: (json['members'] as List<dynamic>?)
-          ?.map((m) => ConversationMember.fromJson(m as Map<String, dynamic>))
-          .toList() ?? [],
+      members:
+          (json['members'] as List<dynamic>?)
+              ?.map(
+                (m) => ConversationMember.fromJson(m as Map<String, dynamic>),
+              )
+              .toList() ??
+          [],
       lastMessage: json['lastMessage'] != null
           ? Message.fromJson(json['lastMessage'] as Map<String, dynamic>)
           : null,
@@ -85,14 +91,20 @@ class Conversation {
   // Helper methods
   String getDisplayName() {
     if (type == 'DIRECT' && otherUser != null) {
-      return otherUser!.fullName ?? otherUser!.username ?? 'User ${otherUser!.userId}';
+      return otherUser!.fullName ??
+          otherUser!.username ??
+          'User ${otherUser!.userId}';
     }
     return name ?? 'Group Chat';
   }
 
   String? getDisplayAvatar() {
-    if (type == 'DIRECT' && otherUser != null) {
-      return otherUser!.avatar;
+    if (type == 'DIRECT') {
+      for (var member in members) {
+        if (member.fullName == name) {
+          return member.avatar;
+        }
+      }
     }
     return null; // Will show group icon
   }

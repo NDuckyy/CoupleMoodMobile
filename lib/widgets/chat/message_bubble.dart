@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
+import 'package:couple_mood_mobile/widgets/chat/video_message_item.dart';
+import 'package:couple_mood_mobile/widgets/full_image_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -77,7 +79,10 @@ class MessageBubble extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: message.isMine && message.messageType == 'TEXT'
                           ? Color(0xFFB388EB)
-                          : message.isMine && message.messageType == 'DATE_PLAN'
+                          : message.isMine &&
+                                    message.messageType == 'DATE_PLAN' ||
+                                message.messageType == 'IMAGE' ||
+                                message.messageType == 'VIDEO'
                           ? Colors.white.withOpacity(0)
                           : Colors.grey[200],
                       borderRadius: BorderRadius.only(
@@ -101,7 +106,9 @@ class MessageBubble extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          DateFormat('HH:mm').format(message.createdAt),
+                          DateFormat(
+                            'HH:mm',
+                          ).format(message.createdAt.toLocal()),
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey[600],
@@ -147,8 +154,21 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               )
+            : message.datePlanInfo['status'] == "DRAFTED"
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  "Lịch hẹn đã bị từ chối ",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
             : DatePlanChatCard(
                 datePlanInfo: message.datePlanInfo ?? {},
+                isMine: message.isMine,
                 onTap: () {
                   context.pushNamed(
                     'date_plan_item',
@@ -166,35 +186,48 @@ class MessageBubble extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                message.content,
-                width: 200,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: 200,
-                    height: 150,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 48),
-                  );
-                },
-              ),
-            ),
-            if (message.content.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(
-                  message.content,
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: message.isMine ? Colors.white : Colors.black87,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        FullImageScreen(imageUrl: message.fileUrl ?? ''),
                   ),
+                );
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  message.fileUrl ?? '',
+                  width: 200,
+                  fit: BoxFit.fill,
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return Container(
+                      width: 200,
+                      height: 200,
+                      color: Colors.grey[300],
+                      alignment: Alignment.center,
+                      child: const CircularProgressIndicator(),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 200,
+                      height: 200,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.broken_image),
+                    );
+                  },
                 ),
               ),
+            ),
           ],
         );
+
+      case 'VIDEO':
+        return VideoMessageItem(videoUrl: message.fileUrl ?? '');
 
       case 'LOCATION':
         return _buildLocationCard();

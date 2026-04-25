@@ -109,7 +109,7 @@ class Recommendation {
       longitude: (json['longitude'] as num?)?.toDouble(),
       area: json['area'] as String?,
 
-      averageCost: (json['averageCost'] as num?)?.toDouble(),
+      averageCost: (json['avarageCost'] as num?)?.toDouble(),
 
       status: json['status'] as String?,
       category: json['category'] as String?,

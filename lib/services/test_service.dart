@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/test/test_detail.dart';
+import 'package:couple_mood_mobile/models/test/test_history.dart';
 import 'package:couple_mood_mobile/models/test/test_result.dart';
 import 'package:couple_mood_mobile/models/test/test_state.dart';
 import 'package:couple_mood_mobile/models/test/test_submit.dart';
@@ -69,7 +70,7 @@ class TestService {
       );
       return ApiResponse<TestResponse>.fromJson(
         res,
-        (json) => TestResponse.fromJson(json),
+        (json) => TestResponse.fromJson(json: json, dataKey: "result"),
       );
     } catch (e) {
       throw Exception('Lỗi khi nộp bài test: $e');
@@ -101,6 +102,51 @@ class TestService {
       final root = (res as Map).cast<String, dynamic>();
       final data = root['data'] as Map<String, dynamic>;
       return data['resultCode'] as String;
+    } catch (e) {
+      throw Exception('Lỗi khi lấy kết quả bài test: $e');
+    }
+  }
+
+  Future<ApiResponse<TestHistoryPagination>> getTestHistory() async {
+    try {
+      final res = await ApiClient.request(
+        "/PersonalityTest/history",
+        method: HttpMethod.get,
+      );
+      return ApiResponse<TestHistoryPagination>.fromJson(
+        res,
+        (json) => TestHistoryPagination.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy lịch sử bài test: $e');
+    }
+  }
+
+  Future<ApiResponse<String>> getMyPersonality() async {
+    try {
+      final res = await ApiClient.request(
+        "/PersonalityTest/me",
+        method: HttpMethod.get,
+      );
+      return ApiResponse<String>.fromJson(
+        res,
+        (json) => (json as Map<String, dynamic>)['resultCode'] as String,
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy tính cách của tôi: $e');
+    }
+  }
+
+  Future<ApiResponse<TestResponse>> getTestResult(int testId) async {
+    try {
+      final res = await ApiClient.request(
+        "/PersonalityTest/$testId",
+        method: HttpMethod.get,
+      );
+      return ApiResponse<TestResponse>.fromJson(
+        res,
+        (json) => TestResponse.fromJson(json: json, dataKey: "summary"),
+      );
     } catch (e) {
       throw Exception('Lỗi khi lấy kết quả bài test: $e');
     }

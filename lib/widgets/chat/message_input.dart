@@ -1,15 +1,23 @@
+import 'dart:io';
+
+import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
+import 'package:couple_mood_mobile/utils/upload_util.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class MessageInput extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
   final VoidCallback onSend;
+  final int conversationId;
 
   const MessageInput({
     super.key,
     required this.controller,
     required this.onChanged,
     required this.onSend,
+    required this.conversationId,
   });
 
   @override
@@ -85,54 +93,95 @@ class MessageInput extends StatelessWidget {
             const Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Share',
+                'Chia sẻ',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             const Divider(height: 1),
+
             ListTile(
               leading: const Icon(Icons.photo_library, color: Colors.blue),
-              title: const Text('Photo & Video'),
-              onTap: () {
+              title: const Text('Hình ảnh'),
+              onTap: () async {
+                final chatProvider = context.read<ChatProvider>();
                 Navigator.pop(context);
-                // TODO: Implement photo picker
+                final picker = ImagePicker();
+                final XFile? image = await picker.pickImage(
+                  source: ImageSource.gallery,
+                );
+                if (image != null) {
+                  final file = File(image.path);
+                  final res = await UploadUtil.uploadImage(file);
+                  await chatProvider.sendFileMessage(
+                    conversationId: conversationId,
+                    messageType: 'IMAGE',
+                    fileUrl: res,
+                    fileName: image.name,
+                    fileSize: await file.length(),
+                  );
+                }
               },
             ),
+
             ListTile(
-              leading: const Icon(Icons.camera_alt, color: Colors.green),
-              title: const Text('Camera'),
-              onTap: () {
+              leading: const Icon(Icons.video_call_outlined, color: Colors.red),
+              title: const Text('Video'),
+              onTap: () async {
+                final chatProvider = context.read<ChatProvider>();
                 Navigator.pop(context);
-                // TODO: Implement camera
+                final picker = ImagePicker();
+                final XFile? video = await picker.pickVideo(
+                  source: ImageSource.gallery,
+                );
+                if (video != null) {
+                  final file = File(video.path);
+                  final res = await UploadUtil.uploadVideo(file);
+                  await chatProvider.sendFileMessage(
+                    conversationId: conversationId,
+                    messageType: 'VIDEO',
+                    fileUrl: res,
+                    fileName: video.name,
+                    fileSize: await file.length(),
+                  );
+                }
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.location_on, color: Colors.red),
-              title: const Text('Location'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement location picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.calendar_today, color: Colors.purple),
-              title: const Text('Date Plan'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement date plan picker
-              },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.insert_drive_file,
-                color: Colors.orange,
-              ),
-              title: const Text('File'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement file picker
-              },
-            ),
+            
+            // ListTile(
+            //   leading: const Icon(Icons.camera_alt, color: Colors.green),
+            //   title: const Text('Camera'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement camera
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(Icons.location_on, color: Colors.red),
+            //   title: const Text('Location'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement location picker
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(Icons.calendar_today, color: Colors.purple),
+            //   title: const Text('Date Plan'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement date plan picker
+            //   },
+            // ),
+            // ListTile(
+            //   leading: const Icon(
+            //     Icons.insert_drive_file,
+            //     color: Colors.orange,
+            //   ),
+            //   title: const Text('File'),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     // TODO: Implement file picker
+            //   },
+            // ),
             const SizedBox(height: 8),
           ],
         ),

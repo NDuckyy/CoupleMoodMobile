@@ -16,6 +16,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadTests(context.read<TestProvider>());
+      _getPersonalityType(context.read<TestProvider>());
     });
   }
 
@@ -24,11 +25,28 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
     if (!mounted) return;
   }
 
+  Future<void> _getPersonalityType(TestProvider testProvider) async {
+    await testProvider.getMyPersonalityType();
+    if (!mounted) return;
+  }
+
   @override
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Danh sách bài test'), backgroundColor: Colors.white,),
+      appBar: AppBar(
+        title: const Text('Danh sách bài test'),
+        backgroundColor: Colors.white,
+        actions: [
+          Padding(
+            padding: EdgeInsets.only(right: 26),
+            child: GestureDetector(
+              onTap: () => context.pushNamed('test_history'),
+              child: const Icon(Icons.history, color: Colors.black87),
+            ),
+          ),
+        ],
+      ),
       backgroundColor: Colors.white,
       body: Padding(
         padding: EdgeInsets.all(16),
@@ -38,24 +56,52 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                 itemCount: testProvider.tests.data?.length ?? 0,
                 itemBuilder: (context, index) {
                   final test = testProvider.tests.data![index];
-                  return Container(
-                    padding: const EdgeInsets.all(16),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF2F5FF),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
 
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () {
-                        context.pushNamed(
-                          'test_detail',
-                          extra: {'testId': test.id},
-                        );
-                      },
+                  return GestureDetector(
+                    onTap: () {
+                      context.pushNamed(
+                        'test_detail',
+                        extra: {'testId': test.id},
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFB388EB), Color(0xFFFDC5F5)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 16,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
                       child: Row(
                         children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.25),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.favorite,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+
+                          const SizedBox(width: 14),
+
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,27 +111,52 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 18,
+                                    color: Colors.white,
                                   ),
                                 ),
-                                const SizedBox(height: 8),
-                                Text(test.description),
-                                const SizedBox(height: 12),
+
+                                const SizedBox(height: 6),
+
                                 Text(
-                                  '${test.totalQuestions} câu hỏi',
-                                  style: const TextStyle(
-                                    color: Color(0xFF8CA9FF),
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 16,
+                                  test.description,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.85),
+                                    fontSize: 14,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 10),
+
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    '${test.totalQuestions} câu hỏi',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
 
+                          const SizedBox(width: 10),
+
                           const Icon(
                             Icons.chevron_right,
+                            color: Colors.white,
                             size: 28,
-                            color: Color(0xFF8CA9FF),
                           ),
                         ],
                       ),

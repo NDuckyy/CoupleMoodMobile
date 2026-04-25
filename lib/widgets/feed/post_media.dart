@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/post/media_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PostMedia extends StatefulWidget {
   final List<MediaModel> mediaList;
@@ -48,15 +49,18 @@ class _PostMediaState extends State<PostMedia> {
                 itemBuilder: (context, index) {
                   final media = widget.mediaList[index];
 
-                  return Image.network(
-                    media.url,
+                  return CachedNetworkImage(
+                    imageUrl: media.url,
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    loadingBuilder: (_, child, progress) {
-                      if (progress == null) return child;
-
-                      return const Center(child: CircularProgressIndicator());
-                    },
+                    memCacheWidth: 800,
+                    placeholder: (context, url) => const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.broken_image, size: 40),
+                    ),
                   );
                 },
               ),
@@ -180,7 +184,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
               minScale: 1,
               maxScale: 4,
               child: Center(
-                child: Image.network(media.url, fit: BoxFit.contain),
+                child: CachedNetworkImage(
+                  imageUrl: media.url,
+                  fit: BoxFit.contain,
+                  placeholder: (_, __) =>
+                      const CircularProgressIndicator(color: Colors.white),
+                  errorWidget: (_, __, ___) => const Icon(
+                    Icons.broken_image,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
               ),
             ),
           );

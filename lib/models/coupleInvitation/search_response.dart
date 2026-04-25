@@ -1,8 +1,9 @@
 class SearchResponse<T> {
   final List<T>? data;
   final Pagination pagination;
+  final int? pendingCount;
 
-  SearchResponse({required this.data, required this.pagination});
+  SearchResponse({required this.data, required this.pagination, this.pendingCount});
 
   factory SearchResponse.fromJson(
     Map<String, dynamic> json,
@@ -13,6 +14,7 @@ class SearchResponse<T> {
           ?.map((item) => fromJson(item as Map<String, dynamic>))
           .toList(),
       pagination: Pagination.fromJson(json['pagination']),
+      pendingCount: json['pendingCount'] as int?,
     );
   }
 }

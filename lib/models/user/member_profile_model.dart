@@ -1,3 +1,5 @@
+import '../venue/member_accessory.dart';
+
 class MemberProfileModel {
   final int id;
   final String? fullName;
@@ -9,9 +11,20 @@ class MemberProfileModel {
   final double? homeLongitude;
   final double? budgetMin;
   final double? budgetMax;
-  final String? interests;
-  final String? availableTime;
+  final List<String>? interests;
   final String? inviteCode;
+  final String? jobTitle;
+  final String? educationLevel;
+  final int? height;
+  final int? weight;
+  final String? city;
+  final String? district;
+
+  final List<String>? favoritePets;
+  final bool? hasPet;
+  final bool? smoking;
+
+  final List<MemberAccessory>? equippedAccessories;
 
   MemberProfileModel({
     required this.id,
@@ -25,8 +38,17 @@ class MemberProfileModel {
     this.budgetMin,
     this.budgetMax,
     this.interests,
-    this.availableTime,
     this.inviteCode,
+    this.jobTitle,
+    this.educationLevel,
+    this.height,
+    this.weight,
+    this.city,
+    this.district,
+    this.favoritePets,
+    this.hasPet,
+    this.smoking,
+    this.equippedAccessories,
   });
 
   factory MemberProfileModel.fromJson(Map<String, dynamic> json) {
@@ -41,9 +63,23 @@ class MemberProfileModel {
       homeLongitude: (json['homeLongitude'] as num?)?.toDouble(),
       budgetMin: (json['budgetMin'] as num?)?.toDouble(),
       budgetMax: (json['budgetMax'] as num?)?.toDouble(),
-      interests: json['interests'],
-      availableTime: json['availableTime'],
+      interests: (json['interests'] as List?)?.cast<String>(),
       inviteCode: json['inviteCode'],
+
+      jobTitle: json['jobTitle'],
+      educationLevel: json['educationLevel'],
+      height: (json['height'] as num?)?.toInt(),
+      weight: (json['weight'] as num?)?.toInt(),
+      city: json['city'],
+      district: json['district'],
+
+      favoritePets: (json['favoritePets'] as List?)?.cast<String>(),
+      hasPet: json['hasPet'],
+      smoking: json['smoking'],
+
+      equippedAccessories: (json['equippedAccessories'] as List?)
+          ?.map((e) => MemberAccessory.fromJson(e))
+          .toList(),
     );
   }
 }

@@ -2,9 +2,11 @@ import 'package:couple_mood_mobile/models/recommendation/recommendation_request.
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/datePlanItem/chooseLocation/widget/choose_location_venue_card.dart';
+import 'package:couple_mood_mobile/screens/location/widget/current_mood_banner.dart';
+import 'package:couple_mood_mobile/screens/location/widget/search_location.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class ChooseLocationScreen extends StatefulWidget {
@@ -36,10 +38,8 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
         );
         recommendationProvider.fetchRecommendations(
           RecommendationRequest(
-            latitude: position.latitude,
-            longitude: position.longitude,
-            radiusKm: 1000,
-            area: "79",
+            lat: position.latitude,
+            lng: position.longitude,
           ),
         );
       } else {
@@ -65,6 +65,11 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
     }
   }
 
+  void _onSearch(String query) {
+    final recommendationProvider = context.read<RecommendationProvider>();
+    recommendationProvider.searchLocations(query);
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -73,20 +78,24 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
 
   Future<void> _onRefresh(BuildContext context) async {
     final recommendationProvider = context.read<RecommendationProvider>();
-    await recommendationProvider.fetchRecommendations(
-      RecommendationRequest(
-        latitude: recommendationProvider.latitude,
-        longitude: recommendationProvider.longitude,
-        radiusKm: 1000,
-        area: "79",
-      ),
-    );
+    final moodProvider = context.read<MoodProvider>();
+    try {
+      await recommendationProvider.fetchRecommendations(
+        RecommendationRequest(
+          lat: recommendationProvider.latitude,
+          lng: recommendationProvider.longitude,
+        ),
+      );
+      await moodProvider.getCurrentMood();
+    } catch (e) {
+      if (!context.mounted) return;
+      showMsg(context, 'Làm mới thất bại: ${e.toString()}', false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final recommendationProvider = context.watch<RecommendationProvider>();
-    final moodProvider = context.watch<MoodProvider>();
     final page = recommendationProvider.recommendationResponse?.recommendations;
     final recs = page?.items ?? [];
 
@@ -102,65 +111,18 @@ class _ChooseLocationScreenState extends State<ChooseLocationScreen> {
               centerTitle: true,
               pinned: true,
               backgroundColor: Colors.white,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.filter_list),
-                  onPressed: () => context.pushNamed("filter_location"),
-                ),
-              ],
             ),
 
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFE1E1),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Tìm kiếm địa điểm',
-                            border: InputBorder.none,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            SliverToBoxAdapter(child: SearchLocation(onSubmitted: _onSearch)),
+
+            SliverToBoxAdapter(child: CurrentMoodBanner()),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF4FB),
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  child: Text(
-                    'Tâm trạng cặp đôi hiện tại là: ${moodProvider.userCurrentMood ?? "Đang tải..."}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
+              child: recommendationProvider.isRefreshing
+                  ? const LinearProgressIndicator()
+                  : const SizedBox(),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 16)),

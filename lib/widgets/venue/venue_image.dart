@@ -9,6 +9,8 @@ class VenueImage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
       return Image.asset(
+        height: 180,
+        width: double.infinity,
         "lib/assets/images/collection_placeholder.png",
         fit: BoxFit.cover,
       );
@@ -21,6 +23,8 @@ class VenueImage extends StatelessWidget {
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) {
         return Image.asset(
+          height: 180,
+          width: double.infinity,
           "lib/assets/images/collection_placeholder.png",
           fit: BoxFit.cover,
         );

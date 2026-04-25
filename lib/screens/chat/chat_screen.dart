@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/screens/chat/widgets/group_avatar.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +28,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Timer? _typingTimer;
   bool _isTyping = false;
   bool _isLoadingMore = false;
+  late ChatProvider chatProvider;
+  StreamSubscription? _conversationSub;
+  final Set<int> _deletedMessageIds = {};
 
   @override
   void initState() {
     super.initState();
+    chatProvider = context.read<ChatProvider>();
     WidgetsBinding.instance.addObserver(this);
     _initialize();
     _scrollController.addListener(_onScroll);
@@ -38,13 +43,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   Future<void> _initialize() async {
-    final chatProvider = context.read<ChatProvider>();
-
     // Join conversation room
     await chatProvider.joinConversation(widget.conversation.id);
-
+    if (!mounted) return;
     // Load messages
     await chatProvider.loadMessages(widget.conversation.id);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final messages = chatProvider.getMessages(widget.conversation.id);
+      _autoDeleteDraftedMessages(messages);
+    });
   }
 
   void _onScroll() {
@@ -57,7 +65,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Future<void> _loadMoreMessages() async {
     if (_isLoadingMore) return;
 
-    final chatProvider = context.read<ChatProvider>();
     if (!chatProvider.hasMoreMessages(widget.conversation.id)) return;
 
     setState(() => _isLoadingMore = true);
@@ -66,35 +73,23 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _handleTextChanged(String text) {
-    final chatProvider = context.read<ChatProvider>();
+    _typingTimer?.cancel();
 
-    if (text.isNotEmpty && !_isTyping) {
-      _isTyping = true;
-      print(
-        'ChatScreen: User started typing in conversation ${widget.conversation.id}',
-      );
-      chatProvider.sendTypingIndicator(widget.conversation.id, true);
+    if (text.isNotEmpty) {
+      if (!_isTyping) {
+        _isTyping = true;
+        chatProvider.sendTypingIndicator(widget.conversation.id, true);
+      }
 
-      // Auto-stop typing after 3 seconds
-      _typingTimer?.cancel();
-      _typingTimer = Timer(const Duration(seconds: 3), () {
+      _typingTimer = Timer(const Duration(seconds: 2), () {
         _isTyping = false;
-        print('ChatScreen: Auto-stop typing after 3 seconds');
         chatProvider.sendTypingIndicator(widget.conversation.id, false);
       });
-    } else if (text.isEmpty && _isTyping) {
-      _isTyping = false;
-      _typingTimer?.cancel();
-      print('ChatScreen: User stopped typing (text cleared)');
-      chatProvider.sendTypingIndicator(widget.conversation.id, false);
-    } else if (text.isNotEmpty && _isTyping) {
-      // Reset timer if still typing
-      _typingTimer?.cancel();
-      _typingTimer = Timer(const Duration(seconds: 3), () {
+    } else {
+      if (_isTyping) {
         _isTyping = false;
-        print('ChatScreen: Auto-stop typing after 3 seconds');
         chatProvider.sendTypingIndicator(widget.conversation.id, false);
-      });
+      }
     }
   }
 
@@ -106,17 +101,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (_isTyping) {
       _isTyping = false;
       _typingTimer?.cancel();
-      context.read<ChatProvider>().sendTypingIndicator(
-        widget.conversation.id,
-        false,
-      );
+      chatProvider.sendTypingIndicator(widget.conversation.id, false);
     }
 
     // Clear input
     _textController.clear();
 
     // Send message
-    final chatProvider = context.read<ChatProvider>();
     await chatProvider.sendTextMessage(widget.conversation.id, text);
 
     // Scroll to bottom
@@ -135,8 +126,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    final chatProvider = context.read<ChatProvider>();
-
     if (state == AppLifecycleState.paused) {
       // App going to background
       chatProvider.leaveConversation(widget.conversation.id);
@@ -148,7 +137,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _onAcceptDatePlan(int datePlanId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
-    final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.acceptDatePlan(datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
@@ -163,7 +151,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _onRejectDatePlan(int datePlanId, int messageId) async {
     final datePlanProvider = context.read<DatePlanProvider>();
-    final chatProvider = context.read<ChatProvider>();
     await datePlanProvider.rejectDatePlan(datePlanId);
     if (datePlanProvider.error != null) {
       if (!mounted) return;
@@ -178,12 +165,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _listenRealtimeUpdates() {
-    final chatProvider = context.read<ChatProvider>();
-
-    chatProvider.signalR.onConversationUpdated.listen((conversation) {
+    _conversationSub = chatProvider.signalR.onConversationUpdated.listen((
+      conversation,
+    ) {
       if (conversation.id == widget.conversation.id) {
-        /// reload messages khi conversation thay đổi
         chatProvider.loadMessages(widget.conversation.id);
+        final messages = chatProvider.getMessages(widget.conversation.id);
+        _autoDeleteDraftedMessages(messages);
       }
     });
   }
@@ -194,20 +182,43 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _scrollController.dispose();
     _textController.dispose();
     _typingTimer?.cancel();
-
+    _conversationSub?.cancel();
     // Leave conversation
-    context.read<ChatProvider>().leaveConversation(widget.conversation.id);
+    chatProvider.leaveConversation(widget.conversation.id);
 
     super.dispose();
+  }
+
+  void _autoDeleteDraftedMessages(List<Message> messages) async {
+    for (var msg in messages) {
+      if (msg.messageType == 'DATE_PLAN' &&
+          msg.datePlanInfo?['status'] == 'DRAFTED') {
+        if (!_deletedMessageIds.contains(msg.id)) {
+          _deletedMessageIds.add(msg.id);
+
+          unawaited(chatProvider.deleteMessage(msg.id));
+        }
+      }
+    }
+  }
+
+  List<Message> _filterDraftedMessages(List<Message> rawMessages) {
+    return rawMessages.where((msg) {
+      if (msg.messageType == 'DATE_PLAN' &&
+          msg.datePlanInfo?['status']?.toString() == 'DRAFTED') {
+        return false;
+      }
+      return true;
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
-    final currentUserId = chatProvider.currentUserId ?? 0;
     final displayName = widget.conversation.getDisplayName();
     final isOnline = widget.conversation.getOnlineStatus();
-    final messages = chatProvider.getMessages(widget.conversation.id);
+    final rawMessages = chatProvider.getMessages(widget.conversation.id);
+    final messages = _filterDraftedMessages(rawMessages);
     final isLoading = chatProvider.isLoadingMessages(widget.conversation.id);
     final typingUsers = chatProvider.getTypingUsers(widget.conversation.id);
 
@@ -238,29 +249,35 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           child: Row(
             children: [
               // Avatar
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: widget.conversation.getDisplayAvatar() != null
-                    ? NetworkImage(widget.conversation.getDisplayAvatar()!)
-                    : null,
-                onBackgroundImageError:
-                    widget.conversation.getDisplayAvatar() != null
-                    ? (exception, stackTrace) {
-                        print(
-                          'Error loading avatar in chat screen: $exception',
-                        );
-                      }
-                    : null,
-                child: widget.conversation.getDisplayAvatar() == null
-                    ? widget.conversation.type == 'GROUP'
-                          ? const Icon(Icons.group, size: 20)
-                          : Text(
-                              displayName[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 16),
-                            )
-                    : null,
-              ),
+              widget.conversation.getDisplayAvatar() != null
+                  ? CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(
+                        widget.conversation.getDisplayAvatar()!,
+                      ),
+                      backgroundColor: Colors.transparent,
+                    )
+                  : widget.conversation.type == 'GROUP'
+                  ? SizedBox(
+                      width: 36,
+                      height: 36,
+                      child: GroupAvatar(
+                        members: widget.conversation.members,
+                        size: 36,
+                      ),
+                    )
+                  : CircleAvatar(
+                      radius: 18,
+                      backgroundColor: const Color(0xFFFDC5F5),
+                      child: Text(
+                        displayName[0].toUpperCase(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
               const SizedBox(width: 12),
 
               // Name and status
@@ -300,12 +317,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              // TODO: Implement message search
-            },
-          ),
           if (widget.conversation.type == 'GROUP')
             IconButton(
               icon: const Icon(Icons.info_outline),
@@ -412,7 +423,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           if (typingUsers.isNotEmpty) ...[
             TypingIndicatorWidget(userCount: typingUsers.length),
             // Debug info
-            if (true) // Set to false to hide debug
+            if (false) // Set to false to hide debug
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -430,6 +441,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             controller: _textController,
             onChanged: _handleTextChanged,
             onSend: _sendMessage,
+            conversationId: widget.conversation.id,
           ),
         ],
       ),
@@ -442,15 +454,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final currentMessage = messages[index];
     final nextMessage = messages[index + 1];
 
+    final currentDateTime = currentMessage.createdAt.toLocal();
+    final nextDateTime = nextMessage.createdAt.toLocal();
+
     final currentDate = DateTime(
-      currentMessage.createdAt.year,
-      currentMessage.createdAt.month,
-      currentMessage.createdAt.day,
+      currentDateTime.year,
+      currentDateTime.month,
+      currentDateTime.day,
     );
     final nextDate = DateTime(
-      nextMessage.createdAt.year,
-      nextMessage.createdAt.month,
-      nextMessage.createdAt.day,
+      nextDateTime.year,
+      nextDateTime.month,
+      nextDateTime.day,
     );
 
     return currentDate != nextDate;
@@ -492,9 +507,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     if (confirm == true) {
       if (!mounted) return;
-      await context.read<ChatProvider>().deleteMessage(messageId);
+      await chatProvider.deleteMessage(messageId);
       if (!mounted) return;
-      await context.read<ChatProvider>().loadMessages(widget.conversation.id);
+      await chatProvider.loadMessages(widget.conversation.id);
     }
   }
 }
@@ -529,21 +544,26 @@ class _DateHeader extends StatelessWidget {
   }
 
   String _formatDate(DateTime date) {
+    final localDate = date.toLocal();
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(date.year, date.month, date.day);
+    final messageDate = DateTime(
+      localDate.year,
+      localDate.month,
+      localDate.day,
+    );
 
     if (messageDate == today) {
       return 'Hôm nay';
     } else if (messageDate == yesterday) {
       return 'Hôm qua';
-    } else if (now.difference(date).inDays < 7) {
-      return DateFormat('EEEE', 'vi').format(date);
-    } else if (date.year == now.year) {
-      return DateFormat('d MMMM', 'vi').format(date);
+    } else if (now.difference(localDate).inDays < 7) {
+      return DateFormat('EEEE', 'vi').format(localDate);
+    } else if (localDate.year == now.year) {
+      return DateFormat('d MMMM', 'vi').format(localDate);
     } else {
-      return DateFormat('d MMMM, yyyy', 'vi').format(date);
+      return DateFormat('d MMMM, yyyy', 'vi').format(localDate);
     }
   }
 }

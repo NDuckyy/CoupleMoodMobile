@@ -1,15 +1,19 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
+import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
+import 'package:couple_mood_mobile/screens/home/widget/context.dart';
 import 'package:couple_mood_mobile/screens/home/widget/couple_mood_card.dart';
 import 'package:couple_mood_mobile/screens/home/widget/home_header.dart';
 import 'package:couple_mood_mobile/screens/home/widget/popular_nearby.dart';
-import 'package:couple_mood_mobile/screens/home/widget/special_event.dart';
 import 'package:couple_mood_mobile/screens/home/widget/week_selector.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
+import 'package:couple_mood_mobile/widgets/dialogs/show_match_required_dialog.dart';
 import 'package:couple_mood_mobile/widgets/home_icon_button.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
@@ -26,10 +30,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   void _logout() {
     final auth = context.read<AuthProvider>();
+    LocationService.stopListening();
+    context.read<CoupleLocationProvider>().disposeListener();
     auth.logout();
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
-      context.pushNamed("login");
+      context.goNamed("login");
     });
   }
 
@@ -37,12 +43,25 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      context.read<MoodProvider>().getCoupleCurrentMood();
+      await context.read<MoodProvider>().getCoupleCurrentMood();
       _getPopularNearby();
-      _getSpecialEvent();
+      _getContextRecommendation();
+      // _getSpecialEvent();
       _getAdvertisement();
       showAdvertisement();
+      getDatePlanCalender();
     });
+  }
+
+  void getDatePlanCalender() async {
+    final provider = context.read<DatePlanProvider>();
+    await provider.getDatePlanCalender();
+    if (provider.error != null && mounted) {
+      Future.microtask(() {
+        if (!mounted) return;
+        showMatchRequiredDialog(context: context);
+      });
+    }
   }
 
   void showAdvertisement() async {
@@ -60,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context) {
           return AdvertisementPopup(
             bannerUrl: advertismentProvider.popup?.bannerUrl ?? "",
+            targetUrl: advertismentProvider.popup?.targetUrl ?? "",
             onTap: () {
               context.pop();
             },
@@ -71,22 +91,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _getPopularNearby() async {
     final position = await LocationService.getCurrentPosition();
+    if (!mounted) return;
+    final positionProvier = context.read<PositionProvider>();
+    final memberId = context.read<MoodProvider>().coupleCurrentMood?.memberId;
     if (position != null) {
       if (!mounted) return;
       final recommendationProvider = context.read<RecommendationProvider>();
       recommendationProvider.latitude = position.latitude;
       recommendationProvider.longitude = position.longitude;
       debugPrint('User location: ${position.latitude}, ${position.longitude}');
-      recommendationProvider.popularNearby();
+      if (memberId != null) {
+        await positionProvier.updatePosition(
+          memberId,
+          position.latitude,
+          position.longitude,
+        );
+      }
+      await recommendationProvider.popularNearby();
     }
   }
 
-  void _getSpecialEvent() {
-    context.read<AdvertisementProvider>().fetchSpecialEvents();
+  void _getContextRecommendation() async {
+    if (!mounted) return;
+    final recommendationProvider = context.read<RecommendationProvider>();
+    await recommendationProvider.fetchLocationsByContext();
   }
 
-  void _getAdvertisement() {
-    context.read<AdvertisementProvider>().fetchAdvertisement();
+  // void _getSpecialEvent() async {
+  //   await context.read<AdvertisementProvider>().fetchSpecialEvents();
+  // }
+
+  void _getAdvertisement() async {
+    await context.read<AdvertisementProvider>().fetchAdvertisement();
   }
 
   void _showSpecialEventDialog(BuildContext context, int eventId) async {
@@ -174,8 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _refresh() async {
     _getPopularNearby();
-    _getSpecialEvent();
+    // _getSpecialEvent();
     _getAdvertisement();
+    _getContextRecommendation();
+    getDatePlanCalender();
     context.read<MoodProvider>().getCoupleCurrentMood();
   }
 
@@ -185,8 +223,14 @@ class _HomeScreenState extends State<HomeScreen> {
     final recommendationProvider = context.watch<RecommendationProvider>();
     final advertisementProvider = context.watch<AdvertisementProvider>();
     final recs =
-        recommendationProvider.recommendationResponse?.recommendations.items ??
+        recommendationProvider
+            .homeRecommendationResponse
+            ?.recommendations
+            .items ??
         [];
+    final contextRecs =
+        recommendationProvider.contextRecommendationResponse?.hits ?? [];
+    final datePlanProvider = context.watch<DatePlanProvider>();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -194,22 +238,36 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: _refresh,
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(
-              pinned: true,
-              floating: false,
-              snap: false,
-              elevation: 0,
-              backgroundColor: Colors.white,
-              automaticallyImplyLeading: false,
-              titleSpacing: 12,
-              title: const HomeHeader(),
-            ),
-
             SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: CoupleMoodCard(
-                  coupleCurrentMood: moodProvider.coupleCurrentMood,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Color(0xFFFDC5F5),
+                      Color(0xFFF7AEF8),
+                      Colors.white,
+                    ],
+                  ),
+                ),
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize:
+                          MainAxisSize.min, // Cho Column co theo nội dung
+                      children: [
+                        const HomeHeader(),
+                        const SizedBox(height: 16),
+                        CoupleMoodCard(
+                          coupleCurrentMood: moodProvider.coupleCurrentMood,
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -232,6 +290,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   onDateSelected: (date) {
                     debugPrint(date.toString());
                   },
+                  calendarDays:
+                      datePlanProvider.datePlanCalender?.data?.days ?? [],
                 ),
               ),
             ),
@@ -302,22 +362,51 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     HomeIconButton(
-                      icon: Icons.logout,
-                      label: "Đăng xuất",
-                      color: const Color(0xFFB388EB),
+                      icon: Icons.leaderboard,
+                      label: "BXH",
+                      color: const Color(0xFFFF6B6B),
                       onTap: () {
-                        _logout();
+                        context.pushNamed("leaderboard");
+                      },
+                    ),
+
+                    HomeIconButton(
+                      icon: Icons.card_giftcard,
+                      label: "Voucher",
+                      color: const Color(0xFF4CAF50),
+                      onTap: () {
+                        context.pushNamed("voucher");
+                      },
+                    ),
+
+                    HomeIconButton(
+                      icon: Icons.storefront,
+                      label: "Cửa hàng",
+                      color: const Color(0xFF00BFA6),
+                      onTap: () {
+                        context.pushNamed("shop");
+                      },
+                    ),
+
+                    HomeIconButton(
+                      icon: Icons.account_balance_wallet,
+                      label: "Ví",
+                      color: const Color(0xFF5C6BC0),
+                      onTap: () {
+                        context.pushNamed("wallet");
                       },
                     ),
                   ],
                 ),
               ),
             ),
-            SliverToBoxAdapter(
-              child: SpecialEvent(
-                advertisements: advertisementProvider.specialEvents,
-              ),
-            ),
+            // SliverToBoxAdapter(
+            //   child: SpecialEvent(
+            //     advertisements: advertisementProvider.specialEvents,
+            //   ),
+            // ),
+            SliverToBoxAdapter(child: SizedBox(height: 16)),
+            SliverToBoxAdapter(child: ContextLocation(recs: contextRecs)),
             SliverToBoxAdapter(child: SizedBox(height: 16)),
             SliverToBoxAdapter(child: PopularNearby(recs: recs)),
           ],

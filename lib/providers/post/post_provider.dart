@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:couple_mood_mobile/models/post/media_model.dart';
 import 'package:couple_mood_mobile/models/upload_type.dart';
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/upload_util.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/post_model.dart';
@@ -9,6 +10,14 @@ import '../../models/post/post_topic_model.dart';
 import '../../services/post/post_service.dart';
 
 class PostProvider extends ChangeNotifier {
+  MyPostsProvider? myPostsProvider;
+
+  PostProvider(this.myPostsProvider);
+
+  void setMyPostsProvider(MyPostsProvider provider) {
+    myPostsProvider = provider;
+  }
+
   List<PostModel> posts = [];
   bool loading = false;
   bool loadingMore = false;
@@ -17,6 +26,8 @@ class PostProvider extends ChangeNotifier {
 
   List<PostTopic> topics = [];
   bool loadingTopics = false;
+
+  final Set<int> _likingPostIds = {};
 
   Future<void> loadFeeds() async {
     loading = true;
@@ -64,16 +75,22 @@ class PostProvider extends ChangeNotifier {
     final index = posts.indexWhere((p) => p.id == post.id);
     if (index == -1) return;
 
-    final oldPost = posts[index];
-    final oldLiked = oldPost.isLikedByMe;
+    ///  lock theo id
+    if (_likingPostIds.contains(post.id)) return;
+    _likingPostIds.add(post.id);
 
-    // optimistic update
-    posts[index] = oldPost.copyWith(
+    final current = posts[index];
+    final oldLiked = current.isLikedByMe;
+
+    /// optimistic update
+    final updatedPost = current.copyWith(
       isLikedByMe: !oldLiked,
-      likeCount: oldLiked ? oldPost.likeCount - 1 : oldPost.likeCount + 1,
+      likeCount: oldLiked ? current.likeCount - 1 : current.likeCount + 1,
     );
 
+    posts[index] = updatedPost;
     notifyListeners();
+    myPostsProvider?.updatePost(updatedPost);
 
     try {
       final res = oldLiked
@@ -81,16 +98,25 @@ class PostProvider extends ChangeNotifier {
           : await PostService.likePost(post.id);
 
       if (res.code == 200 && res.data != null) {
-        posts[index] = posts[index].copyWith(
+        final newPost = updatedPost.copyWith(
           isLikedByMe: res.data['isLikedByMe'],
           likeCount: res.data['postLikeCount'],
         );
+
+        posts[index] = newPost;
         notifyListeners();
+        myPostsProvider?.updatePost(newPost);
+      } else {
+        throw Exception("API failed");
       }
     } catch (e) {
-      // rollback
-      posts[index] = oldPost;
+      /// rollback
+      posts[index] = current;
       notifyListeners();
+      myPostsProvider?.updatePost(current);
+    } finally {
+      ///  unlock
+      _likingPostIds.remove(post.id);
     }
   }
 
@@ -234,28 +260,50 @@ class PostProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<String?> getShareLink(int postId) async {
+    try {
+      final res = await PostService.getShareLink(postId);
+
+      if (res.code == 200 && res.data != null) {
+        return res.data!.shareLinkUrl;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    return null;
+  }
+
   void increaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
     if (index == -1) return;
 
-    final old = posts[index];
+    final updated = posts[index].copyWith(
+      commentCount: posts[index].commentCount + 1,
+    );
 
-    posts[index] = old.copyWith(commentCount: old.commentCount + 1);
-
+    posts[index] = updated;
     notifyListeners();
+
+    ///  sync
+    myPostsProvider?.updatePost(updated);
   }
 
   void decreaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
     if (index == -1) return;
 
-    final old = posts[index];
-
-    posts[index] = old.copyWith(
-      commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+    final updated = posts[index].copyWith(
+      commentCount: posts[index].commentCount > 0
+          ? posts[index].commentCount - 1
+          : 0,
     );
 
+    posts[index] = updated;
     notifyListeners();
+
+    ///  sync
+    myPostsProvider?.updatePost(updated);
   }
 
   void toggleLikeById(int postId) {

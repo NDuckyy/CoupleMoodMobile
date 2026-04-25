@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -14,6 +15,7 @@ class HomeHeader extends StatelessWidget {
             style: GoogleFonts.balooChettan2(
               fontSize: 26,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
@@ -23,9 +25,12 @@ class HomeHeader extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerRight,
             child: IconButton(
-              onPressed: () {},
+              onPressed: () {
+                context.pushNamed('notification');
+              },
               icon: const Icon(
                 Icons.notifications_outlined,
+                color: Colors.white,
               ),
             ),
           ),

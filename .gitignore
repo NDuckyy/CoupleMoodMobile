@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android keystore & signing files
+couplemood-release.jks
+key.properties
+.env
+android/app/google-services.json

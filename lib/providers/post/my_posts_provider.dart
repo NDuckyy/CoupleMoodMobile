@@ -27,8 +27,10 @@ class MyPostsProvider extends ChangeNotifier {
       );
 
       if (res.code == 200 && res.data != null) {
-        posts = res.data!;
-        hasMore = res.data!.length == pageSize;
+        posts = res.data!; // giữ nguyên vì service trả về List
+        hasMore =
+            res.data!.length ==
+            pageSize; // hoặc dùng totalPages nếu muốn chính xác hơn
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -71,5 +73,38 @@ class MyPostsProvider extends ChangeNotifier {
   /// refresh
   Future<void> refresh() async {
     await loadMyPosts();
+  }
+
+  void updatePost(PostModel updatedPost) {
+    final index = posts.indexWhere((p) => p.id == updatedPost.id);
+
+    if (index != -1) {
+      posts[index] = updatedPost;
+      notifyListeners();
+    }
+  }
+
+  void increaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(commentCount: old.commentCount + 1);
+
+    notifyListeners();
+  }
+
+  void decreaseCommentCount(int postId) {
+    final index = posts.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final old = posts[index];
+
+    posts[index] = old.copyWith(
+      commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+    );
+
+    notifyListeners();
   }
 }

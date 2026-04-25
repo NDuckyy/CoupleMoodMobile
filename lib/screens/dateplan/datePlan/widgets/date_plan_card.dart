@@ -14,6 +14,8 @@ class DatePlanCard extends StatelessWidget {
   final VoidCallback? onSend;
   final VoidCallback? onCancel;
   final VoidCallback? onComplete;
+  final VoidCallback? onAccept;
+  final VoidCallback? onReject;
 
   const DatePlanCard({
     super.key,
@@ -22,6 +24,8 @@ class DatePlanCard extends StatelessWidget {
     this.onSend,
     this.onCancel,
     this.onComplete,
+    this.onAccept,
+    this.onReject,
   });
 
   @override
@@ -133,20 +137,7 @@ class DatePlanCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
 
-          Row(
-            children: [
-              const Icon(Icons.notes, size: 14),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  item.note ?? 'Chưa có ghi chú',
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
           const SizedBox(height: 16),
 
           SizedBox(
@@ -210,6 +201,71 @@ class DatePlanCard extends StatelessWidget {
               ),
             ),
           ],
+          if (item.status == 'PENDING' && item.isCreator == false) ...[
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.redAccent),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: onReject,
+                      child: const Text(
+                        'Từ chối',
+                        style: TextStyle(
+                          color: Colors.redAccent,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 16),
+
+                Expanded(
+                  child: SizedBox(
+                    height: 50,
+                    child: OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Color(0xFFB388EB)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                      onPressed: onAccept,
+                      child: const Text(
+                        'Đồng ý',
+                        style: TextStyle(
+                          color: Color(0xFFB388EB),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ] else if (item.status == 'PENDING' && item.isCreator == true) ...[
+            const SizedBox(height: 8),
+            Text(
+              'Đang chờ đối phương phản hồi',
+              style: TextStyle(
+                color: Colors.orange.shade700,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+
           if (item.status == 'SCHEDULED') ...[
             const SizedBox(height: 8),
             SizedBox(

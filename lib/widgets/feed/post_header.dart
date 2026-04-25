@@ -1,11 +1,15 @@
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
 import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/screens/feed/create_edit_post_screen.dart';
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import '../../models/post/post_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PostHeader extends StatelessWidget {
   final PostModel post;
@@ -15,6 +19,15 @@ class PostHeader extends StatelessWidget {
   void _onMenuSelected(BuildContext context, String value) async {
     final feedProvider = context.read<PostProvider>();
     final myPostsProvider = context.read<MyPostsProvider>();
+
+    if (value == "report") {
+      showReportBottomSheet(
+        context: context,
+        targetId: post.id,
+        targetType: ReportTargetType.post,
+      );
+      return;
+    }
 
     if (value == "edit") {
       final updated = await Navigator.push(
@@ -67,14 +80,49 @@ class PostHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accessories = post.author?.equippedAccessories ?? [];
+
+    final frame = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "FRAME",
+      orElse: () => null,
+    );
+
+    final badge = accessories.cast<MemberAccessory?>().firstWhere(
+      (e) => e?.type == "BADGE",
+      orElse: () => null,
+    );
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundImage: post.author?.avatar != null
-              ? NetworkImage(post.author!.avatar!)
-              : null,
-          child: post.author?.avatar == null ? const Icon(Icons.person) : null,
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            /// AVATAR
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: Colors.grey[200],
+              backgroundImage: post.author?.avatar != null
+                  ? CachedNetworkImageProvider(post.author!.avatar!)
+                  : null,
+              child: post.author?.avatar == null
+                  ? const Icon(Icons.person, size: 20)
+                  : null,
+            ),
+
+            /// FRAME
+            if (frame?.thumbnailUrl != null && frame!.thumbnailUrl!.isNotEmpty)
+              Transform.scale(
+                scale: 1.3,
+                child: CachedNetworkImage(
+                  imageUrl: frame.thumbnailUrl!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  memCacheWidth: 100,
+                  placeholder: (_, __) => const SizedBox.shrink(),
+                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+          ],
         ),
         const SizedBox(width: 12),
 
@@ -82,10 +130,27 @@ class PostHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                post.author?.fullName ?? "Bạn",
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                children: [
+                  Text(
+                    post.author?.fullName ?? "Bạn",
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+
+                  if (badge?.thumbnailUrl != null &&
+                      badge!.thumbnailUrl!.isNotEmpty) ...[
+                    const SizedBox(width: 4),
+                    CachedNetworkImage(
+                      imageUrl: badge.thumbnailUrl!,
+                      width: 16,
+                      height: 16,
+                      fit: BoxFit.cover,
+                      memCacheWidth: 50,
+                    ),
+                  ],
+                ],
               ),
+
               Text(
                 timeAgo(post.createdAt),
                 style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -95,32 +160,49 @@ class PostHeader extends StatelessWidget {
         ),
 
         /// MENU
-        if (post.isOwner)
-          PopupMenuButton<String>(
-            onSelected: (value) => _onMenuSelected(context, value),
-            itemBuilder: (context) => [
+        PopupMenuButton<String>(
+          onSelected: (value) => _onMenuSelected(context, value),
+          itemBuilder: (context) {
+            if (post.isOwner) {
+              return [
+                const PopupMenuItem(
+                  value: "edit",
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 8),
+                      Text("Chỉnh sửa"),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: "delete",
+                  child: Row(
+                    children: [
+                      Icon(Icons.delete, size: 18, color: Colors.red),
+                      SizedBox(width: 8),
+                      Text("Xoá", style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+              ];
+            }
+
+            ///  USER KHÁC → chỉ có REPORT
+            return [
               const PopupMenuItem(
-                value: "edit",
+                value: "report",
                 child: Row(
                   children: [
-                    Icon(Icons.edit, size: 18),
+                    Icon(Icons.flag, size: 18, color: Colors.red),
                     SizedBox(width: 8),
-                    Text("Chỉnh sửa"),
+                    Text("Báo cáo", style: TextStyle(color: Colors.red)),
                   ],
                 ),
               ),
-              const PopupMenuItem(
-                value: "delete",
-                child: Row(
-                  children: [
-                    Icon(Icons.delete, size: 18, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text("Xoá", style: TextStyle(color: Colors.red)),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ];
+          },
+        ),
       ],
     );
   }

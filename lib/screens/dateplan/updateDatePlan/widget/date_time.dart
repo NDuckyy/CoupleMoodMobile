@@ -39,7 +39,6 @@ class DatePlanDateTimePicker extends StatelessWidget {
   }
 }
 
-
 class _DateTimeField extends StatelessWidget {
   final String label;
   final DateTime? value;
@@ -54,9 +53,14 @@ class _DateTimeField extends StatelessWidget {
   Future<void> _pickDateTime(BuildContext context) async {
     final now = DateTime.now();
 
+    // 🔥 FIX INITIAL DATE SAFETY
+    final safeInitialDate = value == null || value!.isBefore(now)
+        ? now
+        : value!;
+
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: value ?? now,
+      initialDate: safeInitialDate,
       firstDate: now,
       lastDate: DateTime(2100),
     );
@@ -64,7 +68,7 @@ class _DateTimeField extends StatelessWidget {
 
     final pickedTime = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(value ?? now),
+      initialTime: TimeOfDay.fromDateTime(safeInitialDate),
     );
     if (pickedTime == null) return;
 

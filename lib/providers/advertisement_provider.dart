@@ -62,7 +62,7 @@ class AdvertisementProvider extends ChangeNotifier {
       isLoadingAdvertisement = true;
       error = null;
       notifyListeners();
-      final response = await AdvertisementService().fetchAdvertisements(null);
+      final response = await AdvertisementService().fetchAdvertisements("HOME_BANNER");
       if (response.code != 200) {
         error = response.message;
         return;
