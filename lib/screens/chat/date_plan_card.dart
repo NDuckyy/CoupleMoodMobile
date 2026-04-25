@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 class DatePlanChatCard extends StatelessWidget {
   final Map<String, dynamic> datePlanInfo;
   final VoidCallback? onTap;
+  final bool isMine;
   final Function(int datePlanId) onAccept;
   final Function(int datePlanId) onReject;
 
@@ -12,6 +13,7 @@ class DatePlanChatCard extends StatelessWidget {
     super.key,
     required this.datePlanInfo,
     this.onTap,
+    required this.isMine,
     required this.onAccept,
     required this.onReject,
   });
@@ -35,6 +37,25 @@ class DatePlanChatCard extends StatelessWidget {
         return Colors.red;
       default:
         return Colors.green;
+    }
+  }
+
+  String getStatusText(String status) {
+    switch (status) {
+      case 'DRAFTED':
+        return 'NHÁP';
+      case 'PENDING':
+        return 'CHỜ DUYỆT';
+      case 'SCHEDULED':
+        return 'ĐÃ DUYỆT';
+      case 'IN_PROGRESS':
+        return 'ĐANG DIỄN RA';
+      case 'COMPLETED':
+        return 'ĐÃ HOÀN THÀNH';
+      case 'CANCELLED':
+        return 'ĐÃ HỦY';
+      default:
+        return status;
     }
   }
 
@@ -67,6 +88,13 @@ class DatePlanChatCard extends StatelessWidget {
                 height: 120,
                 width: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  height: 120,
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.image_not_supported, size: 40),
+                ),
               ),
             ),
           ),
@@ -103,7 +131,7 @@ class DatePlanChatCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        datePlanInfo["status"],
+                        getStatusText(datePlanInfo["status"]),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 11,
@@ -135,7 +163,7 @@ class DatePlanChatCard extends StatelessWidget {
                 const SizedBox(height: 12),
 
                 /// BUTTON
-                datePlanInfo["status"] == "PENDING"
+                datePlanInfo["status"] == "PENDING" && !isMine
                     ? Row(
                         children: [
                           Expanded(

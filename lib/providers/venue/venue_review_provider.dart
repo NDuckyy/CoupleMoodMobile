@@ -49,7 +49,7 @@ class VenueReviewProvider extends ChangeNotifier {
 
     try {
       final res = await VenueReviewService.submitVenueReview(request);
-      
+
       if (res.code != 200) {
         error = res.message;
       }
@@ -59,5 +59,53 @@ class VenueReviewProvider extends ChangeNotifier {
       loading = false;
       notifyListeners();
     }
+  }
+
+  Future<bool> deleteReview(int reviewId) async {
+    try {
+      final res = await VenueReviewService.deleteReview(reviewId);
+
+      if (res.code == 200) {
+        pagination?.items.removeWhere((e) => e.id == reviewId);
+        notifyListeners();
+        return true;
+      } else {
+        throw res.message ?? "Xoá thất bại";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> toggleLikeReview(VenueReview review) async {
+    final oldIsLiked = review.isLikedByMe;
+    final oldLikeCount = review.likeCount;
+
+    /// Optimistic update
+    review.isLikedByMe = !oldIsLiked;
+    review.likeCount += review.isLikedByMe ? 1 : -1;
+    notifyListeners();
+
+    try {
+      final res = await VenueReviewService.toggleLikeReview(review.id);
+
+      if (res.code == 200 && res.data != null) {
+        final data = res.data!;
+
+        /// Sync lại từ server (quan trọng)
+        review.isLikedByMe = data['isLiked'] ?? review.isLikedByMe;
+        review.likeCount = data['likeCount'] ?? review.likeCount;
+      } else {
+        /// rollback nếu fail
+        review.isLikedByMe = oldIsLiked;
+        review.likeCount = oldLikeCount;
+      }
+    } catch (e) {
+      /// rollback nếu lỗi mạng
+      review.isLikedByMe = oldIsLiked;
+      review.likeCount = oldLikeCount;
+    }
+
+    notifyListeners();
   }
 }

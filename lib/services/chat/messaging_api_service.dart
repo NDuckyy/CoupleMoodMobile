@@ -202,7 +202,7 @@ class MessagingApiService {
       );
       return Message.fromJson(response as Map<String, dynamic>);
     } catch (e) {
-      throw Exception('Failed to send message: ${e.toString()}');
+      // throw Exception('Failed to send message: ${e.toString()}');
     }
   }
 

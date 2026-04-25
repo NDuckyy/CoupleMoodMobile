@@ -38,10 +38,8 @@ class _GuestScreenState extends State<GuestScreen> {
         );
         recommendationProvider.fetchRecommendations(
           RecommendationRequest(
-            latitude: position.latitude,
-            longitude: position.longitude,
-            radiusKm: 1000,
-            area: "79",
+            lat: position.latitude,
+            lng: position.longitude,
           ),
         );
       } else {
@@ -77,10 +75,8 @@ class _GuestScreenState extends State<GuestScreen> {
     final recommendationProvider = context.read<RecommendationProvider>();
     await recommendationProvider.fetchRecommendations(
       RecommendationRequest(
-        latitude: recommendationProvider.latitude,
-        longitude: recommendationProvider.longitude,
-        radiusKm: 1000,
-        area: "79",
+        lat: recommendationProvider.latitude,
+        lng: recommendationProvider.longitude,
       ),
     );
   }
@@ -110,7 +106,7 @@ class _GuestScreenState extends State<GuestScreen> {
                 )
               else if (recommendationProvider.error != null)
                 SliverFillRemaining(
-                  hasScrollBody: false,
+                  hasScrollBody: true,
                   child: Center(
                     child: Text(
                       recommendationProvider.error!,

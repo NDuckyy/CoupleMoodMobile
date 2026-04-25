@@ -1,31 +1,30 @@
-import 'dart:io';
-
-import 'package:couple_mood_mobile/models/checkin/validate_condition.dart';
-import 'package:couple_mood_mobile/models/venue/review_request.dart';
-import 'package:couple_mood_mobile/providers/notification_provider.dart';
-import 'package:couple_mood_mobile/providers/venue/venue_detail_provider.dart';
-import 'package:couple_mood_mobile/providers/venue/venue_review_provider.dart';
-import 'package:couple_mood_mobile/screens/review/widget/anonymous_switch.dart';
-import 'package:couple_mood_mobile/screens/review/widget/header_card.dart';
-import 'package:couple_mood_mobile/screens/review/widget/rating_section.dart';
-import 'package:couple_mood_mobile/screens/review/widget/review_content_field.dart';
-import 'package:couple_mood_mobile/screens/review/widget/review_image_picker.dart';
-import 'package:couple_mood_mobile/screens/review/widget/submit_button.dart';
-import 'package:couple_mood_mobile/services/location_service.dart';
-import 'package:couple_mood_mobile/utils/upload_util.dart';
-import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+import 'package:couple_mood_mobile/models/venue/venue_review.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/review/review_provider.dart';
+import '../../providers/venue/venue_detail_provider.dart';
+
+import '../../widgets/snack_bar.dart';
+
+import 'widget/anonymous_switch.dart';
+import 'widget/header_card.dart';
+import 'widget/rating_section.dart';
+import 'widget/review_content_field.dart';
+import 'widget/review_image_picker.dart';
+import 'widget/match_switch.dart';
+
 class ReviewScreen extends StatefulWidget {
   final int venueLocationId;
-  final int checkInId;
+  final int? checkInId;
+  final VenueReview? initialReview;
 
   const ReviewScreen({
     super.key,
     required this.venueLocationId,
-    required this.checkInId,
+    this.checkInId,
+    this.initialReview,
   });
 
   @override
@@ -34,11 +33,38 @@ class ReviewScreen extends StatefulWidget {
 
 class _ReviewScreenState extends State<ReviewScreen> {
   final _formKey = GlobalKey<FormState>();
+
   int rating = 0;
   bool isAnonymous = false;
+  bool isMatched = true;
   final TextEditingController contentController = TextEditingController();
-  List<String> images = [];
-  List<String> uploadedImageUrls = [];
+  List<String> oldImages = [];
+  List<String> newImages = [];
+
+  late final bool isEditMode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    isEditMode = widget.initialReview != null;
+
+    /// chỉ load data để render UI
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VenueDetailProvider>().loadVenue(widget.venueLocationId);
+    });
+
+    final review = widget.initialReview;
+    if (review != null) {
+      rating = review.rating;
+      isAnonymous = review.isAnonymous;
+      isMatched = review.isMatched!;
+      contentController.text = review.content;
+
+      /// ảnh cũ là URL
+      oldImages = List<String>.from(review.imageUrls);
+    }
+  }
 
   @override
   void dispose() {
@@ -46,83 +72,77 @@ class _ReviewScreenState extends State<ReviewScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<VenueDetailProvider>().loadVenue(widget.venueLocationId);
-    });
-  }
-
-  void _submitReview() async {
-    final reviewProvider = context.read<VenueReviewProvider>();
-    final notificationProvider = context.read<NotificationProvider>();
+  Future<void> _submitReview() async {
     if (!_formKey.currentState!.validate()) return;
-    uploadedImageUrls.clear();
-    if (rating == 0) {
-      showMsg(context, "Vui lòng chọn số sao đánh giá", false);
-      return;
-    }
 
-    try {
-        final res = await UploadUtil.mediaUpload(images.map((path) => File(path)).toList());
-        uploadedImageUrls = res;
-    } catch (e) {
-      debugPrint("Error uploading image: $e");
-    }
+    final provider = context.read<ReviewProvider>();
 
-    ReviewRequest request = ReviewRequest(
-      venueLocationId: widget.venueLocationId,
-      checkInId: widget.checkInId,
-      content: contentController.text,
-      rating: rating,
-      isAnonymous: isAnonymous,
-      imageUrls: uploadedImageUrls,
-    );
-    try {
-      final position = await LocationService.getCurrentPosition();
-      if (position == null) {
-        if (!mounted) return;
-        showMsg(context, "Không thể lấy vị trí hiện tại", false);
+    final isEditMode = widget.initialReview != null;
+
+    bool success = false;
+
+    if (isEditMode) {
+      ///  UPDATE
+      success = await provider.updateReview(
+        reviewId: widget.initialReview!.id,
+        venueLocationId: widget.venueLocationId,
+        rating: rating,
+        content: contentController.text.trim(),
+        isAnonymous: isAnonymous,
+        isMatched: isMatched,
+
+        /// ảnh gốc từ BE
+        originalImages: widget.initialReview!.imageUrls,
+
+        /// ảnh cũ sau khi user xóa bớt
+        currentOldImages: oldImages,
+
+        /// ảnh mới user thêm
+        newLocalImages: newImages,
+      );
+    } else {
+      if (widget.checkInId == null) {
+        showMsg(context, "Thiếu check-in", false);
         return;
-      } else {
-        final res = await notificationProvider.validateCheckIn(
-          widget.checkInId,
-          ValidateCondition(
-            venueLocationId: widget.venueLocationId,
-            latitude: position.latitude,
-            longitude: position.longitude,
-          ),
-        );
-        if (!res) {
-          if (!mounted) return;
-          showMsg(context, "Bạn không ở gần địa điểm này để đánh giá", false);
-        } else {
-          await reviewProvider.submitReview(request);
-          if (reviewProvider.error != null) {
-            if (!mounted) return;
-            showMsg(context, reviewProvider.error!, false);
-          }
-          if (!mounted) return;
-          showMsg(context, "Đánh giá đã được gửi", true);
-          context.pop();
-        }
       }
-    } catch (e) {
-      debugPrint("Error submitting review: $e");
-      if (!mounted) return;
-      showMsg(context, "Gửi đánh giá thất bại", false);
+
+      ///  CREATE
+      success = await provider.submitReview(
+        venueLocationId: widget.venueLocationId,
+        checkInId: widget.checkInId!,
+        rating: rating,
+        content: contentController.text.trim(),
+        isAnonymous: isAnonymous,
+        isMatched: isMatched,
+        localImagePaths: newImages,
+      );
+    }
+
+    if (!mounted) return;
+
+    if (success) {
+      showMsg(
+        context,
+        isEditMode ? "Cập nhật đánh giá thành công" : "Đánh giá đã được gửi",
+        true,
+      );
+      context.pop(true); // trả result về để refresh list
+    } else {
+      showMsg(context, provider.error ?? "Có lỗi xảy ra", false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final venueProvider = context.watch<VenueDetailProvider>();
+    final reviewProvider = context.watch<ReviewProvider>();
+
     final venue = venueProvider.venue;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text("Đánh giá địa điểm"),
+        title: Text(isEditMode ? "Chỉnh sửa đánh giá" : "Đánh giá địa điểm"),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -139,37 +159,78 @@ class _ReviewScreenState extends State<ReviewScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                /// HEADER
                 HeaderCard(
                   name: venue?.name ?? "Chưa có tên",
                   address: venue?.address ?? "Chưa có địa chỉ",
                   coverImages: venue?.coverImages ?? [],
                   coupleMoodTypes: venue?.coupleMoodTypes ?? [],
                 ),
+
                 const SizedBox(height: 20),
+
+                /// RATING
                 RatingSection(
                   rating: rating,
                   onChanged: (value) {
                     setState(() => rating = value);
                   },
                 ),
+
                 const SizedBox(height: 20),
-                ReviewContentField(controller: contentController),
-                const SizedBox(height: 20),
-                ReviewImagePicker(
-                  images: images,
-                  onChanged: (list) {
-                    setState(() => images = list);
+
+                MatchSwitch(
+                  value: isMatched,
+                  onChanged: (val) {
+                    setState(() => isMatched = val);
                   },
                 ),
+
                 const SizedBox(height: 20),
+
+                /// CONTENT
+                ReviewContentField(controller: contentController),
+
+                const SizedBox(height: 20),
+
+                /// IMAGES
+                ReviewImagePicker(
+                  oldImages: oldImages,
+                  newImages: newImages,
+                  onOldRemoved: (url) {
+                    setState(() => oldImages.remove(url));
+                  },
+                  onNewChanged: (list) {
+                    setState(() => newImages = list);
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                /// ANONYMOUS
                 AnonymousSwitch(
                   value: isAnonymous,
                   onChanged: (val) {
                     setState(() => isAnonymous = val);
                   },
                 ),
+
                 const SizedBox(height: 30),
-                SubmitButton(onPressed: _submitReview),
+
+                /// SUBMIT
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: reviewProvider.isLoading ? null : _submitReview,
+                    child: reviewProvider.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(isEditMode ? "Cập nhật" : "Gửi đánh giá"),
+                  ),
+                ),
               ],
             ),
           ),

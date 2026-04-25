@@ -1,13 +1,14 @@
+import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CurrentMoodBanner extends StatelessWidget {
-  final String? mood;
-
-  const CurrentMoodBanner({super.key, required this.mood});
+  const CurrentMoodBanner({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final displayMood = mood ?? "Đang tải...";
+    final moodProvider = context.watch<MoodProvider>();
+    final displayMood = moodProvider.coupleMood ?? "Chưa xác định";
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -18,7 +19,7 @@ class CurrentMoodBanner extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [ Color(0xFF8093F1), Color(0xFF72DDF7)],
+            colors: [Color(0xFF8093F1), Color(0xFF72DDF7)],
           ),
           boxShadow: [
             BoxShadow(
@@ -44,23 +45,35 @@ class CurrentMoodBanner extends StatelessWidget {
 
             /// TEXT
             Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+              child: Text.rich(
+                TextSpan(
                   children: [
                     const TextSpan(
                       text: "Tâm trạng cặp đôi hiện tại: ",
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
-                    TextSpan(
-                      text: displayMood,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                    if (moodProvider.isLoading)
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.middle,
+                        child: SizedBox(
+                          width: 14,
+                          height: 14,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      )
+                    else
+                      TextSpan(
+                        text: displayMood,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
                   ],
                 ),
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

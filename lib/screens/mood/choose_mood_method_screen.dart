@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/mood/widgets/mood_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -9,113 +10,131 @@ class ChooseMoodMethodScreen extends StatefulWidget {
   State<ChooseMoodMethodScreen> createState() => _ChooseMoodMethodScreenState();
 }
 
-class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen> {
+class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 600),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(_controller);
+
+    _slideAnimation = Tween<Offset>(
+      begin: Offset(0, 0.1),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    debugPrint('canPop = ${Navigator.of(context).canPop()}');
-
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Quay lại'),
-        leading: BackButton(onPressed: () => context.pop()),
+        title: const Text(''),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'PHƯƠNG THỨC CHỌN MOOD:',
-              style: GoogleFonts.balooChettan2(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF8CA9FF),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Bạn có thể chọn mood của mình bằng cách sử dụng biểu tượng cảm xúc hoặc chụp ảnh khuôn mặt',
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: Container(
-                width: 300,
-                alignment: Alignment.center,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  color: Color(0xFF8CA9FF).withOpacity(0.7),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    context.pushNamed("moodChooseByIcon");
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.face, size: 40, color: Colors.black),
-                        SizedBox(width: 7),
-                        Text(
-                          'Chọn mood bằng biểu tượng',
-                          style: GoogleFonts.balooChettan2(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          softWrap: true,
-                        ),
-                      ],
-                    ),
+      body: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFFDC5F5).withOpacity(0.25), Colors.white],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: SlideTransition(
+            position: _slideAnimation,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFB388EB).withOpacity(0.15),
+                  ),
+                  child: Icon(
+                    Icons.favorite,
+                    size: 60,
+                    color: Color(0xFFB388EB),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: Container(
-                width: 300,
-                alignment: Alignment.center,
-                height: 80,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  color: Color(0xFF8CA9FF).withOpacity(0.7),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    context.pushNamed("emotionCamera");
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image(
-                          image: AssetImage(
-                            'lib/assets/images/camera_icon.png',
-                          ),
-                          width: 40,
-                          height: 40,
-                        ),
-                        SizedBox(width: 7),
-                        Text(
-                          'Chọn mood bằng khuôn mặt',
-                          style: GoogleFonts.balooChettan2(
-                            fontSize: 15,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          softWrap: true,
-                        ),
-                      ],
-                    ),
+
+                const SizedBox(height: 30),
+
+                /// 📝 TITLE
+                Text(
+                  'Bạn muốn chọn mood như thế nào?',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.balooChettan2(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFFB388EB),
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 12),
+
+                /// 📄 DESCRIPTION
+                Text(
+                  'Hôm nay bạn cảm thấy thế nào?\nHãy thể hiện bằng emoji hoặc khuôn mặt của bạn.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 40),
+
+                /// 🔘 BUTTON 1
+                MoodButton(
+                  text: 'Chọn bằng biểu tượng',
+                  icon: Icon(
+                    Icons.emoji_emotions,
+                    size: 30,
+                    color: Colors.white,
+                  ),
+                  onTap: () => context.pushNamed("moodChooseByIcon"),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// 🔘 BUTTON 2
+                MoodButton(
+                  text: 'Chọn bằng khuôn mặt',
+                  icon: Image.asset(
+                    'lib/assets/images/camera_icon.png',
+                    width: 30,
+                    height: 30,
+                    color: Colors.white,
+                  ),
+                  onTap: () => context.pushNamed("emotionCamera"),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

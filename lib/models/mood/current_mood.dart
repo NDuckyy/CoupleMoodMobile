@@ -2,9 +2,9 @@ class CurrentMood {
   final int memberId;
   final String memberName;
   final String? memberAvatarUrl;
-  final String currentMood;
-  final int currentMoodId;
-  final DateTime moodUpdatedAt;
+  final String? currentMood;
+  final int? currentMoodId;
+  final DateTime? moodUpdatedAt;
 
   final int? partnerMemberId;
   final String? partnerMemberName;
@@ -18,14 +18,15 @@ class CurrentMood {
 
   final bool isCouple;
   final bool hasCoupleMood;
+  final int? coupleProfileId;
 
   CurrentMood({
     required this.memberId,
     required this.memberName,
-    required this.memberAvatarUrl,
-    required this.currentMood,
-    required this.currentMoodId,
-    required this.moodUpdatedAt,
+    this.memberAvatarUrl,
+    this.currentMood,
+    this.currentMoodId,
+    this.moodUpdatedAt,
     this.partnerMemberId,
     this.partnerMemberName,
     this.partnerAvatarUrl,
@@ -36,6 +37,7 @@ class CurrentMood {
     this.description,
     required this.isCouple,
     required this.hasCoupleMood,
+    this.coupleProfileId,
   });
 
   factory CurrentMood.fromJson(Map<String, dynamic> json) {
@@ -43,9 +45,11 @@ class CurrentMood {
       memberId: json['memberId'] as int,
       memberName: json['memberName'] as String,
       memberAvatarUrl: json['memberAvatarUrl'] as String?,
-      currentMood: json['currentMood'] as String,
-      currentMoodId: json['currentMoodId'] as int,
-      moodUpdatedAt: DateTime.parse(json['moodUpdatedAt'] as String),
+      currentMood: json['currentMood'] as String?,
+      currentMoodId: json['currentMoodId'] as int?,
+      moodUpdatedAt: json['moodUpdatedAt'] != null
+          ? DateTime.parse(json['moodUpdatedAt'] as String)
+          : null,
       partnerMemberId: json['partnerMemberId'] as int?,
       partnerMemberName: json['partnerMemberName'] as String?,
       partnerAvatarUrl: json['partnerAvatarUrl'] as String?,
@@ -58,6 +62,7 @@ class CurrentMood {
       description: json['description'] as String?,
       isCouple: json['isCouple'] as bool,
       hasCoupleMood: json['hasCoupleMood'] as bool,
+      coupleProfileId: json['coupleProfileId'] as int?,
     );
   }
 }

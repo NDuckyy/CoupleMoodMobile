@@ -9,6 +9,9 @@ class Session {
   final String? dateOfBirth;
   final String? inviteCode;
 
+  final num? balance;
+  final num? points;
+
   Session({
     required this.accessToken,
     this.refreshToken,
@@ -18,6 +21,8 @@ class Session {
     this.fullName,
     this.dateOfBirth,
     this.inviteCode,
+    this.balance,
+    this.points,
   });
 
   Map<String, dynamic> profileToJson() => {
@@ -27,8 +32,11 @@ class Session {
     'fullName': fullName,
     'dateOfBirth': dateOfBirth,
     'inviteCode': inviteCode,
+    'balance': balance,
+    'points': points,
   };
 
+  // Factory
   factory Session.fromTokensAndProfile({
     required String accessToken,
     String? refreshToken,
@@ -44,6 +52,8 @@ class Session {
       fullName: profile?['fullName']?.toString(),
       dateOfBirth: profile?['dateOfBirth']?.toString(),
       inviteCode: profile?['inviteCode']?.toString(),
+      balance: profile?['balance'] as num?,
+      points: profile?['points'] as num?,
     );
   }
 }

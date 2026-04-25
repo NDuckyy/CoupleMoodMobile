@@ -18,6 +18,7 @@ class PostModel {
   final bool isLikedByMe;
   final bool isOwner;
   final AuthorModel? author;
+  bool isLiking = false;
 
   PostModel({
     this.totalScore,
@@ -74,6 +75,7 @@ class PostModel {
     bool? isLikedByMe,
     bool? isOwner,
     AuthorModel? author,
+    bool? isLiking,
   }) {
     return PostModel(
       totalScore: totalScore ?? this.totalScore,

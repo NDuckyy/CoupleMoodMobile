@@ -53,10 +53,7 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
         showMsg(context, "Vui lòng chọn thời gian bắt đầu và kết thúc", false);
         return;
       }
-      if (endTime!.isBefore(startTime!)) {
-        showMsg(context, "Giờ kết thúc phải sau giờ bắt đầu", false);
-        return;
-      }
+      
       final request = DatePlanItemRequest(items: items);
 
       await datePlanProvider.createDatePlanItem(widget.datePlanId, request);
@@ -89,45 +86,105 @@ class _CreateDatePlanItemScreenState extends State<CreateDatePlanItemScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.pinkAccent.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.all(14),
-                      child: Row(
-                        children: [
-                          Icon(Icons.access_time, color: Colors.pinkAccent),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              locationName.isEmpty
-                                  ? 'Chọn địa điểm'
-                                  : locationName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(18),
+                      onTap: () async {
+                        final result = await context.pushNamed(
+                          'choose_location',
+                        );
+                        if (result != null && result is Map<String, dynamic>) {
+                          setState(() {
+                            locationName = result['venueName'] ?? '';
+                            venueLocationId = result['venueLocationId'] ?? -1;
+                          });
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              const Color(0xFFFDC5F5).withOpacity(0.4),
+                              const Color(0xFFF7AEF8).withOpacity(0.4),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: Colors.transparent,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFB388EB).withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.location_on_rounded,
+                                size: 18,
+                                color: Color(0xFFB388EB),
                               ),
                             ),
-                          ),
-                        ],
+
+                            const SizedBox(width: 12),
+
+                            Expanded(
+                              child: Text(
+                                locationName.isEmpty
+                                    ? 'Chọn địa điểm hẹn hò 💕'
+                                    : locationName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: locationName.isEmpty
+                                      ? Colors.black87
+                                      : Colors.black87,
+                                ),
+                              ),
+                            ),
+
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      final result = await context.pushNamed('choose_location');
-                      if (result != null && result is Map<String, dynamic>) {
-                        setState(() {
-                          locationName = result['venueName'] ?? '';
-                          venueLocationId = result['venueLocationId'] ?? -1;
-                        });
-                      }
-                    },
-                    icon: Icon(Icons.add_circle_outline),
+
+                  const SizedBox(width: 8),
+
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFFB388EB).withOpacity(0.15),
+                    ),
+                    child: IconButton(
+                      onPressed: () async {
+                        final result = await context.pushNamed(
+                          'choose_location',
+                        );
+                        if (result != null && result is Map<String, dynamic>) {
+                          setState(() {
+                            locationName = result['venueName'] ?? '';
+                            venueLocationId = result['venueLocationId'] ?? -1;
+                          });
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.add_rounded,
+                        color: Color(0xFFB388EB),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/coupleInvitation/member_filter.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/received_response.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/user_data.dart';
@@ -9,6 +10,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
   int currentPage = 1;
   bool isLoading = true;
   bool hasMore = true;
+  bool isSendingInvitation = false;
 
   int inviteCount = 0;
   List<MemberResponse> users = [];
@@ -16,7 +18,11 @@ class CoupleInvitationProvider extends ChangeNotifier {
   UserData? userData;
   List<InvitationResponse> sentInvitations = [];
 
-  Future<void> searchMembers(String? keyword, int page) async {
+  Future<void> searchMembers(
+    String? keyword,
+    int page, {
+    MemberFilter? filter,
+  }) async {
     error = null;
     isLoading = true;
     notifyListeners();
@@ -24,6 +30,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
       final response = await CoupleInvitationService.searchMembers(
         keyword,
         page,
+        filter?.toQuery(),
       );
       fetchReceivedInvitations(null, page);
       if (page == 1) {
@@ -57,7 +64,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
         return;
       } else {
         receivedInvitations = response.data?.data ?? [];
-        inviteCount = response.data?.pagination.total ?? 0;
+        inviteCount = response.data?.pendingCount ?? 0;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
@@ -127,7 +134,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
   }
 
   Future<void> sendInvitation(int receiverMemberId, String message) async {
-    isLoading = true;
+    isSendingInvitation = true;
     error = null;
     notifyListeners();
 
@@ -142,7 +149,7 @@ class CoupleInvitationProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
-      isLoading = false;
+      isSendingInvitation = false;
       notifyListeners();
     }
   }

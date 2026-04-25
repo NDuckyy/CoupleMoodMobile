@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/invite_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,267 +9,176 @@ class UserCard extends StatelessWidget {
 
   const UserCard({super.key, required this.onSend, required this.user});
 
-  Widget _buildPlaceholder() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Center(
-        child: Icon(Icons.person, color: Colors.white, size: 50),
-      ),
-    );
+  Color getStatusColor() {
+    switch (user.relationshipStatus) {
+      case "SINGLE":
+        return Colors.green;
+      case "IN_RELATIONSHIP":
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
   }
 
-  void _showInviteDialog(BuildContext context, MemberResponse user) {
-    final TextEditingController messageController = TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Container(
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-              gradient: LinearGradient(
-                colors: [
-                  Color(0xFFFDC5F5),
-                  Color(0xFFB388EB),
-                  Color(0xFF72DDF7),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: Colors.white54,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  if (user.avatarUrl != null)
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundImage: NetworkImage(user.avatarUrl!),
-                    )
-                  else
-                    const CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Colors.white24,
-                    ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    "Gửi lời mời đến ${user.fullName}",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.white,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: TextField(
-                      controller: messageController,
-                      maxLines: 3,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText: "Nhập lời nhắn ngọt ngào 💌",
-                        hintStyle: TextStyle(color: Colors.white70),
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.all(16),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  GestureDetector(
-                    onTap: () async {
-                      final message = messageController.text.trim();
-                      if (message.isEmpty) return;
-                      onSend(message);
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF8093F1), Color(0xFFB388EB)],
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Gửi lời mời 💖",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  String getStatusText() {
+    switch (user.relationshipStatus) {
+      case "SINGLE":
+        return "Độc thân";
+      case "IN_RELATIONSHIP":
+        return "Đã có đôi";
+      default:
+        return "Phức tạp";
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      borderRadius: BorderRadius.circular(24),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                ? Image.network(
-                    user.avatarUrl!,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      }
-                      return _buildPlaceholder(); 
-                    },
-                    errorBuilder: (_, __, ___) {
-                      return _buildPlaceholder();
-                    },
-                  )
-                : _buildPlaceholder(),
-          ),
-
-          Positioned(
-            top: 12,
-            left: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: user.relationshipStatus == "SINGLE"
-                    ? Colors.green
-                    : user.relationshipStatus == "IN_RELATIONSHIP"
-                    ? Colors.orange
-                    : Colors.red,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                user.relationshipStatus,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11,
-                ),
-              ),
+    return GestureDetector(
+      onTap: () {
+        context.pushNamed(
+          "member_profile_match",
+          extra: {'userId': user.userId},
+        );
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Stack(
+          children: [
+            /// 🔥 BACKGROUND IMAGE
+            Positioned.fill(
+              child: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                  ? Image.network(
+                      user.avatarUrl!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.person, size: 80),
+                        );
+                      },
+                    )
+                  : Container(
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.person, size: 80),
+                    ),
             ),
-          ),
 
-          if (user.canSendInvitation)
-            Positioned(
-              top: 12,
-              right: 12,
-              child: Material(
-                color: const Color(0xFFB388EB),
-                shape: const CircleBorder(),
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () {
-                    _showInviteDialog(context, user);
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(6),
-                    child: Icon(Icons.send, color: Colors.white, size: 18),
+            /// 🔥 DARK GRADIENT (CHO TEXT RÕ)
+            Positioned.fill(
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.transparent,
+                      Colors.black54,
+                      Colors.black87,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
                   ),
                 ),
               ),
             ),
 
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 16,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8),
-                    onTap: () {
-                      context.pushNamed(
-                        "member_profile_match",
-                        extra: {'userId': user.userId},
-                      );
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                        user.fullName,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+            /// 🔥 INFO BOTTOM
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 20,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// NAME
+                  Text(
+                    user.fullName,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  /// STATUS
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: getStatusColor().withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      getStatusText(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ),
 
-                const SizedBox(height: 6),
+                  const SizedBox(height: 10),
 
-                Text(
-                  user.bio?.isNotEmpty == true
-                      ? user.bio!
-                      : "Chưa có giới thiệu",
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(color: Colors.white70, fontSize: 12),
-                ),
-              ],
+                  /// BIO
+                  Text(
+                    user.bio?.isNotEmpty == true
+                        ? user.bio!
+                        : "Chưa có giới thiệu",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+
+                  const SizedBox(height: 14),
+
+                  /// BUTTON
+                  if (user.canSendInvitation)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          showInviteDialog(
+                            context: context,
+                            user: user,
+                            onSend: onSend,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFB388EB),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: const Text(
+                          "Gửi lời mời 💖",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Text(
+                        "Đã gửi lời mời",
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

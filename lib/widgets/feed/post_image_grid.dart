@@ -20,70 +20,81 @@ class PostImageGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (total == 0) return const SizedBox();
+    if (total == 0) return const SizedBox.shrink();
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: total,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 6,
-        mainAxisSpacing: 6,
-      ),
-      itemBuilder: (context, index) {
-        final isOld = index < oldMedia.length;
-
-        Widget image;
-
-        if (isOld) {
-          image = Image.network(oldMedia[index].url, fit: BoxFit.cover);
-        } else {
-          image = Image.file(
-            newImages[index - oldMedia.length],
-            fit: BoxFit.cover,
-          );
-        }
-
-        return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(14),
-              child: SizedBox.expand(child: image),
+            const Text(
+              "Ảnh đã chọn",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-
-            /// REMOVE BUTTON
-            Positioned(
-              top: 10,
-              right: 10,
-              child: GestureDetector(
-                onTap: () {
-                  if (isOld) {
-                    onRemoveOld(index);
-                  } else {
-                    onRemoveNew(index - oldMedia.length);
-                  }
-                },
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 4,
-                      ),
-                    ],
-                  ),
-                  child: const Icon(Icons.close, size: 18, color: Colors.white),
-                ),
+            const Spacer(),
+            Text(
+              "$total/4",
+              style: TextStyle(
+                color: total >= 4 ? Colors.red : Colors.grey,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
-        );
-      },
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: total,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+            childAspectRatio: 1.0,
+          ),
+          itemBuilder: (context, index) {
+            final isOld = index < oldMedia.length;
+            final imageIndex = isOld ? index : index - oldMedia.length;
+
+            return Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox.expand(
+                    child: isOld
+                        ? Image.network(oldMedia[index].url, fit: BoxFit.cover)
+                        : Image.file(newImages[imageIndex], fit: BoxFit.cover),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: GestureDetector(
+                    onTap: () {
+                      if (isOld)
+                        onRemoveOld(index);
+                      else
+                        onRemoveNew(imageIndex);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.75),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 }

@@ -35,7 +35,9 @@ class VenueBasicInfo extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: venue.coupleMoodTypes
-                  .map((e) => VenueTag(text: e.name))
+                  .map(
+                    (e) => VenueTag(text: e.name, description: e.description),
+                  )
                   .toList(),
             ),
             const SizedBox(height: 12),
@@ -49,7 +51,9 @@ class VenueBasicInfo extends StatelessWidget {
               spacing: 6,
               runSpacing: 6,
               children: venue.couplePersonalityTypes
-                  .map((e) => VenueTag(text: e.name))
+                  .map(
+                    (e) => VenueTag(text: e.name, description: e.description),
+                  )
                   .toList(),
             ),
             const SizedBox(height: 12),

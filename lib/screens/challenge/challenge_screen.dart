@@ -90,6 +90,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                                 target: c.targetProgress,
                                 progressText: c.progressText,
                                 completed: isCompleted,
+                                triggerEvent: c.triggerEvent,
                                 onLeave: (!isCheckin && !isCompleted)
                                     ? trigger
                                     : null,
@@ -182,6 +183,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
                               description: c.description,
                               reward: c.rewardPoints,
                               completed: true,
+                              triggerEvent: c.triggerEvent,
                               rewardClaimed: c.isRewardClaimed ?? false,
                               onClaimReward: () async {
                                 final success = await provider.claimReward(

@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/models/mood/mood_type.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
+import 'package:couple_mood_mobile/screens/mood/widgets/mood_carousel.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,6 +16,9 @@ class ChooseMoodScreen extends StatefulWidget {
 }
 
 class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
+  MoodType? selectedMood;
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +31,6 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
   Future<void> _loadMood(MoodProvider moodProvider, String gender) async {
     try {
       await moodProvider.getMoodTypes(gender);
-      if (!mounted) return;
     } catch (e) {
       if (!mounted) return;
       showMsg(context, "Lấy danh sách mood thất bại", false);
@@ -36,99 +40,114 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
   @override
   Widget build(BuildContext context) {
     final moodProvider = context.watch<MoodProvider>();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Quay lại')),
+      appBar: AppBar(title: const Text('Chọn Mood')),
       body: Center(
         child: moodProvider.isLoading
             ? const CircularProgressIndicator()
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    'lib/assets/images/register.png',
-                    width: 70,
-                    height: 70,
-                  ),
-                  const SizedBox(height: 20),
                   Text(
-                    'Hãy chọn mood của bạn',
+                    'Hôm nay bạn cảm thấy thế nào?',
                     style: GoogleFonts.balooChettan2(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 20,
-                    runSpacing: 20,
-                    children: [
-                      for (final m in moodProvider.moodTypes.data!)
-                        _moodItem(
-                          iconUrl: m.iconUrl,
-                          name: m.name,
-                          onTap: () {
-                            final moodProvider = context.read<MoodProvider>();
-                            moodProvider
-                                .updateMood(m.id)
-                                .then((_) {
+
+                  const SizedBox(height: 10),
+
+                  Text(
+                    'Chọn mood phù hợp để khám phá địa điểm lý tưởng 💜',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  MoodCarousel(
+                    moods: moodProvider.moodTypes.data!,
+                    onSelect: (m) {
+                      setState(() {
+                        selectedMood = m;
+                      });
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: selectedMood == null
+                        ? const SizedBox()
+                        : Text(
+                            'Bạn đang chọn: ${selectedMood!.name}',
+                            key: ValueKey(selectedMood!.id),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  AnimatedOpacity(
+                    opacity: selectedMood == null ? 0.5 : 1,
+                    duration: const Duration(milliseconds: 200),
+                    child: SizedBox(
+                      width: 220,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: selectedMood == null || isLoading
+                            ? null
+                            : () async {
+                                setState(() => isLoading = true);
+
+                                try {
+                                  await context
+                                      .read<MoodProvider>()
+                                      .updateMood(selectedMood!.id);
+
                                   if (!context.mounted) return;
-                                  showMsg(
-                                    context,
-                                    "Cập nhật mood thành công",
-                                    true,
-                                  );
+
                                   context.goNamed("listLocation");
-                                })
-                                .catchError((e) {
+                                } catch (e) {
                                   if (!context.mounted) return;
-                                  showMsg(
-                                    context,
-                                    'Cập nhật mood thất bại: $e',
-                                    false,
-                                  );
-                                });
-                          },
+                                  showMsg(context, "Lỗi: $e", false);
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => isLoading = false);
+                                  }
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF8093F1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
                         ),
-                    ],
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text(
+                                "Xác nhận",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-      ),
-    );
-  }
-
-  Widget _moodItem({
-    required String name,
-    required String iconUrl,
-    required VoidCallback onTap,
-  }) {
-    return TextButton(
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-      ),
-      onPressed: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Image.network(
-            iconUrl,
-            width: 70,
-            height: 70,
-            errorBuilder: (_, __, ___) =>
-                const Icon(Icons.broken_image, size: 70),
-            loadingBuilder: (context, child, progress) {
-              if (progress == null) return child;
-              return const SizedBox(
-                width: 70,
-                height: 70,
-                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
-              );
-            },
-          ),
-          const SizedBox(height: 6),
-          Text(name),
-        ],
       ),
     );
   }

@@ -1,4 +1,3 @@
-
 import 'package:couple_mood_mobile/screens/chat/date_plan_card.dart';
 import 'package:couple_mood_mobile/widgets/chat/video_message_item.dart';
 import 'package:couple_mood_mobile/widgets/full_image_screen.dart';
@@ -107,7 +106,9 @@ class MessageBubble extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          DateFormat('HH:mm').format(message.createdAt),
+                          DateFormat(
+                            'HH:mm',
+                          ).format(message.createdAt.toLocal()),
                           style: TextStyle(
                             fontSize: 11,
                             color: Colors.grey[600],
@@ -153,8 +154,21 @@ class MessageBubble extends StatelessWidget {
                   ),
                 ),
               )
+            : message.datePlanInfo['status'] == "DRAFTED"
+            ? Padding(
+                padding: const EdgeInsets.all(12),
+                child: Text(
+                  "Lịch hẹn đã bị từ chối ",
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
             : DatePlanChatCard(
                 datePlanInfo: message.datePlanInfo ?? {},
+                isMine: message.isMine,
                 onTap: () {
                   context.pushNamed(
                     'date_plan_item',

@@ -1,14 +1,18 @@
+import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class WeekSelector extends StatefulWidget {
   final DateTime initialDate;
   final Function(DateTime) onDateSelected;
+  final List<DatePlanDay> calendarDays;
 
   const WeekSelector({
     super.key,
     required this.initialDate,
     required this.onDateSelected,
+    required this.calendarDays,
   });
 
   @override
@@ -36,12 +40,20 @@ class _WeekSelectorState extends State<WeekSelector> {
       _centerSelected();
     });
   }
-  
+
   //Gen ra 30 ngày bắt đầu 3 ngày trc
   List<DateTime> _generateDays() {
     final startDate = baseDate.subtract(const Duration(days: 3));
 
     return List.generate(30, (index) => startDate.add(Duration(days: index)));
+  }
+
+  DatePlanDay? _getPlanForDate(DateTime date) {
+    for (final d in widget.calendarDays) {
+      final dDate = DateTime.parse(d.date);
+      if (_isSameDate(dDate, date)) return d;
+    }
+    return null;
   }
 
   // Check xem nó có cùng ngày hôm nay ko
@@ -135,6 +147,8 @@ class _WeekSelectorState extends State<WeekSelector> {
                 itemBuilder: (context, index) {
                   final date = days[index];
                   final isSelected = _isSameDate(date, selectedDate);
+                  final plan = _getPlanForDate(date);
+                  final hasPlan = plan?.hasDatePlan ?? false;
 
                   return GestureDetector(
                     onTap: () {
@@ -143,52 +157,84 @@ class _WeekSelectorState extends State<WeekSelector> {
                       });
 
                       widget.onDateSelected(date);
+                      debugPrint("Selected date: $date, has plan: $hasPlan");
+                      if (hasPlan &&
+                          plan != null &&
+                          plan.datePlanIds.isNotEmpty) {
+                        debugPrint("Go to date plan ${plan.datePlanIds.first}");
+                        context.pushNamed(
+                          "date_plan_item",
+                          extra: {
+                            "datePlanId": plan.datePlanIds.first,
+                            'status': 'PENDING',
+                          },
+                        );
+                      }
+
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         _centerSelected();
                       });
                     },
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 250),
-                      width: itemWidth,
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 10,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFFDC5F5).withOpacity(0.35)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: AnimatedScale(
-                        duration: const Duration(milliseconds: 250),
-                        scale: isSelected ? 1.12 : 1.0,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              date.day.toString(),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? const Color(0xFFB388EB)
-                                    : Colors.black87,
-                              ),
+                    child: Stack(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 250),
+                          width: itemWidth,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? const Color(0xFFFDC5F5).withOpacity(0.35)
+                                : hasPlan
+                                ? const Color(0xFF72DDF7).withOpacity(0.15)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          child: AnimatedScale(
+                            duration: const Duration(milliseconds: 250),
+                            scale: isSelected ? 1.12 : 1.0,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  date.day.toString(),
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? const Color(0xFFB388EB)
+                                        : Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  DateFormat('EEE', 'vi').format(date),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isSelected
+                                        ? const Color(0xFFB388EB)
+                                        : Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat('EEE', 'vi').format(date),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isSelected
-                                    ? const Color(0xFFB388EB)
-                                    : Colors.grey,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+
+                        /// ICON
+                        if (hasPlan)
+                          Positioned(
+                            top: 6,
+                            right: 10,
+                            child: Icon(
+                              Icons.favorite,
+                              size: 14,
+                              color: Colors.pinkAccent,
+                            ),
+                          ),
+                      ],
                     ),
                   );
                 },

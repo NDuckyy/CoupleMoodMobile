@@ -217,7 +217,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     showMsg(context, "Không thể tham gia thử thách", false);
                   }
                 },
-                child: const Text("Join Challenge"),
+                child: const Text("Tham gia thử thách"),
               ),
             ),
 
@@ -240,7 +240,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     showMsg(context, "Không thể rời thử thách", false);
                   }
                 },
-                child: const Text("Leave Challenge"),
+                child: const Text("Rời thử thách"),
               ),
             ),
         ],

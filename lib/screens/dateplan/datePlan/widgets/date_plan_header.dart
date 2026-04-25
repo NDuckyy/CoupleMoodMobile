@@ -28,10 +28,6 @@ class DatePlanHeader extends StatelessWidget {
                 }
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.filter_alt_outlined),
-              onPressed: () {},
-            ),
           ],
         ),
       ],
