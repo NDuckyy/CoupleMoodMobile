@@ -7,6 +7,8 @@ class MemberFilter {
   int? weightTo;
   String? city;
   String? district;
+  String? jobTitle;
+  String? interest;
 
   MemberFilter({
     this.ageFrom,
@@ -17,6 +19,8 @@ class MemberFilter {
     this.weightTo,
     this.city,
     this.district,
+    this.jobTitle,
+    this.interest,
   });
 
   Map<String, dynamic> toQuery() {
@@ -29,6 +33,8 @@ class MemberFilter {
       if (weightTo != null) "weightTo": weightTo,
       if (city != null) "city": city,
       if (district != null) "district": district,
+      if (jobTitle != null) "jobTitle": jobTitle,
+      if (interest != null) "interest": interest,
     };
   }
 }

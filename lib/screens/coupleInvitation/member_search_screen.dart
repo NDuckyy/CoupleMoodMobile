@@ -1,4 +1,6 @@
+import 'package:couple_mood_mobile/models/coupleInvitation/member_filter.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
+import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/filter_sheet.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/member_search_header.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member/search_bar.dart';
@@ -21,6 +23,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
   final searchController = TextEditingController();
   late SwipableStackController _controller;
   int currentIndex = 0;
+  MemberFilter? currentFilter;
 
   @override
   void initState() {
@@ -29,7 +32,10 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
     Future.microtask(() async {
       if (!mounted) return;
       final provider = context.read<CoupleInvitationProvider>();
+      final editProfileProvider = context.read<EditProfileProvider>();
       await provider.searchMembers(null, 1);
+      await editProfileProvider.fetchJobTitles();
+      await editProfileProvider.fetchInterests();
     });
   }
 
@@ -68,23 +74,28 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
-                    builder: (_) => FilterSheet(
-                      onApply: (filter) {
-                        setState(() {
-                          currentIndex = 0;
-                          _controller = SwipableStackController();
-                        });
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => FractionallySizedBox(
+                      heightFactor: 0.85,
+                      child: ChangeNotifierProvider.value(
+                        value: context.read<EditProfileProvider>(),
+                        child: FilterSheet(
+                          onApply: (filter) {
+                            setState(() {
+                              currentFilter = filter;
+                              currentIndex = 0;
+                              _controller = SwipableStackController();
+                            });
 
-                        provider.searchMembers(
-                          searchController.text,
-                          1,
-                          filter: filter,
-                        );
-                        setState(() {
-                          currentIndex = 0;
-                          _controller = SwipableStackController();
-                        });
-                      },
+                            provider.searchMembers(
+                              searchController.text,
+                              1,
+                              filter: filter,
+                            );
+                          },
+                          initialFilter: currentFilter,
+                        ),
+                      ),
                     ),
                   );
                 },
