@@ -48,4 +48,4 @@ app.*.map.json
 couplemood-release.jks
 key.properties
 .env
-google-services.json
+android/app/google-services.json
