@@ -28,7 +28,7 @@ class ContextLocation extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  context.pushNamed('listLocation');
+                  context.pushNamed('listLocationContext');
                 },
                 child: const Text("Xem tất cả"),
               ),
