@@ -8,16 +8,9 @@ class ChallengeProvider extends ChangeNotifier {
   List<CoupleChallenge> doingChallenges = [];
   List<CoupleChallenge> completedChallenges = [];
 
-  /// giữ template challenge để restore khi leave
   Map<int, ChallengeItem> templateMap = {};
 
-  /// loading tổng (chỉ dùng lần đầu)
   bool isLoading = false;
-
-  /// loading từng tab (optional UI)
-  bool isLoadingDiscover = false;
-  bool isLoadingDoing = false;
-  bool isLoadingCompleted = false;
 
   /// ================= LOAD =================
   Future<void> loadChallenges() async {
@@ -31,7 +24,7 @@ class ChallengeProvider extends ChangeNotifier {
       final coupleItems = coupleRes.data?.items ?? [];
       final templateItems = templateRes.data?.items ?? [];
 
-      /// build template map
+      /// build fresh template map (anti stale)
       templateMap = {for (var c in templateItems) c.id: c};
 
       /// doing
@@ -44,7 +37,7 @@ class ChallengeProvider extends ChangeNotifier {
           .where((c) => c.status == "COMPLETED")
           .toList();
 
-      /// discover
+      /// discover (only not joined)
       discoverChallenges = templateItems
           .where((c) => c.isJoined == false)
           .toList();
@@ -69,9 +62,10 @@ class ChallengeProvider extends ChangeNotifier {
         /// add vào doing
         doingChallenges.insert(0, newCouple);
 
-        /// sync template
+        /// update template (IMMUTABLE)
         if (templateMap.containsKey(challengeId)) {
-          templateMap[challengeId]!.isJoined = true;
+          final updated = templateMap[challengeId]!.copyWith(isJoined: true);
+          templateMap[challengeId] = updated;
         }
 
         notifyListeners();
@@ -97,12 +91,17 @@ class ChallengeProvider extends ChangeNotifier {
 
       final removed = doingChallenges.removeAt(index);
 
-      /// restore template challenge
+      /// restore template
       final template = templateMap[removed.challengeId];
 
       if (template != null) {
-        template.isJoined = false;
-        discoverChallenges.insert(0, template);
+        final updated = template.copyWith(isJoined: false);
+
+        templateMap[removed.challengeId] = updated;
+
+        /// tránh duplicate
+        discoverChallenges.removeWhere((c) => c.id == updated.id);
+        discoverChallenges.insert(0, updated);
       }
 
       notifyListeners();
@@ -119,8 +118,20 @@ class ChallengeProvider extends ChangeNotifier {
     try {
       await ChallengeService.claimReward(coupleChallengeId);
 
-      /// reload full (vì cần sync server)
-      await loadChallenges();
+      /// OPTION 1: nhẹ (không reload)
+      final index = doingChallenges.indexWhere(
+        (c) => c.id == coupleChallengeId,
+      );
+
+      if (index != -1) {
+        final item = doingChallenges.removeAt(index);
+        completedChallenges.insert(0, item);
+      }
+
+      notifyListeners();
+
+      /// OPTION 2 (nếu cần strict sync backend):
+      // await loadChallenges();
 
       return true;
     } catch (e) {

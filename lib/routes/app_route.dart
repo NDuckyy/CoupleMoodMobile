@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
 import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
+import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
 
 import 'package:flutter/material.dart';
@@ -410,8 +412,16 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/challenge',
         name: 'challenge',
-        pageBuilder: (_, __) {
-          return const MaterialPage(child: ChallengeScreen());
+        pageBuilder: (_, state) {
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => ChallengeProvider()..loadChallenges(),
+              child: ChallengeHubScreen(initialTab: tab.clamp(0, 2)),
+            ),
+          );
         },
       ),
       GoRoute(

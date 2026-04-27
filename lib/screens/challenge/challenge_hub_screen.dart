@@ -50,8 +50,8 @@ class _ChallengeHubScreenState extends State<ChallengeHubScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: "Đang làm"),
             Tab(text: "Khám phá"),
+            Tab(text: "Đang làm"),
             Tab(text: "Hoàn thành"),
           ],
         ),
@@ -59,8 +59,8 @@ class _ChallengeHubScreenState extends State<ChallengeHubScreen>
       body: TabBarView(
         controller: _tabController,
         children: const [
-          DoingChallengesTab(),
           DiscoverChallengesTab(),
+          DoingChallengesTab(),
           CompletedChallengesTab(),
         ],
       ),

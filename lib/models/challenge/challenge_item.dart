@@ -9,17 +9,14 @@ class ChallengeItem {
 
   final bool isJoined;
 
-  /// progress
   final int? currentProgress;
   final int? coupleChallengeId;
   final String? coupleChallengeStatus;
   final DateTime? joinedAt;
 
-  /// reward
   final bool? isCompleted;
   final bool? isRewardClaimed;
 
-  /// rule + instructions
   final Map<String, dynamic>? ruleData;
   final List<String>? instructions;
 
@@ -51,25 +48,40 @@ class ChallengeItem {
       goalMetric: json['goalMetric'],
       targetGoal: json['targetGoal'],
       rewardPoints: json['rewardPoints'],
-
       isJoined: json['isJoined'] ?? false,
-
       currentProgress: json['currentProgress'],
       coupleChallengeId: json['coupleChallengeId'],
       coupleChallengeStatus: json['coupleChallengeStatus'],
-
       joinedAt: json['joinedAt'] != null
           ? DateTime.tryParse(json['joinedAt'])
           : null,
-
       isCompleted: json['isCompleted'],
       isRewardClaimed: json['isRewardClaimed'] ?? false,
-
       ruleData: json['ruleData'],
-
       instructions: (json['instructions'] as List?)
           ?.map((e) => e.toString())
           .toList(),
+    );
+  }
+
+  ChallengeItem copyWith({bool? isJoined}) {
+    return ChallengeItem(
+      id: id,
+      title: title,
+      description: description,
+      triggerEvent: triggerEvent,
+      goalMetric: goalMetric,
+      targetGoal: targetGoal,
+      rewardPoints: rewardPoints,
+      isJoined: isJoined ?? this.isJoined,
+      currentProgress: currentProgress,
+      coupleChallengeId: coupleChallengeId,
+      coupleChallengeStatus: coupleChallengeStatus,
+      joinedAt: joinedAt,
+      isCompleted: isCompleted,
+      isRewardClaimed: isRewardClaimed,
+      ruleData: ruleData,
+      instructions: instructions,
     );
   }
 }
