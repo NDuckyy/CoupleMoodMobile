@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/couple_provider.dart';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/widgets/shop/point_shop_card.dart';
 import 'package:flutter/material.dart';
@@ -33,12 +34,16 @@ class _ShopHubScreenState extends State<ShopHubScreen>
 
     /// load lần đầu
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<ShopProvider>();
-      provider.fetchInitial();
-      provider.fetchInventory();
+      final shopProvider = context.read<ShopProvider>();
+      final userProvider = context.read<UserProvider>();
+
+      // Luôn fetch User để cập nhật balance + couplePoints
+      userProvider.fetchMe();
+
+      shopProvider.fetchInitial();
+      shopProvider.fetchInventory();
     });
 
-    /// listener giống WalletHub
     _tabController.addListener(_handleTabChange);
   }
 
@@ -46,8 +51,10 @@ class _ShopHubScreenState extends State<ShopHubScreen>
     if (_tabController.indexIsChanging) return;
 
     final provider = context.read<ShopProvider>();
+    final userProvider = context.read<UserProvider>();
 
     if (_tabController.index == 0) {
+      userProvider.fetchMe();
       provider.fetchInitial(); // tab shop
     } else {
       provider.fetchInventory(); // tab inventory
@@ -67,9 +74,9 @@ class _ShopHubScreenState extends State<ShopHubScreen>
       appBar: AppBar(
         title: const Text("Cửa hàng"),
         actions: [
-          Consumer<CoupleProvider>(
-            builder: (context, coupleProvider, _) {
-              final points = coupleProvider.couple?.totalPoints ?? 0;
+          Consumer<UserProvider>(
+            builder: (context, userProvider, _) {
+              final points = userProvider.user?.couplePoints ?? 0;
 
               return Padding(
                 padding: const EdgeInsets.only(right: 12),

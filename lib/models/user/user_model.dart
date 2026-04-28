@@ -17,6 +17,7 @@ class UserModel {
 
   final int? balance;
   final int? points;
+  final int? couplePoints;
 
   UserModel({
     required this.id,
@@ -32,6 +33,7 @@ class UserModel {
     this.memberProfile,
     this.balance,
     this.points,
+    this.couplePoints,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -51,6 +53,7 @@ class UserModel {
           : null,
       balance: (json['balance'] as num?)?.toInt(),
       points: (json['points'] as num?)?.toInt(),
+      couplePoints: (json['couplePoints'] as num?)?.toInt(),
     );
   }
 }

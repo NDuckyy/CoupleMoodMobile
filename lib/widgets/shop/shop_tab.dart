@@ -23,13 +23,8 @@ class _ShopTabState extends State<ShopTab> {
   @override
   void initState() {
     super.initState();
-
-    ///  KHÔNG fetchInitial ở đây nữa (đã làm ở Hub)
     Future.microtask(() {
-      final userProvider = context.read<UserProvider>();
-      if (userProvider.user == null) {
-        userProvider.fetchMe();
-      }
+      context.read<UserProvider>().fetchMe();
     });
   }
 
