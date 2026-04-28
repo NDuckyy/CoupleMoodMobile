@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
 import 'package:couple_mood_mobile/screens/home/widget/context.dart';
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<MoodProvider>().getCoupleCurrentMood();
+      _hasActiveSubscription();
       _getPopularNearby();
       _getContextRecommendation();
       // _getSpecialEvent();
@@ -62,6 +64,11 @@ class _HomeScreenState extends State<HomeScreen> {
         showMatchRequiredDialog(context: context);
       });
     }
+  }
+
+  void _hasActiveSubscription() async {
+    final userProvider = context.read<UserProvider>();
+    await userProvider.checkActiveSubscription();
   }
 
   void showAdvertisement() async {

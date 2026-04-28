@@ -40,4 +40,9 @@ class UserService {
     final res = await ApiClient.request("/Job", method: HttpMethod.get);
     return ApiResponse.fromJson(res, (data) => (data as List).cast<String>());
   }
+
+  static Future<ApiResponse<int>> getHasActiveSubscription() async {
+    final res = await ApiClient.request("/MemberSubscription/has-active", method: HttpMethod.get);
+    return ApiResponse.fromJson(res, (data) => data["packageId"] as int);
+  }
 }
