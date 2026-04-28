@@ -140,7 +140,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           /// PROGRESS
           if (isJoined && trigger != "CHECKIN") ...[
             const Text(
-              "Progress",
+              "Tiến trình",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
 
@@ -197,7 +197,6 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           ],
 
           /// ACTION
-          /// ACTION
           if (!isJoined && challenge != null)
             SizedBox(
               height: 48,
@@ -212,7 +211,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   if (success) {
                     showMsg(context, "Đã tham gia thử thách 💜", true);
 
-                    Navigator.pop(context); // quay về list
+                    Navigator.pop(context, true);
                   } else {
                     showMsg(context, "Không thể tham gia thử thách", false);
                   }
@@ -235,7 +234,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   if (success) {
                     showMsg(context, "Đã rời thử thách", true);
 
-                    Navigator.pop(context); // quay về list
+                    Navigator.pop(context, true);
                   } else {
                     showMsg(context, "Không thể rời thử thách", false);
                   }

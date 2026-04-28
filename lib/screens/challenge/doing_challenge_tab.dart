@@ -67,8 +67,8 @@ class DoingChallengesTab extends StatelessWidget {
                           onLeave: (!isCheckin && !isCompleted)
                               ? trigger
                               : null,
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ChangeNotifierProvider(
@@ -79,6 +79,12 @@ class DoingChallengesTab extends StatelessWidget {
                                 ),
                               ),
                             );
+
+                            if (result == true && context.mounted) {
+                              context
+                                  .read<ChallengeProvider>()
+                                  .loadChallenges();
+                            }
                           },
                         );
                       },

@@ -61,8 +61,8 @@ class DiscoverChallengesTab extends StatelessWidget {
                         return ChallengeCard.discover(
                           c,
                           onJoin: isCheckin ? null : trigger,
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) => ChangeNotifierProvider(
@@ -71,6 +71,12 @@ class DiscoverChallengesTab extends StatelessWidget {
                                 ),
                               ),
                             );
+
+                            if (result == true && context.mounted) {
+                              context
+                                  .read<ChallengeProvider>()
+                                  .loadChallenges();
+                            }
                           },
                         );
                       },

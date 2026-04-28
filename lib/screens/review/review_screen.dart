@@ -198,6 +198,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
 
                 if (!isMatched) ...[
+                  const SizedBox(height: 6),
+                  const Text(
+                    "Chọn 1 mood bạn cảm thấy phù hợp với quán",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
+
                   const SizedBox(height: 12),
 
                   Consumer<ReviewProvider>(

@@ -265,7 +265,7 @@ class _SwipeLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isLike ? Icons.favorite : Icons.arrow_forward,
+            isLike ? Icons.favorite : Icons.thumb_down,
             color: Colors.white,
             size: 18,
           ),
