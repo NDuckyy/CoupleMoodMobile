@@ -30,8 +30,8 @@ class VoucherDetailProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> exchangeVoucher() async {
-    if (voucher == null) return false;
+  Future<(bool, String?)> exchangeVoucher() async {
+    if (voucher == null) return (false, "Không có voucher");
 
     isExchanging = true;
     notifyListeners();
@@ -42,14 +42,12 @@ class VoucherDetailProvider extends ChangeNotifier {
       );
 
       if (res.code == 200) {
-        return true;
+        return (true, null);
       } else {
-        error = res.message;
-        return false;
+        return (false, res.message);
       }
     } catch (e) {
-      error = e.toString();
-      return false;
+      return (false, e.toString());
     } finally {
       isExchanging = false;
       notifyListeners();

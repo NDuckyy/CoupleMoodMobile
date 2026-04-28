@@ -150,7 +150,13 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
             const SizedBox(height: 6),
 
-            Text("$current / $target"),
+            if ((progress?.progressText ?? "").isNotEmpty)
+              Text(
+                progress!.progressText!,
+                style: TextStyle(color: Colors.grey[600], fontSize: 13),
+              )
+            else
+              Text("$current / $target"),
 
             const SizedBox(height: 24),
           ],
@@ -163,16 +169,6 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             ),
 
             const SizedBox(height: 24),
-          ],
-
-          /// PROGRESS TEXT
-          if ((progress?.progressText ?? "").isNotEmpty) ...[
-            const SizedBox(height: 6),
-
-            Text(
-              progress!.progressText!,
-              style: TextStyle(color: Colors.grey[600], fontSize: 13),
-            ),
           ],
 
           /// STREAK
@@ -220,7 +216,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               ),
             ),
 
-          if (isJoined && progress != null)
+          if (isJoined && progress != null && trigger != "CHECKIN")
             SizedBox(
               height: 48,
               child: OutlinedButton(

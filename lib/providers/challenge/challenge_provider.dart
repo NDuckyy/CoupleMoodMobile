@@ -87,21 +87,21 @@ class ChallengeProvider extends ChangeNotifier {
         (c) => c.id == coupleChallengeId,
       );
 
-      if (index == -1) return false;
+      if (index != -1) {
+        final removed = doingChallenges.removeAt(index);
 
-      final removed = doingChallenges.removeAt(index);
+        /// restore template
+        final template = templateMap[removed.challengeId];
 
-      /// restore template
-      final template = templateMap[removed.challengeId];
+        if (template != null) {
+          final updated = template.copyWith(isJoined: false);
 
-      if (template != null) {
-        final updated = template.copyWith(isJoined: false);
+          templateMap[removed.challengeId] = updated;
 
-        templateMap[removed.challengeId] = updated;
-
-        /// tránh duplicate
-        discoverChallenges.removeWhere((c) => c.id == updated.id);
-        discoverChallenges.insert(0, updated);
+          /// tránh duplicate
+          discoverChallenges.removeWhere((c) => c.id == updated.id);
+          discoverChallenges.insert(0, updated);
+        }
       }
 
       notifyListeners();

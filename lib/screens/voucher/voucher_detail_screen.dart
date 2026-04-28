@@ -474,9 +474,10 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                     child: ElevatedButton(
                       onPressed: canExchange
                           ? () async {
-                              final success = await context
+                              final (success, message) = await context
                                   .read<VoucherDetailProvider>()
                                   .exchangeVoucher();
+
                               if (!context.mounted) return;
 
                               if (success) {
@@ -485,13 +486,14 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                   "Đổi voucher thành công 💜",
                                   true,
                                 );
+
                                 context
                                     .read<VoucherDetailProvider>()
                                     .fetchDetail(widget.voucherId);
                               } else {
                                 showMsg(
                                   context,
-                                  provider.error ?? "Đổi voucher thất bại",
+                                  message ?? "Đổi voucher thất bại",
                                   false,
                                 );
                               }
