@@ -67,6 +67,35 @@ class RecommendationProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchRecommendationsContext(
+    RecommendationRequest request,
+  ) async {
+    page = 1;
+    error = null;
+    if (contextRecommendationResponse == null) {
+      isContextLoading = true;
+    } else {
+      isRefreshing = true;
+    }
+    notifyListeners();
+    try {
+      final res = await RecommendationService.fetchRecommendations(request);
+      if (res.data != null) {
+        _contextRecommendationResponse ??= ContextRecommendation(hits: []);
+        _contextRecommendationResponse!.hits = res.data?.recommendations.items ?? [];
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      isContextLoading = false;
+      isRefreshing = false;
+      notifyListeners();
+    } finally {
+      isContextLoading = false;
+      isRefreshing = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> loadMore() async {
     if (isLoadingMore) return;
 
@@ -145,21 +174,52 @@ class RecommendationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchLocationsByContext() async {
+  Future<void> searchLocationsContext(String query) async {
+    debugPrint('Searching locations with query: $query');
     page = 1;
     error = null;
     try {
+      isRefreshing = true;
+      notifyListeners();
+      final res = await RecommendationService.fetchRecommendations(
+        RecommendationRequest(query: query),
+      );
+      if (res.data != null) {
+        _contextRecommendationResponse ??= ContextRecommendation(hits: []);
+        _contextRecommendationResponse!.hits = res.data?.recommendations.items ?? [];
+      }
+
+      notifyListeners();
+    } catch (e) {
+      isRefreshing = false;
+      error = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+    } finally {
+      isRefreshing = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchLocationsByContext() async {
+    page = 1;
+    error = null;
+    if (contextRecommendationResponse == null) {
       isContextLoading = true;
-      _contextRecommendationResponse = null;
+    } else {
+      isRefreshing = true;
+    }
+    try {
       notifyListeners();
       _contextRecommendationResponse =
           await RecommendationService.fetchRecommendationsByContext();
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
       isContextLoading = false;
+      isRefreshing = false;
       notifyListeners();
     } finally {
       isContextLoading = false;
+      isRefreshing = false;
       notifyListeners();
     }
   }

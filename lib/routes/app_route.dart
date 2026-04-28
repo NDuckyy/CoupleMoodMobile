@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
 import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
+import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -288,6 +289,13 @@ GoRouter createRouter(BuildContext context) {
                 name: 'listLocation',
                 pageBuilder: (_, __) =>
                     const MaterialPage(child: ListLocationScreen()),
+              ),
+
+              GoRoute(
+                path: '/list-location-context',
+                name: 'listLocationContext',
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: ListLocationContextScreen()),
               ),
 
               GoRoute(

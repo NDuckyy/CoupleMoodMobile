@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/widgets/info_chip.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 const pinkBg = Color(0xFFFFF1F8);
@@ -17,10 +18,46 @@ const double highPriceThreshold = 100000000;
 class VenueCard extends StatelessWidget {
   final Recommendation r;
   final int maxline;
-  const VenueCard({super.key, required this.r, required this.maxline});
+  final double? lat2;
+  final double? lon2;
+  const VenueCard({
+    super.key,
+    required this.r,
+    required this.maxline,
+    this.lat2,
+    this.lon2,
+  });
 
   @override
   Widget build(BuildContext context) {
+
+    double? calculateDistance() {
+      if (r.latitude != null &&
+          r.longitude != null &&
+          lat2 != null &&
+          lon2 != null) {
+        return Geolocator.distanceBetween(
+          r.latitude!,
+          r.longitude!,
+          lat2!,
+          lon2!,
+        );
+      }
+      return null;
+    }
+
+    late final double? distance = calculateDistance();
+
+    String distanceText = "Không xác định";
+
+    if (r.displayDistance.isNotEmpty) {
+      distanceText = r.displayDistance;
+    } else if (distance != null) {
+      distanceText = distance >= 1000
+          ? "${(distance / 1000).toStringAsFixed(1)} km"
+          : "${distance.toInt()} m";
+    }
+
     return Card(
       elevation: 3,
       color: Colors.white,
@@ -90,13 +127,12 @@ class VenueCard extends StatelessWidget {
                       bgColor: const Color(0xFFFFF1F8),
                       textColor: const Color(0xFFB388EB),
                     ),
-                    if (r.displayDistance.isNotEmpty)
-                      InfoChip(
-                        icon: Icons.place,
-                        text: r.displayDistance,
-                        bgColor: const Color(0xFFEFF2FF),
-                        textColor: const Color(0xFF8093F1),
-                      ),
+                    InfoChip(
+                      icon: Icons.place,
+                      text: distanceText,
+                      bgColor: const Color(0xFFEFF2FF),
+                      textColor: const Color(0xFF8093F1),
+                    ),
                   ],
                 ),
 

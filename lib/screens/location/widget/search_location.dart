@@ -192,6 +192,7 @@ class _SearchLocationState extends State<SearchLocation> {
                       _hideOverlay();
                     },
                     onChanged: (q) {
+                      setState(() {});
                       if (_debounce?.isActive ?? false) _debounce!.cancel();
 
                       _debounce = Timer(
@@ -213,6 +214,24 @@ class _SearchLocationState extends State<SearchLocation> {
                     },
                   ),
                 ),
+                if (_controller.text.isNotEmpty)
+                  GestureDetector(
+                    onTap: () async {
+                      _controller.clear();
+
+                      final provider = context.read<RecommendationProvider>();
+                      await provider.fetchSearchHistory();
+
+                      if (!mounted) return;
+                      _showOverlay();
+                      setState(() {}); // update UI
+                    },
+                    child: const Icon(
+                      Icons.close,
+                      size: 18,
+                      color: Colors.grey,
+                    ),
+                  ),
               ],
             ),
           ),

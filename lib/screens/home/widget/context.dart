@@ -28,7 +28,7 @@ class ContextLocation extends StatelessWidget {
               ),
               TextButton(
                 onPressed: () {
-                  context.pushNamed('listLocation');
+                  context.pushNamed('listLocationContext');
                 },
                 child: const Text("Xem tất cả"),
               ),
@@ -39,7 +39,8 @@ class ContextLocation extends StatelessWidget {
             ? const EmptyStateWidget(
                 icon: Icons.location_on_outlined,
                 title: "Không có địa điểm phù hợp",
-                description: "Không có địa điểm nào phù hợp với sở thích của bạn.",
+                description:
+                    "Không có địa điểm nào phù hợp với sở thích của bạn.",
               )
             : recommendationProvider.isContextLoading
             ? const SizedBox(
@@ -57,7 +58,12 @@ class ContextLocation extends StatelessWidget {
                     final r = recs[index];
                     return SizedBox(
                       width: 300,
-                      child: VenueCard(r: r, maxline: 1),
+                      child: VenueCard(
+                        r: r,
+                        maxline: 1,
+                        lat2: recommendationProvider.latitude,
+                        lon2: recommendationProvider.longitude,
+                      ),
                     );
                   },
                 ),
