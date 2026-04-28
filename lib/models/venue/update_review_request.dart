@@ -6,6 +6,7 @@ class UpdateReviewRequest {
   final bool isMatched;
   final List<String>? deletedImageUrls;
   final List<String>? newImages;
+  final int? coupleMoodTypeId;
 
   UpdateReviewRequest({
     required this.venueLocationId,
@@ -15,6 +16,7 @@ class UpdateReviewRequest {
     required this.isMatched,
     this.deletedImageUrls,
     this.newImages,
+    this.coupleMoodTypeId,
   });
 
   Map<String, dynamic> toJson() {
@@ -26,6 +28,8 @@ class UpdateReviewRequest {
       "isMatched": isMatched,
       "deletedImageUrls": deletedImageUrls,
       "newImages": newImages,
+      if (!isMatched && coupleMoodTypeId != null)
+        "coupleMoodTypeId": coupleMoodTypeId,
     };
   }
 }

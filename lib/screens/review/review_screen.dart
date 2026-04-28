@@ -43,6 +43,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   late final bool isEditMode;
 
+  int? selectedMoodId;
+
   @override
   void initState() {
     super.initState();
@@ -52,6 +54,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     /// chỉ load data để render UI
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<VenueDetailProvider>().loadVenue(widget.venueLocationId);
+      context.read<ReviewProvider>().fetchMoodTypes();
     });
 
     final review = widget.initialReview;
@@ -74,6 +77,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   Future<void> _submitReview() async {
     if (!_formKey.currentState!.validate()) return;
+
+    if (!isMatched && selectedMoodId == null) {
+      showMsg(context, "Vui lòng chọn mood đề xuất", false);
+      return;
+    }
 
     final provider = context.read<ReviewProvider>();
 
@@ -99,6 +107,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
         /// ảnh mới user thêm
         newLocalImages: newImages,
+
+        coupleMoodTypeId: selectedMoodId,
       );
     } else {
       if (widget.checkInId == null) {
@@ -115,6 +125,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         isAnonymous: isAnonymous,
         isMatched: isMatched,
         localImagePaths: newImages,
+        coupleMoodTypeId: selectedMoodId,
       );
     }
 
@@ -185,6 +196,62 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     setState(() => isMatched = val);
                   },
                 ),
+
+                if (!isMatched) ...[
+                  const SizedBox(height: 12),
+
+                  Consumer<ReviewProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingMood) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: provider.moods.map((mood) {
+                          final isSelected = selectedMoodId == mood.id;
+
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedMoodId = mood.id;
+                              });
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: isSelected
+                                    ? const LinearGradient(
+                                        colors: [
+                                          Color(0xFFF7AEF8),
+                                          Color(0xFFB388EB),
+                                        ],
+                                      )
+                                    : null,
+                                color: isSelected ? null : Colors.grey.shade200,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                mood.name,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.black87,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                ],
 
                 const SizedBox(height: 20),
 

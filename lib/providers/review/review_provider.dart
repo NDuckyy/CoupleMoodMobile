@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/models/venue/couple_mood_type.dart';
 import 'package:couple_mood_mobile/models/venue/update_review_request.dart';
 import 'package:couple_mood_mobile/services/venue/venue_review_service.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,9 @@ class ReviewProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  List<CoupleMoodType> moods = [];
+  bool isLoadingMood = false;
+
   Future<bool> submitReview({
     required int venueLocationId,
     required int checkInId,
@@ -20,6 +24,7 @@ class ReviewProvider extends ChangeNotifier {
     required bool isAnonymous,
     required bool isMatched,
     required List<String> localImagePaths,
+    required int? coupleMoodTypeId,
   }) async {
     try {
       isLoading = true;
@@ -68,6 +73,7 @@ class ReviewProvider extends ChangeNotifier {
         isAnonymous: isAnonymous,
         isMatched: isMatched,
         imageUrls: uploadedUrls,
+        coupleMoodTypeId: isMatched ? null : coupleMoodTypeId,
       );
 
       /// 6. call API
@@ -97,6 +103,7 @@ class ReviewProvider extends ChangeNotifier {
     required List<String> originalImages, // từ BE
     required List<String> currentOldImages, // sau khi user edit
     required List<String> newLocalImages,
+    required int? coupleMoodTypeId,
   }) async {
     try {
       isLoading = true;
@@ -132,6 +139,7 @@ class ReviewProvider extends ChangeNotifier {
         isMatched: isMatched,
         deletedImageUrls: deletedImages.isEmpty ? null : deletedImages,
         newImages: newUploadedUrls.isEmpty ? null : newUploadedUrls,
+        coupleMoodTypeId: isMatched ? null : coupleMoodTypeId,
       );
 
       /// 5. call API
@@ -150,6 +158,26 @@ class ReviewProvider extends ChangeNotifier {
       return false;
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMoodTypes() async {
+    try {
+      isLoadingMood = true;
+      notifyListeners();
+
+      final res = await ReviewService.getCoupleMoodTypes();
+
+      if (res.code != 200) {
+        throw res.message ?? "Không lấy được mood type";
+      }
+
+      moods = res.data ?? [];
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      isLoadingMood = false;
       notifyListeners();
     }
   }

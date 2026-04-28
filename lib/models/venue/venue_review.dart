@@ -22,6 +22,8 @@ class VenueReview {
   final bool isOwner;
   final VenueReviewReply? reviewReply;
 
+  final int? coupleMoodTypeId;
+
   VenueReview({
     required this.id,
     required this.venueId,
@@ -39,6 +41,7 @@ class VenueReview {
     this.isMatched,
     required this.isOwner,
     this.reviewReply,
+    this.coupleMoodTypeId,
   });
 
   factory VenueReview.fromJson(Map<String, dynamic> json) {
@@ -70,6 +73,7 @@ class VenueReview {
       reviewReply: json['reviewReply'] != null
           ? VenueReviewReply.fromJson(json['reviewReply'])
           : null,
+      coupleMoodTypeId: json['coupleMoodTypeId'],
     );
   }
 }
