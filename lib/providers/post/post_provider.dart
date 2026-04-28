@@ -29,6 +29,8 @@ class PostProvider extends ChangeNotifier {
 
   final Set<int> _likingPostIds = {};
 
+  String? error;
+
   Future<void> loadFeeds() async {
     loading = true;
     notifyListeners();
@@ -128,6 +130,7 @@ class PostProvider extends ChangeNotifier {
     List<String>? hashTags,
     List<String>? topic,
   }) async {
+    error = null;
     try {
       /// 1 upload images lên S3
       final urls = await UploadUtil.mediaUpload(mediaFiles);
@@ -148,17 +151,20 @@ class PostProvider extends ChangeNotifier {
       );
 
       if (res.code == 200 && res.data != null) {
-        /// add vào đầu feed
         posts.insert(0, res.data!);
-
         notifyListeners();
         return true;
+      } else {
+        error = res.message ?? "Không thể tạo bài viết";
+        return false;
       }
     } catch (e) {
-      debugPrint(e.toString());
+      error = e.toString().replaceFirst('Exception: ', '').trim();
+      debugPrint("Create post error: $e");
+      return false;
+    } finally {
+      notifyListeners();
     }
-
-    return false;
   }
 
   Future<bool> updatePost({
@@ -203,12 +209,17 @@ class PostProvider extends ChangeNotifier {
         posts[index] = res.data!;
         notifyListeners();
         return true;
+      } else {
+        error = res.message ?? "Không thể cập nhật bài viết";
+        return false;
       }
     } catch (e) {
-      debugPrint(e.toString());
+      error = e.toString().replaceFirst('Exception: ', '').trim();
+      debugPrint("Update post error: $e");
+      return false;
+    } finally {
+      notifyListeners();
     }
-
-    return false;
   }
 
   Future<bool> deletePost(int postId) async {

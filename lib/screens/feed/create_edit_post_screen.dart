@@ -110,11 +110,26 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
 
       if (success && mounted) {
         Navigator.pop(context, true);
+      } else if (provider.error != null && mounted) {
+        showMsg(context, provider.error!, false);
       }
     } catch (e) {
-      if (mounted) showMsg(context, e.toString(), false);
+      if (mounted) {
+        String errorMsg = e
+            .toString()
+            .replaceFirst('Exception:', '')
+            .replaceFirst('Exception: ', '')
+            .trim();
+        showMsg(
+          context,
+          errorMsg.isNotEmpty ? errorMsg : "Có lỗi xảy ra",
+          false,
+        );
+      }
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
