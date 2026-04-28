@@ -36,14 +36,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   int rating = 0;
   bool isAnonymous = false;
-  bool isMatched = true;
+  // bool isMatched = true;
   final TextEditingController contentController = TextEditingController();
   List<String> oldImages = [];
   List<String> newImages = [];
 
   late final bool isEditMode;
 
-  int? selectedMoodId;
+  List<int> selectedMoodIds = [];
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     if (review != null) {
       rating = review.rating;
       isAnonymous = review.isAnonymous;
-      isMatched = review.isMatched!;
+      // isMatched = review.isMatched!;
       contentController.text = review.content;
 
       /// ảnh cũ là URL
@@ -78,8 +78,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<void> _submitReview() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (!isMatched && selectedMoodId == null) {
-      showMsg(context, "Vui lòng chọn mood đề xuất", false);
+    if (selectedMoodIds.isEmpty) {
+      showMsg(context, "Vui lòng chọn ít nhất 1 mood", false);
       return;
     }
 
@@ -97,7 +97,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
 
         /// ảnh gốc từ BE
         originalImages: widget.initialReview!.imageUrls,
@@ -108,7 +108,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         /// ảnh mới user thêm
         newLocalImages: newImages,
 
-        coupleMoodTypeId: selectedMoodId,
+        selectedMoodIds: selectedMoodIds,
       );
     } else {
       if (widget.checkInId == null) {
@@ -123,9 +123,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
         localImagePaths: newImages,
-        coupleMoodTypeId: selectedMoodId,
+        coupleMoodTypeIds: selectedMoodIds,
       );
     }
 
@@ -190,75 +190,77 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
                 const SizedBox(height: 20),
 
-                MatchSwitch(
-                  value: isMatched,
-                  onChanged: (val) {
-                    setState(() => isMatched = val);
-                  },
+                // MatchSwitch(
+                //   value: isMatched,
+                //   onChanged: (val) {
+                //     setState(() => isMatched = val);
+                //   },
+                // ),
+                // if (!isMatched) ...[
+                const SizedBox(height: 6),
+                const Text(
+                  "Chọn các tâm trạng bạn cảm thấy phù hợp với quán",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                 ),
 
-                if (!isMatched) ...[
-                  const SizedBox(height: 6),
-                  const Text(
-                    "Chọn 1 mood bạn cảm thấy phù hợp với quán",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
+                const SizedBox(height: 12),
 
-                  const SizedBox(height: 12),
+                Consumer<ReviewProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isLoadingMood) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  Consumer<ReviewProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.isLoadingMood) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: provider.moods.map((mood) {
+                        final isSelected = selectedMoodIds.contains(mood.id);
 
-                      return Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: provider.moods.map((mood) {
-                          final isSelected = selectedMoodId == mood.id;
-
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedMoodId = mood.id;
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: isSelected
-                                    ? const LinearGradient(
-                                        colors: [
-                                          Color(0xFFF7AEF8),
-                                          Color(0xFFB388EB),
-                                        ],
-                                      )
-                                    : null,
-                                color: isSelected ? null : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                mood.name,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.black87,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 12,
-                                ),
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (isSelected) {
+                                selectedMoodIds.remove(mood.id);
+                              } else {
+                                selectedMoodIds.add(mood.id);
+                              }
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: isSelected
+                                  ? const LinearGradient(
+                                      colors: [
+                                        Color(0xFFF7AEF8),
+                                        Color(0xFFB388EB),
+                                      ],
+                                    )
+                                  : null,
+                              color: isSelected ? null : Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              mood.name,
+                              style: TextStyle(
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
                             ),
-                          );
-                        }).toList(),
-                      );
-                    },
-                  ),
-                ],
-
+                          ),
+                        );
+                      }).toList(),
+                    );
+                  },
+                ),
+                // ],
                 const SizedBox(height: 20),
 
                 /// CONTENT

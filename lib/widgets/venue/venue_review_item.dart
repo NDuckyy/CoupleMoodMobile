@@ -328,8 +328,8 @@ class VenueReviewItem extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (review.isMatched != null)
-                          _buildMatchTag(review.isMatched!),
+                        // if (review.isMatched != null)
+                        //   _buildMatchTag(review.isMatched!),
                         if (showAnonymousTag) ...[
                           const SizedBox(width: 6),
                           _buildAnonymousTag(),

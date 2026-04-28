@@ -24,7 +24,7 @@ class ReviewProvider extends ChangeNotifier {
     required bool isAnonymous,
     required bool isMatched,
     required List<String> localImagePaths,
-    required int? coupleMoodTypeId,
+    required List<int>? coupleMoodTypeIds,
   }) async {
     try {
       isLoading = true;
@@ -71,9 +71,9 @@ class ReviewProvider extends ChangeNotifier {
         content: content,
         rating: rating,
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
         imageUrls: uploadedUrls,
-        coupleMoodTypeId: isMatched ? null : coupleMoodTypeId,
+        coupleMoodTypeIds: coupleMoodTypeIds,
       );
 
       /// 6. call API
@@ -103,7 +103,7 @@ class ReviewProvider extends ChangeNotifier {
     required List<String> originalImages, // từ BE
     required List<String> currentOldImages, // sau khi user edit
     required List<String> newLocalImages,
-    required int? coupleMoodTypeId,
+    required List<int>? selectedMoodIds,
   }) async {
     try {
       isLoading = true;
@@ -136,10 +136,10 @@ class ReviewProvider extends ChangeNotifier {
         rating: rating,
         content: content,
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
         deletedImageUrls: deletedImages.isEmpty ? null : deletedImages,
         newImages: newUploadedUrls.isEmpty ? null : newUploadedUrls,
-        coupleMoodTypeId: isMatched ? null : coupleMoodTypeId,
+        coupleMoodTypeIds: selectedMoodIds,
       );
 
       /// 5. call API

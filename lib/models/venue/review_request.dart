@@ -6,7 +6,7 @@ class ReviewRequest {
   final bool isAnonymous;
   final bool isMatched;
   final List<String>? imageUrls;
-  final int? coupleMoodTypeId;
+  final List<int>? coupleMoodTypeIds;
 
   ReviewRequest({
     required this.venueLocationId,
@@ -16,7 +16,7 @@ class ReviewRequest {
     required this.isAnonymous,
     required this.isMatched,
     this.imageUrls,
-    this.coupleMoodTypeId,
+    this.coupleMoodTypeIds,
   });
 
   Map<String, dynamic> toJson() {
@@ -28,7 +28,7 @@ class ReviewRequest {
       "isAnonymous": isAnonymous,
       "isMatched": isMatched,
       "imageUrls": imageUrls,
-      "coupleMoodTypeId": coupleMoodTypeId,
+      "coupleMoodTypeIds": coupleMoodTypeIds,
     };
   }
 }
