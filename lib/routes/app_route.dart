@@ -1022,9 +1022,19 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.calendar_month, 5, currentIndex, onTap: () => _onTap(5)),
+                _buildItem(
+                  Icons.calendar_month,
+                  5,
+                  currentIndex,
+                  onTap: () => _onTap(5),
+                ),
                 const SizedBox(width: 16),
-                _buildItem(Icons.person_outline, 6, currentIndex, onTap: () => _onTap(6)),
+                _buildItem(
+                  Icons.person_outline,
+                  6,
+                  currentIndex,
+                  onTap: () => _onTap(6),
+                ),
               ],
             ),
           ],
@@ -1107,4 +1117,16 @@ void navigateToChatScreen({required conversation}) {
   final context = _rootNavKey.currentContext;
   if (context == null) return;
   context.pushNamed('chat_screen', extra: {'conversation': conversation});
+}
+
+void navigateToPairingScreen() {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed('receive_invitation');
+}
+
+void navigateToDatePlanScreen() {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.goNamed('datePlan');
 }

@@ -110,7 +110,11 @@ class NotificationService {
             body,
             payload: "CHAT|$conversationId",
           );
-        } else {
+        } else if (message.data['type'] == "PAIRING") {
+          LocalNotificationService.show(title, body, payload: "PAIRING");
+        } else if (message.data['type'] == "DATE_PLAN") {
+          LocalNotificationService.show(title, body, payload: "DATE_PLAN");
+        } else if (message.data['type'] == "LOCATION") {
           final checkinId = message.data['refId'] ?? "";
           final venueLocationId = message.data['venueLocationId'] ?? "";
 

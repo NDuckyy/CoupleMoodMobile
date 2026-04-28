@@ -48,11 +48,11 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
     noteCtrl.text = detail.data?.note ?? '';
     durationModeCtrl.text = detail.data?.durationMode ?? '';
     startAt =
-        DateTime.tryParse(detail.data?.plannedStartAt ?? '')?.toLocal() ??
+        DateTime.tryParse(detail.data?.plannedStartAt ?? '') ??
         DateTime.now();
 
     endAt =
-        DateTime.tryParse(detail.data?.plannedEndAt ?? '')?.toLocal() ??
+        DateTime.tryParse(detail.data?.plannedEndAt ?? '') ??
         DateTime.now().add(const Duration(hours: 1));
 
     setState(() {});
