@@ -28,8 +28,7 @@ class ReviewRequest {
       "isAnonymous": isAnonymous,
       "isMatched": isMatched,
       "imageUrls": imageUrls,
-      if (!isMatched && coupleMoodTypeId != null)
-        "coupleMoodTypeId": coupleMoodTypeId,
+      "coupleMoodTypeId": coupleMoodTypeId,
     };
   }
 }

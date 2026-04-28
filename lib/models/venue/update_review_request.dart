@@ -28,8 +28,7 @@ class UpdateReviewRequest {
       "isMatched": isMatched,
       "deletedImageUrls": deletedImageUrls,
       "newImages": newImages,
-      if (!isMatched && coupleMoodTypeId != null)
-        "coupleMoodTypeId": coupleMoodTypeId,
+      "coupleMoodTypeId": coupleMoodTypeId,
     };
   }
 }
