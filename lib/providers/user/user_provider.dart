@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 class UserProvider extends ChangeNotifier {
   UserModel? user;
   bool isLoading = false;
+  bool hasActiveSubscription = false;
+  String? error;
 
   Future<void> fetchMe() async {
     try {
@@ -50,5 +52,21 @@ class UserProvider extends ChangeNotifier {
     user = null;
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> checkActiveSubscription() async {
+    try {
+      isLoading = true;
+      final res = await UserService.getHasActiveSubscription();
+      hasActiveSubscription = res.data == 6;
+      print("Check active subscription: ${res.data}, hasActive: $hasActiveSubscription");
+      notifyListeners();
+    } catch (e) {
+      error = e.toString();
+      print("Check subscription error: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }

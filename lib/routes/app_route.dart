@@ -4,6 +4,7 @@ import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart'
 import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
+import 'package:couple_mood_mobile/widgets/premium_guard.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -1002,9 +1003,17 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.map, 3, currentIndex),
+                PremiumGuard(
+                  onAllowedTap: () => _onTap(3),
+                  child: _buildItem(Icons.map, 3, currentIndex, onTap: null),
+                ),
                 const SizedBox(width: 16),
-                _buildItem(Icons.chat_outlined, 2, currentIndex),
+                _buildItem(
+                  Icons.chat_outlined,
+                  2,
+                  currentIndex,
+                  onTap: () => _onTap(2),
+                ),
               ],
             ),
 
@@ -1013,9 +1022,9 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.calendar_month, 5, currentIndex),
+                _buildItem(Icons.calendar_month, 5, currentIndex, onTap: () => _onTap(5)),
                 const SizedBox(width: 16),
-                _buildItem(Icons.person_outline, 6, currentIndex),
+                _buildItem(Icons.person_outline, 6, currentIndex, onTap: () => _onTap(6)),
               ],
             ),
           ],
@@ -1041,11 +1050,16 @@ class MainShell extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(IconData icon, int index, int currentIndex) {
+  Widget _buildItem(
+    IconData icon,
+    int index,
+    int currentIndex, {
+    VoidCallback? onTap,
+  }) {
     final isActive = index == currentIndex;
 
     return GestureDetector(
-      onTap: () => _onTap(index),
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(8),

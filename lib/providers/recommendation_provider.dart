@@ -141,8 +141,6 @@ class RecommendationProvider extends ChangeNotifier {
             RecommendationRequest(
               lat: latitude,
               lng: longitude,
-              page: page,
-              pageSize: pageSize,
             ),
           );
       isLoading = false;
