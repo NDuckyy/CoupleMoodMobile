@@ -108,7 +108,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 const SizedBox(width: 8),
 
                 Text(
-                  "$reward Love Points",
+                  "$reward điểm",
                   style: TextStyle(
                     color: Colors.orange.shade700,
                     fontWeight: FontWeight.bold,

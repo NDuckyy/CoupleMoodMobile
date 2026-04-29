@@ -117,7 +117,7 @@ class PostService {
     return ApiResponse.fromJson(res, (data) => data);
   }
 
-  static Future<ApiResponse<CommentModel>> createComment({
+  static Future<ApiResponse<CommentModel?>> createComment({
     required int postId,
     required String content,
     int? parentId,
@@ -125,20 +125,23 @@ class PostService {
     final res = await ApiClient.request(
       '/Post/$postId/comment',
       method: HttpMethod.post,
-      data: {
-        "content": content,
-        "parentId":
-            parentId, // khỏi truyền cho nó là null nếu là comment level 1 cũng được
-      },
+      data: {"content": content, "parentId": parentId},
     );
 
-    return ApiResponse<CommentModel>.fromJson(
-      res,
-      (json) => CommentModel.fromJson(json),
-    );
+    /// ❗ FAIL → KHÔNG parse model
+    if (res['code'] != 200) {
+      return ApiResponse<CommentModel?>(
+        code: res['code'] as int? ?? 400,
+        message: res['message'] as String? ?? 'Có lỗi xảy ra',
+        data: null,
+      );
+    }
+
+    /// ✅ SUCCESS mới parse
+    return ApiResponse.fromJson(res, (json) => CommentModel.fromJson(json));
   }
 
-  static Future<ApiResponse<CommentModel>> updateComment({
+  static Future<ApiResponse<CommentModel?>> updateComment({
     required int commentId,
     required String content,
   }) async {
@@ -148,10 +151,15 @@ class PostService {
       data: {"content": content},
     );
 
-    return ApiResponse<CommentModel>.fromJson(
-      res,
-      (json) => CommentModel.fromJson(json),
-    );
+    if (res['code'] != 200) {
+      return ApiResponse<CommentModel?>(
+        code: res['code'] as int? ?? 400,
+        message: res['message'] as String? ?? 'Có lỗi xảy ra',
+        data: null,
+      );
+    }
+
+    return ApiResponse.fromJson(res, (json) => CommentModel.fromJson(json));
   }
 
   static Future<ApiResponse<bool>> deleteComment({

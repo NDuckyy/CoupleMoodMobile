@@ -93,7 +93,7 @@ class _ShopHubScreenState extends State<ShopHubScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: "Shop"),
+            Tab(text: "Cửa hàng"),
             Tab(text: "Tủ đồ"),
           ],
         ),
