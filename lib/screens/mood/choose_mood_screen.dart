@@ -42,7 +42,12 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
     final moodProvider = context.watch<MoodProvider>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Chọn Mood')),
+      appBar: AppBar(
+        title: const Text('Chọn tâm trạng'),
+        backgroundColor: const Color(0xFFFDFDFD),
+      ),
+      backgroundColor: const Color(0xFFF7F0FF),
+
       body: Center(
         child: moodProvider.isLoading
             ? const CircularProgressIndicator()
@@ -60,7 +65,7 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                   const SizedBox(height: 10),
 
                   Text(
-                    'Chọn mood phù hợp để khám phá địa điểm lý tưởng 💜',
+                    'Chọn tâm trạng phù hợp để khám phá địa điểm lý tưởng 💜',
                     style: TextStyle(color: Colors.grey[600]),
                   ),
 
@@ -106,9 +111,9 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                                 setState(() => isLoading = true);
 
                                 try {
-                                  await context
-                                      .read<MoodProvider>()
-                                      .updateMood(selectedMood!.id);
+                                  await context.read<MoodProvider>().updateMood(
+                                    selectedMood!.id,
+                                  );
 
                                   if (!context.mounted) return;
 
@@ -132,8 +137,9 @@ class _ChooseMoodScreenState extends State<ChooseMoodScreen> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child:
-                                    CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Text(
                                 "Xác nhận",

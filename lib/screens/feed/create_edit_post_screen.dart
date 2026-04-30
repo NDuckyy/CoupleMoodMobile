@@ -164,9 +164,9 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 248, 244, 252),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFDFDFD),
           elevation: 0.5,
           title: Text(
             isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết",

@@ -35,7 +35,10 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
     final testProvider = context.watch<TestProvider>();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách bài test'),
+        title: const Text(
+          'Danh sách bài kiểm tra tính cách',
+          style: TextStyle(fontSize: 16),
+        ),
         backgroundColor: const Color(0xFFFDFDFD),
         actions: [
           Padding(

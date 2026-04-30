@@ -69,6 +69,9 @@ class TopicSelector extends StatelessWidget {
                           ? const Color(0xFF8E24AA)
                           : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(30),
+                      border: isSelected
+                          ? null
+                          : Border.all(color: Colors.grey.shade400, width: 1),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(

@@ -112,11 +112,6 @@ class TestHistoryCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Test #${item.testTypeId}",
-                          style: const TextStyle(fontSize: 12),
-                        ),
                       ],
                     ),
                   ],

@@ -27,7 +27,7 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
   void _navigateToTestResult(int testId, String status) async {
     final testProvider = context.read<TestProvider>();
     await testProvider.fetchTestResult(testId);
-    if(status == "IN_PROGRESS") {
+    if (status == "IN_PROGRESS") {
       if (!mounted) return;
       showMsg(context, "Bài test chưa có kết quả", false);
       return;
@@ -47,10 +47,13 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
     final data = provider.testHistoryPagination;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       appBar: AppBar(
-        title: const Text("Lịch sử bài test"),
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Lịch sử bài kiểm tra tính cách",
+          style: TextStyle(fontSize: 18),
+        ),
+        backgroundColor: const Color(0xFFFDFDFD),
       ),
       body: RefreshIndicator(
         onRefresh: () => context.read<TestProvider>().fetchTestHistory(),
@@ -77,7 +80,8 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: TestHistoryCard(
                           item: item,
-                          onTap: () => _navigateToTestResult(item.id, item.status),
+                          onTap: () =>
+                              _navigateToTestResult(item.id, item.status),
                         ),
                       ),
                     ),

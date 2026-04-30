@@ -26,10 +26,7 @@ class MemberSearchHeader extends StatelessWidget {
             'Tìm kiếm người yêu',
             textAlign: TextAlign.center,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
         ),
 

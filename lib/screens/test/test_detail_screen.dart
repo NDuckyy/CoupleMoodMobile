@@ -120,14 +120,14 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFDFDFD),
         title: const Text(
-          'Bài test 💕',
+          'Bài kiểm tra tính cách 💕',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: TestButtons(

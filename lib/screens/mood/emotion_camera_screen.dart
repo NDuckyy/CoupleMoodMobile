@@ -83,7 +83,12 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     final hasError = moodProvider.error != null && !moodProvider.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Phân tích cảm xúc'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Phân tích cảm xúc'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFDFDFD),
+      ),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

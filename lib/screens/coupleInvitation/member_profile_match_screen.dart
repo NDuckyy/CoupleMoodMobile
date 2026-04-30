@@ -61,7 +61,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
     final age = profile.age;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: SafeArea(
         child: Column(
           children: [

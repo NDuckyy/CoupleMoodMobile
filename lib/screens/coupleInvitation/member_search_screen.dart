@@ -61,7 +61,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoupleInvitationProvider>();
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: SafeArea(
         child: Column(
           children: [

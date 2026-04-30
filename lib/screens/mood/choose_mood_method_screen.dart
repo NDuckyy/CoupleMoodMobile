@@ -84,7 +84,7 @@ class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen>
 
                 /// 📝 TITLE
                 Text(
-                  'Bạn muốn chọn mood như thế nào?',
+                  'Bạn muốn chọn tâm trạng như thế nào?',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.balooChettan2(
                     fontSize: 26,
@@ -97,7 +97,7 @@ class _ChooseMoodMethodScreenState extends State<ChooseMoodMethodScreen>
 
                 /// 📄 DESCRIPTION
                 Text(
-                  'Hôm nay bạn cảm thấy thế nào?\nHãy thể hiện bằng emoji hoặc khuôn mặt của bạn.',
+                  'Hôm nay bạn cảm thấy thế nào?\nHãy thể hiện bằng biểu tượng hoặc khuôn mặt của bạn.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
