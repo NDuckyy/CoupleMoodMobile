@@ -1,3 +1,5 @@
+import 'package:couple_mood_mobile/models/coupleInvitation/communes.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/provinces.dart';
 import 'package:couple_mood_mobile/models/user/interest_model.dart';
 import 'package:couple_mood_mobile/models/user/update_profile_request.dart';
 import 'package:couple_mood_mobile/models/user/user_model.dart';
@@ -42,7 +44,29 @@ class UserService {
   }
 
   static Future<ApiResponse<int>> getHasActiveSubscription() async {
-    final res = await ApiClient.request("/MemberSubscription/has-active", method: HttpMethod.get);
+    final res = await ApiClient.request(
+      "/MemberSubscription/has-active",
+      method: HttpMethod.get,
+    );
     return ApiResponse.fromJson(res, (data) => data["packageId"] as int);
+  }
+
+  static Future<List<Provinces>> getProvinces(String date) async {
+    final res = await ApiClient.requestForAddress(
+      "/$date/provinces",
+      method: HttpMethod.get,
+    );
+    return (res as List).map((e) => Provinces.fromJson(e)).toList();
+  }
+
+  static Future<List<Communes>> getCommunes(
+    String date,
+    String provinceId,
+  ) async {
+    final res = await ApiClient.requestForAddress(
+      "/$date/provinces/$provinceId/communes",
+      method: HttpMethod.get,
+    );
+    return (res as List).map((e) => Communes.fromJson(e)).toList();
   }
 }
