@@ -36,7 +36,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Danh sách bài test'),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFDFDFD),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 26),
@@ -47,7 +47,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: testProvider.isLoading

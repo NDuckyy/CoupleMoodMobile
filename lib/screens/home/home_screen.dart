@@ -240,7 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final datePlanProvider = context.watch<DatePlanProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: CustomScrollView(

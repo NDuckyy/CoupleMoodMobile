@@ -1,3 +1,5 @@
+import 'package:couple_mood_mobile/providers/challenge/challenge_detail_provider.dart';
+import 'package:couple_mood_mobile/screens/challenge/challenge_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -51,6 +53,23 @@ class CompletedChallengesTab extends StatelessWidget {
 
                           if (success && context.mounted) {
                             showMsg(context, "Đã nhận thưởng 💜", true);
+                          }
+                        },
+                        onTap: () async {
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChangeNotifierProvider(
+                                create: (_) => ChallengeDetailProvider(),
+                                child: ChallengeDetailScreen(
+                                  coupleChallenge: c,
+                                ),
+                              ),
+                            ),
+                          );
+
+                          if (result == true && context.mounted) {
+                            context.read<ChallengeProvider>().loadChallenges();
                           }
                         },
                       ),
