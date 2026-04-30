@@ -53,6 +53,7 @@ class CompletedChallengesTab extends StatelessWidget {
 
                           if (success && context.mounted) {
                             showMsg(context, "Đã nhận thưởng 💜", true);
+                            context.read<ChallengeProvider>().loadChallenges();
                           }
                         },
                         onTap: () async {

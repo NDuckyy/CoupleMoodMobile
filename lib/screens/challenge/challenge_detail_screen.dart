@@ -214,8 +214,26 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
             if (!isJoined && challenge != null)
               _buildJoinButton(context, challenge),
 
-            if (isJoined && progress != null && !isCheckin)
+            // 2. Đã tham gia + CHƯA hoàn thành + Không phải check-in → Nút "Rời thử thách"
+            if (isJoined &&
+                progress != null &&
+                !isCheckin &&
+                !(progress.isCompleted ?? false)) // ← Quan trọng
               _buildLeaveButton(context, progress),
+
+            // 3. Đã hoàn thành + CHƯA nhận thưởng → Nút "Nhận phần thưởng"
+            if (isJoined &&
+                progress != null &&
+                (progress.isCompleted ?? false) &&
+                !(progress.isRewardClaimed ?? false))
+              _buildClaimRewardButton(context, progress),
+
+            // 4. Đã hoàn thành + ĐÃ nhận thưởng → Hiển thị badge "Đã nhận thưởng"
+            if (isJoined &&
+                progress != null &&
+                (progress.isCompleted ?? false) &&
+                (progress.isRewardClaimed ?? false))
+              _buildClaimedBadge(),
           ],
         ),
       ),
@@ -324,6 +342,77 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           "Rời thử thách",
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
         ),
+      ),
+    );
+  }
+
+  // Nút Nhận thưởng
+  Widget _buildClaimRewardButton(
+    BuildContext context,
+    CoupleChallenge progress,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange.shade600,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 2,
+        ),
+        icon: const Icon(Icons.card_giftcard_rounded),
+        label: const Text(
+          "Nhận phần thưởng",
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        onPressed: () async {
+          final success = await context.read<ChallengeProvider>().claimReward(
+            progress.id,
+          );
+          if (!context.mounted) return;
+
+          if (success) {
+            showMsg(context, "Đã nhận thưởng thành công 💜", true);
+            Navigator.pop(context, true); // Quan trọng: reload tab Completed
+          } else {
+            showMsg(context, "Không thể nhận thưởng lúc này", false);
+          }
+        },
+      ),
+    );
+  }
+
+  // Badge "Đã nhận thưởng"
+  Widget _buildClaimedBadge() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        color: Colors.green.shade50,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green.shade200),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            color: Colors.green.shade600,
+            size: 28,
+          ),
+          const SizedBox(width: 12),
+          const Text(
+            "Đã nhận thưởng",
+            style: TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+              color: Colors.green,
+            ),
+          ),
+        ],
       ),
     );
   }
