@@ -169,4 +169,39 @@ class ApiClient {
       rethrow;
     }
   }
+
+  static Future<dynamic> requestForAddress(
+    String path, {
+    required HttpMethod method,
+    Map<String, dynamic>? data,
+    Map<String, dynamic>? query,
+  }) async {
+    _init();
+    try {
+      final session = await SessionStorage.load();
+      final token = session?.accessToken;
+      final res = await _dio.request(
+        dotenv.env['ADDRESS_URL']!,
+        data: data,
+        queryParameters: query,
+        options: Options(
+          method: method.name.toUpperCase(),
+          headers: {
+            if (token != null && token.isNotEmpty)
+              'Authorization': 'Bearer ${dotenv.env['TOKEN_KEY']!}',
+          },
+          validateStatus: (status) => status != null && status < 500,
+        ),
+      );
+      return res.data;
+    } on DioException catch (e) {
+      throw Exception(
+        (e.response?.data is Map && e.response?.data['message'] != null)
+            ? e.response?.data['message'].toString()
+            : (e.message ?? 'Lỗi kết nối server'),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

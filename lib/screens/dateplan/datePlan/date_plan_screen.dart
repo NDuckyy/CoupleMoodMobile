@@ -53,7 +53,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
         showMsg(context, 'Gửi lịch hẹn thành công', true);
         datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
       }
-      await chatProvider.sendDatePlan(conversationId, "", datePlanId);
+      await chatProvider.sendDatePlan(conversationId, "Đã gửi 1 lịch hẹn", datePlanId);
     } catch (e) {
       if (!mounted) return;
       showMsg(context, 'Gửi lịch hẹn thất bại', false);
