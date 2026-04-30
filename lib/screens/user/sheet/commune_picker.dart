@@ -20,18 +20,68 @@ class CommunePickerField extends StatelessWidget {
   Future<void> _openPicker(BuildContext context) async {
     if (provinceCode == null) return;
 
+    final TextEditingController searchController = TextEditingController();
+
+    List<Communes> baseList = provider.communes ?? [];
+    List<Communes> filtered = baseList;
+
     final result = await showModalBottomSheet(
       context: context,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) {
-        return ListView(
-          children:
-              provider.communes?.map((c) {
-                return ListTile(
-                  title: Text(c.name),
-                  onTap: () => Navigator.pop(context, c),
-                );
-              }).toList() ??
-              [],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void onSearch(String keyword) {
+              setState(() {
+                filtered = baseList
+                    .where(
+                      (c) =>
+                          c.name.toLowerCase().contains(keyword.toLowerCase()),
+                    )
+                    .toList();
+              });
+            }
+
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+
+                  /// SEARCH
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: onSearch,
+                      decoration: const InputDecoration(
+                        hintText: "Tìm quận/huyện...",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  /// LIST
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, index) {
+                        final c = filtered[index];
+                        return ListTile(
+                          title: Text(c.name),
+                          onTap: () => Navigator.pop(context, c),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

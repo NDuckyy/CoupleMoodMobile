@@ -56,7 +56,7 @@ class UserService {
       "/$date/provinces",
       method: HttpMethod.get,
     );
-    return (res as List).map((e) => Provinces.fromJson(e)).toList();
+    return (res["provinces"] as List).map((e) => Provinces.fromJson(e)).toList();
   }
 
   static Future<List<Communes>> getCommunes(
@@ -67,6 +67,6 @@ class UserService {
       "/$date/provinces/$provinceId/communes",
       method: HttpMethod.get,
     );
-    return (res as List).map((e) => Communes.fromJson(e)).toList();
+    return (res["communes"] as List).map((e) => Communes.fromJson(e)).toList();
   }
 }

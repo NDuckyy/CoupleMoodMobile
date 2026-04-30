@@ -146,14 +146,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         if (province != null) {
           selectedProvinceCode = province.code;
 
+          /// 🔥 QUAN TRỌNG: đợi fetch xong communes
           await provider.fetchCommunes(
             DateTime.now().toIso8601String().split("T").first,
             selectedProvinceCode!,
           );
 
-          if (selectedCommuneName != null && provider.communes != null) {
+          /// 🔥 Sau khi có data thì mới map commune
+          if (selectedCommuneName != null &&
+              (provider.communes?.isNotEmpty ?? false)) {
             final commune = provider.communes!.firstWhereOrNull(
-              (c) => c.name == selectedCommuneName,
+              (c) =>
+                  c.name == selectedCommuneName &&
+                  c.provinceName == selectedProvinceName,
             );
 
             if (commune != null) {
@@ -161,7 +166,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             }
           }
 
-          setState(() {});
+          /// 🔥 setState SAU KHI xong hết
+          if (mounted) setState(() {});
         }
       }
     });

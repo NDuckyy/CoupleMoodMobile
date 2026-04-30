@@ -181,7 +181,7 @@ class ApiClient {
       final session = await SessionStorage.load();
       final token = session?.accessToken;
       final res = await _dio.request(
-        dotenv.env['ADDRESS_URL']!,
+        dotenv.env['ADDRESS_URL']! + path,
         data: data,
         queryParameters: query,
         options: Options(

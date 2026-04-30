@@ -16,17 +16,66 @@ class ProvincePickerField extends StatelessWidget {
   });
 
   Future<void> _openPicker(BuildContext context) async {
+    final TextEditingController searchController = TextEditingController();
+    List<Provinces> filtered = provider.provinces ?? [];
+
     final result = await showModalBottomSheet(
       context: context,
+      isScrollControlled: false, // 🔥 quan trọng
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (_) {
-        return ListView(
-          children: provider.provinces?.map((p) {
-                return ListTile(
-                  title: Text(p.name),
-                  onTap: () => Navigator.pop(context, p),
-                );
-              }).toList() ??
-              [],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void onSearch(String keyword) {
+              setState(() {
+                filtered = (provider.provinces ?? [])
+                    .where(
+                      (p) =>
+                          p.name.toLowerCase().contains(keyword.toLowerCase()),
+                    )
+                    .toList();
+              });
+            }
+
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6, // 🔥 chỉ 60%
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+
+                  /// SEARCH
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: onSearch,
+                      decoration: const InputDecoration(
+                        hintText: "Tìm tỉnh/thành...",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  /// LIST (dùng Flexible thay vì Expanded)
+                  Flexible(
+                    child: ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, index) {
+                        final p = filtered[index];
+                        return ListTile(
+                          title: Text(p.name),
+                          onTap: () => Navigator.pop(context, p),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );
