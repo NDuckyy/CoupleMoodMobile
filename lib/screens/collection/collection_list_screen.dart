@@ -6,6 +6,7 @@ import 'package:couple_mood_mobile/providers/collection/collection_provider.dart
 import 'package:couple_mood_mobile/widgets/collection/collection_card.dart';
 import 'package:couple_mood_mobile/widgets/collection/add_collection_card.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CollectionListScreen extends StatefulWidget {
   const CollectionListScreen({super.key});
@@ -65,6 +66,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
 
                 return CollectionCard(
                   collection: collection,
+                  isDefault: isDefault,
 
                   onTap: () async {
                     final result = await context.pushNamed(
@@ -93,9 +95,25 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                           }
                         },
 
-                  onShare: () {
-                    debugPrint('Share ${collection.id}');
-                  },
+                  onShare: isDefault
+                      ? null
+                      : () async {
+                          final provider = context.read<CollectionProvider>();
+
+                          final link = await provider.getShareLink(
+                            collection.id,
+                          );
+
+                          if (link != null) {
+                            Share.share("Xem bộ sưu tập này nè 👀\n$link");
+                          } else {
+                            showMsg(
+                              context,
+                              "Không lấy được link chia sẻ",
+                              false,
+                            );
+                          }
+                        },
 
                   ///  Nếu là default thì disable delete
                   onDelete: isDefault

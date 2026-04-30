@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/providers/post/post_provider.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/post/post_model.dart';
@@ -114,9 +115,7 @@ class PostActions extends StatelessWidget {
             if (link != null) {
               Share.share("Xem bài viết này nè 👀\n$link");
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Không lấy được link chia sẻ")),
-              );
+              showMsg(context, "Không lấy được link chia sẻ", false);
             }
           },
           child: const Icon(Icons.share_outlined),

@@ -3,6 +3,7 @@ import 'package:couple_mood_mobile/models/collection/collection_item.dart';
 
 class CollectionCard extends StatelessWidget {
   final CollectionItem collection;
+  final bool? isDefault;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onShare;
@@ -11,6 +12,7 @@ class CollectionCard extends StatelessWidget {
   const CollectionCard({
     super.key,
     required this.collection,
+    this.isDefault,
     this.onTap,
     this.onEdit,
     this.onShare,
@@ -86,7 +88,7 @@ class CollectionCard extends StatelessWidget {
               Positioned(
                 left: 12,
                 right: 12,
-                bottom: 56,
+                bottom: isDefault == true ? 16 : 56,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

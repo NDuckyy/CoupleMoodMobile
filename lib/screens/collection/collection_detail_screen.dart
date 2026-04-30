@@ -8,6 +8,7 @@ import 'package:couple_mood_mobile/widgets/collection/collection_header.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_action_row.dart';
 import 'package:couple_mood_mobile/widgets/collection/collection_venue_item.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+import 'package:share_plus/share_plus.dart';
 
 class CollectionDetailScreen extends StatefulWidget {
   final int collectionId;
@@ -114,69 +115,89 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           : Column(
               children: [
                 CollectionHeader(collection: collection),
-                CollectionActionRow(
-                  onEdit: isDefault
-                      ? null
-                      : () async {
-                          final result = await context.pushNamed(
-                            'edit_collection',
-                            extra: {'collection': collection},
-                          );
+                if (!isDefault)
+                  CollectionActionRow(
+                    onEdit: isDefault
+                        ? null
+                        : () async {
+                            final result = await context.pushNamed(
+                              'edit_collection',
+                              extra: {'collection': collection},
+                            );
 
-                          if (result == true) {
-                            context
-                                .read<CollectionDetailProvider>()
-                                .getCollectionDetail(widget.collectionId);
+                            if (result == true) {
+                              context
+                                  .read<CollectionDetailProvider>()
+                                  .getCollectionDetail(widget.collectionId);
 
-                            context
-                                .read<CollectionProvider>()
-                                .getMyCollections();
-                          }
-                        },
-
-                  onShare: () => debugPrint('Share'),
-
-                  onDelete: isDefault
-                      ? null
-                      : () async {
-                          final confirm = await showDialog<bool>(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text("Xoá bộ sưu tập"),
-                                content: const Text(
-                                  "Bạn có chắc muốn xoá bộ sưu tập này?",
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => context.pop(false),
-                                    child: const Text("Huỷ"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => context.pop(true),
-                                    child: const Text(
-                                      "Xoá",
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-
-                          if (confirm == true) {
-                            try {
-                              await context
+                              context
                                   .read<CollectionProvider>()
-                                  .deleteCollection(collection!.id);
-
-                              if (mounted) context.pop(true);
-                            } catch (e) {
-                              showMsg(context, e.toString(), false);
+                                  .getMyCollections();
                             }
-                          }
-                        },
-                ),
+                          },
+
+                    onShare: isDefault
+                        ? null
+                        : () async {
+                            final provider = context
+                                .read<CollectionDetailProvider>();
+
+                            final link = await provider.getShareLink(
+                              collection!.id,
+                            );
+
+                            if (link != null) {
+                              Share.share("Xem bộ sưu tập này nè 👀\n$link");
+                            } else {
+                              showMsg(
+                                context,
+                                "Không lấy được link chia sẻ",
+                                false,
+                              );
+                            }
+                          },
+
+                    onDelete: isDefault
+                        ? null
+                        : () async {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text("Xoá bộ sưu tập"),
+                                  content: const Text(
+                                    "Bạn có chắc muốn xoá bộ sưu tập này?",
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => context.pop(false),
+                                      child: const Text("Huỷ"),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => context.pop(true),
+                                      child: const Text(
+                                        "Xoá",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+
+                            if (confirm == true) {
+                              try {
+                                await context
+                                    .read<CollectionProvider>()
+                                    .deleteCollection(collection!.id);
+
+                                if (mounted) context.pop(true);
+                              } catch (e) {
+                                showMsg(context, e.toString(), false);
+                              }
+                            }
+                          },
+                  ),
                 const SizedBox(height: 12),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16),
