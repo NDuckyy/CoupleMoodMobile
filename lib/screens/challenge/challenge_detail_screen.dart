@@ -376,7 +376,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
           if (success) {
             showMsg(context, "Đã nhận thưởng thành công 💜", true);
-            Navigator.pop(context, true); // Quan trọng: reload tab Completed
+            Navigator.pop(context, true);
           } else {
             showMsg(context, "Không thể nhận thưởng lúc này", false);
           }
