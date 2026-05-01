@@ -121,9 +121,6 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
         lng = (myPos.longitude + partnerLng) / 2;
       }
 
-      recommendationProvider.latitude = lat;
-      recommendationProvider.longitude = lng;
-
       await recommendationProvider.fetchRecommendations(
         RecommendationRequest(lat: lat, lng: lng),
       );
@@ -287,7 +284,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCardGrid(r: r, maxline: 2);
+                      return VenueCardGrid(r: r, maxline: 2, lat2: recommendationProvider.latitude, lon2: recommendationProvider.longitude);
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
