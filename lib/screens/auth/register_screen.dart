@@ -300,6 +300,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final auth = context.watch<AuthProvider>();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -588,7 +589,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                       child: ElevatedButton(
-                                        onPressed: onRegister,
+                                        onPressed: auth.isLoading
+                                            ? null
+                                            : onRegister,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.transparent,
                                           shadowColor: Colors.transparent,
@@ -598,14 +601,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ),
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Đăng ký',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
+                                        child: auth.isLoading
+                                            ? const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.white,
+                                                    ),
+                                              )
+                                            : const Text(
+                                                'Đăng ký',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
                                       ),
                                     ),
                                   ),
