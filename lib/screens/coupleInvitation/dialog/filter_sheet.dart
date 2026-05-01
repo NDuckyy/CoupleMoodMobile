@@ -1,4 +1,6 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_filter.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/provinces.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/communes.dart';
 import 'package:couple_mood_mobile/providers/user/edit_profile_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/filter/filter_section.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/filter/picker_field.dart';
@@ -10,11 +12,7 @@ class FilterSheet extends StatefulWidget {
   final Function(MemberFilter) onApply;
   final MemberFilter? initialFilter;
 
-  const FilterSheet({
-    super.key,
-    required this.onApply,
-    this.initialFilter,
-  });
+  const FilterSheet({super.key, required this.onApply, this.initialFilter});
 
   @override
   State<FilterSheet> createState() => _FilterSheetState();
@@ -29,6 +27,8 @@ class _FilterSheetState extends State<FilterSheet> {
   String? district;
   String? selectedJob;
   String? selectedInterest;
+
+  String? provinceCode;
 
   bool useAge = false;
   bool useHeight = false;
@@ -63,13 +63,180 @@ class _FilterSheetState extends State<FilterSheet> {
     selectedJob = f?.jobTitle;
     selectedInterest = f?.interest;
 
-    /// auto bật nếu có data
     useAge = f?.ageFrom != null || f?.ageTo != null;
     useHeight = f?.heightFrom != null || f?.heightTo != null;
     useWeight = f?.weightFrom != null || f?.weightTo != null;
     useLocation = f?.city != null || f?.district != null;
     useJob = f?.jobTitle != null;
     useInterest = f?.interest != null;
+
+    Future.microtask(() {
+      final provider = context.read<EditProfileProvider>();
+      provider.fetchProvinces(
+        DateTime.now().toIso8601String().split("T").first,
+      );
+    });
+  }
+
+  /// ================= PROVINCE =================
+  Future<void> _openProvincePicker() async {
+    final provider = context.read<EditProfileProvider>();
+    final baseList = provider.provinces ?? [];
+
+    final TextEditingController searchController = TextEditingController();
+    List<Provinces> filtered = baseList;
+
+    final result = await showModalBottomSheet<Provinces>(
+      context: context,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void onSearch(String keyword) {
+              setState(() {
+                filtered = baseList
+                    .where(
+                      (p) =>
+                          p.name.toLowerCase().contains(keyword.toLowerCase()),
+                    )
+                    .toList();
+              });
+            }
+
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+
+                  /// SEARCH
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: onSearch,
+                      decoration: const InputDecoration(
+                        hintText: "Tìm tỉnh/thành...",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  /// LIST
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final p = filtered[i];
+                        return ListTile(
+                          title: Text(p.name),
+                          onTap: () => Navigator.pop(context, p),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        city = result.name;
+        provinceCode = result.code;
+        district = null; // reset commune
+      });
+
+      await provider.fetchCommunes(
+        DateTime.now().toIso8601String().split("T").first,
+        provinceCode!,
+      );
+    }
+  }
+
+  /// ================= COMMUNE =================
+  Future<void> _openCommunePicker() async {
+    if (provinceCode == null) return;
+
+    final provider = context.read<EditProfileProvider>();
+    final baseList = provider.communes ?? [];
+
+    final TextEditingController searchController = TextEditingController();
+    List<Communes> filtered = baseList;
+
+    final result = await showModalBottomSheet<Communes>(
+      context: context,
+      isScrollControlled: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void onSearch(String keyword) {
+              setState(() {
+                filtered = baseList
+                    .where(
+                      (c) =>
+                          c.name.toLowerCase().contains(keyword.toLowerCase()),
+                    )
+                    .toList();
+              });
+            }
+
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+
+                  /// SEARCH
+                  Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: onSearch,
+                      decoration: const InputDecoration(
+                        hintText: "Tìm quận/huyện...",
+                        prefixIcon: Icon(Icons.search),
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+
+                  /// LIST
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filtered.length,
+                      itemBuilder: (_, i) {
+                        final c = filtered[i];
+                        return ListTile(
+                          title: Text(c.name),
+                          onTap: () => Navigator.pop(context, c),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result != null) {
+      setState(() {
+        district = result.name;
+      });
+    }
   }
 
   @override
@@ -93,6 +260,7 @@ class _FilterSheetState extends State<FilterSheet> {
               borderRadius: BorderRadius.circular(10),
             ),
           ),
+
           const SizedBox(height: 12),
 
           const Text(
@@ -105,6 +273,7 @@ class _FilterSheetState extends State<FilterSheet> {
           Expanded(
             child: ListView(
               children: [
+                /// AGE
                 FilterSection(
                   title: "Tuổi",
                   enabled: useAge,
@@ -117,6 +286,7 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
 
+                /// HEIGHT
                 FilterSection(
                   title: "Chiều cao",
                   enabled: useHeight,
@@ -129,6 +299,7 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
 
+                /// WEIGHT
                 FilterSection(
                   title: "Cân nặng",
                   enabled: useWeight,
@@ -141,26 +312,32 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
 
+                /// LOCATION
                 FilterSection(
                   title: "Địa điểm",
                   enabled: useLocation,
                   onToggle: (v) => setState(() => useLocation = v),
                   child: Column(
                     children: [
-                      TextField(
-                        decoration: const InputDecoration(labelText: "Thành phố"),
-                        onChanged: (v) => city = v,
-                        controller: TextEditingController(text: city),
+                      ListTile(
+                        title: Text(city ?? "Chọn tỉnh"),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: _openProvincePicker,
                       ),
-                      TextField(
-                        decoration: const InputDecoration(labelText: "Quận"),
-                        onChanged: (v) => district = v,
-                        controller: TextEditingController(text: district),
+                      ListTile(
+                        title: Text(
+                          provinceCode == null
+                              ? "Chọn tỉnh trước"
+                              : (district ?? "Chọn quận/huyện"),
+                        ),
+                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                        onTap: provinceCode == null ? null : _openCommunePicker,
                       ),
                     ],
                   ),
                 ),
 
+                /// JOB
                 FilterSection(
                   title: "Nghề nghiệp",
                   enabled: useJob,
@@ -173,16 +350,15 @@ class _FilterSheetState extends State<FilterSheet> {
                   ),
                 ),
 
+                /// INTEREST
                 FilterSection(
                   title: "Sở thích",
                   enabled: useInterest,
                   onToggle: (v) => setState(() => useInterest = v),
                   child: PickerField(
                     value: selectedInterest,
-                    items: provider.interests
-                            ?.map((e) => e.name!)
-                            .toList() ??
-                        [],
+                    items:
+                        provider.interests?.map((e) => e.name!).toList() ?? [],
                     title: "Chọn sở thích",
                     onSelected: (v) => setState(() => selectedInterest = v),
                   ),
@@ -191,47 +367,50 @@ class _FilterSheetState extends State<FilterSheet> {
             ),
           ),
 
-          _applyButton(),
+          /// APPLY
+          GestureDetector(
+            onTap: () {
+              widget.onApply(
+                MemberFilter(
+                  ageFrom: useAge ? ageRange.start.toInt() : null,
+                  ageTo: useAge ? ageRange.end.toInt() : null,
+                  heightFrom: useHeight ? heightRange.start.toInt() : null,
+                  heightTo: useHeight ? heightRange.end.toInt() : null,
+                  weightFrom: useWeight ? weightRange.start.toInt() : null,
+                  weightTo: useWeight ? weightRange.end.toInt() : null,
+                  city: useLocation ? city : null,
+                  district: useLocation ? district : null,
+                  jobTitle: useJob ? selectedJob : null,
+                  interest: useInterest ? selectedInterest : null,
+                ),
+              );
+
+              Navigator.pop(context);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFF8093F1),
+                    Color(0xFFB388EB),
+                    Color(0xFFF7AEF8),
+                  ],
+                ),
+              ),
+              child: const Center(
+                child: Text(
+                  "Áp dụng",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _applyButton() {
-    return GestureDetector(
-      onTap: () {
-        widget.onApply(
-          MemberFilter(
-            ageFrom: useAge ? ageRange.start.toInt() : null,
-            ageTo: useAge ? ageRange.end.toInt() : null,
-            heightFrom: useHeight ? heightRange.start.toInt() : null,
-            heightTo: useHeight ? heightRange.end.toInt() : null,
-            weightFrom: useWeight ? weightRange.start.toInt() : null,
-            weightTo: useWeight ? weightRange.end.toInt() : null,
-            city: useLocation ? city : null,
-            district: useLocation ? district : null,
-            jobTitle: useJob ? selectedJob : null,
-            interest: useInterest ? selectedInterest : null,
-          ),
-        );
-
-        Navigator.pop(context);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(top: 10),
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          gradient: const LinearGradient(
-            colors: [Color(0xFF8093F1), Color(0xFFB388EB), Color(0xFFF7AEF8)],
-          ),
-        ),
-        child: const Center(
-          child: Text(
-            "Áp dụng",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
       ),
     );
   }

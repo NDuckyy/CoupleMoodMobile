@@ -108,11 +108,7 @@ class CommunePickerField extends StatelessWidget {
                             : "Chọn quận/huyện")),
             ),
             provider.communes == null
-                ? const SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const Icon(Icons.arrow_forward_ios, size: 16)
                 : const Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),

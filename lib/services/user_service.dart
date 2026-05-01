@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/models/user/update_profile_request.dart';
 import 'package:couple_mood_mobile/models/user/user_model.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:flutter/widgets.dart';
 
 class UserService {
   static Future<ApiResponse<UserModel>> getMe() async {
@@ -56,7 +57,13 @@ class UserService {
       "/$date/provinces",
       method: HttpMethod.get,
     );
-    return (res["provinces"] as List).map((e) => Provinces.fromJson(e)).toList();
+    if (res == null) return [];
+
+    final list = res["provinces"];
+
+    if (list == null || list is! List) return [];
+
+    return list.map((e) => Provinces.fromJson(e)).toList();
   }
 
   static Future<List<Communes>> getCommunes(
@@ -67,6 +74,9 @@ class UserService {
       "/$date/provinces/$provinceId/communes",
       method: HttpMethod.get,
     );
-    return (res["communes"] as List).map((e) => Communes.fromJson(e)).toList();
+    if (res == null) return [];
+    final list = res["communes"];
+    if (list == null || list is! List) return [];
+    return list.map((e) => Communes.fromJson(e)).toList();
   }
 }

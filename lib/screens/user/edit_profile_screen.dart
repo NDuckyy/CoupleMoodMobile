@@ -129,48 +129,59 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     interests = (profile?.interests ?? []).toList();
     selectedEducation = profile?.educationLevel;
 
-    Future.microtask(() async {
-      if (!mounted) return;
-      final provider = context.read<EditProfileProvider>();
+    /// 🔥 Load location data SAFE
+    _initLocationData();
+  }
 
-      await provider.fetchProvinces(
-        DateTime.now().toIso8601String().split("T").first,
+  Future<void> _initLocationData() async {
+    if (!mounted) return;
+
+    final provider = context.read<EditProfileProvider>();
+    final today = DateTime.now().toIso8601String().split("T").first;
+
+    try {
+      /// 1. Fetch provinces
+      await provider.fetchProvinces("2026-04-30");
+
+      final provinces = provider.provinces;
+      if (provinces == null || provinces.isEmpty) return;
+
+      /// 2. Map province từ name → code
+      final province = provinces.firstWhereOrNull(
+        (p) => p.name == selectedProvinceName,
       );
 
-      if (selectedProvinceName != null &&
-          (provider.provinces?.isNotEmpty ?? false)) {
-        final province = provider.provinces!.firstWhereOrNull(
-          (p) => p.name == selectedProvinceName,
-        );
+      if (province == null) return;
 
-        if (province != null) {
-          selectedProvinceCode = province.code;
+      selectedProvinceCode = province.code;
 
-          /// 🔥 QUAN TRỌNG: đợi fetch xong communes
-          await provider.fetchCommunes(
-            DateTime.now().toIso8601String().split("T").first,
-            selectedProvinceCode!,
-          );
+      /// 3. Fetch communes nếu có provinceCode
+      final code = selectedProvinceCode;
+      if (code == null) return;
 
-          /// 🔥 Sau khi có data thì mới map commune
-          if (selectedCommuneName != null &&
-              (provider.communes?.isNotEmpty ?? false)) {
-            final commune = provider.communes!.firstWhereOrNull(
-              (c) =>
-                  c.name == selectedCommuneName &&
-                  c.provinceName == selectedProvinceName,
-            );
+      await provider.fetchCommunes(today, code);
 
-            if (commune != null) {
-              selectedCommuneCode = commune.code;
-            }
-          }
+      final communes = provider.communes;
+      if (communes == null || communes.isEmpty) return;
 
-          /// 🔥 setState SAU KHI xong hết
-          if (mounted) setState(() {});
-        }
+      /// 4. Map commune
+      final commune = communes.firstWhereOrNull(
+        (c) =>
+            c.name == selectedCommuneName &&
+            c.provinceName == selectedProvinceName,
+      );
+
+      if (commune != null) {
+        selectedCommuneCode = commune.code;
       }
-    });
+
+      /// 5. Update UI
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint("Init location error: $e");
+    }
   }
 
   Future<void> _pickImage() async {
@@ -199,6 +210,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (user == null) return;
 
     final provider = context.read<EditProfileProvider>();
+
+    if (selectedProvinceCode != null && selectedCommuneCode == null) {
+      showMsg(context, "Vui lòng chọn quận/huyện", false);
+      return;
+    }
 
     try {
       final success = await provider.updateProfile(
@@ -432,17 +448,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   value: selectedProvinceName,
                   provider: provider,
                   onSelected: (p) async {
-                    setState(() {
-                      selectedProvinceCode = p.code;
-                      selectedProvinceName = p.name;
+                    final code = p.code;
 
+                    setState(() {
+                      selectedProvinceCode = code;
+                      selectedProvinceName = p.name;
                       selectedCommuneCode = null;
                       selectedCommuneName = null;
                     });
 
+                    if (code == null) return;
+
                     await provider.fetchCommunes(
                       DateTime.now().toIso8601String().split("T").first,
-                      selectedProvinceCode!,
+                      code,
                     );
                   },
                 ),
