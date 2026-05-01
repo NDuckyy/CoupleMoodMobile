@@ -52,6 +52,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
     final isDefault =
         collection != null && listProvider.defaultCollectionId == collection.id;
+    final bool isOwner = collection?.isOwner == true;
 
     return Scaffold(
       bottomNavigationBar: collection == null
@@ -119,7 +120,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           : Column(
               children: [
                 CollectionHeader(collection: collection),
-                if (!isDefault)
+                if (!isDefault && isOwner)
                   CollectionActionRow(
                     onEdit: isDefault
                         ? null

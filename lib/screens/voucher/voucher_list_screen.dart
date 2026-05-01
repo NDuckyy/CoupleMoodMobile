@@ -85,7 +85,7 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
                   SizedBox(height: 200),
                   Center(
                     child: Text(
-                      "Không có voucher nào",
+                      "Không có voucher nào đang được phát hành",
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
