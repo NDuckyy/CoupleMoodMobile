@@ -11,7 +11,13 @@ class VenueCardGrid extends StatelessWidget {
   final double? lat2;
   final double? lon2;
 
-  const VenueCardGrid({super.key, required this.r, required this.maxline, this.lat2, this.lon2});
+  const VenueCardGrid({
+    super.key,
+    required this.r,
+    required this.maxline,
+    this.lat2,
+    this.lon2,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +40,7 @@ class VenueCardGrid extends StatelessWidget {
 
     String distanceText = "Không xác định";
 
-    if (r.displayDistance.isNotEmpty) {
-      distanceText = r.displayDistance;
-    } else if (distance != null) {
+    if (distance != null) {
       distanceText = distance >= 1000
           ? "${(distance / 1000).toStringAsFixed(1)} km"
           : "${distance.toInt()} m";
@@ -204,27 +208,27 @@ class VenueCardGrid extends StatelessWidget {
                   const SizedBox(height: 6),
 
                   /// DISTANCE
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          size: 14,
-                          color: Color(0xFF8093F1),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            distanceText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey,
-                            ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Color(0xFF8093F1),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          distanceText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

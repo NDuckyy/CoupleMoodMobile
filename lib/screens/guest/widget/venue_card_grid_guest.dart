@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
 import 'package:couple_mood_mobile/screens/guest/widget/login_required_dialog.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
 
@@ -152,16 +153,21 @@ class VenueCardGridGuest extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const Spacer(),
-                      Text(
-                        "≈ ${r.averageCost?.toInt() ?? 0}đ",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
-                          color: Color(0xFFB388EB),
-                        ),
-                      ),
                     ],
+                  ),
+
+                  const SizedBox(height: 6),
+
+                  Text(
+                    CurrencyUtils.getPriceText(
+                      r.priceMin?.toDouble(),
+                      r.priceMax?.toDouble(),
+                    ),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF3B2E5A),
+                      fontSize: 11,
+                    ),
                   ),
 
                   const SizedBox(height: 6),
