@@ -33,6 +33,9 @@ class _PolicyContent extends StatelessWidget {
           ),
 
           _sectionTitle("2. Tài khoản người dùng"),
+          _bullet(
+            "Bạn phải từ đủ 18 tuổi trở lên để đăng ký và sử dụng ứng dụng.",
+          ),
           _bullet("Mỗi tài khoản phải sử dụng email hợp lệ và là duy nhất."),
           _bullet("Bạn chịu trách nhiệm bảo mật thông tin đăng nhập."),
           _bullet("Tài khoản có thể bị khóa nếu vi phạm chính sách."),
