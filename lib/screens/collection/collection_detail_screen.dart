@@ -103,7 +103,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            context.pop(true);
+            if (Navigator.of(context).canPop()) {
+              context.pop(true);
+            } else {
+              context.goNamed('home');
+            }
           },
         ),
         centerTitle: true,

@@ -1,11 +1,3 @@
-import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
-import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
-import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
-import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
-import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
-import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
-import 'package:couple_mood_mobile/widgets/premium_guard.dart';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +12,7 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 //Collection
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_share_provider.dart';
 
 //Post
 import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
@@ -42,6 +35,7 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
 
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
@@ -51,6 +45,12 @@ import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dar
 import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
 import 'package:couple_mood_mobile/providers/wallet/wallet_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
+
+//challenge
+import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
+
+//social
+import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
 
 //---Screen
 //Chat
@@ -79,11 +79,13 @@ import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.d
 import 'package:couple_mood_mobile/screens/collection/edit_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_detail_from_share_screen.dart';
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/my_posts_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
 
 // invitation
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
@@ -98,7 +100,7 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_history.dart';
 
 //challenge
-import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
+import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
 
 //leaderboard
 import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
@@ -106,7 +108,6 @@ import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
 //voucher
 import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
-import 'package:couple_mood_mobile/screens/voucher/my_voucher_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/voucher_hub_screen.dart';
 
 //auth
@@ -143,6 +144,8 @@ import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
 import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
+import 'package:couple_mood_mobile/widgets/premium_guard.dart';
+import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -199,10 +202,19 @@ GoRouter createRouter(BuildContext context) {
         return '/payment-result';
       }
 
+      /// POST SHARE
       if (uri.scheme == 'couplemood' && uri.host == 'post') {
         if (uri.pathSegments.isNotEmpty) {
           final code = uri.pathSegments.last;
           return '/share/post/$code';
+        }
+      }
+
+      /// COLLECTION SHARE
+      if (uri.scheme == 'couplemood' && uri.host == 'collection') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+          return '/share/collection/$code';
         }
       }
 
@@ -566,6 +578,18 @@ GoRouter createRouter(BuildContext context) {
           return ChangeNotifierProvider(
             create: (_) => PostShareProvider(),
             child: PostDetailFromShareScreen(code: code),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: 'collection_detail_from_share',
+        path: '/share/collection/:code',
+        builder: (context, state) {
+          final code = state.pathParameters['code']!;
+          return ChangeNotifierProvider(
+            create: (_) => CollectionShareProvider(),
+            child: CollectionDetailFromShareScreen(code: code),
           );
         },
       ),

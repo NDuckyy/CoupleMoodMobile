@@ -17,6 +17,7 @@ import '../../providers/post/post_detail_provider.dart';
 import '../../widgets/feed/post_media.dart';
 import '../../widgets/feed/comment_item.dart';
 import '../../utils/time_utils.dart';
+import 'package:share_plus/share_plus.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final int postId;
@@ -383,6 +384,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                       return Row(
                         children: [
+                          /// LIKE
                           GestureDetector(
                             onTap: () =>
                                 postProvider.toggleLikeById(updatedPost.id),
@@ -406,7 +408,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               ],
                             ),
                           ),
+
                           const SizedBox(width: 24),
+
+                          /// COMMENT
                           Row(
                             children: [
                               const Icon(Icons.comment_outlined),
@@ -418,6 +423,28 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                                 ),
                               ),
                             ],
+                          ),
+
+                          const SizedBox(width: 24),
+
+                          /// SHARE
+                          GestureDetector(
+                            onTap: () async {
+                              final link = await postProvider.getShareLink(
+                                updatedPost.id,
+                              );
+
+                              if (link != null) {
+                                Share.share("Xem bài viết này nè 👀\n$link");
+                              } else {
+                                showMsg(
+                                  context,
+                                  "Không lấy được link chia sẻ",
+                                  false,
+                                );
+                              }
+                            },
+                            child: const Icon(Icons.share_outlined),
                           ),
                         ],
                       );
