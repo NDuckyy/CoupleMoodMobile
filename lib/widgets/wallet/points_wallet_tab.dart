@@ -86,7 +86,7 @@ class PointsWalletTab extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          "${formatPoints(wallet.pointsBalance)} points",
+                          "${formatPoints(wallet.pointsBalance)} xu",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 36,

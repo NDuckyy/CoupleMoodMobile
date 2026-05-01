@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/communes.dart';
 import 'package:couple_mood_mobile/models/coupleInvitation/provinces.dart';
+import 'package:couple_mood_mobile/models/subscription/member_subscription_package.dart';
 import 'package:couple_mood_mobile/models/user/interest_model.dart';
 import 'package:couple_mood_mobile/models/user/update_profile_request.dart';
 import 'package:couple_mood_mobile/models/user/user_model.dart';
@@ -44,12 +45,17 @@ class UserService {
     return ApiResponse.fromJson(res, (data) => (data as List).cast<String>());
   }
 
-  static Future<ApiResponse<int>> getHasActiveSubscription() async {
+  static Future<ApiResponse<MemberActiveSubscription>>
+  getHasActiveSubscription() async {
     final res = await ApiClient.request(
       "/MemberSubscription/has-active",
       method: HttpMethod.get,
     );
-    return ApiResponse.fromJson(res, (data) => data["packageId"] as int);
+
+    return ApiResponse.fromJson(
+      res,
+      (data) => MemberActiveSubscription.fromJson(data),
+    );
   }
 
   static Future<List<Provinces>> getProvinces(String date) async {

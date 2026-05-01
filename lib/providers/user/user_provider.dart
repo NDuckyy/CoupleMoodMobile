@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/session.dart';
+import 'package:couple_mood_mobile/models/subscription/member_subscription_package.dart';
 import 'package:couple_mood_mobile/models/user/user_model.dart';
 import 'package:couple_mood_mobile/services/user_service.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
@@ -8,6 +9,7 @@ class UserProvider extends ChangeNotifier {
   UserModel? user;
   bool isLoading = false;
   bool hasActiveSubscription = false;
+  MemberActiveSubscription? subscription;
   String? error;
 
   Future<void> fetchMe() async {
@@ -57,13 +59,24 @@ class UserProvider extends ChangeNotifier {
   Future<void> checkActiveSubscription() async {
     try {
       isLoading = true;
-      final res = await UserService.getHasActiveSubscription();
-      hasActiveSubscription = res.data == 6;
-      print("Check active subscription: ${res.data}, hasActive: $hasActiveSubscription");
       notifyListeners();
+
+      final res = await UserService.getHasActiveSubscription();
+
+      if (res.code == 200 && res.data != null) {
+        subscription = res.data;
+
+        hasActiveSubscription =
+            (subscription?.packageId == 6 || subscription?.packageId == 7);
+
+        print(
+          "Subscription: packageId=${subscription?.packageId}, "
+          "legacyActive=$hasActiveSubscription, "
+          "beActive=${subscription?.hasActiveSubscription}",
+        );
+      }
     } catch (e) {
       error = e.toString();
-      print("Check subscription error: $e");
     } finally {
       isLoading = false;
       notifyListeners();
