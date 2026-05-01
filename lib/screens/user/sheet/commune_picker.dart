@@ -59,7 +59,7 @@ class CommunePickerField extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   const Text(
-                    "Chọn quận/huyện",
+                    "Chọn Phường",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
 
@@ -142,7 +142,7 @@ class CommunePickerField extends StatelessWidget {
                   : (value ??
                         (provider.communes == null
                             ? "Đang tải..."
-                            : "Chọn quận/huyện")),
+                            : "Chọn phường")),
             ),
             provider.communes == null
                 ? const Icon(Icons.arrow_forward_ios, size: 16)

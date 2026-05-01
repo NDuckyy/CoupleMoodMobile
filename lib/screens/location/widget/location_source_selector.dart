@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum LocationSource { self, partner }
+enum LocationSource { self, partner, middle }
 
 class LocationSourceSelector extends StatelessWidget {
   final LocationSource selected;
@@ -25,6 +25,20 @@ class LocationSourceSelector extends StatelessWidget {
             icon: Icons.my_location,
             isSelected: selected == LocationSource.self,
             onTap: () => onChanged(LocationSource.self),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: _item(
+            context,
+            label: "Ở giữa",
+            icon: Icons.place,
+            isSelected: selected == LocationSource.middle,
+            disabled: !hasPartner,
+            onTap: () {
+              if (!hasPartner) return;
+              onChanged(LocationSource.middle);
+            },
           ),
         ),
         const SizedBox(width: 10),

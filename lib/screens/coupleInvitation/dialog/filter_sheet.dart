@@ -234,7 +234,7 @@ class _FilterSheetState extends State<FilterSheet> {
                     const SizedBox(height: 12),
 
                     const Text(
-                      "Chọn quận/huyện",
+                      "Chọn phường",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
 
@@ -369,7 +369,7 @@ class _FilterSheetState extends State<FilterSheet> {
                   child: Column(
                     children: [
                       ListTile(
-                        title: Text(city ?? "Chọn tỉnh"),
+                        title: Text(city ?? "Chọn tỉnh/thành"),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: _openProvincePicker,
                       ),
@@ -377,7 +377,7 @@ class _FilterSheetState extends State<FilterSheet> {
                         title: Text(
                           provinceCode == null
                               ? "Chọn tỉnh trước"
-                              : (district ?? "Chọn quận/huyện"),
+                              : (district ?? "Chọn phường"),
                         ),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: provinceCode == null ? null : _openCommunePicker,
