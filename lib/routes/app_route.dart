@@ -223,17 +223,12 @@ GoRouter createRouter(BuildContext context) {
       final isLoggedIn = auth.isLoggedIn;
       final loc = uri.toString(); // hoặc state.matchedLocation nếu chỉ cần path
 
+      final isPublicRoute = loc.startsWith('/policy');
+
       final isAuthRoute =
           loc.startsWith('/login') ||
           loc.startsWith('/register') ||
           loc.startsWith('/guest') ||
-          loc.startsWith('/forgot-password') ||
-          loc.startsWith('/reset-password') ||
-          loc.startsWith('/policy');
-
-      final isOnlyAuthPage =
-          loc.startsWith('/login') ||
-          loc.startsWith('/register') ||
           loc.startsWith('/forgot-password') ||
           loc.startsWith('/reset-password');
       final isSplash = loc == '/splash';
@@ -242,9 +237,9 @@ GoRouter createRouter(BuildContext context) {
         return null;
       }
 
-      if (!isLoggedIn && !isAuthRoute) return '/guest';
+      if (!isLoggedIn && !isAuthRoute && !isPublicRoute) return '/guest';
 
-      if (isLoggedIn && isOnlyAuthPage) return '/home';
+      if (isLoggedIn && isAuthRoute) return '/home';
 
       return null;
     },

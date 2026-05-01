@@ -318,6 +318,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Khác',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
+                  _tile(
+                    Icons.privacy_tip_outlined,
+                    "Điều khoản & Chính sách",
+                    () {
+                      context.push(
+                        '/policy',
+                      ); // hoặc pushNamed nếu bạn dùng name
+                    },
+                  ),
                   _tile(Icons.help_outline, "Trợ giúp", () {
                     context.pushNamed("faq");
                   }),
