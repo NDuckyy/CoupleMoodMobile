@@ -146,6 +146,7 @@ import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
 import 'package:couple_mood_mobile/widgets/premium_guard.dart';
 import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/policy_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -227,6 +228,13 @@ GoRouter createRouter(BuildContext context) {
           loc.startsWith('/register') ||
           loc.startsWith('/guest') ||
           loc.startsWith('/forgot-password') ||
+          loc.startsWith('/reset-password') ||
+          loc.startsWith('/policy');
+
+      final isOnlyAuthPage =
+          loc.startsWith('/login') ||
+          loc.startsWith('/register') ||
+          loc.startsWith('/forgot-password') ||
           loc.startsWith('/reset-password');
       final isSplash = loc == '/splash';
 
@@ -236,7 +244,7 @@ GoRouter createRouter(BuildContext context) {
 
       if (!isLoggedIn && !isAuthRoute) return '/guest';
 
-      if (isLoggedIn && isAuthRoute) return '/home';
+      if (isLoggedIn && isOnlyAuthPage) return '/home';
 
       return null;
     },
@@ -279,6 +287,10 @@ GoRouter createRouter(BuildContext context) {
             child: ResetPasswordScreen(email: extra['email']),
           );
         },
+      ),
+      GoRoute(
+        path: '/policy',
+        builder: (context, state) => const PolicyScreen(),
       ),
 
       /// SHELL: sau khi login mới vào đây => có bottom bar

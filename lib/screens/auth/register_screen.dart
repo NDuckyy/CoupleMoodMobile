@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +27,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  bool _acceptedPolicy = false;
 
   String _gender = 'MALE';
 
@@ -58,6 +61,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void onRegister() async {
+    if (!_acceptedPolicy) {
+      showMsg(context, "Vui lòng đồng ý Điều khoản & Chính sách", false);
+      return;
+    }
     if (_formKey.currentState?.validate() != true) return;
 
     final req = RegisterRequest(
@@ -278,7 +285,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return null;
                                     },
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 8),
 
                                   TextFormField(
                                     controller: _confirmPasswordCtrl,
@@ -308,7 +315,64 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return null;
                                     },
                                   ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: Checkbox(
+                                          value: _acceptedPolicy,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _acceptedPolicy = value ?? false;
+                                            });
+                                          },
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize
+                                                  .shrinkWrap, // quan trọng
+                                        ),
+                                      ),
 
+                                      const SizedBox(
+                                        width: 4,
+                                      ), // khoảng cách vừa phải, không quá xa
+
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize:
+                                                  15, // bạn có thể chỉnh 14 hoặc 15
+                                              height: 1.0,
+                                            ),
+                                            children: [
+                                              const TextSpan(
+                                                text: "Tôi đồng ý với ",
+                                              ),
+                                              TextSpan(
+                                                text: "Điều khoản & Chính sách",
+                                                style: const TextStyle(
+                                                  color: Color(0xFFB388EB),
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () {
+                                                        context.push('/policy');
+                                                      },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   const SizedBox(height: 24),
 
                                   SizedBox(
