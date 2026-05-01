@@ -83,63 +83,89 @@ class _FilterSheetState extends State<FilterSheet> {
     final provider = context.read<EditProfileProvider>();
     final baseList = provider.provinces ?? [];
 
-    final TextEditingController searchController = TextEditingController();
-    List<Provinces> filtered = baseList;
+    String query = "";
 
     final result = await showModalBottomSheet<Provinces>(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void onSearch(String keyword) {
-              setState(() {
-                filtered = baseList
-                    .where(
-                      (p) =>
-                          p.name.toLowerCase().contains(keyword.toLowerCase()),
-                    )
-                    .toList();
-              });
-            }
+            final filtered = baseList
+                .where(
+                  (p) => p.name.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
 
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
+            return SafeArea(
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
 
-                  /// SEARCH
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: onSearch,
-                      decoration: const InputDecoration(
-                        hintText: "Tìm tỉnh/thành...",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+                    Container(
+                      height: 5,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ),
 
-                  /// LIST
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (_, i) {
-                        final p = filtered[i];
-                        return ListTile(
-                          title: Text(p.name),
-                          onTap: () => Navigator.pop(context, p),
-                        );
-                      },
+                    const SizedBox(height: 12),
+
+                    const Text(
+                      "Chọn tỉnh/thành",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 12),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        onChanged: (v) => setState(() => query = v),
+                        decoration: InputDecoration(
+                          hintText: "Tìm kiếm...",
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// LIST
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (_, i) {
+                          final p = filtered[i];
+                          return ListTile(
+                            title: Text(p.name),
+                            onTap: () => Navigator.pop(context, p),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -151,7 +177,7 @@ class _FilterSheetState extends State<FilterSheet> {
       setState(() {
         city = result.name;
         provinceCode = result.code;
-        district = null; // reset commune
+        district = null;
       });
 
       await provider.fetchCommunes(
@@ -168,63 +194,86 @@ class _FilterSheetState extends State<FilterSheet> {
     final provider = context.read<EditProfileProvider>();
     final baseList = provider.communes ?? [];
 
-    final TextEditingController searchController = TextEditingController();
-    List<Communes> filtered = baseList;
+    String query = "";
 
     final result = await showModalBottomSheet<Communes>(
       context: context,
-      isScrollControlled: false,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (_) {
         return StatefulBuilder(
           builder: (context, setState) {
-            void onSearch(String keyword) {
-              setState(() {
-                filtered = baseList
-                    .where(
-                      (c) =>
-                          c.name.toLowerCase().contains(keyword.toLowerCase()),
-                    )
-                    .toList();
-              });
-            }
+            final filtered = baseList
+                .where(
+                  (c) => c.name.toLowerCase().contains(query.toLowerCase()),
+                )
+                .toList();
 
-            return SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
+            return SafeArea(
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.7,
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
 
-                  /// SEARCH
-                  Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: TextField(
-                      controller: searchController,
-                      onChanged: onSearch,
-                      decoration: const InputDecoration(
-                        hintText: "Tìm quận/huyện...",
-                        prefixIcon: Icon(Icons.search),
-                        border: OutlineInputBorder(),
+                    Container(
+                      height: 5,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                  ),
 
-                  /// LIST
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: filtered.length,
-                      itemBuilder: (_, i) {
-                        final c = filtered[i];
-                        return ListTile(
-                          title: Text(c.name),
-                          onTap: () => Navigator.pop(context, c),
-                        );
-                      },
+                    const SizedBox(height: 12),
+
+                    const Text(
+                      "Chọn quận/huyện",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+
+                    const SizedBox(height: 12),
+
+                    /// SEARCH đẹp
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: TextField(
+                        onChanged: (v) => setState(() => query = v),
+                        decoration: InputDecoration(
+                          hintText: "Tìm kiếm...",
+                          prefixIcon: const Icon(Icons.search),
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: filtered.length,
+                        itemBuilder: (_, i) {
+                          final c = filtered[i];
+                          return ListTile(
+                            title: Text(c.name),
+                            onTap: () => Navigator.pop(context, c),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
