@@ -132,4 +132,73 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Future<bool> verifyOtp(String email, String otp) async {
+  //   isLoading = true;
+  //   error = null;
+  //   notifyListeners();
+
+  //   try {
+  //     final res = await AuthService.verifyOtp(email, otp);
+
+  //     if (res.code == 200) {
+  //       return true;
+  //     } else {
+  //       error = res.message;
+  //       return false;
+  //     }
+  //   } catch (e) {
+  //     error = e.toString().replaceFirst('Exception: ', '');
+  //     return false;
+  //   } finally {
+  //     isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
+
+  Future<bool> verifyRegistrationOtp(String email, String otp) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final res = await AuthService.verifyRegistrationOtp(email, otp);
+
+      if (res.code == 200) {
+        return true;
+      } else {
+        error = res.message;
+        return false;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> sendRegistrationOtp(String email) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final res = await AuthService.sendRegistrationOtp(email);
+
+      if (res.code == 200) {
+        return true;
+      } else {
+        error = res.message;
+        return false;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }

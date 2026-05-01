@@ -60,11 +60,209 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  void _showOtpDialog(RegisterRequest req) {
+    final otpController = TextEditingController();
+    final focusNode = FocusNode();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 8,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon + Title
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7B33BB).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.email_outlined,
+                    size: 48,
+                    color: Color(0xFF7B33BB),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Xác thực OTP",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  "Chúng tôi đã gửi mã OTP về email",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                ),
+
+                Text(
+                  req.email,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF7B33BB),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // OTP Input
+                TextField(
+                  controller: otpController,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 8,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "••••••",
+                    counterText: "",
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF7B33BB),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          "Huỷ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final auth = context.read<AuthProvider>();
+                          final otp = otpController.text.trim();
+
+                          if (otp.isEmpty || otp.length < 4) {
+                            showMsg(context, "Vui lòng nhập mã OTP", false);
+                            return;
+                          }
+
+                          final verifyOk = await auth.verifyRegistrationOtp(
+                            req.email,
+                            otp,
+                          );
+
+                          if (!verifyOk) {
+                            showMsg(
+                              context,
+                              auth.error ?? "Mã OTP không đúng",
+                              false,
+                            );
+                            otpController.clear();
+                            focusNode.requestFocus();
+                            return;
+                          }
+
+                          // Verify thành công → Đăng ký
+                          final registerOk = await auth.register(req);
+
+                          if (registerOk && context.mounted) {
+                            Navigator.pop(context); // đóng dialog OTP
+                            showMsg(
+                              context,
+                              "Đăng ký tài khoản thành công ❤️",
+                              true,
+                            );
+                            context.pushNamed(
+                              "login",
+                              extra: "Đăng ký thành công",
+                            );
+                          } else {
+                            showMsg(
+                              context,
+                              auth.error ?? "Đăng ký thất bại",
+                              false,
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7B33BB),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Xác nhận",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void onRegister() async {
     if (!_acceptedPolicy) {
       showMsg(context, "Vui lòng đồng ý Điều khoản & Chính sách", false);
       return;
     }
+
     if (_formKey.currentState?.validate() != true) return;
 
     final req = RegisterRequest(
@@ -78,15 +276,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     final auth = context.read<AuthProvider>();
-    final ok = await auth.register(req);
-    if (ok) {
-      if (!mounted) return;
-      showMsg(context, "Đăng ký thành công", true);
-      context.pushNamed("login", extra: "Đăng ký thành công");
+
+    // gửi OTP trước
+    final ok = await auth.sendRegistrationOtp(req.email);
+
+    if (!ok) {
+      showMsg(context, auth.error ?? "Gửi OTP thất bại", false);
       return;
     }
-    if (!mounted) return;
-    showMsg(context, "Đăng ký thất bại: ${auth.error}", false);
+
+    //  mở dialog nhập OTP
+    _showOtpDialog(req);
   }
 
   InputDecoration _decoration(String label) => InputDecoration(
@@ -285,7 +485,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return null;
                                     },
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 16),
 
                                   TextFormField(
                                     controller: _confirmPasswordCtrl,
@@ -315,7 +515,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return null;
                                     },
                                   ),
-                                  const SizedBox(height: 4),
+                                  const SizedBox(height: 8),
                                   Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
@@ -336,9 +536,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
 
-                                      const SizedBox(
-                                        width: 4,
-                                      ), // khoảng cách vừa phải, không quá xa
+                                      const SizedBox(width: 4),
 
                                       Expanded(
                                         child: RichText(

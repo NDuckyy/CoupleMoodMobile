@@ -139,4 +139,41 @@ class AuthService {
       throw Exception('Lỗi khi đổi mật khẩu: $e');
     }
   }
+
+  // sao BE tận 2 api verify
+  // static Future<ApiResponse<void>> verifyOtp(
+  //   String email,
+  //   String otpCode,
+  // ) async {
+  //   final res = await ApiClient.request(
+  //     '/Auth/verify-otp',
+  //     method: HttpMethod.post,
+  //     data: {"email": email, "otpCode": otpCode},
+  //   );
+
+  //   return ApiResponse<void>.fromJson(res, (json) {});
+  // }
+
+  static Future<ApiResponse<void>> sendRegistrationOtp(String email) async {
+    final res = await ApiClient.request(
+      '/Auth/send-registration-otp',
+      method: HttpMethod.post,
+      data: {"email": email},
+    );
+
+    return ApiResponse<void>.fromJson(res, (json) {});
+  }
+
+  static Future<ApiResponse<void>> verifyRegistrationOtp(
+    String email,
+    String otpCode,
+  ) async {
+    final res = await ApiClient.request(
+      '/Auth/verify-registration-otp',
+      method: HttpMethod.post,
+      data: {"email": email, "otpCode": otpCode},
+    );
+
+    return ApiResponse<void>.fromJson(res, (json) {});
+  }
 }
