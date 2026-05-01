@@ -132,7 +132,7 @@ class EditProfileProvider extends ChangeNotifier {
 
   Future<void> fetchProvinces(String date) async {
     try {
-      provinces = await UserService.getProvinces(date);
+      provinces = await UserService.getProvinces("2026-04-30");
       notifyListeners();
     } catch (e) {
       debugPrint("Fetch provinces error: $e");
@@ -141,7 +141,7 @@ class EditProfileProvider extends ChangeNotifier {
 
   Future<void> fetchCommunes(String date, String provinceId) async {
     try {
-      communes = await UserService.getCommunes(date, provinceId);
+      communes = await UserService.getCommunes("2026-04-30", provinceId);
       notifyListeners();
     } catch (e) {
       debugPrint("Fetch communes error: $e");
