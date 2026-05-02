@@ -112,7 +112,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
 
                   /// NAME
                   Text(
-                    age != null
+                    age != null && age > 0
                         ? "${profile.fullName}, $age"
                         : profile.fullName,
                     style: const TextStyle(
@@ -174,7 +174,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                             else
                               InfoChip("Nữ"),
                           ],
-                          if (age != null) InfoChip("$age tuổi"),
+                          if (age != null && age > 0) InfoChip("$age tuổi"),
                           if (profile.height != null)
                             InfoChip("${profile.height} cm"),
                           if (profile.weight != null)
