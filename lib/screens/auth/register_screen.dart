@@ -291,10 +291,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   InputDecoration _decoration(String label) => InputDecoration(
     filled: true,
-    fillColor: Colors.white,
+    fillColor: const Color(0xFFF8F6FF),
     labelText: label,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    ),
+    contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
   );
 
   @override
@@ -326,21 +329,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         Container(
                           margin: const EdgeInsets.only(top: 24),
-                          width: 330,
+                          width: double.infinity,
+                          constraints: const BoxConstraints(maxWidth: 420),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(40),
+                            borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color.fromARGB(
-                                  255,
-                                  147,
-                                  146,
-                                  146,
-                                ).withOpacity(0.5),
-                                spreadRadius: 5,
-                                blurRadius: 7,
-                                offset: const Offset(3, 3),
+                                color: const Color(
+                                  0xFFB388EB,
+                                ).withOpacity(0.15),
+                                blurRadius: 25,
+                                offset: const Offset(0, 10),
                               ),
                             ],
                           ),
@@ -521,9 +521,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      SizedBox(
-                                        width: 24,
-                                        height: 24,
+                                      Transform.scale(
+                                        scale: 0.9,
                                         child: Checkbox(
                                           value: _acceptedPolicy,
                                           onChanged: (value) {
@@ -579,7 +578,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     height: 50,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFFB388EB,
+                                            ).withOpacity(0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
                                         gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFFF7B3E9),
