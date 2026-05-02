@@ -259,7 +259,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       success,
                     );
 
-                    if (success) Navigator.pop(context);
+                    if (success) context.pop(true);
                   }
                 },
               ),
@@ -377,9 +377,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
                   Consumer<PostProvider>(
                     builder: (context, postProvider, _) {
-                      final updatedPost = postProvider.posts
-                          .where((p) => p.id == post.id)
-                          .firstOrNull;
+                      final updatedPost = postProvider.findPostById(post.id);
                       if (updatedPost == null) return const SizedBox();
 
                       return Row(

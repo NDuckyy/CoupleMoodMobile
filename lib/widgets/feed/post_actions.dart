@@ -29,7 +29,7 @@ class PostActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final postProvider = context.watch<PostProvider>();
 
-    final current = postProvider.posts.firstWhere((p) => p.id == post.id);
+    final current = postProvider.findPostById(post.id) ?? post;
 
     return Row(
       children: [

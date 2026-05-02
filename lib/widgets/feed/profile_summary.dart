@@ -85,7 +85,7 @@ class ProfileSummary extends StatelessWidget {
                   ],
                 ),
                 const Text(
-                  "View your posts",
+                  "Xem các bài viết của bạn",
                   style: TextStyle(color: Colors.grey, fontSize: 13),
                 ),
               ],
