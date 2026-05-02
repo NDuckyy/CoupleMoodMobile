@@ -91,6 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
+                              letterSpacing: 1.2,
                             ),
                           ),
                           Text(
@@ -98,29 +99,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: GoogleFonts.balooChettan2(
                               fontSize: 18,
                               color: Colors.white,
+                              letterSpacing: 1.2,
                             ),
                           ),
                           const SizedBox(height: 20),
 
                           Container(
-                            width: 330,
+                            width: double.infinity,
+                            constraints: const BoxConstraints(maxWidth: 420),
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 26),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(40),
-                              ),
+                              borderRadius: BorderRadius.circular(32),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color.fromARGB(
-                                    255,
-                                    147,
-                                    146,
-                                    146,
-                                  ).withOpacity(0.5),
-                                  spreadRadius: 5,
-                                  blurRadius: 7,
-                                  offset: const Offset(3, 3),
+                                  color: const Color(
+                                    0xFFB388EB,
+                                  ).withOpacity(0.15),
+                                  blurRadius: 25,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -134,6 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Color(0xFFB388EB),
                                     fontSize: 24,
                                     fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
                                   ),
                                 ),
                                 const Text(
@@ -141,6 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey,
+                                    letterSpacing: 1.2,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
@@ -148,18 +147,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TextFormField(
                                   controller: _emailCtrl,
                                   decoration: InputDecoration(
-                                    border: const OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    ),
                                     filled: true,
-                                    fillColor: Colors.white,
-                                    label: const Text("Email"),
+                                    fillColor: const Color(0xFFF8F6FF),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide.none,
+                                    ),
                                     contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10,
+                                      vertical: 14,
                                       horizontal: 16,
                                     ),
+                                    label: const Text("Email"),
                                   ),
                                   validator: (value) =>
                                       value == null || value.isEmpty
@@ -172,18 +170,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _passwordCtrl,
                                   obscureText: _obscurePassword,
                                   decoration: InputDecoration(
-                                    border: const OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                        Radius.circular(10),
-                                      ),
-                                    ),
                                     filled: true,
-                                    fillColor: Colors.white,
-                                    label: const Text("Mật khẩu"),
+                                    fillColor: const Color(0xFFF8F6FF),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      borderSide: BorderSide.none,
+                                    ),
                                     contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10,
+                                      vertical: 14,
                                       horizontal: 16,
                                     ),
+                                    label: const Text("Mật khẩu"),
                                     suffixIcon: IconButton(
                                       icon: Icon(
                                         _obscurePassword
@@ -210,13 +207,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Container(
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                        255,
-                                        246,
-                                        186,
-                                        247,
+                                      borderRadius: BorderRadius.circular(16),
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFFFDC5F5),
+                                          Color(0xFFB388EB),
+                                          Color(0xFF8093F1),
+                                        ],
                                       ),
-                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: const Color(
+                                            0xFFB388EB,
+                                          ).withOpacity(0.3),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 6),
+                                        ),
+                                      ],
                                     ),
                                     child: ElevatedButton(
                                       onPressed: (provider.isLoading
@@ -229,7 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         shadowColor: Colors.transparent,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            10,
+                                            16,
                                           ),
                                         ),
                                       ),
@@ -261,14 +268,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   style:
                                       OutlinedButton.styleFrom(
                                         minimumSize: Size(double.infinity, 50),
-                                        backgroundColor: Colors.white,
+                                        backgroundColor: const Color(
+                                          0xFFF8F6FF,
+                                        ),
                                         side: BorderSide(
                                           color: Color(0xFFB388EB),
                                         ),
                                         shadowColor: Colors.transparent,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
-                                            10,
+                                            16,
                                           ),
                                         ),
                                       ).copyWith(

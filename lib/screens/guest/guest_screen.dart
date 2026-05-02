@@ -111,9 +111,13 @@ class _GuestScreenState extends State<GuestScreen> {
                   child: Loading(),
                 )
               else if (recs.isEmpty)
+                // const SliverFillRemaining(
+                //   hasScrollBody: false,
+                //   child: Center(child: Text('Không có địa điểm phù hợp')),
+                // )
                 const SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(child: Text('Không có địa điểm phù hợp')),
+                  child: Loading(),
                 )
               else
                 SliverPadding(
