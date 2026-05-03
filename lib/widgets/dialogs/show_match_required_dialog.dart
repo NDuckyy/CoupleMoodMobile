@@ -5,7 +5,7 @@ Future<void> showMatchRequiredDialog({
   required BuildContext context,
   String title = 'Yêu cầu ghép đôi',
   String description =
-      'Bạn cần ghép đôi để sử dụng tính năng này. Bạn có muốn ghép đôi ngay bây giờ không?',
+      'Bạn cần ghép đôi để sử dụng nhiều tính năng hơn. Bạn có muốn ghép đôi ngay bây giờ không?',
   String confirmText = 'Ghép đôi',
   String cancelText = 'Hủy',
 }) {

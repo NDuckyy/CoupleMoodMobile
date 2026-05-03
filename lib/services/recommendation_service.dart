@@ -49,6 +49,7 @@ class RecommendationService {
         method: HttpMethod.post,
         data: {
           "q": context.data?.searchHistories ?? "",
+          "filter": "isPenalty = false",
           "personalize": {"userContext": context.data?.userContext ?? ""},
         },
       );
