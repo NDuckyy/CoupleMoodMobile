@@ -36,6 +36,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
 
     if (provider.error != null) {
       showMsg(context, provider.error!, false);
+      context.pop();
       return;
     }
 
