@@ -40,7 +40,6 @@ class SubscriptionCard extends StatelessWidget {
       "📵 Không quảng cáo - Trải nghiệm sạch sẽ",
       "🗺️ Bản đồ tình yêu & theo dõi cặp đôi",
       "🤖 DatePlan AI tạo kế hoạch hẹn hò",
-      "✨ Khung ảnh, sticker & phụ kiện Premium độc quyền",
     ];
 
     final textColor = isYearly ? Colors.white : Colors.black87;
