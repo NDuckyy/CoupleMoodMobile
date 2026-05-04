@@ -35,7 +35,7 @@ class _TopupSectionState extends State<TopupSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// ===== NẠP NHANH =====
+        /// nạp nhanh
         const Text(
           "Nạp nhanh",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -83,7 +83,7 @@ class _TopupSectionState extends State<TopupSection> {
 
         const SizedBox(height: 32),
 
-        /// ===== INPUT =====
+        /// nhập tiền
         const Text(
           "Nhập số tiền nạp",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -131,7 +131,7 @@ class _TopupSectionState extends State<TopupSection> {
 
         const SizedBox(height: 28),
 
-        /// ===== BUTTON NẠP =====
+        /// nạp
         SizedBox(
           width: double.infinity,
           height: 62,
