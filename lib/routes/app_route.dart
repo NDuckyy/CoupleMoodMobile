@@ -1081,6 +1081,7 @@ class MainShell extends StatelessWidget {
         height: 70,
         width: 70,
         child: FloatingActionButton(
+          heroTag: null,
           shape: const CircleBorder(),
           elevation: 8,
           backgroundColor: const Color(0xFFB388EB),

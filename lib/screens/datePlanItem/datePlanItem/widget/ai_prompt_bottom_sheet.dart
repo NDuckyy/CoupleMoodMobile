@@ -10,13 +10,12 @@ class AIPromptBottomSheet extends StatefulWidget {
 class _AIPromptBottomSheetState extends State<AIPromptBottomSheet> {
   final TextEditingController controller = TextEditingController();
 
-  final suggestions = [
-    {"text": "Lãng mạn", "icon": Icons.favorite, "color": Colors.pink},
-    {"text": "Ăn tối", "icon": Icons.restaurant, "color": Colors.orange},
-    {"text": "Hoàng hôn", "icon": Icons.wb_sunny, "color": Colors.amber},
-    {"text": "Đi dạo", "icon": Icons.park, "color": Colors.green},
-    {"text": "Cafe", "icon": Icons.local_cafe, "color": Colors.brown},
-  ];
+final suggestions = [
+  {"text": "Hẹn hò lãng mạn buổi tối", "icon": Icons.favorite_border},
+  {"text": "Ăn tối view đẹp", "icon": Icons.restaurant_menu},
+  {"text": "Đi dạo công viên", "icon": Icons.park_outlined},
+  {"text": "Cafe yên tĩnh nói chuyện", "icon": Icons.local_cafe_outlined},
+];
 
   void addSuggestion(String text) {
     if (controller.text.isEmpty) {
@@ -35,70 +34,66 @@ class _AIPromptBottomSheetState extends State<AIPromptBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Container(
-        padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFFDC5F5),
-              Color(0xFFF7AEF8),
-              Color(0xFFB388EB),
-              Color(0xFF72DDF7),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            /// handle
             Container(
               width: 40,
               height: 5,
               decoration: BoxDecoration(
-                color: Colors.white54,
+                color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 16),
 
+            /// title
             const Text(
-              "Tạo kế hoạch hẹn hò 💕",
+              "Tạo kế hoạch hẹn hò",
               style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.black87,
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             const Text(
               "Bạn muốn buổi hẹn như thế nào?",
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: Colors.black54, fontSize: 13),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 14),
 
+            /// input
             TextField(
               controller: controller,
               maxLines: 3,
               decoration: InputDecoration(
-                hintText: "VD: lãng mạn, riêng tư, có view đẹp...",
+                hintText: "VD: lãng mạn, riêng tư, view đẹp...",
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: const Color(0xFFF5F5F5),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(14),
                   borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.all(14),
               ),
             ),
 
             const SizedBox(height: 12),
 
+            /// suggestions
             Wrap(
-              spacing: 5,
+              spacing: 8,
               runSpacing: 8,
               children: suggestions.map((e) {
                 return GestureDetector(
@@ -109,7 +104,7 @@ class _AIPromptBottomSheetState extends State<AIPromptBottomSheet> {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: const Color(0xFFF3E8FF), // tím rất nhạt
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -118,14 +113,14 @@ class _AIPromptBottomSheetState extends State<AIPromptBottomSheet> {
                         Icon(
                           e["icon"] as IconData,
                           size: 16,
-                          color: e["color"] as Color,
+                          color: const Color(0xFFB388EB),
                         ),
                         const SizedBox(width: 6),
                         Text(
                           e["text"] as String,
                           style: const TextStyle(
+                            fontSize: 13,
                             color: Colors.black87,
-                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
@@ -135,44 +130,40 @@ class _AIPromptBottomSheetState extends State<AIPromptBottomSheet> {
               }).toList(),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
 
+            /// buttons
             Row(
               children: [
                 Expanded(
-                  child: ElevatedButton(
+                  child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.9),
-                      elevation: 0,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.black87,
+                      side: BorderSide(color: Colors.grey.shade300),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: const Text(
-                      "Huỷ",
-                      style: TextStyle(
-                        color: Color(0xFFB388EB), // tím couple mood
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    child: const Text("Huỷ"),
                   ),
                 ),
-                const SizedBox(width: 15),
+                const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context, controller.text.trim());
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: const Color(0xFFB388EB),
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                     ),
                     child: const Text(
                       "Tạo kế hoạch",
-                      style: TextStyle(color: Colors.purple),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

@@ -73,11 +73,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(22),
 
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFB388EB), Color(0xFFFDC5F5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        color: const Color(0xFFB388EB),
 
                         boxShadow: [
                           BoxShadow(

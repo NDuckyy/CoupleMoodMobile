@@ -9,6 +9,7 @@ class MemberResponse {
   final String relationshipStatus;
   final bool canSendInvitation;
   final int? age;
+  final String? city;
 
   MemberResponse({
     required this.memberProfileId,
@@ -21,6 +22,7 @@ class MemberResponse {
     required this.relationshipStatus,
     required this.canSendInvitation,
     this.age,
+    this.city,
   });
 
   factory MemberResponse.fromJson(Map<String, dynamic> json) {
@@ -35,6 +37,7 @@ class MemberResponse {
       relationshipStatus: json['relationshipStatus'],
       canSendInvitation: json['canSendInvitation'],
       age: json['age'],
+      city: json['city'],
     );
   }
 }

@@ -188,7 +188,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
           testProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 60),
                   itemCount: testProvider.testDetails.data!.length,
                   itemBuilder: (context, index) {
                     final testDetail = testProvider.testDetails.data![index];

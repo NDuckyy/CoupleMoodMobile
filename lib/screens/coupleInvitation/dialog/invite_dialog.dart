@@ -23,19 +23,11 @@ void showInviteDialog({
         ),
         child: Container(
           decoration: const BoxDecoration(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-            gradient: LinearGradient(
-              colors: [
-                Color(0xFFFDC5F5),
-                Color(0xFFB388EB),
-                Color(0xFF72DDF7),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -44,7 +36,7 @@ void showInviteDialog({
                   width: 40,
                   height: 5,
                   decoration: BoxDecoration(
-                    color: Colors.white54,
+                    color: Colors.grey.shade300,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -54,13 +46,13 @@ void showInviteDialog({
                 /// avatar
                 if (user.avatarUrl != null)
                   CircleAvatar(
-                    radius: 35,
+                    radius: 32,
                     backgroundImage: NetworkImage(user.avatarUrl!),
                   )
                 else
                   const CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.white24,
+                    radius: 32,
+                    backgroundColor: Color(0xFFEDE7F6),
                   ),
 
                 const SizedBox(height: 12),
@@ -70,38 +62,36 @@ void showInviteDialog({
                   "Gửi lời mời đến ${user.fullName}",
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                /// input
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: TextField(
+                    controller: messageController,
+                    maxLines: 3,
+                    decoration: const InputDecoration(
+                      hintText: "Nhập lời nhắn 💌",
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(14),
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                /// input
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    controller: messageController,
-                    maxLines: 3,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      hintText: "Nhập lời nhắn ngọt ngào 💌",
-                      hintStyle: TextStyle(color: Colors.white70),
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 24),
-
                 /// button
                 GestureDetector(
-                  onTap: () async {
+                  onTap: () {
                     final message = messageController.text.trim();
                     if (message.isEmpty) {
                       context.pop();
@@ -114,32 +104,22 @@ void showInviteDialog({
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF8093F1), Color(0xFFB388EB)],
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      color: const Color(0xFFB388EB), // tím pastel
+                      borderRadius: BorderRadius.circular(24),
                     ),
                     child: const Center(
                       child: Text(
                         "Gửi lời mời 💖",
                         style: TextStyle(
                           color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
               ],
             ),
           ),
