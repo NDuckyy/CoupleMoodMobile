@@ -26,8 +26,8 @@ class BudgetInput extends StatelessWidget {
 
             final amount = CurrencyUtils.parseVND(v);
 
-            if (amount <= 0) {
-              return "Sai số";
+            if (amount < 10000) {
+              return "Tối thiểu 10.000đ";
             }
 
             return null;
