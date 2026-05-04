@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/models/reset_password_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
 import 'package:flutter/widgets.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'api_client.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 
@@ -21,8 +22,10 @@ class AuthService {
 
     final accessToken = data['accessToken']?.toString() ?? '';
     final refreshToken = data['refreshToken']?.toString() ?? '';
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    if (accessToken.isEmpty || refreshToken.isEmpty) {
+    if (accessToken.isEmpty || refreshToken.isEmpty || role != 'MEMBER') {
       throw Exception('Thiếu token từ server');
     }
     final session = Session(
@@ -71,8 +74,10 @@ class AuthService {
 
     final accessToken = data['accessToken']?.toString() ?? '';
     final refreshToken = data['refreshToken']?.toString() ?? '';
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    if (accessToken.isEmpty || refreshToken.isEmpty) {
+    if (accessToken.isEmpty || refreshToken.isEmpty || role != 'MEMBER') {
       throw Exception('Thiếu token từ server');
     }
 
