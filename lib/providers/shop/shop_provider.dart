@@ -17,8 +17,11 @@ class ShopProvider extends ChangeNotifier {
   int inventoryPage = 1;
   int inventoryTotalPages = 1;
 
-  String keyword = '';
-  String? selectedType; // "FRAME" | "BADGE" | null
+  String? shopType;
+  String? inventoryType;
+
+  String shopKeyword = '';
+  String inventoryKeyword = '';
 
   /// ==================== INIT & LOAD ====================
   Future<void> fetchInitial() async {
@@ -30,8 +33,8 @@ class ShopProvider extends ChangeNotifier {
     try {
       final shopRes = await MemberAccessoryService.getShop(
         page: page,
-        keyword: keyword.isNotEmpty ? keyword : null,
-        type: selectedType,
+        keyword: shopKeyword.isNotEmpty ? shopKeyword : null,
+        type: shopType,
       );
 
       final invRes = await MemberAccessoryService.getMyAccessories(
@@ -224,8 +227,8 @@ class ShopProvider extends ChangeNotifier {
       final res = await MemberAccessoryService.getMyAccessories(
         page: inventoryPage,
         pageSize: 20,
-        type: selectedType,
-        keyword: keyword,
+        type: inventoryType,
+        keyword: inventoryKeyword.isNotEmpty ? inventoryKeyword : null,
       );
 
       if (res.code == 200 && res.data != null) {
@@ -247,10 +250,10 @@ class ShopProvider extends ChangeNotifier {
       final nextPage = inventoryPage + 1;
 
       final res = await MemberAccessoryService.getMyAccessories(
-        page: nextPage,
+        page: inventoryPage,
         pageSize: 20,
-        type: selectedType,
-        keyword: keyword,
+        type: inventoryType,
+        keyword: inventoryKeyword,
       );
 
       if (res.code == 200 && res.data != null) {
@@ -266,11 +269,11 @@ class ShopProvider extends ChangeNotifier {
 
   Future<void> refresh() async => await fetchInitial();
 
-  void updateKeyword(String value) {
-    keyword = value;
+  void updateShopType(String? type) {
+    shopType = type;
   }
 
-  void updateType(String? type) {
-    selectedType = type;
+  void updateInventoryType(String? type) {
+    inventoryType = type;
   }
 }

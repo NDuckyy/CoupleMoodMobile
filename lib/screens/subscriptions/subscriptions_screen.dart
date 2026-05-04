@@ -3,12 +3,232 @@ import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:couple_mood_mobile/widgets/subscription/subscription_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:video_player/video_player.dart';
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({super.key});
 
   @override
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();
+}
+
+class _SubscriptionScreenState extends State<SubscriptionScreen> {
+  bool _isYearly = true;
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      context.read<SubscriptionProvider>().fetchAll();
+    });
+
+    _controller =
+        VideoPlayerController.asset("lib/assets/images/subscription_vid.mp4")
+          ..setLooping(true)
+          ..setVolume(0)
+          ..initialize().then((_) {
+            if (mounted) {
+              setState(() {});
+              _controller.play();
+            }
+          });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<SubscriptionProvider>();
+
+    if (provider.loading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final packages = provider.packages;
+    final selectedPkg = packages.firstWhere(
+      (p) => !p.isFree && p.isYearly == _isYearly,
+    );
+
+    final monthlyPkg = packages.firstWhere((p) => !p.isFree && !p.isYearly);
+    final yearlyPkg = packages.firstWhere((p) => !p.isFree && p.isYearly);
+
+    final benefits = [
+      "Không quảng cáo - trải nghiệm mượt mà",
+      "Bản đồ tình yêu & theo dõi vị trí",
+      "AI gợi ý kế hoạch hẹn hò",
+    ];
+
+    Widget _buildCTA() {
+      return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () async {
+            final confirm = await _confirmBuy(context, selectedPkg.packageName);
+            if (!confirm) return;
+
+            final method = await _selectPaymentMethod(context);
+            if (method == null) return;
+
+            final success = await context
+                .read<SubscriptionProvider>()
+                .buyPackage(context, selectedPkg.id, method);
+
+            if (!context.mounted) return;
+
+            showMsg(
+              context,
+              success ? "Đang chuyển tới thanh toán 💳" : "Thanh toán thất bại",
+              success,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: const Color(0xFF9C27B0),
+            elevation: 6,
+            shadowColor: Colors.black.withOpacity(0.25),
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+          child: const Text(
+            "Nâng cấp ngay 💜",
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      body: Stack(
+        children: [
+          /// BG IMAGE
+          Positioned.fill(
+            child: _controller.value.isInitialized
+                ? FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller.value.size.width,
+                      height: _controller.value.size.height,
+                      child: VideoPlayer(_controller),
+                    ),
+                  )
+                : const SizedBox(),
+          ),
+
+          /// GRADIENT
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.black.withOpacity(0.75),
+                    Colors.black.withOpacity(0.2),
+                    Colors.black.withOpacity(0.7),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
+            ),
+          ),
+
+          /// CONTENT
+          Column(
+            children: [
+              const SizedBox(height: 60),
+
+              /// TITLE + FEATURES
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const Text(
+                      "Nâng cấp tình yêu 💜",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    const Text(
+                      "Mở khóa trải nghiệm tốt hơn cho cả hai",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white70),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    ...benefits.map(
+                      (b) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check, color: Colors.white),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                b,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const Spacer(),
+
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 40),
+                child: Column(
+                  children: [
+                    /// PLAN CARDS
+                    SubscriptionCard(
+                      pkg: monthlyPkg,
+                      selected: !_isYearly,
+                      disabled: !provider.canSelect(monthlyPkg),
+                      isCurrent: provider.isCurrent(monthlyPkg.id),
+                      onTap: () => setState(() => _isYearly = false),
+                    ),
+
+                    SubscriptionCard(
+                      pkg: yearlyPkg,
+                      selected: _isYearly,
+                      disabled: !provider.canSelect(yearlyPkg),
+                      isCurrent: provider.isCurrent(yearlyPkg.id),
+                      onTap: () => setState(() => _isYearly = true),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// CTA
+                    _buildCTA(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 Future<PaymentMethod?> _selectPaymentMethod(BuildContext context) async {
@@ -53,185 +273,6 @@ Future<PaymentMethod?> _selectPaymentMethod(BuildContext context) async {
       );
     },
   );
-}
-
-class _SubscriptionScreenState extends State<SubscriptionScreen> {
-  bool _isYearlySelected = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() => context.read<SubscriptionProvider>().fetchAll());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final provider = context.watch<SubscriptionProvider>();
-
-    if (provider.loading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-
-    final packages = provider.packages;
-    final freePkg = packages.where((p) => p.isFree).firstOrNull;
-    final premiumPkgs = packages
-        .where((p) => !p.isFree && (p.isYearly == _isYearlySelected))
-        .toList();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Nâng cấp tài khoản"),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      backgroundColor: const Color(0xFFF8F5FF),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFF8F5FF), Color(0xFFF5F6FA)],
-          ),
-        ),
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 40),
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Chọn gói phù hợp cho tình yêu của bạn 💜",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Mở khóa trải nghiệm tuyệt vời hơn cho cả hai",
-                    style: TextStyle(fontSize: 15.5, color: Colors.grey),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Tab
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _isYearlySelected = false),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: !_isYearlySelected
-                                ? const Color(0xFF9C27B0)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "GÓI THÁNG",
-                              style: TextStyle(
-                                color: !_isYearlySelected
-                                    ? Colors.white
-                                    : Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => setState(() => _isYearlySelected = true),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: _isYearlySelected
-                                ? const Color(0xFF9C27B0)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "GÓI NĂM",
-                              style: TextStyle(
-                                color: _isYearlySelected
-                                    ? Colors.white
-                                    : Colors.grey,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Premium Card
-            if (premiumPkgs.isNotEmpty)
-              SubscriptionCard(
-                pkg: premiumPkgs.first,
-                isHighlighted: _isYearlySelected,
-                isLoading:
-                    provider.isPaying &&
-                    provider.selectedPackageId == premiumPkgs.first.id,
-                isActive: provider.isCurrentPackage(premiumPkgs.first.id),
-                onBuy: () async {
-                  final confirm = await _confirmBuy(
-                    context,
-                    premiumPkgs.first.packageName,
-                  );
-                  if (!confirm) return;
-
-                  final method = await _selectPaymentMethod(context);
-                  if (method == null) return;
-
-                  final success = await context
-                      .read<SubscriptionProvider>()
-                      .buyPackage(context, premiumPkgs.first.id, method);
-
-                  if (!context.mounted) return;
-
-                  showMsg(
-                    context,
-                    success
-                        ? "Đang chuyển tới thanh toán 💳"
-                        : "Thanh toán thất bại",
-                    success,
-                  );
-                },
-              ),
-
-            const SizedBox(height: 40),
-
-            // Free Card
-            if (freePkg != null)
-              SubscriptionCard(
-                pkg: freePkg,
-                isHighlighted: false,
-                isActive: true,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 Future<bool> _confirmBuy(BuildContext context, String name) async {

@@ -241,9 +241,8 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                 ),
               ),
 
-              const Divider(height: 32),
+              const SizedBox(height: 12),
 
-              // Topic
               TopicSelector(
                 selectedTopics: selectedTopics,
                 onToggle: (key) {
@@ -257,7 +256,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                 },
               ),
 
-              const Divider(height: 32),
+              const SizedBox(height: 20),
 
               // Ảnh
               PostImageGrid(

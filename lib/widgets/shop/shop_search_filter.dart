@@ -28,7 +28,9 @@ class _ShopSearchFilterState extends State<ShopSearchFilter> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<ShopProvider>();
-      _controller.text = provider.keyword;
+      _controller.text = widget.isInventory
+          ? provider.inventoryKeyword
+          : provider.shopKeyword;
     });
   }
 
@@ -57,7 +59,11 @@ class _ShopSearchFilterState extends State<ShopSearchFilter> {
               FocusScope.of(context).unfocus();
 
               final provider = context.read<ShopProvider>();
-              provider.updateKeyword(value);
+              if (widget.isInventory) {
+                provider.inventoryKeyword = value;
+              } else {
+                provider.shopKeyword = value;
+              }
 
               _triggerFetch(provider); // 👈 FIX
             },
@@ -73,7 +79,11 @@ class _ShopSearchFilterState extends State<ShopSearchFilter> {
                         _controller.clear();
 
                         final provider = context.read<ShopProvider>();
-                        provider.updateKeyword('');
+                        if (widget.isInventory) {
+                          provider.inventoryKeyword = '';
+                        } else {
+                          provider.shopKeyword = '';
+                        }
 
                         _triggerFetch(provider); // 👈 FIX
 
@@ -115,14 +125,20 @@ class _ShopSearchFilterState extends State<ShopSearchFilter> {
 
   Widget _buildFilterChip(BuildContext context, String label, String? type) {
     final provider = context.watch<ShopProvider>();
-    final isSelected = provider.selectedType == type;
+    final isSelected = widget.isInventory
+        ? provider.inventoryType == type
+        : provider.shopType == type;
 
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
 
         final provider = context.read<ShopProvider>();
-        provider.updateType(type);
+        if (widget.isInventory) {
+          provider.updateInventoryType(type);
+        } else {
+          provider.updateShopType(type);
+        }
 
         _triggerFetch(provider); // 👈 FIX QUAN TRỌNG
       },
