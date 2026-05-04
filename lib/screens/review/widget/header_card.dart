@@ -96,7 +96,7 @@ class HeaderCard extends StatelessWidget {
                               .map(
                                 (m) => Padding(
                                   padding: const EdgeInsets.only(right: 8),
-                                  child: _MoodChip(label: m.name),
+                                  child: _MoodChip(tag: m),
                                 ),
                               )
                               .toList(),
@@ -141,24 +141,55 @@ class HeaderCard extends StatelessWidget {
 }
 
 class _MoodChip extends StatelessWidget {
-  final String label;
+  final LocationTag tag;
 
-  const _MoodChip({required this.label});
+  const _MoodChip({required this.tag});
+
+  void _showDescription(BuildContext context) {
+    final desc = tag.description;
+
+    if (desc == null || desc.isEmpty) return;
+
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              tag.name,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(desc),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        color: Color(0xFFB388EB).withOpacity(0.9),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
+    return GestureDetector(
+      onLongPress: () => _showDescription(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFB388EB).withOpacity(0.9),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          tag.name,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
         ),
       ),
     );

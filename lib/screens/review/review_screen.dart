@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/venue/venue_review.dart';
+import 'package:couple_mood_mobile/screens/review/widget/mood_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -217,7 +218,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       children: provider.moods.map((mood) {
                         final isSelected = selectedMoodIds.contains(mood.id);
 
-                        return GestureDetector(
+                        return MoodTag(
+                          mood: mood,
+                          isSelected: isSelected,
                           onTap: () {
                             setState(() {
                               if (isSelected) {
@@ -227,34 +230,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                               }
                             });
                           },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? const LinearGradient(
-                                      colors: [
-                                        Color(0xFFF7AEF8),
-                                        Color(0xFFB388EB),
-                                      ],
-                                    )
-                                  : null,
-                              color: isSelected ? null : Colors.grey.shade200,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              mood.name,
-                              style: TextStyle(
-                                color: isSelected
-                                    ? Colors.white
-                                    : Colors.black87,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
                         );
                       }).toList(),
                     );
