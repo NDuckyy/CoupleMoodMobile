@@ -5,11 +5,13 @@ import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 class PaymentMethodBottomSheet extends StatelessWidget {
   final WalletProvider wallet;
   final int amount;
+  final BuildContext parentContext;
 
   const PaymentMethodBottomSheet({
     super.key,
     required this.wallet,
     required this.amount,
+    required this.parentContext,
   });
 
   static void show(BuildContext context, WalletProvider wallet, int amount) {
@@ -18,7 +20,11 @@ class PaymentMethodBottomSheet extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (_) => PaymentMethodBottomSheet(wallet: wallet, amount: amount),
+      builder: (_) => PaymentMethodBottomSheet(
+        wallet: wallet,
+        amount: amount,
+        parentContext: context,
+      ),
     );
   }
 
@@ -29,14 +35,14 @@ class PaymentMethodBottomSheet extends StatelessWidget {
   ) async {
     Navigator.pop(context);
 
-    final success = await wallet.topup(context, amount, method);
+    final success = await wallet.topup(parentContext, amount, method);
 
-    if (!context.mounted) return;
+    if (!parentContext.mounted) return;
 
     if (success) {
-      showMsg(context, "Đang mở $name...", true);
+      showMsg(parentContext, "Đang mở $name...", true);
     } else {
-      showMsg(context, wallet.error ?? "Lỗi", false);
+      showMsg(parentContext, wallet.error ?? "Lỗi", false);
     }
   }
 
