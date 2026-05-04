@@ -3,6 +3,8 @@ import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 
 class MyVoucherCard extends StatelessWidget {
   final MemberVoucherItem voucher;
@@ -46,14 +48,14 @@ class MyVoucherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDisabled = voucher.isExpired || voucher.isUsed;
+    // final bool isDisabled = voucher.isExpired || voucher.isUsed;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isSmallScreen = screenWidth < 360;
 
     return Opacity(
-      opacity: isDisabled ? 0.75 : 1.0,
+      opacity: 1.0,
       child: InkWell(
-        onTap: isDisabled ? null : onTap,
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -182,15 +184,41 @@ class MyVoucherCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          voucher.voucherTitle,
-                          style: const TextStyle(
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.bold,
-                            height: 1.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                voucher.voucherTitle,
+                                style: const TextStyle(
+                                  fontSize: 16.5,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.3,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+
+                            if (voucher.isUsed)
+                              GestureDetector(
+                                onTap: () {
+                                  showReportBottomSheet(
+                                    context: context,
+                                    targetId: voucher.voucherItemId,
+                                    targetType: ReportTargetType.voucher,
+                                  );
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Icon(
+                                    Icons.flag_outlined,
+                                    size: 20,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
 
                         const SizedBox(height: 12),

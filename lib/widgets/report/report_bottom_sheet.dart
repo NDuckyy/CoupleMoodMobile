@@ -20,6 +20,7 @@ class ReportBottomSheet extends StatefulWidget {
 
 class _ReportBottomSheetState extends State<ReportBottomSheet> {
   int? selectedTypeId;
+  bool _autoSelected = false;
   final TextEditingController reasonController = TextEditingController();
 
   @override
@@ -33,15 +34,36 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
     final provider = context.watch<ReportProvider>();
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
+    final isVoucherReport = widget.targetType == ReportTargetType.voucher;
+
+    final filteredTypes = provider.reportTypes.where((type) {
+      final isVoucherType = type.typeName.contains("VOUCHER");
+
+      if (isVoucherReport) {
+        return isVoucherType; // chỉ voucher
+      } else {
+        return !isVoucherType; // loại voucher ra
+      }
+    }).toList();
+
+    if (!_autoSelected && isVoucherReport && filteredTypes.isNotEmpty) {
+      final voucherType = filteredTypes.first;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          selectedTypeId = voucherType.id;
+          _autoSelected = true;
+        });
+      });
+    }
+
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus(); // ✅ dismiss keyboard
+        FocusScope.of(context).unfocus();
       },
       child: AnimatedPadding(
         duration: const Duration(milliseconds: 200),
-        padding: EdgeInsets.only(
-          bottom: bottomInset,
-        ), // ✅ tránh bị keyboard che
+        padding: EdgeInsets.only(bottom: bottomInset),
         child: SafeArea(
           child: Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
@@ -55,11 +77,9 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                     child: Center(child: CircularProgressIndicator()),
                   )
                 : SingleChildScrollView(
-                    // ✅ scroll được khi keyboard mở
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        /// drag handle
                         Container(
                           width: 40,
                           height: 4,
@@ -89,7 +109,7 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                         const SizedBox(height: 16),
 
                         /// LIST TYPE
-                        ...provider.reportTypes.map((type) {
+                        ...filteredTypes.map((type) {
                           final isSelected = selectedTypeId == type.id;
 
                           return GestureDetector(
@@ -153,7 +173,6 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
 
                         const SizedBox(height: 16),
 
-                        /// ERROR
                         if (provider.error != null)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8),
@@ -163,7 +182,6 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                             ),
                           ),
 
-                        /// BUTTON
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -212,7 +230,10 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
                                   )
                                 : const Text(
                                     "Gửi báo cáo",
-                                    style: TextStyle(fontSize: 15),
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.white,
+                                    ),
                                   ),
                           ),
                         ),

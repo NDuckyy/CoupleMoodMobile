@@ -1,4 +1,4 @@
-enum ReportTargetType { post, comment, review, user, venue }
+enum ReportTargetType { post, comment, review, user, venue, voucher }
 
 extension ReportTargetTypeExt on ReportTargetType {
   String get value {
@@ -13,6 +13,8 @@ extension ReportTargetTypeExt on ReportTargetType {
         return "USER";
       case ReportTargetType.venue:
         return "VENUE";
+      case ReportTargetType.voucher:
+        return "VOUCHER_ITEM";
     }
   }
 }
