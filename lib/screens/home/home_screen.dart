@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<MoodProvider>().getCoupleCurrentMood();
+      getStreak();
       _hasActiveSubscription();
       _getPopularNearby();
       _getContextRecommendation();
@@ -53,6 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
       showAdvertisement();
       getDatePlanCalender();
     });
+  }
+
+  void getStreak() async {
+    final challengeProvider = context.read<ChallengeProvider>();
+    await challengeProvider.getStreak();
   }
 
   void getDatePlanCalender() async {
@@ -238,6 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final contextRecs =
         recommendationProvider.contextRecommendationResponse?.hits ?? [];
     final datePlanProvider = context.watch<DatePlanProvider>();
+    final challengeProvider = context.watch<ChallengeProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F0FF),
@@ -299,6 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   calendarDays:
                       datePlanProvider.datePlanCalender?.data?.days ?? [],
+                  streakDays: challengeProvider.streak?.days ?? [],
                 ),
               ),
             ),

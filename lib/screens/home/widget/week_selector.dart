@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/challenge/streak_model.dart';
 import 'package:couple_mood_mobile/models/dateplan/date_plan_calender.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,12 +8,14 @@ class WeekSelector extends StatefulWidget {
   final DateTime initialDate;
   final Function(DateTime) onDateSelected;
   final List<DatePlanDay> calendarDays;
+  final List<DayStreak> streakDays;
 
   const WeekSelector({
     super.key,
     required this.initialDate,
     required this.onDateSelected,
     required this.calendarDays,
+    required this.streakDays,
   });
 
   @override
@@ -39,6 +42,15 @@ class _WeekSelectorState extends State<WeekSelector> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _centerSelected();
     });
+  }
+
+  DayStreak? _getStreakForDate(DateTime date) {
+    for (final d in widget.streakDays) {
+      if (d.date == null) continue;
+      final dDate = DateTime.parse(d.date!);
+      if (_isSameDate(dDate, date)) return d;
+    }
+    return null;
   }
 
   //Gen ra 30 ngày bắt đầu 3 ngày trc
@@ -149,6 +161,8 @@ class _WeekSelectorState extends State<WeekSelector> {
                   final isSelected = _isSameDate(date, selectedDate);
                   final plan = _getPlanForDate(date);
                   final hasPlan = plan?.hasDatePlan ?? false;
+                  final streak = _getStreakForDate(date);
+                  final hasCheckedIn = streak?.hasCheckedIn ?? false;
 
                   return GestureDetector(
                     onTap: () {
@@ -232,6 +246,18 @@ class _WeekSelectorState extends State<WeekSelector> {
                               Icons.favorite,
                               size: 14,
                               color: Colors.pinkAccent,
+                            ),
+                          ),
+
+                        
+                        if (hasCheckedIn)
+                          Positioned(
+                            top: 6,
+                            left: 10,
+                            child: Icon(
+                              Icons.local_fire_department,
+                              size: 16,
+                              color: Colors.orange,
                             ),
                           ),
                       ],

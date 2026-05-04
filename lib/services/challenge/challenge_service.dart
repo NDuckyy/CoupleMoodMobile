@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/challenge/streak_model.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:couple_mood_mobile/models/challenge/challenge_item.dart';
@@ -175,6 +176,20 @@ class ChallengeService {
       return ApiResponse<void>.fromJson(res, (_) => null);
     } catch (e) {
       throw Exception('Lỗi khi claim reward: $e');
+    }
+  }
+
+  /// GET /api/couple-challenges/checkin/today-status
+  /// Lấy streak hiện tại
+  static Future<ApiResponse<StreakModel>> getStreak() async {
+    try {
+      final res = await ApiClient.request(
+        "/couple-challenges/checkin/today-status",
+        method: HttpMethod.get,
+      );
+      return ApiResponse.fromJson(res, (data) => StreakModel.fromJson(data));
+    } catch (e) {
+      throw Exception('Lỗi khi lấy streak: $e');
     }
   }
 }

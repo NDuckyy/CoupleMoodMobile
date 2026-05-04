@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/challenge/challenge_item.dart';
 import 'package:couple_mood_mobile/models/challenge/couple_challenge.dart';
+import 'package:couple_mood_mobile/models/challenge/streak_model.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/services/challenge/challenge_service.dart';
 
@@ -7,6 +8,7 @@ class ChallengeProvider extends ChangeNotifier {
   List<ChallengeItem> discoverChallenges = [];
   List<CoupleChallenge> doingChallenges = [];
   List<CoupleChallenge> completedChallenges = [];
+  StreakModel? streak;
 
   Map<int, ChallengeItem> templateMap = {};
 
@@ -139,5 +141,17 @@ class ChallengeProvider extends ChangeNotifier {
     }
 
     return false;
+  }
+
+  Future<void> getStreak() async {
+    try {
+      final res = await ChallengeService.getStreak();
+      if (res.code == 200) {
+        streak = res.data;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }
