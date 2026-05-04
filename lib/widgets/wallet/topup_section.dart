@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/wallet/wallet_provider.dart';
-import '../../utils/currency_utils.dart';
 import 'payment_method_bottom_sheet.dart';
 
 class TopupSection extends StatefulWidget {

@@ -14,7 +14,6 @@ class EditCoupleProfilePage extends StatefulWidget {
   final double? budgetMin;
   final double? budgetMax;
 
-
   const EditCoupleProfilePage({
     super.key,
     this.coupleName,
@@ -50,10 +49,15 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
       anniversaryDate = DateTime.parse(widget.anniversaryDate!);
     }
     if (widget.budgetMin != null) {
-      budgetMinController.text = int.tryParse(widget.budgetMin!.toInt().toString())?.toString() ?? "";
+      budgetMinController.text = CurrencyUtils.formatRaw(
+        widget.budgetMin!.toInt(),
+      );
     }
+
     if (widget.budgetMax != null) {
-      budgetMaxController.text = int.tryParse(widget.budgetMax!.toInt().toString())?.toString() ?? "";
+      budgetMaxController.text = CurrencyUtils.formatRaw(
+        widget.budgetMax!.toInt(),
+      );
     }
   }
 
@@ -76,24 +80,32 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      if(budgetMinController.text.isNotEmpty && budgetMaxController.text.isNotEmpty) {
-        final min = int.tryParse(budgetMinController.text);
-        final max = int.tryParse(budgetMaxController.text);
+      if (budgetMinController.text.isNotEmpty &&
+          budgetMaxController.text.isNotEmpty) {
+        final min = CurrencyUtils.parseVND(budgetMinController.text);
+        final max = CurrencyUtils.parseVND(budgetMaxController.text);
 
-        if (min! > maxCurrency || max! > maxCurrency) {
-          showMsg(context, "Ngân sách không được vượt quá ${CurrencyUtils.formatVND(maxCurrency)}", false);
+        if (min > maxCurrency || max! > maxCurrency) {
+          showMsg(
+            context,
+            "Ngân sách không được vượt quá ${CurrencyUtils.formatVND(maxCurrency)}",
+            false,
+          );
           return;
         }
       }
       final request = UpdateCoupleProfileRequest(
         coupleName: nameController.text.isEmpty ? null : nameController.text,
-        aniversaryDate: anniversaryDate == null ? null : bodyFormatter.format(anniversaryDate!),
+        aniversaryDate: anniversaryDate == null
+            ? null
+            : bodyFormatter.format(anniversaryDate!),
         budgetMin: budgetMinController.text.isEmpty
             ? null
-            : int.tryParse(budgetMinController.text),
+            : CurrencyUtils.parseVND(budgetMinController.text),
+
         budgetMax: budgetMaxController.text.isEmpty
             ? null
-            : int.tryParse(budgetMaxController.text),
+            : CurrencyUtils.parseVND(budgetMaxController.text),
       );
 
       debugPrint("Update body: ${request.toJson()}");
@@ -191,36 +203,182 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                           Row(
                             children: [
                               Expanded(
-                                child: CustomTextField(
-                                  label: "Tối thiểu",
-                                  hint: "0",
-                                  icon: Icons.attach_money,
-                                  controller: budgetMinController,
-                                  keyboardType: TextInputType.number,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty) return null;
-                                    if (int.tryParse(v) == null) {
-                                      return "Sai số";
-                                    }
-                                    return null;
-                                  },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Tối thiểu",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+
+                                    TextFormField(
+                                      controller: budgetMinController,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [VNDInputFormatter()],
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) return null;
+
+                                        final amount = CurrencyUtils.parseVND(
+                                          v,
+                                        );
+
+                                        if (amount <= 0) {
+                                          return "Sai số";
+                                        }
+
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: "0",
+                                        hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+
+                                        prefixText: "đ ",
+
+                                        filled: true,
+                                        fillColor: Colors.white,
+
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFB388EB),
+                                            width: 1.2,
+                                          ),
+                                        ),
+
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF8093F1),
+                                            width: 1.6,
+                                          ),
+                                        ),
+
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                            width: 1.6,
+                                          ),
+                                        ),
+
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: CustomTextField(
-                                  label: "Tối đa",
-                                  hint: "1000000",
-                                  icon: Icons.attach_money,
-                                  controller: budgetMaxController,
-                                  keyboardType: TextInputType.number,
-                                  validator: (v) {
-                                    if (v == null || v.isEmpty) return null;
-                                    if (int.tryParse(v) == null) {
-                                      return "Sai số";
-                                    }
-                                    return null;
-                                  },
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Tối đa",
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+
+                                    TextFormField(
+                                      controller: budgetMaxController,
+                                      keyboardType: TextInputType.number,
+                                      inputFormatters: [VNDInputFormatter()],
+                                      validator: (v) {
+                                        if (v == null || v.isEmpty) return null;
+
+                                        final amount = CurrencyUtils.parseVND(
+                                          v,
+                                        );
+
+                                        if (amount <= 0) {
+                                          return "Sai số";
+                                        }
+
+                                        return null;
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: "1000000",
+                                        hintStyle: const TextStyle(
+                                          color: Colors.grey,
+                                        ),
+
+                                        prefixText: "đ ",
+
+                                        filled: true,
+                                        fillColor: Colors.white,
+
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFFB388EB),
+                                            width: 1.2,
+                                          ),
+                                        ),
+
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Color(0xFF8093F1),
+                                            width: 1.6,
+                                          ),
+                                        ),
+
+                                        errorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                          ),
+                                        ),
+
+                                        focusedErrorBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            14,
+                                          ),
+                                          borderSide: const BorderSide(
+                                            color: Colors.redAccent,
+                                            width: 1.6,
+                                          ),
+                                        ),
+
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                              horizontal: 16,
+                                              vertical: 14,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],

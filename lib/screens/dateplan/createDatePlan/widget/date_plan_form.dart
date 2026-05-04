@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/budget_input.dart';
 import 'package:couple_mood_mobile/screens/dateplan/createDatePlan/widget/date_time_picker_section.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/duration_mode_input.dart';
@@ -48,7 +49,7 @@ class _DatePlanFormState extends State<DatePlanForm> {
       return;
     }
 
-    final estimatedBudget = double.tryParse(budgetCtrl.text.trim()) ?? 0;
+    final estimatedBudget = CurrencyUtils.parseVND(budgetCtrl.text).toDouble();
     if (estimatedBudget < 0) {
       showMsg(context, "Ngân sách ước tính không được âm", false);
       return;
