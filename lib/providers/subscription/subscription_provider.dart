@@ -214,4 +214,25 @@ class SubscriptionProvider extends ChangeNotifier {
     return currentSubscription?.packageId == packageId &&
         currentSubscription?.status == "ACTIVE";
   }
+
+  bool isCurrent(int packageId) {
+    return currentSubscription?.packageId == packageId &&
+        currentSubscription?.status == "ACTIVE";
+  }
+
+  bool canSelect(SubscriptionPackage pkg) {
+    if (currentSubscription == null) return true;
+
+    final isCurrentPkg = isCurrent(pkg.id);
+    if (isCurrentPkg) return false;
+
+    final currentIsYearly = packages
+        .firstWhere((p) => p.id == currentSubscription!.packageId)
+        .isYearly;
+
+    // đang năm → không cho xuống tháng
+    if (currentIsYearly && !pkg.isYearly) return false;
+
+    return true;
+  }
 }
