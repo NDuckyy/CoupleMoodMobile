@@ -87,17 +87,19 @@ class HeaderCard extends StatelessWidget {
 
                       const SizedBox(height: 10),
 
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: [
-                          ...moods
-                              .take(2)
-                              .map((mood) => _MoodChip(label: mood.name)),
-
-                          if (moods.length > 2)
-                            _MoodChip(label: '+${moods.length - 2} more'),
-                        ],
+                      SizedBox(
+                        height: 32,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: moods
+                              .map(
+                                (m) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: _MoodChip(label: m.name),
+                                ),
+                              )
+                              .toList(),
+                        ),
                       ),
                     ],
                   ),
@@ -118,9 +120,7 @@ class _MoodChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFFF7AEF8), Color(0xFFB388EB)],
-        ),
+        color: Color(0xFFB388EB).withOpacity(0.9),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
