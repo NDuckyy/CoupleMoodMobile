@@ -75,6 +75,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                     // VOUCHER HEADER CARD
                     Container(
                       decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBFD),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
@@ -149,9 +150,9 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                               : "${v.discountPercent?.toStringAsFixed(0)}%",
                                         ),
                                         const SizedBox(height: 6),
-                                        VoucherStatusBadge(
-                                          screenWidth: screenWidth,
-                                        ),
+                                        // VoucherStatusBadge(
+                                        //   screenWidth: screenWidth,
+                                        // ),
                                       ],
                                     ),
                                   )
@@ -168,13 +169,13 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                           : "${v.discountPercent?.toStringAsFixed(0)}%",
                                     ),
                                   ),
-                                  Positioned(
-                                    top: 20,
-                                    right: 20,
-                                    child: VoucherStatusBadge(
-                                      screenWidth: screenWidth,
-                                    ),
-                                  ),
+                                  // Positioned(
+                                  //   top: 20,
+                                  //   right: 20,
+                                  //   child: VoucherStatusBadge(
+                                  //     screenWidth: screenWidth,
+                                  //   ),
+                                  // ),
                                 ],
 
                                 Positioned(
@@ -244,7 +245,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                         child: Row(
                                           children: [
                                             const Icon(
-                                              Icons.star_rounded,
+                                              Icons.monetization_on,
                                               color: Color(0xFFFFB300),
                                               size: 29,
                                             ),
@@ -258,7 +259,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                             ),
                                             const SizedBox(width: 6),
                                             const Text(
-                                              "điểm",
+                                              "xu",
                                               style: TextStyle(
                                                 fontSize: 15.5,
                                                 color: Colors.grey,

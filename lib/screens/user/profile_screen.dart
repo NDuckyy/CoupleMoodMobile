@@ -4,7 +4,6 @@ import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/services/location_service.dart';
-import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:couple_mood_mobile/widgets/profile/profile_header.dart';
 import 'package:couple_mood_mobile/widgets/profile/profile_tile.dart';
 import 'package:couple_mood_mobile/widgets/profile/profile_white_sheet.dart';

@@ -19,7 +19,7 @@ class VoucherDiscountBadge extends StatelessWidget {
       ),
       constraints: BoxConstraints(maxWidth: screenWidth * 0.45),
       decoration: BoxDecoration(
-        color: const Color(0xFFE53935),
+        color: const Color(0xFFFF4E9E),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(

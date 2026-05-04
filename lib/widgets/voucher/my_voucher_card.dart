@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/voucher/member_voucher_item.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
+import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
@@ -40,10 +41,6 @@ class MyVoucherCard extends StatelessWidget {
     if (voucher.isUsed) return Icons.check_circle;
     if (voucher.isExpired) return Icons.cancel;
     return Icons.verified;
-  }
-
-  String formatDate(DateTime date) {
-    return DateFormat('dd/MM/yyyy').format(date);
   }
 
   @override
@@ -166,7 +163,7 @@ class MyVoucherCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            "CODE: ${voucher.itemCode}",
+                            "Mã: ${voucher.itemCode}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -180,7 +177,7 @@ class MyVoucherCard extends StatelessWidget {
 
                   // ==================== CONTENT ====================
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -237,12 +234,16 @@ class MyVoucherCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 voucher.isUsed
-                                    ? "Đã sử dụng: ${formatDate(voucher.usedAt!)}"
-                                    : "Hạn sử dụng: ${formatDate(voucher.expiredAt)}",
+                                    ? "Đã sử dụng: ${formatDateTimeVN(voucher.usedAt!)}"
+                                    : voucher.isExpired
+                                    ? "Đã hết hạn: ${formatDateTimeVN(voucher.expiredAt)}"
+                                    : "Hạn sử dụng: ${formatDateTimeVN(voucher.expiredAt)}",
                                 style: TextStyle(
                                   fontSize: 13.8,
                                   color: voucher.isUsed
                                       ? Colors.orange.shade700
+                                      : voucher.isExpired
+                                      ? Colors.red
                                       : Colors.grey.shade700,
                                 ),
                               ),

@@ -154,41 +154,33 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
 
             const SizedBox(height: 16),
 
-            /// ✅ CHECKBOX CONSENT
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Checkbox(
-                  value: _isConsentChecked,
-                  onChanged: (value) {
-                    setState(() {
-                      _isConsentChecked = value ?? false;
-                    });
-                  },
-                  activeColor: const Color(0xFF8093F1),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isConsentChecked = !_isConsentChecked;
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: Text(
-                        'Tôi đồng ý cung cấp hình ảnh khuôn mặt để hệ thống AI phân tích cảm xúc hiện tại.',
-                        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            //checkbox ok xài AI á
+            CheckboxListTile(
+              value: _isConsentChecked,
+              onChanged: (value) {
+                setState(() {
+                  _isConsentChecked = value ?? false;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+              activeColor: const Color(0xFF8093F1),
+
+              contentPadding: EdgeInsets.zero, // bỏ padding ngoài
+              dense: true, // giảm chiều cao
+              visualDensity: const VisualDensity(
+                horizontal: -4, // kéo sát checkbox
+                vertical: -4,
+              ),
+
+              title: Text(
+                'Tôi đồng ý cung cấp hình ảnh khuôn mặt để hệ thống AI phân tích cảm xúc hiện tại.',
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+              ),
             ),
 
             const SizedBox(height: 12),
 
-            /// ✅ BUTTON (bị disable nếu chưa tick)
+            ///  BUTTON (bị disable nếu chưa tick)
             SizedBox(
               width: double.infinity,
               height: 50,

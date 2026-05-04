@@ -98,7 +98,7 @@ class VoucherCard extends StatelessWidget {
                             discountText: discountText,
                           ),
                           const SizedBox(height: 6),
-                          VoucherStatusBadge(screenWidth: screenWidth),
+                          // VoucherStatusBadge(screenWidth: screenWidth),
                         ],
                       ),
                     )
@@ -111,11 +111,11 @@ class VoucherCard extends StatelessWidget {
                         discountText: discountText,
                       ),
                     ),
-                    Positioned(
-                      top: screenWidth * 0.04,
-                      right: screenWidth * 0.04,
-                      child: VoucherStatusBadge(screenWidth: screenWidth),
-                    ),
+                    // Positioned(
+                    //   top: screenWidth * 0.04,
+                    //   right: screenWidth * 0.04,
+                    //   child: VoucherStatusBadge(screenWidth: screenWidth),
+                    // ),
                   ],
 
                   Positioned(
@@ -145,7 +145,7 @@ class VoucherCard extends StatelessWidget {
 
               // ==================== CONTENT ====================
               Padding(
-                padding: const EdgeInsets.fromLTRB(18, 20, 18, 22),
+                padding: const EdgeInsets.fromLTRB(18, 20, 18, 14),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -208,8 +208,17 @@ class VoucherCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _buildUsageText(voucher),
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: _usageColor(voucher),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 10),
 
                     // Points + Button
                     Row(
@@ -227,7 +236,7 @@ class VoucherCard extends StatelessWidget {
                           child: Row(
                             children: [
                               const Icon(
-                                Icons.star_rounded,
+                                Icons.monetization_on,
                                 color: Color(0xFFFFB300),
                                 size: 26,
                               ),
@@ -242,7 +251,7 @@ class VoucherCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 5),
                               const Text(
-                                "điểm",
+                                "xu",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.grey,
@@ -335,16 +344,6 @@ class VoucherCard extends StatelessWidget {
                           ),
                         ),
                       ],
-                    ),
-
-                    const SizedBox(height: 14),
-                    Text(
-                      _buildUsageText(voucher),
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        color: _usageColor(voucher),
-                        fontWeight: FontWeight.w500,
-                      ),
                     ),
                   ],
                 ),

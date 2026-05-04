@@ -60,6 +60,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
       backgroundColor: const Color.fromARGB(255, 253, 245, 247),
       appBar: AppBar(
         title: const Text("Bảng xếp hạng"),
+        centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 230, 70, 123),
         actions: const [LeaderboardInfoButton()],
       ),

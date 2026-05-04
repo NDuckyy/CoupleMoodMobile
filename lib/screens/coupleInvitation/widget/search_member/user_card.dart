@@ -44,7 +44,7 @@ class UserCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            /// 🔥 BACKGROUND IMAGE
+            ///  BACKGROUND IMAGE
             Positioned.fill(
               child: Container(
                 color: Colors.grey[300],
@@ -115,9 +115,8 @@ class UserCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                  const SizedBox(height: 6),
+                    const SizedBox(height: 6),
                   ],
-
 
                   if (user.city != null && user.city!.isNotEmpty) ...[
                     const SizedBox(height: 4),
