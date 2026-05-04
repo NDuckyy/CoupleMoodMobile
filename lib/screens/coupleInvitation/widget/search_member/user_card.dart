@@ -115,9 +115,21 @@ class UserCard extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
+                  const SizedBox(height: 6),
                   ],
 
-                  const SizedBox(height: 6),
+
+                  if (user.city != null && user.city!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      user.city!,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
 
                   if (user.personalityResultCode != null &&
                       user.personalityResultCode!.isNotEmpty) ...[
