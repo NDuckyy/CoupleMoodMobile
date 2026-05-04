@@ -275,7 +275,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSize:
                           MainAxisSize.min, // Cho Column co theo nội dung
                       children: [
-                        const HomeHeader(),
+                        HomeHeader(
+                          currentStreak:
+                              challengeProvider.streak?.currentStreak ?? 0,
+                          hasCheckedInToday:
+                              challengeProvider.streak?.hasCheckedInToday ?? false,
+                        ),
                         const SizedBox(height: 16),
                         CoupleMoodCard(
                           coupleCurrentMood: moodProvider.coupleCurrentMood,
