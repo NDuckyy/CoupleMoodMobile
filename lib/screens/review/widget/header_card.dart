@@ -20,6 +20,7 @@ class HeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final moods = coupleMoodTypes;
+    final total = moods.length;
     final venueProvider = context.watch<VenueDetailProvider>();
     return Container(
       padding: const EdgeInsets.all(16),
@@ -100,6 +101,35 @@ class HeaderCard extends StatelessWidget {
                               )
                               .toList(),
                         ),
+                      ),
+
+                      SizedBox(height: 6),
+
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.favorite,
+                            size: 14,
+                            color: Color(0xFFB388EB),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            "$total",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFB388EB),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Text(
+                            "tâm trạng",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.black45,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
