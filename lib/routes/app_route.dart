@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/screens/test/mbti_overview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -837,6 +838,12 @@ GoRouter createRouter(BuildContext context) {
           final extra = state.extra as Map<String, dynamic>;
           return ChatScreen(conversation: extra['conversation']);
         },
+      ),
+
+      GoRoute(
+        path: '/mbti_overview',
+        name: 'mbti_overview',
+        pageBuilder: (_, __) => const MaterialPage(child: MbtiOverviewScreen()),
       ),
 
       GoRoute(

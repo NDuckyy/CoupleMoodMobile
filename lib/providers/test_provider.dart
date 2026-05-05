@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/test/test_description.dart';
 import 'package:couple_mood_mobile/models/test/test_detail.dart';
 import 'package:couple_mood_mobile/models/test/test_history.dart';
 import 'package:couple_mood_mobile/models/test/test_result.dart';
@@ -13,6 +14,7 @@ class TestProvider extends ChangeNotifier {
   String? personalityType;
   bool isLoading = false;
   bool myPersonalityTypeLoading = true;
+  List<TestDescription>? testDescription;
   String? error;
   ApiResponse<List<TestType>> tests = ApiResponse(
     message: '',
@@ -153,12 +155,32 @@ class TestProvider extends ChangeNotifier {
       if (res.code == 200) {
         personalityType = res.data;
       } else {
+        personalityType = null;
         error = res.message;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       myPersonalityTypeLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchTestDescription() async {
+    error = null;
+    try {
+      isLoading = true;
+      notifyListeners();
+      final res = await _testService.getTestDescription();
+      if (res.code == 200) {
+        testDescription = res.data;
+      } else {
+        error = res.message;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      isLoading = false;
       notifyListeners();
     }
   }

@@ -1,5 +1,4 @@
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
-import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/widgets/shop/shop_search_filter.dart';
