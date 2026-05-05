@@ -33,6 +33,7 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
   @override
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
+    final tests = testProvider.tests.data ?? [];
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -57,7 +58,6 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
             ? Center(child: CircularProgressIndicator())
             : Column(
                 children: [
-                  /// 🔥 MBTI CARD (NEW)
                   GestureDetector(
                     onTap: () => context.pushNamed('mbti_overview'),
                     child: Container(
@@ -128,9 +128,9 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
 
                   Expanded(
                     child: ListView.builder(
-                      itemCount: testProvider.tests.data?.length ?? 0,
+                      itemCount: tests.length,
                       itemBuilder: (context, index) {
-                        final test = testProvider.tests.data![index];
+                        final test = tests[index];
 
                         return GestureDetector(
                           onTap: () {
@@ -180,6 +180,8 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
                                     children: [
                                       Text(
                                         test.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 18,
