@@ -125,7 +125,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                   const SizedBox(height: 6),
 
                   /// STATUS
-                  _statusBadge(profile.relationshipStatus),
+                  // _statusBadge(profile.relationshipStatus),
                 ],
               ),
             ),
@@ -194,7 +194,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                         children: [
                           if (profile.jobTitle != null)
                             Text("💼 ${profile.jobTitle}"),
-                          if (profile.educationLevel != null)
+                          if (profile.educationLevel != null && profile.educationLevel!.isNotEmpty)
                             Text("🎓 ${profile.educationLevel}"),
                         ],
                       ),

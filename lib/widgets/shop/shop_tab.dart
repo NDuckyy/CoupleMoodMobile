@@ -112,14 +112,23 @@ class _ShopTabState extends State<ShopTab> {
 
               onPurchase: () async {
                 try {
-                  await context.read<ShopProvider>().purchase(item.accessoryId);
+                  final shopProvider = context.read<ShopProvider>();
 
-                  await Future.wait([
-                    context.read<UserProvider>().fetchMe(),
-                    context.read<CoupleProvider>().fetchCoupleProfile(),
-                  ]);
+                  await shopProvider.purchase(item.accessoryId);
 
-                  showMsg(context, "Mua thành công", true);
+                  ///  reload inventory để có memberAccessoryId
+                  await shopProvider.fetchInventory();
+
+                  ///  tìm lại item trong inventory
+                  final purchasedItem = shopProvider.inventoryItems.firstWhere(
+                    (e) => e.accessoryId == item.accessoryId,
+                  );
+
+                  await shopProvider.equip(purchasedItem);
+
+                  await context.read<UserProvider>().fetchMe();
+
+                  showMsg(context, "Mua và trang bị thành công", true);
                 } catch (e) {
                   showMsg(context, e.toString(), false);
                 }
@@ -128,10 +137,15 @@ class _ShopTabState extends State<ShopTab> {
               onEquipToggle: () async {
                 final provider = context.read<ShopProvider>();
 
-                if (item.isEquipped == true) {
-                  await provider.unequip(item);
+                /// luôn lấy item chuẩn từ inventory
+                final invItem = provider.inventoryItems.firstWhere(
+                  (e) => e.accessoryId == item.accessoryId,
+                );
+
+                if (invItem.isEquipped == true) {
+                  await provider.unequip(invItem);
                 } else {
-                  await provider.equip(item);
+                  await provider.equip(invItem);
                 }
 
                 await context.read<UserProvider>().fetchMe();

@@ -144,26 +144,26 @@ class UserCard extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   /// STATUS
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: getStatusColor().withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      getStatusText(),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 10,
+                  //     vertical: 4,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: getStatusColor().withOpacity(0.9),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: Text(
+                  //     getStatusText(),
+                  //     style: const TextStyle(
+                  //       color: Colors.white,
+                  //       fontSize: 12,
+                  //       fontWeight: FontWeight.w600,
+                  //     ),
+                  //   ),
+                  // ),
 
-                  const SizedBox(height: 10),
+                  // const SizedBox(height: 10),
 
                   /// BIO
                   Text(
