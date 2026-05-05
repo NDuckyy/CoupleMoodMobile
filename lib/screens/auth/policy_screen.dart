@@ -120,6 +120,7 @@ class _PolicyContent extends StatelessWidget {
           _bullet("Điểm chỉ có thể sử dụng khi đủ số dư."),
           _bullet("Một số giao dịch cần thời gian xử lý."),
           _bullet("Hoàn tiền tuân theo chính sách của hệ thống."),
+          _bullet("Các voucher phát sinh vấn đề sẽ cho phép báo cáo và được xử lý thủ công bởi hệ thống sau thời gian nhất định."),
 
           _sectionTitle("11. Ví & thanh toán"),
           _bullet("Bạn có thể nạp tiền và quy đổi thành điểm."),

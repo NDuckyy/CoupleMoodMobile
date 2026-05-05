@@ -18,9 +18,11 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    Future.microtask(() async {
       if (!mounted) return;
-      context.read<TestProvider>().fetchTestHistory();
+      final provider = context.read<TestProvider>();
+      await provider.fetchTestHistory();
+      await provider.getMyPersonalityType();
     });
   }
 
@@ -41,6 +43,12 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
     return DateFormat('dd/MM/yyyy HH:mm').format(dt);
   }
 
+  Future<void> _refreshHistory() async {
+    final provider = context.read<TestProvider>();
+    await provider.fetchTestHistory();
+    await provider.getMyPersonalityType();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TestProvider>();
@@ -56,7 +64,7 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
         backgroundColor: const Color(0xFFFDFDFD),
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<TestProvider>().fetchTestHistory(),
+        onRefresh: () => _refreshHistory(),
         child: provider.isLoading && data == null
             ? const Center(child: CircularProgressIndicator())
             : ListView(
