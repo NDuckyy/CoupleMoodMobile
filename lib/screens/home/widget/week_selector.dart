@@ -250,7 +250,7 @@ class _WeekSelectorState extends State<WeekSelector> {
                           ),
 
                         
-                        if (hasCheckedIn)
+                        if (hasCheckedIn) ...[
                           Positioned(
                             top: 6,
                             left: 10,
@@ -260,6 +260,17 @@ class _WeekSelectorState extends State<WeekSelector> {
                               color: Colors.orange,
                             ),
                           ),
+                        ] else ...[
+                           Positioned(
+                            top: 6,
+                            left: 10,
+                            child: Icon(
+                              Icons.local_fire_department,
+                              size: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ]
                       ],
                     ),
                   );

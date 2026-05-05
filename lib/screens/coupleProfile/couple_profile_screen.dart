@@ -22,7 +22,13 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<CoupleProvider>().fetchCoupleProfile();
+      final provider = context.read<CoupleProvider>();
+
+      await Future.wait([
+        provider.fetchCoupleProfile(),
+        provider.fetchPersonalityDescriptions(),
+        provider.fetchMoodDescriptions(),
+      ]);
     });
   }
 
@@ -205,6 +211,8 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                       true
                                   ? couple.couplePersonalityTypeDescription!
                                   : "Hãy hoàn thành bài trắc nghiệm tính cách để khám phá tính cách cặp đôi của bạn",
+                              tagsDescription:
+                                  coupleProvider.personalityDescriptions ?? [],
                             ),
 
                             const SizedBox(height: 16),
@@ -223,6 +231,8 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                       true
                                   ? couple.coupleMoodTypeDescription!
                                   : "Hãy chia sẻ cảm xúc hàng ngày để khám phá mood cặp đôi của bạn",
+                              tagsDescription:
+                                  coupleProvider.moodDescriptions ?? [],
                             ),
 
                             const SizedBox(height: 30),
