@@ -79,14 +79,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<void> _submitReview() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (selectedMoodIds.isEmpty) {
+    if (!isEditMode && selectedMoodIds.isEmpty) {
       showMsg(context, "Vui lòng chọn ít nhất 1 mood", false);
       return;
     }
 
     final provider = context.read<ReviewProvider>();
-
-    final isEditMode = widget.initialReview != null;
 
     bool success = false;
 
@@ -109,7 +107,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         /// ảnh mới user thêm
         newLocalImages: newImages,
 
-        selectedMoodIds: selectedMoodIds,
+        selectedMoodIds: selectedMoodIds.isEmpty ? null : selectedMoodIds,
       );
     } else {
       if (widget.checkInId == null) {
@@ -188,54 +186,56 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     setState(() => rating = value);
                   },
                 ),
+                if (!isEditMode) ...[
+                  const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+                  // MatchSwitch(
+                  //   value: isMatched,
+                  //   onChanged: (val) {
+                  //     setState(() => isMatched = val);
+                  //   },
+                  // ),
+                  // if (!isMatched) ...[
+                  const SizedBox(height: 6),
 
-                // MatchSwitch(
-                //   value: isMatched,
-                //   onChanged: (val) {
-                //     setState(() => isMatched = val);
-                //   },
-                // ),
-                // if (!isMatched) ...[
-                const SizedBox(height: 6),
-                const Text(
-                  "Chọn các tâm trạng bạn cảm thấy phù hợp với quán",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                ),
+                  const Text(
+                    "Chọn các tâm trạng bạn cảm thấy phù hợp với quán",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
 
-                const SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
-                Consumer<ReviewProvider>(
-                  builder: (context, provider, _) {
-                    if (provider.isLoadingMood) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                  Consumer<ReviewProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingMood) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                    return Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: provider.moods.map((mood) {
-                        final isSelected = selectedMoodIds.contains(mood.id);
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: provider.moods.map((mood) {
+                          final isSelected = selectedMoodIds.contains(mood.id);
 
-                        return MoodTag(
-                          mood: mood,
-                          isSelected: isSelected,
-                          onTap: () {
-                            setState(() {
-                              if (isSelected) {
-                                selectedMoodIds.remove(mood.id);
-                              } else {
-                                selectedMoodIds.add(mood.id);
-                              }
-                            });
-                          },
-                        );
-                      }).toList(),
-                    );
-                  },
-                ),
-                // ],
+                          return MoodTag(
+                            mood: mood,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  selectedMoodIds.remove(mood.id);
+                                } else {
+                                  selectedMoodIds.add(mood.id);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                  // ],
+                ],
                 const SizedBox(height: 20),
 
                 /// CONTENT
