@@ -139,6 +139,27 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             ),
           ),
 
+          /// BACK BUTTON (TOP RIGHT)
+          Positioned(
+            top: MediaQuery.of(context).padding.top,
+            right: 10,
+            child: GestureDetector(
+              onTap: () => Navigator.pop(context),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.3), // nền mờ
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.close, // hoặc Icons.arrow_back_ios_new
+                  color: Colors.white70,
+                  size: 20,
+                ),
+              ),
+            ),
+          ),
+
           /// CONTENT
           Column(
             children: [
