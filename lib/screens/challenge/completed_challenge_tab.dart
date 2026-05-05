@@ -31,51 +31,58 @@ class CompletedChallengesTab extends StatelessWidget {
 
         return RefreshIndicator(
           onRefresh: provider.loadChallenges,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: list.isEmpty
-                ? [emptyText("Hoàn thành thử thách để nhận thưởng 💜")]
-                : list.map((c) {
-                    return AnimatedScale(
-                      key: ValueKey("completed_${c.id}"),
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeOutBack,
-                      scale: 1,
-                      child: ChallengeCard(
-                        title: c.title,
-                        description: c.description,
-                        reward: c.rewardPoints,
-                        completed: true,
-                        triggerEvent: c.triggerEvent,
-                        rewardClaimed: c.isRewardClaimed ?? false,
-                        onClaimReward: () async {
-                          final success = await provider.claimReward(c.id);
+          child: Container(
+            color: const Color(0xFFF7F0FF),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: list.isEmpty
+                  ? [emptyText("Hoàn thành thử thách để nhận thưởng 💜")]
+                  : list.map((c) {
+                      return AnimatedScale(
+                        key: ValueKey("completed_${c.id}"),
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOutBack,
+                        scale: 1,
+                        child: ChallengeCard(
+                          title: c.title,
+                          description: c.description,
+                          reward: c.rewardPoints,
+                          completed: true,
+                          triggerEvent: c.triggerEvent,
+                          rewardClaimed: c.isRewardClaimed ?? false,
+                          onClaimReward: () async {
+                            final success = await provider.claimReward(c.id);
 
-                          if (success && context.mounted) {
-                            showMsg(context, "Đã nhận thưởng 💜", true);
-                            context.read<ChallengeProvider>().loadChallenges();
-                          }
-                        },
-                        onTap: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChangeNotifierProvider(
-                                create: (_) => ChallengeDetailProvider(),
-                                child: ChallengeDetailScreen(
-                                  coupleChallenge: c,
+                            if (success && context.mounted) {
+                              showMsg(context, "Đã nhận thưởng 💜", true);
+                              context
+                                  .read<ChallengeProvider>()
+                                  .loadChallenges();
+                            }
+                          },
+                          onTap: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => ChangeNotifierProvider(
+                                  create: (_) => ChallengeDetailProvider(),
+                                  child: ChallengeDetailScreen(
+                                    coupleChallenge: c,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
+                            );
 
-                          if (result == true && context.mounted) {
-                            context.read<ChallengeProvider>().loadChallenges();
-                          }
-                        },
-                      ),
-                    );
-                  }).toList(),
+                            if (result == true && context.mounted) {
+                              context
+                                  .read<ChallengeProvider>()
+                                  .loadChallenges();
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+            ),
           ),
         );
       },

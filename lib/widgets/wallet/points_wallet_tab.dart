@@ -160,23 +160,23 @@ class PointsWalletTab extends StatelessWidget {
                           );
                         },
                       ),
-                      const Divider(),
-                      ListTile(
-                        leading: Icon(
-                          Icons.shopping_bag,
-                          color: colorScheme.primary,
-                          size: 32,
-                        ),
-                        title: const Text("Mua Phụ Kiện"),
-                        subtitle: const Text("Shop trong ứng dụng"),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: colorScheme.primary,
-                        ),
-                        onTap: () {
-                          context.pushNamed('shop');
-                        },
-                      ),
+                      // const Divider(),
+                      // ListTile(
+                      //   leading: Icon(
+                      //     Icons.shopping_bag,
+                      //     color: colorScheme.primary,
+                      //     size: 32,
+                      //   ),
+                      //   title: const Text("Mua Phụ Kiện"),
+                      //   subtitle: const Text("Shop trong ứng dụng"),
+                      //   trailing: Icon(
+                      //     Icons.chevron_right,
+                      //     color: colorScheme.primary,
+                      //   ),
+                      //   onTap: () {
+                      //     context.pushNamed('shop');
+                      //   },
+                      // ),
                     ],
                   ),
                 ),
