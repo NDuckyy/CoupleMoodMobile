@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/test/my_personality.dart';
 import 'package:couple_mood_mobile/models/test/test_description.dart';
 import 'package:couple_mood_mobile/models/test/test_detail.dart';
 import 'package:couple_mood_mobile/models/test/test_history.dart';
@@ -11,7 +12,7 @@ import 'package:flutter/foundation.dart';
 class TestProvider extends ChangeNotifier {
   final TestService _testService = TestService();
   TestHistoryPagination? testHistoryPagination;
-  String? personalityType;
+  MyPersonality? personalityType;
   bool isLoading = false;
   bool myPersonalityTypeLoading = true;
   List<TestDescription>? testDescription;

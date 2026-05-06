@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
+import 'package:couple_mood_mobile/models/test/my_personality.dart';
 import 'package:couple_mood_mobile/models/test/test_description.dart';
 import 'package:couple_mood_mobile/models/test/test_detail.dart';
 import 'package:couple_mood_mobile/models/test/test_history.dart';
@@ -123,15 +124,15 @@ class TestService {
     }
   }
 
-  Future<ApiResponse<String>> getMyPersonality() async {
+  Future<ApiResponse<MyPersonality>> getMyPersonality() async {
     try {
       final res = await ApiClient.request(
         "/PersonalityTest/me",
         method: HttpMethod.get,
       );
-      return ApiResponse<String>.fromJson(
+      return ApiResponse.fromJson(
         res,
-        (json) => (json as Map<String, dynamic>)['resultCode'] as String,
+        (json) => MyPersonality.fromJson(json),
       );
     } catch (e) {
       throw Exception('Lỗi khi lấy tính cách của tôi: $e');

@@ -31,18 +31,25 @@ class _MbtiOverviewScreenState extends State<MbtiOverviewScreen> {
     }
 
     final list = [...provider.testDescription!];
-    final myCode = provider.personalityType;
+    final myCode = provider.personalityType?.resultCode;
 
     list.sort((a, b) {
       final aCode = a.code ?? "";
       final bCode = b.code ?? "";
-      if (aCode == myCode) return -1;
-      if (bCode == myCode) return 1;
+
+      if (myCode != null) {
+        if (aCode == myCode) return -1;
+        if (bCode == myCode) return 1;
+      }
+
       return aCode.compareTo(bCode);
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text("16 Nhóm tính cách"), backgroundColor: const Color(0xFFFDFDFD)),
+      appBar: AppBar(
+        title: const Text("16 Nhóm tính cách"),
+        backgroundColor: const Color(0xFFFDFDFD),
+      ),
       backgroundColor: const Color(0xFFF7F0FF),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -57,8 +64,8 @@ class _MbtiOverviewScreenState extends State<MbtiOverviewScreen> {
   }
 
   Widget _buildCard(TestDescription type, String? myCode) {
-    final isMine = type.code == myCode;
-
+    final code = type.code;
+    final isMine = myCode != null && code == myCode;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(18),
