@@ -251,7 +251,7 @@ class VoucherCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 5),
                               const Text(
-                                "xu",
+                                "điểm",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.grey,

@@ -259,7 +259,7 @@ class _VoucherDetailScreenState extends State<VoucherDetailScreen> {
                                             ),
                                             const SizedBox(width: 6),
                                             const Text(
-                                              "xu",
+                                              "điểm",
                                               style: TextStyle(
                                                 fontSize: 15.5,
                                                 color: Colors.grey,
