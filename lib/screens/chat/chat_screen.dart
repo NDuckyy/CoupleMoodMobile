@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/screens/chat/widgets/group_avatar.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -317,6 +319,36 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           ),
         ),
         actions: [
+          ///  REPORT USER (DIRECT)
+          if (widget.conversation.type == 'DIRECT')
+            IconButton(
+              icon: const Icon(Icons.flag_outlined),
+              tooltip: "Báo cáo người dùng",
+              onPressed: () {
+                final currentUserId = context
+                    .read<ChatProvider>()
+                    .currentUserId!;
+
+                final otherUser = widget.conversation.getOtherUserFromMembers(
+                  currentUserId,
+                );
+
+                if (otherUser == null) {
+                  showMsg(context, "Không xác định được user", false);
+                  return;
+                }
+
+                final targetId = otherUser.userId;
+
+                showReportBottomSheet(
+                  context: context,
+                  targetId: targetId,
+                  targetType: ReportTargetType.user,
+                );
+              },
+            ),
+
+          /// GROUP INFO
           if (widget.conversation.type == 'GROUP')
             IconButton(
               icon: const Icon(Icons.info_outline),

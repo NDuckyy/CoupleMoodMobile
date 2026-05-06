@@ -64,7 +64,7 @@ class BuildStatCard extends StatelessWidget {
                   child: _buildStatItem(
                     icon: Icons.workspace_premium,
                     color: const Color(0xFFB388EB),
-                    label: "Điểm thử thách",
+                    label: "Điểm cặp đôi",
                     value: "$totalPoints",
                   ),
                 ),

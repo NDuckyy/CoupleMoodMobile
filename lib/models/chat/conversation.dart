@@ -109,6 +109,16 @@ class Conversation {
     return null; // Will show group icon
   }
 
+  ConversationMember? getOtherUserFromMembers(int currentUserId) {
+    if (type != 'DIRECT') return null;
+
+    try {
+      return members.firstWhere((m) => m.userId != currentUserId);
+    } catch (_) {
+      return null;
+    }
+  }
+
   bool getOnlineStatus() {
     if (type == 'DIRECT' && otherUser != null) {
       return otherUser!.isOnline;
