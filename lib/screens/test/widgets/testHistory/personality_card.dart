@@ -10,11 +10,9 @@ class PersonalityCard extends StatefulWidget {
 }
 
 class PersonalityCardState extends State<PersonalityCard> {
-
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TestProvider>();
-    debugPrint("Personality type: ${provider.personalityType}, loading: ${provider.myPersonalityTypeLoading}");
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -42,24 +40,23 @@ class PersonalityCardState extends State<PersonalityCard> {
             )
           : Row(
               children: [
-                /// ICON
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.psychology,
-                    color: Colors.white,
-                    size: 26,
+                Image.network(
+                  provider.personalityType?.imageUrl ?? "",
+                  height: 48,
+                  width: 48,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 48,
+                    width: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.person, color: Colors.white70),
                   ),
                 ),
 
                 const SizedBox(width: 14),
 
-                /// TEXT
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +69,8 @@ class PersonalityCardState extends State<PersonalityCard> {
                       const SizedBox(height: 4),
 
                       Text(
-                        provider.personalityType ?? "Chưa có dữ liệu",
+                        provider.personalityType?.resultCode ??
+                            "Chưa có dữ liệu",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,

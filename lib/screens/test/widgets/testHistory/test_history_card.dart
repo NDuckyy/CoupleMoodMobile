@@ -74,6 +74,15 @@ class TestHistoryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
+                      item.testTypeName ?? "Bài kiểm tra tính cách",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    
+                    Text(
                       item.resultCode != null
                           ? "Kết quả: ${item.resultCode}"
                           : "Kết quả: Chưa có kết quả",
@@ -111,11 +120,6 @@ class TestHistoryCard extends StatelessWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Test #${item.testTypeId}",
-                          style: const TextStyle(fontSize: 12),
                         ),
                       ],
                     ),

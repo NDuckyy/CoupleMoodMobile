@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../models/collection/collection_item.dart';
 import '../../providers/collection/collection_provider.dart';
 import '../../utils/upload_util.dart';
@@ -11,7 +10,6 @@ import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class EditCollectionScreen extends StatefulWidget {
   final CollectionItem collection;
-
   const EditCollectionScreen({super.key, required this.collection});
 
   @override
@@ -20,11 +18,10 @@ class EditCollectionScreen extends StatefulWidget {
 
 class _EditCollectionScreenState extends State<EditCollectionScreen> {
   final _formKey = GlobalKey<FormState>();
-
   late TextEditingController _nameController;
   late TextEditingController _descController;
-
   late String _status;
+
   File? _selectedImage;
   bool _isSubmitting = false;
 
@@ -52,11 +49,8 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
       source: ImageSource.gallery,
       imageQuality: 85,
     );
-
     if (picked != null) {
-      setState(() {
-        _selectedImage = File(picked.path);
-      });
+      setState(() => _selectedImage = File(picked.path));
     }
   }
 
@@ -67,7 +61,6 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
 
     try {
       String imageUrl = widget.collection.img ?? "";
-
       if (_selectedImage != null) {
         imageUrl = await UploadUtil.uploadImage(_selectedImage!);
       }
@@ -89,12 +82,16 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
   }
 
   Widget _buildImageSection() {
+    final hasImage =
+        _selectedImage != null ||
+        (widget.collection.img != null && widget.collection.img!.isNotEmpty);
+
     return GestureDetector(
       onTap: _pickImage,
       child: Stack(
         children: [
           Container(
-            height: 200,
+            height: 220,
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
@@ -106,53 +103,55 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
                   ? Image.file(_selectedImage!, fit: BoxFit.cover)
                   : (widget.collection.img != null &&
                         widget.collection.img!.isNotEmpty)
-                  ? Image.network(widget.collection.img!, fit: BoxFit.cover)
+                  ? Image.network(
+                      widget.collection.img!,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) =>
+                          Container(color: Colors.grey[300]),
+                    )
                   : Container(color: Colors.grey[300]),
             ),
           ),
-
-          /// Gradient overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [Colors.black.withOpacity(0.5), Colors.transparent],
+          if (hasImage)
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black.withOpacity(0.6), Colors.transparent],
+                  ),
                 ),
               ),
             ),
-          ),
-
-          /// Text
-          const Positioned(
+          Positioned(
             bottom: 16,
             left: 16,
-            child: Text(
-              "Nhấn để thay ảnh",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-
-          /// Camera icon
-          Positioned(
-            bottom: 12,
-            right: 12,
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.6),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.camera_alt,
-                color: Colors.white,
-                size: 20,
-              ),
+            right: 16,
+            child: Row(
+              children: [
+                const Text(
+                  "Nhấn để thay ảnh bìa",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.7),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.camera_alt,
+                    color: Colors.white,
+                    size: 22,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -172,9 +171,9 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildImageSection(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("Tên bộ sưu tập *"),
+              _buildLabel("Tên bộ sưu tập", isRequired: true),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
@@ -183,56 +182,98 @@ class _EditCollectionScreenState extends State<EditCollectionScreen> {
                     : null,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 16),
-
-              const Text("Mô tả"),
+              _buildLabel("Mô tả"),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descController,
-                maxLines: 3,
+                maxLines: 4,
                 decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 16),
-
-              const Text("Trạng thái"),
+              _buildLabel("Trạng thái"),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Radio<String>(
-                    value: "PRIVATE",
-                    groupValue: _status,
-                    onChanged: (value) => setState(() => _status = value!),
-                  ),
-                  const Text("Riêng tư"),
-                  Radio<String>(
-                    value: "PUBLIC",
-                    groupValue: _status,
-                    onChanged: (value) => setState(() => _status = value!),
-                  ),
-                  const Text("Công khai"),
+                  Expanded(child: _buildRadioOption("Riêng tư", "PRIVATE")),
+                  Expanded(child: _buildRadioOption("Công khai", "PUBLIC")),
                 ],
               ),
 
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
+                height: 52,
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(
+                      0xFFEE6C9F,
+                    ), // Màu hồng Couple Mood
+                    foregroundColor: Colors.white,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                   child: _isSubmitting
                       ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: Colors.white,
+                          ),
                         )
-                      : const Text("Lưu thay đổi"),
+                      : const Text(
+                          "Lưu thay đổi",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String text, {bool isRequired = false}) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+        children: [
+          TextSpan(text: text),
+          if (isRequired)
+            const TextSpan(
+              text: " *",
+              style: TextStyle(color: Colors.red),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRadioOption(String title, String value) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: value,
+          groupValue: _status,
+          onChanged: (newValue) => setState(() => _status = newValue!),
+        ),
+        Text(title),
+      ],
     );
   }
 }

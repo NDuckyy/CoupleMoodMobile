@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_info.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/status_dot.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -95,8 +96,9 @@ class DatePlanInfoCard extends StatelessWidget {
             if (info.estimatedBudget != null)
               _infoRow(
                 icon: Icons.attach_money_rounded,
-                text:
-                    "${NumberFormat('#,###').format(info.estimatedBudget)} VND",
+                text: info.estimatedBudget != null
+                    ? CurrencyUtils.formatVND(info.estimatedBudget!)
+                    : "0 đ",
               ),
 
             if (info.note != null && info.note!.isNotEmpty) ...[

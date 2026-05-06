@@ -51,7 +51,7 @@ class UserSearchBar extends StatelessWidget {
                             controller: controller,
                             cursorColor: const Color(0xFFB388EB),
                             decoration: const InputDecoration(
-                              hintText: "Tìm kiếm nửa kia 💕",
+                              hintText: "Tìm kiếm người dùng 💕",
                               hintStyle: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 14,

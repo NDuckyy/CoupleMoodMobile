@@ -51,8 +51,6 @@ class CoupleParticipants extends StatelessWidget {
   Widget _avatar(ChallengeMember member) {
     final avatar = member.avatarUrl;
 
-    final done = member.hasDoneToday || member.contributionCount > 0;
-
     return Column(
       children: [
         Stack(
@@ -71,21 +69,6 @@ class CoupleParticipants extends StatelessWidget {
                 child: avatar == null ? const Icon(Icons.person) : null,
               ),
             ),
-
-            /// Done indicator
-            if (done)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: const BoxDecoration(
-                    color: Colors.green,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, size: 12, color: Colors.white),
-                ),
-              ),
           ],
         ),
 

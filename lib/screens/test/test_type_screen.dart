@@ -33,10 +33,14 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
   @override
   Widget build(BuildContext context) {
     final testProvider = context.watch<TestProvider>();
+    final tests = testProvider.tests.data ?? [];
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách bài test'),
-        backgroundColor: Colors.white,
+        title: const Text(
+          'Danh sách bài kiểm tra tính cách',
+          style: TextStyle(fontSize: 16),
+        ),
+        backgroundColor: const Color(0xFFFDFDFD),
         actions: [
           Padding(
             padding: EdgeInsets.only(right: 26),
@@ -47,122 +51,197 @@ class _TestTypeScreenState extends State<TestTypeScreen> {
           ),
         ],
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Padding(
         padding: EdgeInsets.all(16),
         child: testProvider.isLoading
             ? Center(child: CircularProgressIndicator())
-            : ListView.builder(
-                itemCount: testProvider.tests.data?.length ?? 0,
-                itemBuilder: (context, index) {
-                  final test = testProvider.tests.data![index];
-
-                  return GestureDetector(
-                    onTap: () {
-                      context.pushNamed(
-                        'test_detail',
-                        extra: {'testId': test.id},
-                      );
-                    },
+            : Column(
+                children: [
+                  GestureDetector(
+                    onTap: () => context.pushNamed('mbti_overview'),
                     child: Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(18),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(22),
-
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFB388EB), Color(0xFFFDC5F5)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
+                        borderRadius: BorderRadius.circular(18),
+                        color: Colors.white,
+                        border: Border.all(
+                          color: const Color(0xFFB388EB).withOpacity(0.3),
                         ),
-
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.06),
-                            blurRadius: 16,
-                            offset: const Offset(0, 6),
-                          ),
-                        ],
                       ),
                       child: Row(
                         children: [
                           Container(
-                            width: 52,
-                            height: 52,
+                            width: 40,
+                            height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: const Color(0xFFB388EB).withOpacity(0.15),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
-                              Icons.favorite,
-                              color: Colors.white,
-                              size: 26,
+                              Icons.psychology,
+                              color: Color(0xFFB388EB),
+                              size: 20,
                             ),
                           ),
 
-                          const SizedBox(width: 14),
+                          const SizedBox(width: 12),
 
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  test.name,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                    color: Colors.white,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 6),
-
-                                Text(
-                                  test.description,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                const Text(
+                                  "Khám phá 16 tính cách",
                                   style: TextStyle(
-                                    color: Colors.white.withOpacity(0.85),
+                                    fontWeight: FontWeight.w600,
                                     fontSize: 14,
                                   ),
                                 ),
 
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 2),
 
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: Text(
-                                    '${test.totalQuestions} câu hỏi',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
+                                Text(
+                                  "Hiểu rõ bản thân hơn",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
                                   ),
                                 ),
                               ],
                             ),
                           ),
 
-                          const SizedBox(width: 10),
-
                           const Icon(
                             Icons.chevron_right,
-                            color: Colors.white,
-                            size: 28,
+                            color: Colors.grey,
+                            size: 20,
                           ),
                         ],
                       ),
                     ),
-                  );
-                },
+                  ),
+
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: tests.length,
+                      itemBuilder: (context, index) {
+                        final test = tests[index];
+
+                        return GestureDetector(
+                          onTap: () {
+                            context.pushNamed(
+                              'test_detail',
+                              extra: {'testId': test.id},
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            padding: const EdgeInsets.all(18),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22),
+
+                              color: const Color(0xFFB388EB),
+
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.06),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 52,
+                                  height: 52,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.favorite,
+                                    color: Colors.white,
+                                    size: 26,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 14),
+
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        test.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 6),
+
+                                      Text(
+                                        test.description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.85),
+                                          fontSize: 14,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 10),
+
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.white.withOpacity(0.25),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${test.totalQuestions} câu hỏi',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                const Icon(
+                                  Icons.chevron_right,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
       ),
     );

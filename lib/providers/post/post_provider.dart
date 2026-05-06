@@ -29,6 +29,8 @@ class PostProvider extends ChangeNotifier {
 
   final Set<int> _likingPostIds = {};
 
+  String? error;
+
   Future<void> loadFeeds() async {
     loading = true;
     notifyListeners();
@@ -72,30 +74,53 @@ class PostProvider extends ChangeNotifier {
   }
 
   Future<void> toggleLike(PostModel post) async {
-    final index = posts.indexWhere((p) => p.id == post.id);
-    if (index == -1) return;
+    /// tìm ở FEED trước
+    int index = posts.indexWhere((p) => p.id == post.id);
 
-    ///  lock theo id
-    if (_likingPostIds.contains(post.id)) return;
-    _likingPostIds.add(post.id);
+    /// nếu không có → fallback sang MyPosts
+    if (index == -1) {
+      final myIndex = myPostsProvider?.posts.indexWhere((p) => p.id == post.id);
+
+      if (myIndex == null || myIndex == -1) return;
+
+      final current = myPostsProvider!.posts[myIndex];
+      await _handleLikeLogic(current, isFromMyPosts: true, myIndex: myIndex);
+      return;
+    }
 
     final current = posts[index];
+    await _handleLikeLogic(current, index: index);
+  }
+
+  Future<void> _handleLikeLogic(
+    PostModel current, {
+    int? index,
+    bool isFromMyPosts = false,
+    int? myIndex,
+  }) async {
+    if (_likingPostIds.contains(current.id)) return;
+    _likingPostIds.add(current.id);
+
     final oldLiked = current.isLikedByMe;
 
-    /// optimistic update
     final updatedPost = current.copyWith(
       isLikedByMe: !oldLiked,
       likeCount: oldLiked ? current.likeCount - 1 : current.likeCount + 1,
     );
 
-    posts[index] = updatedPost;
+    /// update UI ngay
+    if (index != null) posts[index] = updatedPost;
+    if (isFromMyPosts && myIndex != null) {
+      myPostsProvider!.posts[myIndex] = updatedPost;
+    }
+
     notifyListeners();
     myPostsProvider?.updatePost(updatedPost);
 
     try {
       final res = oldLiked
-          ? await PostService.unlikePost(post.id)
-          : await PostService.likePost(post.id);
+          ? await PostService.unlikePost(current.id)
+          : await PostService.likePost(current.id);
 
       if (res.code == 200 && res.data != null) {
         final newPost = updatedPost.copyWith(
@@ -103,20 +128,27 @@ class PostProvider extends ChangeNotifier {
           likeCount: res.data['postLikeCount'],
         );
 
-        posts[index] = newPost;
+        if (index != null) posts[index] = newPost;
+        if (isFromMyPosts && myIndex != null) {
+          myPostsProvider!.posts[myIndex] = newPost;
+        }
+
         notifyListeners();
         myPostsProvider?.updatePost(newPost);
       } else {
-        throw Exception("API failed");
+        throw Exception();
       }
     } catch (e) {
       /// rollback
-      posts[index] = current;
+      if (index != null) posts[index] = current;
+      if (isFromMyPosts && myIndex != null) {
+        myPostsProvider!.posts[myIndex] = current;
+      }
+
       notifyListeners();
       myPostsProvider?.updatePost(current);
     } finally {
-      ///  unlock
-      _likingPostIds.remove(post.id);
+      _likingPostIds.remove(current.id);
     }
   }
 
@@ -128,6 +160,7 @@ class PostProvider extends ChangeNotifier {
     List<String>? hashTags,
     List<String>? topic,
   }) async {
+    error = null;
     try {
       /// 1 upload images lên S3
       final urls = await UploadUtil.mediaUpload(mediaFiles);
@@ -148,17 +181,20 @@ class PostProvider extends ChangeNotifier {
       );
 
       if (res.code == 200 && res.data != null) {
-        /// add vào đầu feed
         posts.insert(0, res.data!);
-
         notifyListeners();
         return true;
+      } else {
+        error = res.message ?? "Không thể tạo bài viết";
+        return false;
       }
     } catch (e) {
-      debugPrint(e.toString());
+      error = e.toString().replaceFirst('Exception: ', '').trim();
+      debugPrint("Create post error: $e");
+      return false;
+    } finally {
+      notifyListeners();
     }
-
-    return false;
   }
 
   Future<bool> updatePost({
@@ -171,13 +207,19 @@ class PostProvider extends ChangeNotifier {
     List<String>? hashTags,
     List<String>? topic,
   }) async {
-    final index = posts.indexWhere((p) => p.id == postId);
-    if (index == -1) return false;
+    /// tìm trong feed
+    int index = posts.indexWhere((p) => p.id == postId);
+
+    /// fallback sang MyPosts
+    int? myIndex;
+    if (index == -1) {
+      myIndex = myPostsProvider?.posts.indexWhere((p) => p.id == postId);
+      if (myIndex == null || myIndex == -1) return false;
+    }
 
     try {
       /// upload ảnh mới
       List<String> newUrls = [];
-
       if (newMediaFiles.isNotEmpty) {
         newUrls = await UploadUtil.mediaUpload(newMediaFiles);
       }
@@ -186,7 +228,6 @@ class PostProvider extends ChangeNotifier {
           .map((url) => MediaModel(url: url, type: UploadType.image.value))
           .toList();
 
-      /// merge ảnh cũ + mới
       final mediaPayload = [...oldMedia, ...newMedia];
 
       final res = await PostService.updatePost(
@@ -200,15 +241,31 @@ class PostProvider extends ChangeNotifier {
       );
 
       if (res.code == 200 && res.data != null) {
-        posts[index] = res.data!;
+        final updated = res.data!;
+
+        /// update FEED nếu có
+        if (index != -1) {
+          posts[index] = updated;
+        }
+
+        /// update MyPosts nếu có
+        if (myIndex != null && myIndex != -1) {
+          myPostsProvider!.posts[myIndex] = updated;
+        }
+
         notifyListeners();
+        myPostsProvider?.updatePost(updated);
+
         return true;
       }
-    } catch (e) {
-      debugPrint(e.toString());
-    }
 
-    return false;
+      return false;
+    } catch (e) {
+      debugPrint("Update post error: $e");
+      return false;
+    } finally {
+      notifyListeners();
+    }
   }
 
   Future<bool> deletePost(int postId) async {
@@ -276,38 +333,73 @@ class PostProvider extends ChangeNotifier {
 
   void increaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
-    if (index == -1) return;
 
-    final updated = posts[index].copyWith(
-      commentCount: posts[index].commentCount + 1,
-    );
+    if (index != -1) {
+      final updated = posts[index].copyWith(
+        commentCount: posts[index].commentCount + 1,
+      );
+      posts[index] = updated;
+      notifyListeners();
+      myPostsProvider?.updatePost(updated);
+      return;
+    }
 
-    posts[index] = updated;
-    notifyListeners();
-
-    ///  sync
-    myPostsProvider?.updatePost(updated);
+    /// fallback MyPosts
+    myPostsProvider?.increaseCommentCount(postId);
   }
 
   void decreaseCommentCount(int postId) {
     final index = posts.indexWhere((p) => p.id == postId);
-    if (index == -1) return;
 
-    final updated = posts[index].copyWith(
-      commentCount: posts[index].commentCount > 0
-          ? posts[index].commentCount - 1
-          : 0,
-    );
+    /// ✅ nếu có trong FEED
+    if (index != -1) {
+      final updated = posts[index].copyWith(
+        commentCount: posts[index].commentCount > 0
+            ? posts[index].commentCount - 1
+            : 0,
+      );
 
-    posts[index] = updated;
-    notifyListeners();
+      posts[index] = updated;
+      notifyListeners();
 
-    ///  sync
-    myPostsProvider?.updatePost(updated);
+      /// sync sang MyPosts
+      myPostsProvider?.updatePost(updated);
+      return;
+    }
+
+    ///  fallback sang MyPosts
+    final myIndex = myPostsProvider?.posts.indexWhere((p) => p.id == postId);
+
+    if (myIndex != null && myIndex != -1) {
+      final old = myPostsProvider!.posts[myIndex];
+
+      final updated = old.copyWith(
+        commentCount: old.commentCount > 0 ? old.commentCount - 1 : 0,
+      );
+
+      myPostsProvider!.posts[myIndex] = updated;
+      myPostsProvider!.notifyListeners();
+    }
   }
 
   void toggleLikeById(int postId) {
-    final post = posts.firstWhere((p) => p.id == postId);
+    final post = findPostById(postId);
+    if (post == null) return;
+
     toggleLike(post);
+  }
+
+  PostModel? findPostById(int postId) {
+    /// 1. tìm trong feed
+    final feedIndex = posts.indexWhere((p) => p.id == postId);
+    if (feedIndex != -1) return posts[feedIndex];
+
+    /// 2. fallback qua myPosts
+    final myIndex = myPostsProvider?.posts.indexWhere((p) => p.id == postId);
+    if (myIndex != null && myIndex != -1) {
+      return myPostsProvider!.posts[myIndex];
+    }
+
+    return null;
   }
 }

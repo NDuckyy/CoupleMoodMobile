@@ -160,10 +160,10 @@ class _AddVenueToCollectionScreenState
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(14),
                                   child:
-                                      venue.coverImage != null &&
-                                          venue.coverImage!.isNotEmpty
+                                      venue.coverImage.first != null &&
+                                          venue.coverImage.first!.isNotEmpty
                                       ? Image.network(
-                                          venue.coverImage!,
+                                          venue.coverImage.first!,
                                           width: 70,
                                           height: 70,
                                           fit: BoxFit.cover,

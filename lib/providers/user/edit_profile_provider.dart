@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/models/coupleInvitation/communes.dart';
+import 'package:couple_mood_mobile/models/coupleInvitation/provinces.dart';
 import 'package:couple_mood_mobile/models/user/interest_model.dart';
 import 'package:flutter/material.dart';
 import '../../models/user/update_profile_request.dart';
@@ -11,6 +13,8 @@ class EditProfileProvider extends ChangeNotifier {
   List<String>? animals;
   List<InterestModel>? interests;
   List<String>? jobTitles;
+  List<Provinces>? provinces;
+  List<Communes>? communes;
 
   Future<bool> updateProfile({
     required UserModel user,
@@ -123,6 +127,24 @@ class EditProfileProvider extends ChangeNotifier {
       }
     } catch (e) {
       print("Fetch job titles error: $e");
+    }
+  }
+
+  Future<void> fetchProvinces(String date) async {
+    try {
+      provinces = await UserService.getProvinces("2026-04-30");
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Fetch provinces error: $e");
+    }
+  }
+
+  Future<void> fetchCommunes(String date, String provinceId) async {
+    try {
+      communes = await UserService.getCommunes("2026-04-30", provinceId);
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Fetch communes error: $e");
     }
   }
 }

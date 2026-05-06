@@ -1,10 +1,13 @@
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
+import 'package:couple_mood_mobile/utils/time_utils.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_info_card.dart';
+import 'package:flutter/services.dart';
 
 class MyVoucherDetailScreen extends StatefulWidget {
   final int voucherItemId;
@@ -66,6 +69,7 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                 // ==================== VOUCHER HEADER WITH IMAGE ====================
                 Container(
                   decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBFD),
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
@@ -184,7 +188,7 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                               bottom: 20,
                               left: 20,
                               child: Text(
-                                "CODE: ${v.itemCode}",
+                                "Mã: ${v.itemCode}",
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
@@ -230,12 +234,16 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     isUsed
-                                        ? "Đã sử dụng: ${formatDate(v.usedAt!)}"
-                                        : "Hạn sử dụng: ${formatDate(v.expiredAt)}",
+                                        ? "Đã sử dụng: ${formatDateTimeVN(v.usedAt!)}"
+                                        : isExpired
+                                        ? "Đã hết hạn: ${formatDateTimeVN(v.expiredAt)}"
+                                        : "Hạn sử dụng: ${formatDateTimeVN(v.expiredAt)}",
                                     style: TextStyle(
                                       fontSize: 14.5,
                                       color: isUsed
                                           ? Colors.orange
+                                          : isExpired
+                                          ? Colors.red
                                           : Colors.grey.shade700,
                                     ),
                                   ),
@@ -305,14 +313,38 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                               ),
                             ],
                           ),
-                          child: Image.network(
-                            v.qrCodeUrl,
-                            height: 210,
-                            width: 210,
-                            errorBuilder: (_, __, ___) => const Icon(
-                              Icons.qr_code,
-                              size: 140,
-                              color: Colors.grey,
+                          child: GestureDetector(
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return Dialog(
+                                    backgroundColor: Colors.black,
+                                    insetPadding: const EdgeInsets.all(16),
+                                    child: InteractiveViewer(
+                                      minScale: 1,
+                                      maxScale: 5,
+                                      child: Image.network(
+                                        v.qrCodeUrl,
+                                        fit: BoxFit.contain,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Hero(
+                              tag: v.qrCodeUrl,
+                              child: Image.network(
+                                v.qrCodeUrl,
+                                height: 210,
+                                width: 210,
+                                errorBuilder: (_, __, ___) => const Icon(
+                                  Icons.qr_code,
+                                  size: 140,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -320,24 +352,34 @@ class _MyVoucherDetailScreenState extends State<MyVoucherDetailScreen> {
                         const SizedBox(height: 18),
 
                         // Mã code
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF8E1F0),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: SelectableText(
-                            v.itemCode,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              letterSpacing: 4,
-                              color: Color(0xFF5D4037),
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: v.itemCode));
+                            showMsg(context, "Đã sao chép mã voucher", true);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SelectableText(
+                                  v.itemCode,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 4,
+                                    color: Color(0xFF5D4037),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                const Icon(
+                                  Icons.copy,
+                                  size: 18,
+                                  color: Colors.grey,
+                                ),
+                              ],
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ),
 

@@ -110,11 +110,26 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
 
       if (success && mounted) {
         Navigator.pop(context, true);
+      } else if (provider.error != null && mounted) {
+        showMsg(context, provider.error!, false);
       }
     } catch (e) {
-      if (mounted) showMsg(context, e.toString(), false);
+      if (mounted) {
+        String errorMsg = e
+            .toString()
+            .replaceFirst('Exception:', '')
+            .replaceFirst('Exception: ', '')
+            .trim();
+        showMsg(
+          context,
+          errorMsg.isNotEmpty ? errorMsg : "Có lỗi xảy ra",
+          false,
+        );
+      }
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        setState(() => loading = false);
+      }
     }
   }
 
@@ -149,9 +164,9 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color.fromARGB(255, 248, 244, 252),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFFDFDFD),
           elevation: 0.5,
           title: Text(
             isEdit ? "Chỉnh sửa bài viết" : "Tạo bài viết",
@@ -226,9 +241,8 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                 ),
               ),
 
-              const Divider(height: 32),
+              const SizedBox(height: 12),
 
-              // Topic
               TopicSelector(
                 selectedTopics: selectedTopics,
                 onToggle: (key) {
@@ -242,7 +256,7 @@ class _CreateEditPostScreenState extends State<CreateEditPostScreen> {
                 },
               ),
 
-              const Divider(height: 32),
+              const SizedBox(height: 20),
 
               // Ảnh
               PostImageGrid(

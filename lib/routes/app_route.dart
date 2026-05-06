@@ -1,7 +1,4 @@
-import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
-import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
-import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
-
+import 'package:couple_mood_mobile/screens/test/mbti_overview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +13,7 @@ import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 //Collection
 import 'package:couple_mood_mobile/providers/collection/collection_provider.dart';
 import 'package:couple_mood_mobile/providers/collection/collection_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/collection/collection_share_provider.dart';
 
 //Post
 import 'package:couple_mood_mobile/providers/post/post_detail_provider.dart';
@@ -38,6 +36,7 @@ import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/voucher_detail_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_provider.dart';
 import 'package:couple_mood_mobile/providers/voucher/my_voucher_detail_provider.dart';
+import 'package:couple_mood_mobile/providers/voucher/voucher_list_provider.dart';
 
 //leaderboard
 import 'package:couple_mood_mobile/providers/leaderboard/leaderboard_provider.dart';
@@ -47,6 +46,12 @@ import 'package:couple_mood_mobile/providers/payment/payment_result_provider.dar
 import 'package:couple_mood_mobile/providers/subscription/subscription_provider.dart';
 import 'package:couple_mood_mobile/providers/wallet/wallet_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
+
+//challenge
+import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
+
+//social
+import 'package:couple_mood_mobile/providers/post/post_share_provider.dart';
 
 //---Screen
 //Chat
@@ -75,11 +80,13 @@ import 'package:couple_mood_mobile/screens/collection/collection_detail_screen.d
 import 'package:couple_mood_mobile/screens/collection/edit_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/create_collection_screen.dart';
 import 'package:couple_mood_mobile/screens/collection/add_venue_to_collection_screen.dart';
+import 'package:couple_mood_mobile/screens/collection/collection_detail_from_share_screen.dart';
 
 //news, post
 import 'package:couple_mood_mobile/screens/feed/news_feed_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/my_posts_screen.dart';
 import 'package:couple_mood_mobile/screens/feed/post_detail_screen.dart';
+import 'package:couple_mood_mobile/screens/feed/post_detail_from_share_screen.dart';
 
 // invitation
 import 'package:couple_mood_mobile/screens/invite/invite_screen.dart';
@@ -94,7 +101,7 @@ import 'package:couple_mood_mobile/widgets/splash_screen.dart';
 import 'package:couple_mood_mobile/screens/test/test_history.dart';
 
 //challenge
-import 'package:couple_mood_mobile/screens/challenge/challenge_screen.dart';
+import 'package:couple_mood_mobile/screens/challenge/challenge_hub_screen.dart';
 
 //leaderboard
 import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
@@ -102,7 +109,6 @@ import 'package:couple_mood_mobile/screens/leaderboard/leaderboard_screen.dart';
 //voucher
 import 'package:couple_mood_mobile/screens/voucher/voucher_detail_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/my_voucher_detail_screen.dart';
-import 'package:couple_mood_mobile/screens/voucher/my_voucher_screen.dart';
 import 'package:couple_mood_mobile/screens/voucher/voucher_hub_screen.dart';
 
 //auth
@@ -139,6 +145,9 @@ import 'package:couple_mood_mobile/screens/map/couple_location_screen.dart';
 import 'package:couple_mood_mobile/screens/notification/notification_screen.dart';
 import 'package:couple_mood_mobile/screens/helpFaq/help_faq_screen.dart';
 import 'package:couple_mood_mobile/screens/auth/change_password_screen.dart';
+import 'package:couple_mood_mobile/widgets/premium_guard.dart';
+import 'package:couple_mood_mobile/screens/location/list_location_context_screen.dart';
+import 'package:couple_mood_mobile/screens/auth/policy_screen.dart';
 
 final _rootNavKey = GlobalKey<NavigatorState>();
 final _homeTabNavKey = GlobalKey<NavigatorState>();
@@ -195,6 +204,7 @@ GoRouter createRouter(BuildContext context) {
         return '/payment-result';
       }
 
+      /// POST SHARE
       if (uri.scheme == 'couplemood' && uri.host == 'post') {
         if (uri.pathSegments.isNotEmpty) {
           final code = uri.pathSegments.last;
@@ -202,9 +212,19 @@ GoRouter createRouter(BuildContext context) {
         }
       }
 
+      /// COLLECTION SHARE
+      if (uri.scheme == 'couplemood' && uri.host == 'collection') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+          return '/share/collection/$code';
+        }
+      }
+
       // 2. Logic auth cũ của bạn (giữ nguyên, chỉ chạy nếu không phải deep link custom)
       final isLoggedIn = auth.isLoggedIn;
       final loc = uri.toString(); // hoặc state.matchedLocation nếu chỉ cần path
+
+      final isPublicRoute = loc.startsWith('/policy');
 
       final isAuthRoute =
           loc.startsWith('/login') ||
@@ -218,7 +238,7 @@ GoRouter createRouter(BuildContext context) {
         return null;
       }
 
-      if (!isLoggedIn && !isAuthRoute) return '/guest';
+      if (!isLoggedIn && !isAuthRoute && !isPublicRoute) return '/guest';
 
       if (isLoggedIn && isAuthRoute) return '/home';
 
@@ -264,6 +284,10 @@ GoRouter createRouter(BuildContext context) {
           );
         },
       ),
+      GoRoute(
+        path: '/policy',
+        builder: (context, state) => const PolicyScreen(),
+      ),
 
       /// SHELL: sau khi login mới vào đây => có bottom bar
       StatefulShellRoute.indexedStack(
@@ -286,6 +310,13 @@ GoRouter createRouter(BuildContext context) {
                 name: 'listLocation',
                 pageBuilder: (_, __) =>
                     const MaterialPage(child: ListLocationScreen()),
+              ),
+
+              GoRoute(
+                path: '/list-location-context',
+                name: 'listLocationContext',
+                pageBuilder: (_, __) =>
+                    const MaterialPage(child: ListLocationContextScreen()),
               ),
 
               GoRoute(
@@ -410,8 +441,16 @@ GoRouter createRouter(BuildContext context) {
         parentNavigatorKey: _rootNavKey,
         path: '/challenge',
         name: 'challenge',
-        pageBuilder: (_, __) {
-          return const MaterialPage(child: ChallengeScreen());
+        pageBuilder: (_, state) {
+          final tab =
+              int.tryParse(state.uri.queryParameters['tab'] ?? '0') ?? 0;
+
+          return MaterialPage(
+            child: ChangeNotifierProvider(
+              create: (_) => ChallengeProvider()..loadChallenges(),
+              child: ChallengeHubScreen(initialTab: tab.clamp(0, 2)),
+            ),
+          );
         },
       ),
       GoRoute(
@@ -547,6 +586,18 @@ GoRouter createRouter(BuildContext context) {
           return ChangeNotifierProvider(
             create: (_) => PostShareProvider(),
             child: PostDetailFromShareScreen(code: code),
+          );
+        },
+      ),
+
+      GoRoute(
+        name: 'collection_detail_from_share',
+        path: '/share/collection/:code',
+        builder: (context, state) {
+          final code = state.pathParameters['code']!;
+          return ChangeNotifierProvider(
+            create: (_) => CollectionShareProvider(),
+            child: CollectionDetailFromShareScreen(code: code),
           );
         },
       ),
@@ -790,6 +841,12 @@ GoRouter createRouter(BuildContext context) {
       ),
 
       GoRoute(
+        path: '/mbti_overview',
+        name: 'mbti_overview',
+        pageBuilder: (_, __) => const MaterialPage(child: MbtiOverviewScreen()),
+      ),
+
+      GoRoute(
         parentNavigatorKey: _rootNavKey,
         path: '/review-venue',
         name: 'review_venue',
@@ -984,9 +1041,17 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.map, 3, currentIndex),
+                PremiumGuard(
+                  onAllowedTap: () => _onTap(3),
+                  child: _buildItem(Icons.map, 3, currentIndex, onTap: null),
+                ),
                 const SizedBox(width: 16),
-                _buildItem(Icons.chat_outlined, 2, currentIndex),
+                _buildItem(
+                  Icons.chat_outlined,
+                  2,
+                  currentIndex,
+                  onTap: () => _onTap(2),
+                ),
               ],
             ),
 
@@ -995,9 +1060,19 @@ class MainShell extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _buildItem(Icons.calendar_month, 5, currentIndex),
+                _buildItem(
+                  Icons.calendar_month,
+                  5,
+                  currentIndex,
+                  onTap: () => _onTap(5),
+                ),
                 const SizedBox(width: 16),
-                _buildItem(Icons.person_outline, 6, currentIndex),
+                _buildItem(
+                  Icons.person_outline,
+                  6,
+                  currentIndex,
+                  onTap: () => _onTap(6),
+                ),
               ],
             ),
           ],
@@ -1013,6 +1088,7 @@ class MainShell extends StatelessWidget {
         height: 70,
         width: 70,
         child: FloatingActionButton(
+          heroTag: null,
           shape: const CircleBorder(),
           elevation: 8,
           backgroundColor: const Color(0xFFB388EB),
@@ -1023,11 +1099,16 @@ class MainShell extends StatelessWidget {
     );
   }
 
-  Widget _buildItem(IconData icon, int index, int currentIndex) {
+  Widget _buildItem(
+    IconData icon,
+    int index,
+    int currentIndex, {
+    VoidCallback? onTap,
+  }) {
     final isActive = index == currentIndex;
 
     return GestureDetector(
-      onTap: () => _onTap(index),
+      onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         padding: const EdgeInsets.all(8),
@@ -1075,4 +1156,16 @@ void navigateToChatScreen({required conversation}) {
   final context = _rootNavKey.currentContext;
   if (context == null) return;
   context.pushNamed('chat_screen', extra: {'conversation': conversation});
+}
+
+void navigateToPairingScreen() {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.pushNamed('receive_invitation');
+}
+
+void navigateToDatePlanScreen() {
+  final context = _rootNavKey.currentContext;
+  if (context == null) return;
+  context.goNamed('datePlan');
 }

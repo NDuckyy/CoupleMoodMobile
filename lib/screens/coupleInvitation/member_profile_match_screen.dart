@@ -1,9 +1,11 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/invite_dialog.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/info_chip.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/profile_section_card.dart';
 import 'package:couple_mood_mobile/utils/profile_utils.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -36,6 +38,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
 
     if (provider.error != null) {
       showMsg(context, provider.error!, false);
+      context.pop();
       return;
     }
 
@@ -61,7 +64,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
     final age = profile.age;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: SafeArea(
         child: Column(
           children: [
@@ -82,14 +85,29 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
               child: Column(
                 children: [
                   /// BACK BUTTON
+                  /// BACK BUTTON
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _iconButton(
-                        icon: Icons.arrow_back,
-                        onTap: () => context.pop(),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _iconButton(
+                          icon: Icons.arrow_back,
+                          onTap: () => context.pop(),
+                        ),
+
+                        /// ✅ REPORT BUTTON
+                        _iconButton(
+                          icon: Icons.flag_outlined,
+                          onTap: () {
+                            showReportBottomSheet(
+                              context: context,
+                              targetId: widget.userId,
+                              targetType: ReportTargetType.user,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
 
@@ -112,7 +130,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
 
                   /// NAME
                   Text(
-                    age != null
+                    age != null && age > 0
                         ? "${profile.fullName}, $age"
                         : profile.fullName,
                     style: const TextStyle(
@@ -124,7 +142,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                   const SizedBox(height: 6),
 
                   /// STATUS
-                  _statusBadge(profile.relationshipStatus),
+                  // _statusBadge(profile.relationshipStatus),
                 ],
               ),
             ),
@@ -174,7 +192,7 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                             else
                               InfoChip("Nữ"),
                           ],
-                          if (age != null) InfoChip("$age tuổi"),
+                          if (age != null && age > 0) InfoChip("$age tuổi"),
                           if (profile.height != null)
                             InfoChip("${profile.height} cm"),
                           if (profile.weight != null)
@@ -193,7 +211,8 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                         children: [
                           if (profile.jobTitle != null)
                             Text("💼 ${profile.jobTitle}"),
-                          if (profile.educationLevel != null)
+                          if (profile.educationLevel != null &&
+                              profile.educationLevel!.isNotEmpty)
                             Text("🎓 ${profile.educationLevel}"),
                         ],
                       ),

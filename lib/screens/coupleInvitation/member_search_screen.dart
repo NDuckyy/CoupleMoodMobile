@@ -9,6 +9,7 @@ import 'package:couple_mood_mobile/screens/coupleInvitation/widget/search_member
 import 'package:couple_mood_mobile/widgets/empty_widget.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
@@ -48,12 +49,15 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
 
       if (provider.error != null) {
         showMsg(context, provider.error!, false);
+        context.pop();
         return;
       }
 
       showMsg(context, "Đã gửi lời mời 💖", true);
+      context.pop();
     } catch (e) {
       showMsg(context, "Lỗi: ${e.toString()}", false);
+      context.pop();
     }
   }
 
@@ -61,7 +65,7 @@ class _MemberSearchScreenState extends State<MemberSearchScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<CoupleInvitationProvider>();
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FB),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: SafeArea(
         child: Column(
           children: [
@@ -265,7 +269,7 @@ class _SwipeLabel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            isLike ? Icons.favorite : Icons.arrow_forward,
+            isLike ? Icons.favorite : Icons.thumb_down,
             color: Colors.white,
             size: 18,
           ),

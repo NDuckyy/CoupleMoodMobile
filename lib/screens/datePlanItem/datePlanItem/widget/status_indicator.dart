@@ -4,11 +4,7 @@ class StatusIndicator extends StatelessWidget {
   final String? visitedAt;
   final String? skippedAt;
 
-  const StatusIndicator({
-    super.key,
-    this.visitedAt,
-    this.skippedAt,
-  });
+  const StatusIndicator({super.key, this.visitedAt, this.skippedAt});
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +32,7 @@ class StatusIndicator extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           text,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
+          style: TextStyle(color: color, fontWeight: FontWeight.w600),
         ),
       ],
     );

@@ -29,9 +29,11 @@ class CollectionVenueItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: venue.coverImage != null && venue.coverImage!.isNotEmpty
+              child:
+                  venue.coverImage.first != null &&
+                      venue.coverImage.first!.isNotEmpty
                   ? Image.network(
-                      venue.coverImage!,
+                      venue.coverImage.first!,
                       width: 64,
                       height: 64,
                       fit: BoxFit.cover,

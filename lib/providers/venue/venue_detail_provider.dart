@@ -48,7 +48,7 @@ class VenueDetailProvider extends ChangeNotifier {
     if (state == null) return null;
 
     if (state.hasReviewedBefore) {
-      return "Bạn đã review địa điểm này rồi 💬";
+      return "Bạn đã review địa điểm này";
     }
 
     if (state.activeCheckInId != null && !state.canReview) {

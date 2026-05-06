@@ -45,12 +45,16 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
       appBar: AppBar(
         title: const Text("Tường nhà của tôi"),
         centerTitle: true,
-        leading: Navigator.canPop(context)
-            ? IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.pop(),
-              )
-            : null,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.of(context).canPop()) {
+              context.pop();
+            } else {
+              context.goNamed('profile');
+            }
+          },
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: provider.refresh,
@@ -65,6 +69,7 @@ class _MyPostsScreenState extends State<MyPostsScreen> {
               )
             : ListView.builder(
                 controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 itemCount:
                     provider.posts.length + 2 + (provider.loadingMore ? 1 : 0),

@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/venue/venue_review.dart';
+import 'package:couple_mood_mobile/screens/review/widget/mood_tag.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -36,12 +37,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   int rating = 0;
   bool isAnonymous = false;
-  bool isMatched = true;
+  // bool isMatched = true;
   final TextEditingController contentController = TextEditingController();
   List<String> oldImages = [];
   List<String> newImages = [];
 
   late final bool isEditMode;
+
+  List<int> selectedMoodIds = [];
 
   @override
   void initState() {
@@ -52,13 +55,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
     /// chỉ load data để render UI
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<VenueDetailProvider>().loadVenue(widget.venueLocationId);
+      context.read<ReviewProvider>().fetchMoodTypes();
     });
 
     final review = widget.initialReview;
     if (review != null) {
       rating = review.rating;
       isAnonymous = review.isAnonymous;
-      isMatched = review.isMatched!;
+      // isMatched = review.isMatched!;
       contentController.text = review.content;
 
       /// ảnh cũ là URL
@@ -75,9 +79,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Future<void> _submitReview() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final provider = context.read<ReviewProvider>();
+    if (!isEditMode && selectedMoodIds.isEmpty) {
+      showMsg(context, "Vui lòng chọn ít nhất 1 mood", false);
+      return;
+    }
 
-    final isEditMode = widget.initialReview != null;
+    final provider = context.read<ReviewProvider>();
 
     bool success = false;
 
@@ -89,7 +96,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
 
         /// ảnh gốc từ BE
         originalImages: widget.initialReview!.imageUrls,
@@ -99,6 +106,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
         /// ảnh mới user thêm
         newLocalImages: newImages,
+
+        selectedMoodIds: selectedMoodIds.isEmpty ? null : selectedMoodIds,
       );
     } else {
       if (widget.checkInId == null) {
@@ -113,8 +122,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
         rating: rating,
         content: contentController.text.trim(),
         isAnonymous: isAnonymous,
-        isMatched: isMatched,
+        isMatched: false,
         localImagePaths: newImages,
+        coupleMoodTypeIds: selectedMoodIds,
       );
     }
 
@@ -176,16 +186,56 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     setState(() => rating = value);
                   },
                 ),
+                if (!isEditMode) ...[
+                  const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+                  // MatchSwitch(
+                  //   value: isMatched,
+                  //   onChanged: (val) {
+                  //     setState(() => isMatched = val);
+                  //   },
+                  // ),
+                  // if (!isMatched) ...[
+                  const SizedBox(height: 6),
 
-                MatchSwitch(
-                  value: isMatched,
-                  onChanged: (val) {
-                    setState(() => isMatched = val);
-                  },
-                ),
+                  const Text(
+                    "Chọn các tâm trạng bạn cảm thấy phù hợp với quán",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                  ),
 
+                  const SizedBox(height: 12),
+
+                  Consumer<ReviewProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingMood) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: provider.moods.map((mood) {
+                          final isSelected = selectedMoodIds.contains(mood.id);
+
+                          return MoodTag(
+                            mood: mood,
+                            isSelected: isSelected,
+                            onTap: () {
+                              setState(() {
+                                if (isSelected) {
+                                  selectedMoodIds.remove(mood.id);
+                                } else {
+                                  selectedMoodIds.add(mood.id);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      );
+                    },
+                  ),
+                  // ],
+                ],
                 const SizedBox(height: 20),
 
                 /// CONTENT

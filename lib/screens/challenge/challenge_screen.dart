@@ -56,7 +56,7 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
               children: [
                 /// YOUR CHALLENGES
                 ChallengeSection(
-                  title: "💪 Challenge của bạn",
+                  title: "💪 Thử thách của bạn",
                   children: provider.doingChallenges.isEmpty
                       ? [emptyText("Bạn chưa tham gia thử thách nào")]
                       : provider.doingChallenges.map((c) {

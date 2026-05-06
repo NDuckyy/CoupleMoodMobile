@@ -63,7 +63,7 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Consumer<VoucherProvider>(
         builder: (context, provider, _) {
           /// FIRST LOAD
@@ -85,7 +85,7 @@ class _VoucherListScreenState extends State<VoucherListScreen> {
                   SizedBox(height: 200),
                   Center(
                     child: Text(
-                      "Không có voucher nào",
+                      "Không có voucher nào đang được phát hành",
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),

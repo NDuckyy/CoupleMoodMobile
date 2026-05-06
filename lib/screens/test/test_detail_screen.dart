@@ -120,14 +120,14 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFDFDFD),
         title: const Text(
-          'Bài test 💕',
+          'Bài kiểm tra tính cách 💕',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: TestButtons(
@@ -188,7 +188,7 @@ class _TestDetailScreenState extends State<TestDetailScreen> {
           testProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
               : ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 60),
                   itemCount: testProvider.testDetails.data!.length,
                   itemBuilder: (context, index) {
                     final testDetail = testProvider.testDetails.data![index];

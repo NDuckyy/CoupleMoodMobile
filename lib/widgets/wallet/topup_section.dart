@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:provider/provider.dart';
-
 import '../../providers/wallet/wallet_provider.dart';
-import '../../utils/currency_utils.dart';
 import 'payment_method_bottom_sheet.dart';
 
 class TopupSection extends StatefulWidget {
@@ -19,8 +17,6 @@ class _TopupSectionState extends State<TopupSection> {
   final TextEditingController _amountCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  String formatVND(int amount) => NumberFormat('#,###', 'vi_VN').format(amount);
-
   @override
   void dispose() {
     _amountCtrl.dispose();
@@ -35,7 +31,7 @@ class _TopupSectionState extends State<TopupSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        /// ===== NẠP NHANH =====
+        /// nạp nhanh
         const Text(
           "Nạp nhanh",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -47,7 +43,13 @@ class _TopupSectionState extends State<TopupSection> {
           children: [50000, 100000, 200000, 500000].map((amt) {
             return Expanded(
               child: GestureDetector(
-                onTap: () => _amountCtrl.text = formatVND(amt),
+                onTap: () {
+                  final text = CurrencyUtils.formatRaw(amt);
+                  _amountCtrl.value = TextEditingValue(
+                    text: text,
+                    selection: TextSelection.collapsed(offset: text.length),
+                  );
+                },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 5),
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -83,7 +85,7 @@ class _TopupSectionState extends State<TopupSection> {
 
         const SizedBox(height: 32),
 
-        /// ===== INPUT =====
+        /// nhập tiền
         const Text(
           "Nhập số tiền nạp",
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
@@ -117,13 +119,17 @@ class _TopupSectionState extends State<TopupSection> {
               ),
             ),
             validator: (value) {
-              final raw = (value ?? '')
-                  .replaceAll('.', '')
-                  .replaceAll('đ', '')
-                  .trim();
-              final amount = int.tryParse(raw);
-              if (raw.isEmpty) return "Vui lòng nhập số tiền";
-              if (amount == null || amount < 1000) return "Tối thiểu 1.000đ";
+              final amount = CurrencyUtils.parseVND(value ?? '');
+
+              if ((value ?? '').trim().isEmpty) {
+                return "Vui lòng nhập số tiền";
+              }
+              if (amount < 1000) {
+                return "Tối thiểu 1.000đ";
+              }
+              if (amount > 100000000) {
+                return "Tối đa 100.000.000đ";
+              }
               return null;
             },
           ),
@@ -131,7 +137,7 @@ class _TopupSectionState extends State<TopupSection> {
 
         const SizedBox(height: 28),
 
-        /// ===== BUTTON NẠP =====
+        /// nạp
         SizedBox(
           width: double.infinity,
           height: 62,
@@ -145,12 +151,7 @@ class _TopupSectionState extends State<TopupSection> {
                   : () {
                       if (!_formKey.currentState!.validate()) return;
 
-                      final raw = _amountCtrl.text
-                          .replaceAll('.', '')
-                          .replaceAll('đ', '')
-                          .trim();
-
-                      final amount = int.parse(raw);
+                      final amount = CurrencyUtils.parseVND(_amountCtrl.text);
 
                       PaymentMethodBottomSheet.show(context, wallet, amount);
                     },

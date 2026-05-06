@@ -25,11 +25,11 @@ class _SentInvitationScreenState extends State<SentInvitationScreen> {
     final invitationProvider = context.watch<CoupleInvitationProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
 
       appBar: AppBar(
         title: const Text("Các lời mời đã gửi"),
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFFDFDFD),
         foregroundColor: Colors.black,
         elevation: 0,
       ),

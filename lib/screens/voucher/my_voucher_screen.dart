@@ -66,7 +66,7 @@ class _MyVoucherScreenState extends State<MyVoucherScreen>
     final provider = context.watch<MyVoucherProvider>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F6FA),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Column(
         children: [
           // === SEARCH BAR ===

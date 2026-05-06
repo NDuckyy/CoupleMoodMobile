@@ -46,9 +46,7 @@ class QuestionCard extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFDC5F5), Color(0xFFB388EB)],
-                  ),
+                  color: const Color(0xFFB388EB),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(

@@ -21,8 +21,13 @@ class LocalNotificationService {
               "type": "CHAT",
               "conversationId": parts[1],
             });
-          } else {
+          } else if (parts[0] == "PAIRING") {
+            await handleNotificationNavigation({"type": "PAIRING"});
+          } else if (parts[0] == "DATE_PLAN") {
+            await handleNotificationNavigation({"type": "DATE_PLAN"});
+          } else if (parts[0] == "LOCATION") {
             await handleNotificationNavigation({
+              "type": "LOCATION",
               "venueLocationId": parts[0],
               "refId": parts[1],
             });
@@ -43,7 +48,11 @@ class LocalNotificationService {
       );
 
       navigateToChatScreen(conversation: conversation);
-    } else {
+    } else if (data['type'] == "PAIRING") {
+      navigateToPairingScreen();
+    } else if (data['type'] == "DATE_PLAN") {
+      navigateToDatePlanScreen();
+    } else if (data['type'] == "LOCATION") {
       final venueId = int.parse(data['venueLocationId'] ?? "0");
       final checkInId = int.parse(data['refId'] ?? "0");
 

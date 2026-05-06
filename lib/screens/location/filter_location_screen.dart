@@ -39,7 +39,9 @@ class _FilterLocationScreenState extends State<FilterLocationScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              debugPrint("Selected category: ${provider.selectedCategory?.name}");
+              debugPrint(
+                "Selected category: ${provider.selectedCategory?.name}",
+              );
               debugPrint(
                 "Selected price range: ${provider.priceRange.start} - ${provider.priceRange.end}",
               );
@@ -80,7 +82,7 @@ class _FilterLocationScreenState extends State<FilterLocationScreen> {
         child: TextField(
           onChanged: provider.searchCategory,
           decoration: const InputDecoration(
-            hintText: "Tìm địa điểm bạn thích...",
+            hintText: "Tìm tag bạn thích...",
             prefixIcon: Icon(Icons.search, color: Color(0xFFB388EB)),
             border: InputBorder.none,
             contentPadding: EdgeInsets.symmetric(vertical: 14),

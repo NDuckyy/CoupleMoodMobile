@@ -66,6 +66,15 @@ class CurrencyUtils {
 
     return "Dưới ${CurrencyUtils.formatPriceVN(safeMax)}";
   }
+
+  static int parseVND(String text) {
+    final raw = text.replaceAll(RegExp(r'[^0-9]'), '');
+    return int.tryParse(raw) ?? 0;
+  }
+
+  static String formatRaw(num value) {
+    return _vndFormatter.format(value);
+  }
 }
 
 //nhập real time tiền vnd đồ á

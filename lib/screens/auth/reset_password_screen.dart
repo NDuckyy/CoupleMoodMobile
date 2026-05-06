@@ -67,7 +67,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     keyboardType: TextInputType.number,
                     maxLength: 6,
                     decoration: InputDecoration(
-                      hintText: "Nhâp OTP",
+                      hintText: "Nhập OTP",
                       counterText: "",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),

@@ -3,18 +3,26 @@ class MemberResponse {
   final int userId;
   final String fullName;
   final String? avatarUrl;
+  final String? personalityResultCode;
+  final String? jobTitle;
   final String? bio;
   final String relationshipStatus;
   final bool canSendInvitation;
+  final int? age;
+  final String? city;
 
   MemberResponse({
     required this.memberProfileId,
     required this.userId,
     required this.fullName,
     this.avatarUrl,
+    this.personalityResultCode,
+    this.jobTitle,
     this.bio,
     required this.relationshipStatus,
     required this.canSendInvitation,
+    this.age,
+    this.city,
   });
 
   factory MemberResponse.fromJson(Map<String, dynamic> json) {
@@ -23,9 +31,13 @@ class MemberResponse {
       userId: json['userId'],
       fullName: json['fullName'],
       avatarUrl: json['avatarUrl'],
+      personalityResultCode: json['personalityResultCode'],
+      jobTitle: json['jobTitle'],
       bio: json['bio'],
       relationshipStatus: json['relationshipStatus'],
       canSendInvitation: json['canSendInvitation'],
+      age: json['age'],
+      city: json['city'],
     );
   }
 }

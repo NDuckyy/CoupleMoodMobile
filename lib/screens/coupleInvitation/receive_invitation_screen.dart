@@ -17,7 +17,7 @@ class ReceiveInvitationScreen extends StatefulWidget {
 class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
   void _acceptInvitation(BuildContext context, int invitationId) async {
     final provider = context.read<CoupleInvitationProvider>();
-     await provider.acceptInvitation(invitationId);
+    await provider.acceptInvitation(invitationId);
     if (provider.error != null) {
       if (context.mounted) {
         showMsg(context, provider.error!, false);
@@ -59,7 +59,7 @@ class _ReceiveInvitationScreenState extends State<ReceiveInvitationScreen> {
     final invitationProvider = context.watch<CoupleInvitationProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {

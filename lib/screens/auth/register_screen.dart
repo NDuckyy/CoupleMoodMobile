@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/register_request.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
 import 'package:couple_mood_mobile/widgets/backgroud_auth_screen.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +27,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  bool _acceptedPolicy = false;
 
   String _gender = 'MALE';
 
@@ -57,7 +60,209 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  void _showOtpDialog(RegisterRequest req) {
+    final otpController = TextEditingController();
+    final focusNode = FocusNode();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 8,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Icon + Title
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF7B33BB).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.email_outlined,
+                    size: 48,
+                    color: Color(0xFF7B33BB),
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  "Xác thực OTP",
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF2C2C2C),
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  "Chúng tôi đã gửi mã OTP về email",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+                ),
+
+                Text(
+                  req.email,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF7B33BB),
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                // OTP Input
+                TextField(
+                  controller: otpController,
+                  focusNode: focusNode,
+                  keyboardType: TextInputType.number,
+                  textAlign: TextAlign.center,
+                  maxLength: 6,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 8,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: "••••••",
+                    counterText: "",
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF7B33BB),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          "Huỷ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final auth = context.read<AuthProvider>();
+                          final otp = otpController.text.trim();
+
+                          if (otp.isEmpty || otp.length < 4) {
+                            showMsg(context, "Vui lòng nhập mã OTP", false);
+                            return;
+                          }
+
+                          final verifyOk = await auth.verifyRegistrationOtp(
+                            req.email,
+                            otp,
+                          );
+
+                          if (!verifyOk) {
+                            showMsg(
+                              context,
+                              auth.error ?? "Mã OTP không đúng",
+                              false,
+                            );
+                            otpController.clear();
+                            focusNode.requestFocus();
+                            return;
+                          }
+
+                          // Verify thành công → Đăng ký
+                          final registerOk = await auth.register(req);
+
+                          if (registerOk && context.mounted) {
+                            Navigator.pop(context); // đóng dialog OTP
+                            showMsg(
+                              context,
+                              "Đăng ký tài khoản thành công ❤️",
+                              true,
+                            );
+                            context.pushNamed(
+                              "login",
+                              extra: "Đăng ký thành công",
+                            );
+                          } else {
+                            showMsg(
+                              context,
+                              auth.error ?? "Đăng ký thất bại",
+                              false,
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF7B33BB),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          "Xác nhận",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void onRegister() async {
+    if (!_acceptedPolicy) {
+      showMsg(context, "Vui lòng đồng ý Điều khoản & Chính sách", false);
+      return;
+    }
+
     if (_formKey.currentState?.validate() != true) return;
 
     final req = RegisterRequest(
@@ -71,28 +276,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     final auth = context.read<AuthProvider>();
-    final ok = await auth.register(req);
-    if (ok) {
-      if (!mounted) return;
-      showMsg(context, "Đăng ký thành công", true);
-      context.pushNamed("login", extra: "Đăng ký thành công");
+
+    // gửi OTP trước
+    final ok = await auth.sendRegistrationOtp(req.email);
+
+    if (!ok) {
+      showMsg(context, auth.error ?? "Gửi OTP thất bại", false);
       return;
     }
-    if (!mounted) return;
-    showMsg(context, "Đăng ký thất bại: ${auth.error}", false);
+
+    //  mở dialog nhập OTP
+    _showOtpDialog(req);
   }
 
   InputDecoration _decoration(String label) => InputDecoration(
     filled: true,
-    fillColor: Colors.white,
+    fillColor: const Color(0xFFF8F6FF),
     labelText: label,
-    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-    contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide.none,
+    ),
+    contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
   );
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final auth = context.watch<AuthProvider>();
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -118,21 +329,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         Container(
                           margin: const EdgeInsets.only(top: 24),
-                          width: 330,
+                          width: double.infinity,
+                          constraints: const BoxConstraints(maxWidth: 420),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(40),
+                            borderRadius: BorderRadius.circular(32),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color.fromARGB(
-                                  255,
-                                  147,
-                                  146,
-                                  146,
-                                ).withOpacity(0.5),
-                                spreadRadius: 5,
-                                blurRadius: 7,
-                                offset: const Offset(3, 3),
+                                color: const Color(
+                                  0xFFB388EB,
+                                ).withOpacity(0.15),
+                                blurRadius: 25,
+                                offset: const Offset(0, 10),
                               ),
                             ],
                           ),
@@ -308,7 +516,61 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       return null;
                                     },
                                   ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Transform.scale(
+                                        scale: 0.9,
+                                        child: Checkbox(
+                                          value: _acceptedPolicy,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              _acceptedPolicy = value ?? false;
+                                            });
+                                          },
+                                          materialTapTargetSize:
+                                              MaterialTapTargetSize
+                                                  .shrinkWrap, // quan trọng
+                                        ),
+                                      ),
 
+                                      const SizedBox(width: 4),
+
+                                      Expanded(
+                                        child: RichText(
+                                          text: TextSpan(
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize:
+                                                  15, // bạn có thể chỉnh 14 hoặc 15
+                                              height: 1.0,
+                                            ),
+                                            children: [
+                                              const TextSpan(
+                                                text: "Tôi đồng ý với ",
+                                              ),
+                                              TextSpan(
+                                                text: "Điều khoản & Chính sách",
+                                                style: const TextStyle(
+                                                  color: Color(0xFFB388EB),
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                ),
+                                                recognizer:
+                                                    TapGestureRecognizer()
+                                                      ..onTap = () {
+                                                        context.push('/policy');
+                                                      },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                   const SizedBox(height: 24),
 
                                   SizedBox(
@@ -316,7 +578,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     height: 50,
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFFB388EB,
+                                            ).withOpacity(0.3),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 6),
+                                          ),
+                                        ],
                                         gradient: const LinearGradient(
                                           colors: [
                                             Color(0xFFF7B3E9),
@@ -326,7 +597,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       ),
                                       child: ElevatedButton(
-                                        onPressed: onRegister,
+                                        onPressed: auth.isLoading
+                                            ? null
+                                            : onRegister,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.transparent,
                                           shadowColor: Colors.transparent,
@@ -336,14 +609,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             ),
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Đăng ký',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
+                                        child: auth.isLoading
+                                            ? const SizedBox(
+                                                height: 20,
+                                                width: 20,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2,
+                                                      color: Colors.white,
+                                                    ),
+                                              )
+                                            : const Text(
+                                                'Đăng ký',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
                                       ),
                                     ),
                                   ),

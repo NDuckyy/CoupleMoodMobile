@@ -22,9 +22,7 @@ class NotificationItem extends StatelessWidget {
             : Colors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isUnread
-              ? const Color(0xFFB388EB)
-              : const Color(0xFFF1F1F1),
+          color: isUnread ? const Color(0xFFB388EB) : const Color(0xFFF1F1F1),
           width: isUnread ? 1.2 : 1,
         ),
         boxShadow: [
@@ -96,10 +94,7 @@ class NotificationItem extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFB388EB),
-                          Color(0xFF8093F1),
-                        ],
+                        colors: [Color(0xFFB388EB), Color(0xFF8093F1)],
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -128,8 +123,12 @@ class NotificationItem extends StatelessWidget {
     }
 
     switch (notification.type) {
-      case "PAIRING":
+      case "DATE_PLAN":
         context.goNamed('datePlan');
+        break;
+
+      case "PAIRING":
+        context.pushNamed('receive_invitation');
         break;
 
       case "LOCATION":
@@ -161,19 +160,13 @@ class NotificationItem extends StatelessWidget {
       context: context,
       barrierColor: Colors.black.withOpacity(0.4),
       builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFFFDC5F5),
-                Color(0xFFF7AEF8),
-                Color(0xFFB388EB),
-              ],
+              colors: [Color(0xFFFDC5F5), Color(0xFFF7AEF8), Color(0xFFB388EB)],
             ),
           ),
           child: Column(
@@ -255,8 +248,8 @@ class NotificationItem extends StatelessWidget {
       case "LOCATION":
         icon = Icons.location_on_outlined;
         break;
-      case "SYSTEM":
-        icon = Icons.favorite_border;
+      case "DATE_PLAN":
+        icon = Icons.calendar_today;
         break;
       case "PAIRING":
         icon = Icons.favorite;
@@ -275,15 +268,13 @@ class NotificationItem extends StatelessWidget {
       ),
       child: Icon(
         icon,
-        color: isUnread
-            ? const Color(0xFFB388EB)
-            : const Color(0xFF8093F1),
+        color: isUnread ? const Color(0xFFB388EB) : const Color(0xFF8093F1),
         size: 20,
       ),
     );
   }
 
   String _formatTime(DateTime time) {
-    return "${time.hour}:${time.minute.toString().padLeft(2, '0')}";
+    return "${time.hour + 7}:${time.minute.toString().padLeft(2, '0')}";
   }
 }

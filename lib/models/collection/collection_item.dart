@@ -9,6 +9,7 @@ class CollectionItem {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? img;
+  final bool? isOwner; // ✅ ADD
   final List<CollectionVenue> venues;
 
   CollectionItem({
@@ -21,6 +22,7 @@ class CollectionItem {
     required this.updatedAt,
     required this.venues,
     this.img,
+    this.isOwner,
   });
 
   factory CollectionItem.fromJson(Map<String, dynamic> json) {
@@ -33,6 +35,9 @@ class CollectionItem {
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
       img: json['img'],
+
+      isOwner: json['isOwner'] as bool?,
+
       venues: (json['venues'] as List? ?? [])
           .map((e) => CollectionVenue.fromJson(e))
           .toList(),

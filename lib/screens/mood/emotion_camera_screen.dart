@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:couple_mood_mobile/models/mood/mood_face.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/screens/mood/widgets/camera_content.dart';
+import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,7 +22,14 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
   File? _image;
   MoodFace? _result;
 
+  bool _isConsentChecked = false;
+
   Future<void> _takePhotoAndAnalyze() async {
+    if (!_isConsentChecked) {
+      showMsg(context, 'Vui lòng đồng ý trước khi tiếp tục', false);
+      return;
+    }
+
     final moodProvider = context.read<MoodProvider>();
 
     final picked = await _picker.pickImage(
@@ -52,14 +60,18 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
       setState(() {
         _result = null;
       });
+
+      showMsg(context, 'Không thể phân tích cảm xúc, thử lại nhé', false);
     }
   }
 
   void _goToListLocation() {
     final moodProvider = context.read<MoodProvider>();
+
     if (_result != null && _result!.dominantEmotion.isNotEmpty) {
       moodProvider.getCurrentMood();
     }
+
     context.goNamed('listLocation');
   }
 
@@ -71,7 +83,12 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
     final hasError = moodProvider.error != null && !moodProvider.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Phân tích cảm xúc'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Phân tích cảm xúc'),
+        centerTitle: true,
+        backgroundColor: const Color(0xFFFDFDFD),
+      ),
+      backgroundColor: const Color(0xFFF7F0FF),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -135,13 +152,42 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
+            //checkbox ok xài AI á
+            CheckboxListTile(
+              value: _isConsentChecked,
+              onChanged: (value) {
+                setState(() {
+                  _isConsentChecked = value ?? false;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+              activeColor: const Color(0xFF8093F1),
+
+              contentPadding: EdgeInsets.zero, // bỏ padding ngoài
+              dense: true, // giảm chiều cao
+              visualDensity: const VisualDensity(
+                horizontal: -4, // kéo sát checkbox
+                vertical: -4,
+              ),
+
+              title: Text(
+                'Tôi đồng ý cung cấp hình ảnh khuôn mặt để hệ thống AI phân tích cảm xúc hiện tại.',
+                style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            ///  BUTTON (bị disable nếu chưa tick)
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: moodProvider.isLoading ? null : _takePhotoAndAnalyze,
+                onPressed: (moodProvider.isLoading || !_isConsentChecked)
+                    ? null
+                    : _takePhotoAndAnalyze,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF8093F1),
                   shape: RoundedRectangleBorder(
@@ -172,7 +218,7 @@ class _EmotionCameraScreenState extends State<EmotionCameraScreen> {
                 width: double.infinity,
                 height: 50,
                 child: OutlinedButton(
-                  onPressed: () => _goToListLocation(),
+                  onPressed: _goToListLocation,
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: Color(0xFF8093F1)),
                     shape: RoundedRectangleBorder(

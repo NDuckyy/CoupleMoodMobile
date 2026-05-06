@@ -86,7 +86,7 @@ class PointsWalletTab extends StatelessWidget {
                           ],
                         ),
                         Text(
-                          "${formatPoints(wallet.pointsBalance)} points",
+                          "${formatPoints(wallet.pointsBalance)} điểm",
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 36,
@@ -97,7 +97,7 @@ class PointsWalletTab extends StatelessWidget {
                         const SizedBox(height: 8),
                         if (rate != null)
                           Text(
-                            "Tỉ lệ: ${rate.moneyAmount} VND = ${rate.pointAmount} Point",
+                            "Tỉ lệ: ${rate.moneyAmount} VND = ${rate.pointAmount} điểm",
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 14,
@@ -160,23 +160,23 @@ class PointsWalletTab extends StatelessWidget {
                           );
                         },
                       ),
-                      const Divider(),
-                      ListTile(
-                        leading: Icon(
-                          Icons.shopping_bag,
-                          color: colorScheme.primary,
-                          size: 32,
-                        ),
-                        title: const Text("Mua Phụ Kiện"),
-                        subtitle: const Text("Shop trong ứng dụng"),
-                        trailing: Icon(
-                          Icons.chevron_right,
-                          color: colorScheme.primary,
-                        ),
-                        onTap: () {
-                          context.pushNamed('shop');
-                        },
-                      ),
+                      // const Divider(),
+                      // ListTile(
+                      //   leading: Icon(
+                      //     Icons.shopping_bag,
+                      //     color: colorScheme.primary,
+                      //     size: 32,
+                      //   ),
+                      //   title: const Text("Mua Phụ Kiện"),
+                      //   subtitle: const Text("Shop trong ứng dụng"),
+                      //   trailing: Icon(
+                      //     Icons.chevron_right,
+                      //     color: colorScheme.primary,
+                      //   ),
+                      //   onTap: () {
+                      //     context.pushNamed('shop');
+                      //   },
+                      // ),
                     ],
                   ),
                 ),
@@ -197,8 +197,8 @@ class PointsWalletTab extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            "1 Point ≈ ${rate.moneyAmount} VND\n"
-                            "Bạn có thể dùng điểm để mua voucher và phụ kiện",
+                            "1 điểm ≈ ${rate.moneyAmount} VND\n"
+                            "Bạn có thể dùng điểm để mua voucher",
                             style: const TextStyle(
                               fontSize: 14,
                               color: Colors.grey,

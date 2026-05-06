@@ -83,6 +83,15 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler> {
             pathParameters: {'code': code},
           );
         }
+      } else if (uri.host == 'collection') {
+        if (uri.pathSegments.isNotEmpty) {
+          final code = uri.pathSegments.last;
+
+          widget.router.goNamed(
+            'collection_detail_from_share',
+            pathParameters: {'code': code},
+          );
+        }
       }
 
       return;

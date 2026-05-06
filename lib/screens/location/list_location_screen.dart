@@ -83,28 +83,49 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
 
         lat = position.latitude;
         lng = position.longitude;
-      } else {
+      } else if (source == LocationSource.partner) {
         final partnerId = moodProvider.coupleCurrentMood?.partnerMemberId;
         if (partnerId == null) return;
 
         await positionProvider.getUserPosition(partnerId);
 
         if (positionProvider.error != null) {
+          if (!mounted) return;
           showMsg(context, "Không lấy được vị trí đối phương", false);
           return;
         }
 
         lat = positionProvider.recommendedLatitude;
         lng = positionProvider.recommendedLongitude;
-      }
+      } else if (source == LocationSource.middle) {
+        final myPos = await LocationService.getCurrentPosition();
+        final partnerId = moodProvider.coupleCurrentMood?.partnerMemberId;
 
-      recommendationProvider.latitude = lat;
-      recommendationProvider.longitude = lng;
+        if (myPos == null || partnerId == null) return;
+
+        await positionProvider.getUserPosition(partnerId);
+
+        if (positionProvider.error != null) {
+          if (!mounted) return;
+          showMsg(context, "Không lấy được vị trí đối phương", false);
+          return;
+        }
+
+        final partnerLat = positionProvider.recommendedLatitude;
+        final partnerLng = positionProvider.recommendedLongitude;
+
+        if (partnerLat == null || partnerLng == null) return;
+
+        /// 🔥 midpoint đơn giản
+        lat = (myPos.latitude + partnerLat) / 2;
+        lng = (myPos.longitude + partnerLng) / 2;
+      }
 
       await recommendationProvider.fetchRecommendations(
         RecommendationRequest(lat: lat, lng: lng),
       );
     } catch (e) {
+      if (!mounted) return;
       showMsg(context, "Lỗi lấy vị trí", false);
     } finally {
       if (mounted) {
@@ -232,15 +253,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             if (recommendationProvider.isLoading && recs.isEmpty)
               const SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recommendationProvider.error != null)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Text(
-                    recommendationProvider.error!,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+              SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recs.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
@@ -263,7 +276,12 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCardGrid(r: r, maxline: 2);
+                      return VenueCardGrid(
+                        r: r,
+                        maxline: 2,
+                        lat2: recommendationProvider.latitude,
+                        lon2: recommendationProvider.longitude,
+                      );
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

@@ -23,7 +23,7 @@ class MatchSwitch extends StatelessWidget {
         const SizedBox(height: 4),
 
         const Text(
-          "Đánh giá tổng thể cảm nhận của bạn",
+          "Đánh giá tổng thể cảm nhận của bạn.",
           style: TextStyle(fontSize: 12, color: Colors.grey),
         ),
 

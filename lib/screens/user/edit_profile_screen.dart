@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:couple_mood_mobile/screens/user/sheet/commune_picker.dart';
 import 'package:couple_mood_mobile/screens/user/sheet/education_picker.dart';
 import 'package:couple_mood_mobile/screens/user/sheet/interest_picker_sheet.dart';
 import 'package:couple_mood_mobile/screens/user/sheet/job_picker.dart';
 import 'package:couple_mood_mobile/screens/user/sheet/pet_picker_sheet.dart';
+import 'package:couple_mood_mobile/screens/user/sheet/province_picker.dart';
 import 'package:couple_mood_mobile/screens/user/widget/box_section.dart';
 import 'package:couple_mood_mobile/screens/user/widget/edit_section.dart';
 import 'package:couple_mood_mobile/screens/user/sheet/gender_picker.dart';
@@ -10,6 +12,7 @@ import 'package:couple_mood_mobile/screens/user/widget/input_section.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:collection/collection.dart';
 
 import '../../providers/user/user_provider.dart';
 import '../../providers/user/edit_profile_provider.dart';
@@ -31,8 +34,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController jobController;
   late TextEditingController heightController;
   late TextEditingController weightController;
-  late TextEditingController cityController;
-  late TextEditingController districtController;
   late TextEditingController budgetMinController;
   late TextEditingController budgetMaxController;
 
@@ -41,6 +42,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   List<String> favoritePets = [];
   List<String> interests = [];
+  String? selectedProvinceCode;
+  String? selectedProvinceName;
+
+  String? selectedCommuneCode;
+  String? selectedCommuneName;
   bool hasPet = false;
   bool smoking = false;
 
@@ -101,8 +107,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       text: profile?.weight?.toString() ?? "",
     );
 
-    cityController = TextEditingController(text: profile?.city ?? "");
-    districtController = TextEditingController(text: profile?.district ?? "");
+    selectedProvinceName = profile?.city;
+    selectedCommuneName = profile?.district;
 
     budgetMinController = TextEditingController(
       text: profile?.budgetMin?.toString() ?? "",
@@ -122,6 +128,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     interests = (profile?.interests ?? []).toList();
     selectedEducation = profile?.educationLevel;
+
+    /// 🔥 Load location data SAFE
+    _initLocationData();
+  }
+
+  Future<void> _initLocationData() async {
+    if (!mounted) return;
+
+    final provider = context.read<EditProfileProvider>();
+    final today = DateTime.now().toIso8601String().split("T").first;
+
+    try {
+      /// 1. Fetch provinces
+      await provider.fetchProvinces("2026-04-30");
+
+      final provinces = provider.provinces;
+      if (provinces == null || provinces.isEmpty) return;
+
+      /// 2. Map province từ name → code
+      final province = provinces.firstWhereOrNull(
+        (p) => p.name == selectedProvinceName,
+      );
+
+      if (province == null) return;
+
+      selectedProvinceCode = province.code;
+
+      /// 3. Fetch communes nếu có provinceCode
+      final code = selectedProvinceCode;
+      if (code == null) return;
+
+      await provider.fetchCommunes(today, code);
+
+      final communes = provider.communes;
+      if (communes == null || communes.isEmpty) return;
+
+      /// 4. Map commune
+      final commune = communes.firstWhereOrNull(
+        (c) =>
+            c.name == selectedCommuneName &&
+            c.provinceName == selectedProvinceName,
+      );
+
+      if (commune != null) {
+        selectedCommuneCode = commune.code;
+      }
+
+      /// 5. Update UI
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      debugPrint("Init location error: $e");
+    }
   }
 
   Future<void> _pickImage() async {
@@ -151,6 +211,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     final provider = context.read<EditProfileProvider>();
 
+    if (selectedProvinceCode != null && selectedCommuneCode == null) {
+      showMsg(context, "Vui lòng chọn quận/huyện", false);
+      return;
+    }
+
     try {
       final success = await provider.updateProfile(
         user: user,
@@ -166,8 +231,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         educationLevel: selectedEducation,
         height: int.tryParse(heightController.text),
         weight: int.tryParse(weightController.text),
-        city: cityController.text,
-        district: districtController.text,
+        city: selectedProvinceName,
+        district: selectedCommuneName,
         favoritePets: favoritePets,
         hasPet: hasPet,
         smoking: smoking,
@@ -178,6 +243,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (success) {
         await context.read<UserProvider>().fetchMe();
+        if (!mounted) return;
         showMsg(context, "Cập nhật thành công", true);
         Navigator.pop(context, true);
       }
@@ -378,8 +444,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               /// LOCATION
               editSection("Địa chỉ", [
-                inputSection(cityController, "Thành phố"),
-                inputSection(districtController, "Quận"),
+                ProvincePickerField(
+                  value: selectedProvinceName,
+                  provider: provider,
+                  onSelected: (p) async {
+                    final code = p.code;
+
+                    setState(() {
+                      selectedProvinceCode = code;
+                      selectedProvinceName = p.name;
+                      selectedCommuneCode = null;
+                      selectedCommuneName = null;
+                    });
+
+                    if (code == null) return;
+
+                    await provider.fetchCommunes(
+                      DateTime.now().toIso8601String().split("T").first,
+                      code,
+                    );
+                  },
+                ),
+
+                CommunePickerField(
+                  value: selectedCommuneName,
+                  provinceCode: selectedProvinceCode,
+                  provider: provider,
+                  onSelected: (c) {
+                    setState(() {
+                      selectedCommuneCode = c.code;
+                      selectedCommuneName = c.name;
+                    });
+                  },
+                ),
               ]),
 
               /// PET

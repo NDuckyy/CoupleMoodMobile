@@ -1,5 +1,7 @@
+import 'package:couple_mood_mobile/providers/post/my_posts_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../models/post/post_model.dart';
 import 'post_header.dart';
 import 'post_media.dart';
@@ -30,11 +32,15 @@ class PostCard extends StatelessWidget {
     return textPainter.didExceedMaxLines;
   }
 
-  void _openDetail(BuildContext context) {
-    context.pushNamed(
+  Future<void> _openDetail(BuildContext context) async {
+    final needRefresh = await context.pushNamed(
       'post_detail',
       pathParameters: {'postId': post.id.toString()},
     );
+
+    if (needRefresh == true) {
+      context.read<MyPostsProvider>().refresh();
+    }
   }
 
   Widget _buildContent() {
@@ -77,7 +83,10 @@ class PostCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         elevation: 2,
         shadowColor: Colors.black12,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFDDDEE3), width: 1),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
