@@ -2,16 +2,50 @@ import 'package:couple_mood_mobile/models/recommendation/recommendation.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/venue/venue_image.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 
 class VenueCardGrid extends StatelessWidget {
   final Recommendation r;
   final int maxline;
+  final double? lat2;
+  final double? lon2;
 
-  const VenueCardGrid({super.key, required this.r, required this.maxline});
+  const VenueCardGrid({
+    super.key,
+    required this.r,
+    required this.maxline,
+    this.lat2,
+    this.lon2,
+  });
 
   @override
   Widget build(BuildContext context) {
+    double? calculateDistance() {
+      if (r.latitude != null &&
+          r.longitude != null &&
+          lat2 != null &&
+          lon2 != null) {
+        return Geolocator.distanceBetween(
+          r.latitude!,
+          r.longitude!,
+          lat2!,
+          lon2!,
+        );
+      }
+      return null;
+    }
+
+    late final double? distance = calculateDistance();
+
+    String distanceText = "Không xác định";
+
+    if (distance != null) {
+      distanceText = distance >= 1000
+          ? "${(distance / 1000).toStringAsFixed(1)} km"
+          : "${distance.toInt()} m";
+    }
+
     return GestureDetector(
       onTap: () {
         context.pushNamed("venue_detail", extra: {"venueId": r.id});
@@ -167,35 +201,34 @@ class VenueCardGrid extends StatelessWidget {
                     style: const TextStyle(
                       fontWeight: FontWeight.w700,
                       color: Color(0xFF3B2E5A),
-                      fontSize: 11
+                      fontSize: 11,
                     ),
                   ),
 
                   const SizedBox(height: 6),
 
                   /// DISTANCE
-                  if (r.displayDistance.isNotEmpty)
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          size: 14,
-                          color: Color(0xFF8093F1),
-                        ),
-                        const SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            r.displayDistance,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.grey,
-                            ),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 14,
+                        color: Color(0xFF8093F1),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          distanceText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

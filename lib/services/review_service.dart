@@ -1,6 +1,8 @@
 import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/checkin/checkin_session.dart';
 import 'package:couple_mood_mobile/models/checkin/validate_condition.dart';
+import 'package:couple_mood_mobile/models/venue/couple_mood_type.dart';
+
 import 'package:couple_mood_mobile/services/api_client.dart';
 import 'package:couple_mood_mobile/models/checkin/checkin_payload.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +53,27 @@ class ReviewService {
     } catch (e) {
       debugPrint(e.toString());
       throw Exception('Lỗi khi xác thực check-in: $e');
+    }
+  }
+
+  static Future<ApiResponse<List<CoupleMoodType>>> getCoupleMoodTypes() async {
+    try {
+      final res = await ApiClient.request(
+        "/Review/couple-mood-type",
+        method: HttpMethod.get,
+      );
+
+      if (res == null) {
+        throw Exception("Không nhận được phản hồi từ server");
+      }
+
+      return ApiResponse.fromJson(
+        res,
+        (json) =>
+            (json as List).map((e) => CoupleMoodType.fromJson(e)).toList(),
+      );
+    } catch (e) {
+      throw Exception(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 }

@@ -173,4 +173,18 @@ class CollectionProvider extends ChangeNotifier {
       venueIds: venueIds,
     );
   }
+
+  Future<String?> getShareLink(int collectionId) async {
+    try {
+      final res = await CollectionService.getShareLink(collectionId);
+
+      if (res.code == 200 && res.data != null) {
+        return res.data!.shareLinkUrl;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    return null;
+  }
 }

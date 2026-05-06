@@ -324,7 +324,7 @@ class MessageBubble extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.delete, color: Colors.red),
               title: const Text(
-                'Delete Message',
+                'Xóa tin nhắn',
                 style: TextStyle(color: Colors.red),
               ),
               onTap: () {

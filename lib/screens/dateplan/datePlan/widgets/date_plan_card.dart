@@ -30,7 +30,7 @@ class DatePlanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final start = DateTime.parse(item.plannedStartAt).toLocal();
+    final start = DateTime.parse(item.plannedStartAt);
 
     final date = DateFormat('dd/MM/yyyy').format(start);
     final time = DateFormat('HH:mm').format(start);

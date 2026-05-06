@@ -457,30 +457,44 @@ class _PostCommentBottomSheetState extends State<PostCommentBottomSheet> {
                               final text = _controller.text.trim();
                               if (text.isEmpty) return;
 
+                              final provider = context
+                                  .read<PostDetailProvider>();
+
+                              bool success;
+
                               if (_editingComment != null) {
-                                await context
-                                    .read<PostDetailProvider>()
-                                    .editComment(
-                                      commentId: _editingComment!.id,
-                                      newContent: text,
-                                    );
+                                success = await provider.editComment(
+                                  commentId: _editingComment!.id,
+                                  newContent: text,
+                                );
                               } else {
-                                await context
-                                    .read<PostDetailProvider>()
-                                    .createComment(
-                                      content: text,
-                                      parentId: _replyingToCommentId,
-                                    );
+                                success = await provider.createComment(
+                                  content: text,
+                                  parentId: _replyingToCommentId,
+                                );
                               }
 
-                              //  Reset toàn bộ state sau khi gửi
-                              _controller.clear();
+                              if (!mounted) return;
 
-                              setState(() {
-                                _editingComment = null;
-                                _replyingToCommentId = null;
-                                _replyingToName = null;
-                              });
+                              if (success) {
+                                _controller.clear();
+                                setState(() {
+                                  _editingComment = null;
+                                  _replyingToCommentId = null;
+                                  _replyingToName = null;
+                                });
+                              } else {
+                                final error =
+                                    provider.commentError ?? "Có lỗi xảy ra";
+
+                                ///  Đóng bottom sheet trước
+                                Navigator.pop(context);
+
+                                ///  Show snackbar ở root
+                                Future.delayed(Duration.zero, () {
+                                  showMsg(context, error, false);
+                                });
+                              }
                             },
                           ),
                         ],

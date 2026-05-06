@@ -1,4 +1,5 @@
 import 'package:couple_mood_mobile/models/couple/couple.dart';
+import 'package:couple_mood_mobile/models/couple/couple_tag_description.dart';
 import 'package:couple_mood_mobile/models/couple/update_couple_profile_request.dart';
 import 'package:couple_mood_mobile/services/couple_service.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ class CoupleProvider extends ChangeNotifier {
   Couple? couple;
   String? error;
   bool isLoading = true;
+  List<CoupleTagDescription>? personalityDescriptions;
+  List<CoupleTagDescription>? moodDescriptions;
 
   Future<void> fetchCoupleProfile() async {
     try {
@@ -71,5 +74,35 @@ class CoupleProvider extends ChangeNotifier {
     error = null;
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> fetchPersonalityDescriptions() async {
+    try {
+      final response = await CoupleService.getPersonalityDescriptions();
+      if (response.code != 200) {
+        error = response.message;
+      } else {
+        personalityDescriptions = response.data;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMoodDescriptions() async {
+    try {
+      final response = await CoupleService.getCoupleMoodDescriptions();
+      if (response.code != 200) {
+        error = response.message;
+      } else {
+        moodDescriptions = response.data;
+      }
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+    } finally {
+      notifyListeners();
+    }
   }
 }

@@ -79,6 +79,7 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
     final provider = context.watch<PostProvider>();
 
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 251, 248, 255),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -100,13 +101,13 @@ class _NewsFeedScreenState extends State<NewsFeedScreen> {
         },
         child: provider.loading
             ? ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 itemCount: 5,
                 itemBuilder: (_, __) => const PostCardSkeleton(),
               )
             : ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: const EdgeInsets.symmetric(vertical: 2),
                 // Tăng cacheExtent để preload nhiều item hơn (mặc định ~250px)
                 cacheExtent:
                     1200, // ← Quan trọng: preload khoảng 3-5 bài tiếp theo

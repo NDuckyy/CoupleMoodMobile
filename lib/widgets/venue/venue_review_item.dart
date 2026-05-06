@@ -20,6 +20,18 @@ class VenueReviewItem extends StatelessWidget {
     this.onLike,
   });
 
+  Widget _buildVenueFallback() {
+    return Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Icon(Icons.store, size: 10, color: Colors.grey),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final accessories = review.member.equippedAccessories;
@@ -58,278 +70,144 @@ class VenueReviewItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// HEADER - Avatar
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// Avatar
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 22,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage: avatarUrl != null
-                            ? NetworkImage(avatarUrl)
-                            : null,
-                        child: avatarUrl == null
-                            ? const Icon(Icons.person, size: 26)
-                            : null,
-                      ),
-
-                      /// FRAME
-                      if (!isAnonymous &&
-                          frame?.thumbnailUrl != null &&
-                          frame!.thumbnailUrl!.isNotEmpty)
-                        Transform.scale(
-                          scale: 1.3,
-                          child: Image.network(
-                            frame.thumbnailUrl!,
-                            width: 44, // = radius * 2
-                            height: 44,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                    ],
+          /// --- HEADER: VENUE INFO (Quan trọng nhất trong My Reviews) ---
+          if (review.venueName != null) ...[
+            Container(
+              // Sử dụng padding thay vì margin/divider riêng lẻ
+              padding: const EdgeInsets.only(bottom: 12),
+              margin: const EdgeInsets.only(
+                bottom: 10,
+              ), // Tạo khoảng cách nhẹ với phần user bên dưới
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey.withOpacity(
+                      0.15,
+                    ), // Đường kẻ cực mảnh và mờ
+                    width: 1,
                   ),
-                ],
+                ),
               ),
-
-              const SizedBox(width: 12),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    /// Dòng 1: Name + Like + Menu
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
+              child: Row(
+                children: [
+                  // Ảnh Venue: Bo góc mượt hơn
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: review.venueCoverImage.isNotEmpty
+                        ? Image.network(
+                            review.venueCoverImage.first,
+                            width: 40, // Tăng nhẹ size để dễ nhìn
+                            height: 40,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildVenueFallback(),
+                          )
+                        : _buildVenueFallback(),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// Name + Gender
-                        Expanded(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  displayName,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-
-                              /// BADGE
-                              if (!isAnonymous &&
-                                  badge?.thumbnailUrl != null &&
-                                  badge!.thumbnailUrl!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 4),
-                                  child: Image.network(
-                                    badge.thumbnailUrl!,
-                                    width: 16,
-                                    height: 16,
-                                  ),
-                                ),
-
-                              const SizedBox(width: 4),
-
-                              /// GENDER
-                              if (!isAnonymous &&
-                                  review.member.gender == "FEMALE")
-                                const Icon(
-                                  Icons.female,
-                                  size: 15,
-                                  color: Colors.pink,
-                                ),
-
-                              if (!isAnonymous &&
-                                  review.member.gender == "MALE")
-                                const Icon(
-                                  Icons.male,
-                                  size: 15,
-                                  color: Colors.blue,
-                                ),
-                            ],
+                        Text(
+                          review.venueName!,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                            color: Colors.black87,
+                            letterSpacing:
+                                -0.2, // Chỉnh kerning cho chuyên nghiệp
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-
-                        /// Like + Menu
-                        SizedBox(
-                          height: 18,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              GestureDetector(
-                                onTap: onLike,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      review.isLikedByMe
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      size: 16,
-                                      color: review.isLikedByMe
-                                          ? Colors.red
-                                          : Colors.grey,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      review.likeCount.toString(),
-                                      style: const TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                ),
+                        const SizedBox(height: 2),
+                        // Thêm icon location nhỏ để nhấn mạnh đây là địa điểm
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 12,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              "Địa điểm đã đánh giá",
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey[500],
                               ),
-                              const SizedBox(width: 8),
-
-                              PopupMenuButton<String>(
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.more_vert, size: 20),
-                                position: PopupMenuPosition.under,
-                                onSelected: (value) async {
-                                  if (value == 'edit') {
-                                    onEdit?.call();
-                                  } else if (value == 'delete') {
-                                    final confirm = await showDialog<bool>(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: const Text("Xoá đánh giá"),
-                                        content: const Text(
-                                          "Bạn có chắc muốn xoá đánh giá này không?",
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, false),
-                                            child: const Text("Huỷ"),
-                                          ),
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context, true),
-                                            child: const Text(
-                                              "Xoá",
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-
-                                    if (confirm != true) return;
-
-                                    try {
-                                      final success = await onDelete?.call();
-
-                                      if (success == true && context.mounted) {
-                                        showMsg(
-                                          context,
-                                          "Đã xoá đánh giá",
-                                          true,
-                                        );
-                                      }
-                                    } catch (e) {
-                                      if (!context.mounted) return;
-                                      showMsg(context, e.toString(), false);
-                                    }
-                                  } else if (value == 'report') {
-                                    showReportBottomSheet(
-                                      context: context,
-                                      targetId: review.id,
-                                      targetType: ReportTargetType.review,
-                                    );
-                                  }
-                                },
-                                itemBuilder: (context) {
-                                  if (review.isOwner) {
-                                    return const [
-                                      PopupMenuItem(
-                                        value: 'edit',
-                                        child: Row(
-                                          children: [
-                                            Icon(Icons.edit, size: 18),
-                                            SizedBox(width: 10),
-                                            Text("Chỉnh sửa"),
-                                          ],
-                                        ),
-                                      ),
-                                      PopupMenuItem(
-                                        value: 'delete',
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.delete,
-                                              size: 18,
-                                              color: Colors.red,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text(
-                                              "Xoá",
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ];
-                                  } else {
-                                    return const [
-                                      PopupMenuItem(
-                                        value: 'report',
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.flag,
-                                              size: 18,
-                                              color: Colors.red,
-                                            ),
-                                            SizedBox(width: 10),
-                                            Text(
-                                              "Báo cáo",
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ];
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+                  ),
+                ],
+              ),
+            ),
+          ],
 
-                    /// Rating + Tag
-                    const SizedBox(height: 3),
+          /// --- USER INFO & RATING ---
+          Row(
+            children: [
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 18, // Nhỏ lại một chút vì Venue đã chiếm spotlight
+                    backgroundColor: Colors.grey[200],
+                    backgroundImage: avatarUrl != null
+                        ? NetworkImage(avatarUrl)
+                        : null,
+                    child: avatarUrl == null
+                        ? const Icon(Icons.person, size: 20)
+                        : null,
+                  ),
+                  if (!isAnonymous && frame?.thumbnailUrl != null)
+                    Transform.scale(
+                      scale: 1.3,
+                      child: Image.network(
+                        frame!.thumbnailUrl!,
+                        width: 36,
+                        height: 36,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Row(
                       children: [
-                        Row(
-                          children: List.generate(
-                            review.rating,
-                            (_) => const Icon(
-                              Icons.star,
-                              size: 15,
-                              color: Colors.orange,
-                            ),
+                        Text(
+                          displayName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        if (review.isMatched != null)
-                          _buildMatchTag(review.isMatched!),
+                        if (!isAnonymous && badge?.thumbnailUrl != null)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4),
+                            child: Image.network(
+                              badge!.thumbnailUrl!,
+                              width: 14,
+                              height: 14,
+                            ),
+                          ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        ...List.generate(
+                          review.rating,
+                          (_) => const Icon(
+                            Icons.star,
+                            size: 12,
+                            color: Colors.orange,
+                          ),
+                        ),
                         if (showAnonymousTag) ...[
                           const SizedBox(width: 6),
                           _buildAnonymousTag(),
@@ -339,67 +217,174 @@ class VenueReviewItem extends StatelessWidget {
                   ],
                 ),
               ),
+
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  /// LIKE
+                  GestureDetector(
+                    onTap: onLike,
+                    child: Row(
+                      children: [
+                        Icon(
+                          review.isLikedByMe
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          size: 16,
+                          color: review.isLikedByMe ? Colors.red : Colors.grey,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          review.likeCount.toString(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 10),
+
+                  /// MENU (moved xuống đây)
+                  PopupMenuButton<String>(
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.more_vert,
+                      size: 18,
+                      color: Colors.grey[500],
+                    ),
+                    onSelected: (value) async {
+                      if (value == 'edit') {
+                        onEdit?.call();
+                      } else if (value == 'delete') {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text("Xoá đánh giá"),
+                            content: const Text(
+                              "Bạn có chắc muốn xoá đánh giá này không?",
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text("Huỷ"),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text(
+                                  "Xoá",
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm != true) return;
+
+                        try {
+                          final success = await onDelete?.call();
+
+                          if (success == true && context.mounted) {
+                            showMsg(context, "Đã xoá đánh giá", true);
+                          }
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          showMsg(context, e.toString(), false);
+                        }
+                      } else if (value == 'report') {
+                        showReportBottomSheet(
+                          context: context,
+                          targetId: review.id,
+                          targetType: ReportTargetType.review,
+                        );
+                      }
+                    },
+                    itemBuilder: (context) => review.isOwner
+                        ? [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Text("Chỉnh sửa"),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Text(
+                                "Xoá",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ]
+                        : [
+                            const PopupMenuItem(
+                              value: 'report',
+                              child: Text("Báo cáo"),
+                            ),
+                          ],
+                  ),
+                ],
+              ),
             ],
           ),
 
           const SizedBox(height: 10),
 
-          /// CONTENT
-          Text(review.content, style: const TextStyle(fontSize: 14)),
-
-          /// TIME
-          if (review.createdAt != null) ...[
-            const SizedBox(height: 6),
-            Text(
-              timeAgo(review.createdAt!),
-              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          /// --- CONTENT ---
+          Text(
+            review.content,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              height: 1.4,
             ),
-          ],
+          ),
 
-          /// Images
+          /// --- IMAGES ---
           if (review.imageUrls.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             SizedBox(
-              height: 80,
+              height: 90,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 itemCount: review.imageUrls.length,
-                itemBuilder: (_, index) {
-                  final url = review.imageUrls[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: GestureDetector(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => _FullScreenImageViewer(imageUrl: url),
-                        ),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          url,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 80,
-                            height: 80,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.broken_image),
-                          ),
-                        ),
-                      ),
+                itemBuilder: (_, index) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      review.imageUrls[index],
+                      width: 90,
+                      height: 90,
+                      fit: BoxFit.cover,
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ],
 
-          /// Reply from venue
+          /// --- FOOTER: TIME ---
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Icon(Icons.access_time, size: 12, color: Colors.grey[400]),
+              const SizedBox(width: 4),
+              Text(
+                timeAgo(review.updatedAt ?? review.createdAt!),
+                style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              ),
+              if (review.updatedAt != null &&
+                  review.updatedAt!.isAfter(review.createdAt!))
+                Text(
+                  " • Đã chỉnh sửa",
+                  style: TextStyle(fontSize: 11, color: Colors.grey[400]),
+                ),
+            ],
+          ),
+
           if (review.reviewReply != null) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             _buildReplyBox(review),
           ],
         ],

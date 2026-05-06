@@ -1,10 +1,12 @@
 import 'package:couple_mood_mobile/providers/advertisement_provider.dart';
 import 'package:couple_mood_mobile/providers/auth_provider.dart';
+import 'package:couple_mood_mobile/providers/challenge/challenge_provider.dart';
 import 'package:couple_mood_mobile/providers/couple_location_provider.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
 import 'package:couple_mood_mobile/providers/mood_provider.dart';
 import 'package:couple_mood_mobile/providers/position_provider.dart';
 import 'package:couple_mood_mobile/providers/recommendation_provider.dart';
+import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_carousel.dart';
 import 'package:couple_mood_mobile/screens/home/widget/advertisement_popup.dart';
 import 'package:couple_mood_mobile/screens/home/widget/context.dart';
@@ -44,6 +46,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await context.read<MoodProvider>().getCoupleCurrentMood();
+      getStreak();
+      _hasActiveSubscription();
       _getPopularNearby();
       _getContextRecommendation();
       // _getSpecialEvent();
@@ -51,6 +55,11 @@ class _HomeScreenState extends State<HomeScreen> {
       showAdvertisement();
       getDatePlanCalender();
     });
+  }
+
+  void getStreak() async {
+    final challengeProvider = context.read<ChallengeProvider>();
+    await challengeProvider.getStreak();
   }
 
   void getDatePlanCalender() async {
@@ -62,6 +71,11 @@ class _HomeScreenState extends State<HomeScreen> {
         showMatchRequiredDialog(context: context);
       });
     }
+  }
+
+  void _hasActiveSubscription() async {
+    final userProvider = context.read<UserProvider>();
+    await userProvider.checkActiveSubscription();
   }
 
   void showAdvertisement() async {
@@ -231,9 +245,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final contextRecs =
         recommendationProvider.contextRecommendationResponse?.hits ?? [];
     final datePlanProvider = context.watch<DatePlanProvider>();
+    final challengeProvider = context.watch<ChallengeProvider>();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       body: RefreshIndicator(
         onRefresh: _refresh,
         child: CustomScrollView(
@@ -260,7 +275,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSize:
                           MainAxisSize.min, // Cho Column co theo nội dung
                       children: [
-                        const HomeHeader(),
+                        HomeHeader(
+                          currentStreak:
+                              challengeProvider.streak?.currentStreak ?? 0,
+                          hasCheckedInToday:
+                              challengeProvider.streak?.hasCheckedInToday ?? false,
+                        ),
                         const SizedBox(height: 16),
                         CoupleMoodCard(
                           coupleCurrentMood: moodProvider.coupleCurrentMood,
@@ -292,6 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   calendarDays:
                       datePlanProvider.datePlanCalender?.data?.days ?? [],
+                  streakDays: challengeProvider.streak?.days ?? [],
                 ),
               ),
             ),

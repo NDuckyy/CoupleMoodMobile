@@ -43,10 +43,6 @@ class _InventoryTabState extends State<InventoryTab> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (items.isEmpty) {
-      return const Center(child: Text("Bạn chưa có vật phẩm nào"));
-    }
-
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -82,42 +78,48 @@ class _InventoryTabState extends State<InventoryTab> {
         const SizedBox(height: 24),
 
         /// ===== LIST ITEM =====
-        ...items.map((item) {
-          final isPreviewing =
-              (item.type == "FRAME" &&
-                  previewFrame?.accessoryId == item.accessoryId) ||
-              (item.type == "BADGE" &&
-                  previewBadge?.accessoryId == item.accessoryId);
+        if (items.isEmpty)
+          const Padding(
+            padding: EdgeInsets.only(top: 40),
+            child: Center(child: Text("Bạn chưa có vật phẩm nào")),
+          )
+        else
+          ...items.map((item) {
+            final isPreviewing =
+                (item.type == "FRAME" &&
+                    previewFrame?.accessoryId == item.accessoryId) ||
+                (item.type == "BADGE" &&
+                    previewBadge?.accessoryId == item.accessoryId);
 
-          return InventoryAccessoryCard(
-            item: item,
-            isPreviewing: isPreviewing,
+            return InventoryAccessoryCard(
+              item: item,
+              isPreviewing: isPreviewing,
 
-            ///  vẫn cho preview thử
-            onTryToggle: () {
-              setState(() {
-                if (item.type == "FRAME") {
-                  previewFrame = isPreviewing ? null : item;
-                } else if (item.type == "BADGE") {
-                  previewBadge = isPreviewing ? null : item;
+              ///  vẫn cho preview thử
+              onTryToggle: () {
+                setState(() {
+                  if (item.type == "FRAME") {
+                    previewFrame = isPreviewing ? null : item;
+                  } else if (item.type == "BADGE") {
+                    previewBadge = isPreviewing ? null : item;
+                  }
+                });
+              },
+
+              /// ✅ vẫn equip / unequip
+              onEquipToggle: () async {
+                final provider = context.read<ShopProvider>();
+
+                if (item.isEquipped == true) {
+                  await provider.unequip(item);
+                } else {
+                  await provider.equip(item);
                 }
-              });
-            },
 
-            /// ✅ vẫn equip / unequip
-            onEquipToggle: () async {
-              final provider = context.read<ShopProvider>();
-
-              if (item.isEquipped == true) {
-                await provider.unequip(item);
-              } else {
-                await provider.equip(item);
-              }
-
-              await context.read<UserProvider>().fetchMe();
-            },
-          );
-        }).toList(),
+                await context.read<UserProvider>().fetchMe();
+              },
+            );
+          }).toList(),
       ],
     );
   }

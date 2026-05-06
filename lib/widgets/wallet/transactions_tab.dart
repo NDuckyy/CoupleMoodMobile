@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
 import '../../providers/wallet/wallet_provider.dart';
 import '../../models/wallet/wallet_transaction.dart';
 
@@ -12,23 +13,77 @@ class TransactionsTab extends StatefulWidget {
 }
 
 class _TransactionsTabState extends State<TransactionsTab> {
-  String formatVND(num amount) => NumberFormat('#,###', 'vi_VN').format(amount);
+  String formatNumber(num amount) =>
+      NumberFormat('#,###', 'vi_VN').format(amount);
 
   String formatDate(DateTime? date) {
     if (date == null) return '';
     return DateFormat('dd/MM/yyyy HH:mm').format(date.toLocal());
   }
 
-  Color _getTransactionColor(WalletTransaction tx) {
-    if (tx.transactionType == 'WALLET_TOPUP') return Colors.green;
-    if (tx.transactionType == 'MONEY_TO_POINT') return Colors.orange;
-    return Colors.blue;
+  // ================= CLEAN LOGIC =================
+
+  String _currencyLabel(String? currency) {
+    switch (currency) {
+      case 'VND':
+        return 'đ';
+      case 'POINTS':
+        return ' điểm';
+      default:
+        return '';
+    }
   }
 
-  IconData _getTransactionIcon(WalletTransaction tx) {
-    if (tx.transactionType == 'WALLET_TOPUP') return Icons.add_circle_outline;
-    if (tx.transactionType == 'MONEY_TO_POINT') return Icons.currency_exchange;
-    return Icons.payment;
+  String _statusText(String? status) {
+    switch (status) {
+      case 'SUCCESS':
+        return 'Thành công';
+      case 'FAILED':
+        return 'Thất bại';
+      case 'PENDING':
+        return 'Đang xử lý';
+      default:
+        return status ?? '';
+    }
+  }
+
+  Color _statusColor(String? status) {
+    switch (status) {
+      case 'SUCCESS':
+        return Colors.green;
+      case 'FAILED':
+        return Colors.red;
+      case 'PENDING':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _transactionColor(WalletTransaction tx) {
+    switch (tx.transactionType) {
+      case 'WALLET_TOPUP':
+        return Colors.green;
+      case 'MONEY_TO_POINT':
+        return Colors.orange;
+      case 'MEMBER_SUBSCRIPTION':
+        return Colors.purple;
+      default:
+        return Colors.blue;
+    }
+  }
+
+  IconData _transactionIcon(WalletTransaction tx) {
+    switch (tx.transactionType) {
+      case 'WALLET_TOPUP':
+        return Icons.add_circle_outline;
+      case 'MONEY_TO_POINT':
+        return Icons.currency_exchange;
+      case 'MEMBER_SUBSCRIPTION':
+        return Icons.card_membership;
+      default:
+        return Icons.payment;
+    }
   }
 
   bool _isPositive(WalletTransaction tx) {
@@ -38,11 +93,6 @@ class _TransactionsTabState extends State<TransactionsTab> {
   @override
   Widget build(BuildContext context) {
     final wallet = context.watch<WalletProvider>();
-
-    // Debug log
-    print(
-      'TransactionsTab rebuild → isLoading: ${wallet.isLoading}, count: ${wallet.transactions.length}',
-    );
 
     if (wallet.isLoading && wallet.transactions.isEmpty) {
       return const Center(child: CircularProgressIndicator());
@@ -81,11 +131,11 @@ class _TransactionsTabState extends State<TransactionsTab> {
         itemCount: wallet.transactions.length,
         itemBuilder: (context, index) {
           final tx = wallet.transactions[index];
+
           final isPositive = _isPositive(tx);
-          final amount =
-              tx.balanceChange ??
-              tx.amount ??
-              0.0; // ← Dùng num vì API trả float
+          final amount = (tx.balanceChange ?? tx.amount ?? 0.0).abs();
+
+          final currencyLabel = _currencyLabel(tx.currency);
 
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
@@ -97,17 +147,20 @@ class _TransactionsTabState extends State<TransactionsTab> {
                 horizontal: 20,
                 vertical: 16,
               ),
+
+              // ================= ICON =================
               leading: CircleAvatar(
-                backgroundColor: _getTransactionColor(tx).withOpacity(0.12),
-                child: Icon(
-                  _getTransactionIcon(tx),
-                  color: _getTransactionColor(tx),
-                ),
+                backgroundColor: _transactionColor(tx).withOpacity(0.12),
+                child: Icon(_transactionIcon(tx), color: _transactionColor(tx)),
               ),
+
+              // ================= TITLE =================
               title: Text(
                 tx.description ?? "Giao dịch",
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
+
+              // ================= SUBTITLE =================
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -115,22 +168,21 @@ class _TransactionsTabState extends State<TransactionsTab> {
                     formatDate(tx.createdAt),
                     style: const TextStyle(fontSize: 13),
                   ),
+
                   if (tx.status != null)
                     Text(
-                      "Trạng thái: ${tx.status}",
-                      style: TextStyle(
-                        color: tx.status == "SUCCESS"
-                            ? Colors.green
-                            : Colors.orange,
-                      ),
+                      "Trạng thái: ${_statusText(tx.status)}",
+                      style: TextStyle(color: _statusColor(tx.status)),
                     ),
                 ],
               ),
+
+              // ================= AMOUNT =================
               trailing: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    "${isPositive ? '+' : '-'}${formatVND(amount.abs())}đ",
+                    "${isPositive ? '+' : '-'}${formatNumber(amount)}$currencyLabel",
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
                       color: isPositive ? Colors.green : Colors.red,

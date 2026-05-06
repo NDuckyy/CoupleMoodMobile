@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/dateplan/date_plan_create_request.dart';
 import 'package:couple_mood_mobile/providers/date_plan_provider.dart';
+import 'package:couple_mood_mobile/utils/currency_utils.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/budget_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/duration_mode_input.dart';
 import 'package:couple_mood_mobile/widgets/datePlan/note_input.dart';
@@ -44,15 +45,16 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
 
     final detail = provider.selectedDatePlan!;
     titleCtrl.text = detail.data?.title ?? '';
-    budgetCtrl.text = detail.data?.estimatedBudget.toString() ?? '';
+    budgetCtrl.text = detail.data?.estimatedBudget != null
+        ? CurrencyUtils.formatRaw(detail.data!.estimatedBudget)
+        : '';
     noteCtrl.text = detail.data?.note ?? '';
     durationModeCtrl.text = detail.data?.durationMode ?? '';
     startAt =
-        DateTime.tryParse(detail.data?.plannedStartAt ?? '')?.toLocal() ??
-        DateTime.now();
+        DateTime.tryParse(detail.data?.plannedStartAt ?? '') ?? DateTime.now();
 
     endAt =
-        DateTime.tryParse(detail.data?.plannedEndAt ?? '')?.toLocal() ??
+        DateTime.tryParse(detail.data?.plannedEndAt ?? '') ??
         DateTime.now().add(const Duration(hours: 1));
 
     setState(() {});
@@ -86,7 +88,7 @@ class _UpdateDatePlanScreenState extends State<UpdateDatePlanScreen> {
     }
 
     final provider = context.read<DatePlanProvider>();
-    final estimatedBudget = double.tryParse(budgetCtrl.text.trim()) ?? 0;
+    final estimatedBudget = CurrencyUtils.parseVND(budgetCtrl.text).toDouble();
     if (estimatedBudget < 0) {
       showMsg(context, "Ngân sách ước tính không được âm", false);
       return;

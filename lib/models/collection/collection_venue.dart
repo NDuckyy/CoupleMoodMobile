@@ -3,7 +3,7 @@ class CollectionVenue {
   final String name;
   final String description;
   final String address;
-  final String? coverImage;
+  final List<String> coverImage;
   final List<String> interiorImage;
 
   CollectionVenue({
@@ -11,7 +11,7 @@ class CollectionVenue {
     required this.name,
     required this.description,
     required this.address,
-    this.coverImage,
+    required this.coverImage,
     required this.interiorImage,
   });
 
@@ -21,7 +21,11 @@ class CollectionVenue {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       address: json['address'] ?? '',
-      coverImage: json['coverImage'],
+
+      coverImage: (json['coverImage'] as List? ?? [])
+          .map((e) => e.toString())
+          .toList(),
+
       interiorImage: (json['interiorImage'] as List? ?? [])
           .map((e) => e.toString())
           .toList(),

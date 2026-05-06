@@ -1,5 +1,4 @@
 import 'package:couple_mood_mobile/models/venue/member_accessory.dart';
-import 'package:couple_mood_mobile/providers/couple_provider.dart';
 import 'package:couple_mood_mobile/providers/shop/shop_provider.dart';
 import 'package:couple_mood_mobile/providers/user/user_provider.dart';
 import 'package:couple_mood_mobile/widgets/shop/shop_search_filter.dart';
@@ -23,13 +22,8 @@ class _ShopTabState extends State<ShopTab> {
   @override
   void initState() {
     super.initState();
-
-    ///  KHÔNG fetchInitial ở đây nữa (đã làm ở Hub)
     Future.microtask(() {
-      final userProvider = context.read<UserProvider>();
-      if (userProvider.user == null) {
-        userProvider.fetchMe();
-      }
+      context.read<UserProvider>().fetchMe();
     });
   }
 
@@ -80,55 +74,83 @@ class _ShopTabState extends State<ShopTab> {
         const SizedBox(height: 24),
 
         /// ===== LIST ITEM =====
-        ...items.map((item) {
-          final isPreviewing =
-              (item.type == "FRAME" &&
-                  previewFrame?.accessoryId == item.accessoryId) ||
-              (item.type == "BADGE" &&
-                  previewBadge?.accessoryId == item.accessoryId);
+        if (items.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 40),
+            child: Center(
+              child: Text(
+                (shopProvider.shopKeyword.isNotEmpty ||
+                        shopProvider.shopType != null)
+                    ? "Không tìm thấy vật phẩm phù hợp"
+                    : "Hiện chưa có vật phẩm nào",
+                style: const TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+        else
+          ...items.map((item) {
+            final isPreviewing =
+                (item.type == "FRAME" &&
+                    previewFrame?.accessoryId == item.accessoryId) ||
+                (item.type == "BADGE" &&
+                    previewBadge?.accessoryId == item.accessoryId);
 
-          return ShopAccessoryCard(
-            item: item,
-            isPreviewing: isPreviewing,
+            return ShopAccessoryCard(
+              item: item,
+              isPreviewing: isPreviewing,
 
-            onTryToggle: () {
-              setState(() {
-                if (item.type == "FRAME") {
-                  previewFrame = isPreviewing ? null : item;
-                } else if (item.type == "BADGE") {
-                  previewBadge = isPreviewing ? null : item;
+              onTryToggle: () {
+                setState(() {
+                  if (item.type == "FRAME") {
+                    previewFrame = isPreviewing ? null : item;
+                  } else if (item.type == "BADGE") {
+                    previewBadge = isPreviewing ? null : item;
+                  }
+                });
+              },
+
+              onPurchase: () async {
+                try {
+                  final shopProvider = context.read<ShopProvider>();
+
+                  await shopProvider.purchase(item.accessoryId);
+
+                  ///  reload inventory để có memberAccessoryId
+                  await shopProvider.fetchInventory();
+
+                  ///  tìm lại item trong inventory
+                  final purchasedItem = shopProvider.inventoryItems.firstWhere(
+                    (e) => e.accessoryId == item.accessoryId,
+                  );
+
+                  await shopProvider.equip(purchasedItem);
+
+                  await context.read<UserProvider>().fetchMe();
+
+                  showMsg(context, "Mua và trang bị thành công", true);
+                } catch (e) {
+                  showMsg(context, e.toString(), false);
                 }
-              });
-            },
+              },
 
-            onPurchase: () async {
-              try {
-                await context.read<ShopProvider>().purchase(item.accessoryId);
+              onEquipToggle: () async {
+                final provider = context.read<ShopProvider>();
 
-                await Future.wait([
-                  context.read<UserProvider>().fetchMe(),
-                  context.read<CoupleProvider>().fetchCoupleProfile(),
-                ]);
+                /// luôn lấy item chuẩn từ inventory
+                final invItem = provider.inventoryItems.firstWhere(
+                  (e) => e.accessoryId == item.accessoryId,
+                );
 
-                showMsg(context, "Mua thành công", true);
-              } catch (e) {
-                showMsg(context, e.toString(), false);
-              }
-            },
+                if (invItem.isEquipped == true) {
+                  await provider.unequip(invItem);
+                } else {
+                  await provider.equip(invItem);
+                }
 
-            onEquipToggle: () async {
-              final provider = context.read<ShopProvider>();
-
-              if (item.isEquipped == true) {
-                await provider.unequip(item);
-              } else {
-                await provider.equip(item);
-              }
-
-              await context.read<UserProvider>().fetchMe();
-            },
-          );
-        }).toList(),
+                await context.read<UserProvider>().fetchMe();
+              },
+            );
+          }).toList(),
       ],
     );
   }

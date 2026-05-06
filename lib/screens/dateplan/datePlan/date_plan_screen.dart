@@ -1,3 +1,4 @@
+import 'package:couple_mood_mobile/models/dateplan/date_plan_response.dart';
 import 'package:couple_mood_mobile/providers/chat/chat_provider.dart';
 import 'package:couple_mood_mobile/screens/dateplan/datePlan/widgets/date_plan_over_view.dart';
 import 'package:couple_mood_mobile/widgets/common/pagination_bar.dart';
@@ -17,12 +18,60 @@ class DatePlanScreen extends StatefulWidget {
 }
 
 class _DatePlanScreenState extends State<DatePlanScreen> {
+  List<DatePlanDetails> _items = [];
+  int _currentPage = 1;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+
+  final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DatePlanProvider>().fetchDatePlans(page: 1);
+      _loadPage(1);
     });
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          _hasMore) {
+        _loadPage(_currentPage + 1);
+      }
+    });
+  }
+
+  Future<void> _loadPage(int page) async {
+    if (_isLoadingMore) return;
+    if (page != 1 && !_hasMore) return;
+
+    _isLoadingMore = true;
+
+    final provider = context.read<DatePlanProvider>();
+    await provider.fetchDatePlans(page: page);
+
+    if (!mounted) {
+      _isLoadingMore = false;
+      return;
+    }
+
+    final newData = provider.datePlans?.data?.pagedResult;
+
+    if (newData == null) {
+      _isLoadingMore = false;
+      return;
+    }
+
+    setState(() {
+      if (page == 1) {
+        _items = newData.items;
+      } else {
+        _items.addAll(newData.items);
+      }
+
+      _currentPage = newData.pageNumber;
+      _hasMore = newData.hasNextPage;
+    });
+
+    _isLoadingMore = false;
   }
 
   void _deleteDatePlan(int datePlanId) async {
@@ -34,7 +83,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Xóa lịch hẹn thành công', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      _refreshDatePlans();
     }
   }
 
@@ -51,9 +100,13 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
       } else {
         if (!mounted) return;
         showMsg(context, 'Gửi lịch hẹn thành công', true);
-        datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+        _refreshDatePlans();
       }
-      await chatProvider.sendDatePlan(conversationId, "", datePlanId);
+      await chatProvider.sendDatePlan(
+        conversationId,
+        "Đã gửi 1 lịch hẹn",
+        datePlanId,
+      );
     } catch (e) {
       if (!mounted) return;
       showMsg(context, 'Gửi lịch hẹn thất bại', false);
@@ -69,7 +122,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Đã đồng ý lịch hẹn', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      _refreshDatePlans();
     }
   }
 
@@ -82,7 +135,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Đã từ chối lịch hẹn', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      _refreshDatePlans();
     }
   }
 
@@ -95,7 +148,7 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Hủy lịch hẹn thành công', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      _refreshDatePlans();
     }
   }
 
@@ -108,12 +161,14 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
     } else {
       if (!mounted) return;
       showMsg(context, 'Kết thúc lịch hẹn thành công', true);
-      datePlanProvider.fetchDatePlans(page: datePlanProvider.pageNumber);
+      _refreshDatePlans();
     }
   }
 
-  void _refreshDatePlans() {
-    context.read<DatePlanProvider>().fetchDatePlans(page: 1);
+  Future<void> _refreshDatePlans() async {
+    _currentPage = 1;
+    _hasMore = true;
+    await _loadPage(1);
   }
 
   void _onPageChanged(int page) {
@@ -121,28 +176,37 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
   }
 
   @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<DatePlanProvider>();
     final datePlanDetails = provider.datePlans?.data;
     final pagination = datePlanDetails?.pagedResult;
-    final items = datePlanDetails?.pagedResult.items ?? [];
+    final items = _items;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: provider.isLoading
+        child: (provider.isLoading && _items.isEmpty)
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
                 onRefresh: () async {
                   _refreshDatePlans();
                 },
                 child: CustomScrollView(
+                  controller: _scrollController,
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    const SliverToBoxAdapter(
+                    SliverToBoxAdapter(
                       child: Padding(
                         padding: EdgeInsets.all(16),
-                        child: DatePlanHeader(),
+                        child: DatePlanHeader(
+                          onCreate: () => _refreshDatePlans(),
+                        ),
                       ),
                     ),
 
@@ -156,21 +220,12 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                       ),
                     ),
 
-                    if (provider.isFetching) ...{
-                      const SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 24),
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                      ),
-                    } else ...{
-                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                      if (items.isNotEmpty) ...{
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
+                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+                    if (items.isNotEmpty) ...{
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          if (index < items.length) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -197,31 +252,36 @@ class _DatePlanScreenState extends State<DatePlanScreen> {
                                 },
                               ),
                             );
-                          }, childCount: items.length),
-                        ),
+                          } else {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                        }, childCount: items.length + (_isLoadingMore ? 1 : 0)),
+                      ),
 
-                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
 
-                        SliverToBoxAdapter(
-                          child: PaginationBar(
-                            currentPage: pagination!.pageNumber,
-                            totalPages: pagination.totalPages,
-                            onPageChanged: (page) {
-                              _onPageChanged(page);
-                            },
-                          ),
+                      // SliverToBoxAdapter(
+                      //   child: PaginationBar(
+                      //     currentPage: pagination!.pageNumber,
+                      //     totalPages: pagination.totalPages,
+                      //     onPageChanged: (page) {
+                      //       _onPageChanged(page);
+                      //     },
+                      //   ),
+                      // ),
+                    } else ...{
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      const SliverToBoxAdapter(
+                        child: EmptyStateWidget(
+                          icon: Icons.event_note,
+                          title: 'Chưa có lịch hẹn nào',
+                          description:
+                              'Bạn chưa tạo lịch hẹn nào. Hãy thêm lịch hẹn để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
                         ),
-                      } else ...{
-                        const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                        const SliverToBoxAdapter(
-                          child: EmptyStateWidget(
-                            icon: Icons.event_note,
-                            title: 'Chưa có lịch hẹn nào',
-                            description:
-                                'Bạn chưa tạo lịch hẹn nào. Hãy thêm lịch hẹn để bắt đầu lên kế hoạch cho những buổi hẹn hò đáng nhớ cùng người ấy nhé!',
-                          ),
-                        ),
-                      },
+                      ),
                     },
                   ],
                 ),

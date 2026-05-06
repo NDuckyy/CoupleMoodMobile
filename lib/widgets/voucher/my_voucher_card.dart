@@ -1,8 +1,11 @@
 import 'package:couple_mood_mobile/models/voucher/member_voucher_item.dart';
 import 'package:couple_mood_mobile/utils/currency_utils.dart';
+import 'package:couple_mood_mobile/utils/time_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:couple_mood_mobile/widgets/voucher/voucher_badges.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 
 class MyVoucherCard extends StatelessWidget {
   final MemberVoucherItem voucher;
@@ -40,20 +43,16 @@ class MyVoucherCard extends StatelessWidget {
     return Icons.verified;
   }
 
-  String formatDate(DateTime date) {
-    return DateFormat('dd/MM/yyyy').format(date);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final bool isDisabled = voucher.isExpired || voucher.isUsed;
+    // final bool isDisabled = voucher.isExpired || voucher.isUsed;
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isSmallScreen = screenWidth < 360;
 
     return Opacity(
-      opacity: isDisabled ? 0.75 : 1.0,
+      opacity: 1.0,
       child: InkWell(
-        onTap: isDisabled ? null : onTap,
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -164,7 +163,7 @@ class MyVoucherCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            "CODE: ${voucher.itemCode}",
+                            "Mã: ${voucher.itemCode}",
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13,
@@ -178,19 +177,45 @@ class MyVoucherCard extends StatelessWidget {
 
                   // ==================== CONTENT ====================
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          voucher.voucherTitle,
-                          style: const TextStyle(
-                            fontSize: 16.5,
-                            fontWeight: FontWeight.bold,
-                            height: 1.3,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                voucher.voucherTitle,
+                                style: const TextStyle(
+                                  fontSize: 16.5,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.3,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+
+                            if (voucher.isUsed)
+                              GestureDetector(
+                                onTap: () {
+                                  showReportBottomSheet(
+                                    context: context,
+                                    targetId: voucher.voucherItemId,
+                                    targetType: ReportTargetType.voucher,
+                                  );
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Icon(
+                                    Icons.flag_outlined,
+                                    size: 20,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
 
                         const SizedBox(height: 12),
@@ -209,12 +234,16 @@ class MyVoucherCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 voucher.isUsed
-                                    ? "Đã sử dụng: ${formatDate(voucher.usedAt!)}"
-                                    : "Hạn sử dụng: ${formatDate(voucher.expiredAt)}",
+                                    ? "Đã sử dụng: ${formatDateTimeVN(voucher.usedAt!)}"
+                                    : voucher.isExpired
+                                    ? "Đã hết hạn: ${formatDateTimeVN(voucher.expiredAt)}"
+                                    : "Hạn sử dụng: ${formatDateTimeVN(voucher.expiredAt)}",
                                 style: TextStyle(
                                   fontSize: 13.8,
                                   color: voucher.isUsed
                                       ? Colors.orange.shade700
+                                      : voucher.isExpired
+                                      ? Colors.red
                                       : Colors.grey.shade700,
                                 ),
                               ),

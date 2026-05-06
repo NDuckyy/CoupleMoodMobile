@@ -2,6 +2,7 @@ import 'package:couple_mood_mobile/models/api_response.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item.dart';
 import 'package:couple_mood_mobile/models/collection/collection_item_summary.dart';
 import 'package:couple_mood_mobile/models/paginated_response.dart';
+import 'package:couple_mood_mobile/models/post/share_link_model.dart';
 import 'package:couple_mood_mobile/services/api_client.dart';
 
 class CollectionService {
@@ -168,6 +169,42 @@ class CollectionService {
       );
     } catch (e) {
       throw Exception('Lỗi khi lấy collection summaries: $e');
+    }
+  }
+
+  static Future<ApiResponse<ShareLinkModel>> getShareLink(
+    int collectionId,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/Collection/$collectionId/share-link',
+        method: HttpMethod.get,
+      );
+
+      return ApiResponse<ShareLinkModel>.fromJson(
+        res,
+        (json) => ShareLinkModel.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy share link: $e');
+    }
+  }
+
+  static Future<ApiResponse<CollectionItem>> getCollectionByShareCode(
+    String shareCode,
+  ) async {
+    try {
+      final res = await ApiClient.request(
+        '/Collection/share/$shareCode',
+        method: HttpMethod.get,
+      );
+
+      return ApiResponse<CollectionItem>.fromJson(
+        res,
+        (json) => CollectionItem.fromJson(json),
+      );
+    } catch (e) {
+      throw Exception('Lỗi khi lấy collection từ share link: $e');
     }
   }
 }

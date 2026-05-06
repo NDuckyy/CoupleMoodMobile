@@ -1,5 +1,6 @@
 import 'package:couple_mood_mobile/models/challenge/challenge_item.dart';
 import 'package:couple_mood_mobile/models/challenge/couple_challenge.dart';
+import 'package:couple_mood_mobile/models/challenge/streak_model.dart';
 import 'package:flutter/material.dart';
 import 'package:couple_mood_mobile/services/challenge/challenge_service.dart';
 
@@ -7,12 +8,13 @@ class ChallengeProvider extends ChangeNotifier {
   List<ChallengeItem> discoverChallenges = [];
   List<CoupleChallenge> doingChallenges = [];
   List<CoupleChallenge> completedChallenges = [];
+  StreakModel? streak;
 
-  /// giữ template challenge để restore khi leave
   Map<int, ChallengeItem> templateMap = {};
 
   bool isLoading = false;
 
+  /// ================= LOAD =================
   Future<void> loadChallenges() async {
     isLoading = true;
     notifyListeners();
@@ -24,17 +26,20 @@ class ChallengeProvider extends ChangeNotifier {
       final coupleItems = coupleRes.data?.items ?? [];
       final templateItems = templateRes.data?.items ?? [];
 
-      /// build template map
+      /// build fresh template map (anti stale)
       templateMap = {for (var c in templateItems) c.id: c};
 
+      /// doing
       doingChallenges = coupleItems
           .where((c) => c.status == "IN_PROGRESS")
           .toList();
 
+      /// completed
       completedChallenges = coupleItems
           .where((c) => c.status == "COMPLETED")
           .toList();
 
+      /// discover (only not joined)
       discoverChallenges = templateItems
           .where((c) => c.isJoined == false)
           .toList();
@@ -46,16 +51,24 @@ class ChallengeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// JOIN CHALLENGE
+  /// ================= JOIN =================
   Future<bool> joinChallenge(int challengeId) async {
     try {
       final res = await ChallengeService.joinChallenge(challengeId);
       final newCouple = res.data;
 
       if (newCouple != null) {
+        /// remove khỏi discover
         discoverChallenges.removeWhere((c) => c.id == challengeId);
 
+        /// add vào doing
         doingChallenges.insert(0, newCouple);
+
+        /// update template (IMMUTABLE)
+        if (templateMap.containsKey(challengeId)) {
+          final updated = templateMap[challengeId]!.copyWith(isJoined: true);
+          templateMap[challengeId] = updated;
+        }
 
         notifyListeners();
         return true;
@@ -67,7 +80,7 @@ class ChallengeProvider extends ChangeNotifier {
     return false;
   }
 
-  /// LEAVE CHALLENGE
+  /// ================= LEAVE =================
   Future<bool> leaveChallenge(int coupleChallengeId) async {
     try {
       await ChallengeService.leaveChallenge(coupleChallengeId);
@@ -76,15 +89,21 @@ class ChallengeProvider extends ChangeNotifier {
         (c) => c.id == coupleChallengeId,
       );
 
-      if (index == -1) return false;
+      if (index != -1) {
+        final removed = doingChallenges.removeAt(index);
 
-      final removed = doingChallenges.removeAt(index);
+        /// restore template
+        final template = templateMap[removed.challengeId];
 
-      /// restore template challenge
-      final template = templateMap[removed.challengeId];
+        if (template != null) {
+          final updated = template.copyWith(isJoined: false);
 
-      if (template != null) {
-        discoverChallenges.insert(0, template);
+          templateMap[removed.challengeId] = updated;
+
+          /// tránh duplicate
+          discoverChallenges.removeWhere((c) => c.id == updated.id);
+          discoverChallenges.insert(0, updated);
+        }
       }
 
       notifyListeners();
@@ -96,12 +115,25 @@ class ChallengeProvider extends ChangeNotifier {
     return false;
   }
 
+  /// ================= CLAIM =================
   Future<bool> claimReward(int coupleChallengeId) async {
     try {
       await ChallengeService.claimReward(coupleChallengeId);
 
-      /// reload list để lấy trạng thái mới
-      await loadChallenges();
+      /// OPTION 1: nhẹ (không reload)
+      final index = doingChallenges.indexWhere(
+        (c) => c.id == coupleChallengeId,
+      );
+
+      if (index != -1) {
+        final item = doingChallenges.removeAt(index);
+        completedChallenges.insert(0, item);
+      }
+
+      notifyListeners();
+
+      /// OPTION 2 (nếu cần strict sync backend):
+      // await loadChallenges();
 
       return true;
     } catch (e) {
@@ -109,5 +141,17 @@ class ChallengeProvider extends ChangeNotifier {
     }
 
     return false;
+  }
+
+  Future<void> getStreak() async {
+    try {
+      final res = await ChallengeService.getStreak();
+      if (res.code == 200) {
+        streak = res.data;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
   }
 }

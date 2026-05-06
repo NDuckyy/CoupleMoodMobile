@@ -93,6 +93,7 @@ class _GuestScreenState extends State<GuestScreen> {
         onRefresh: () => _onRefresh(context),
         child: SafeArea(
           child: CustomScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
             controller: _scrollController,
             slivers: [
               /// HEADER
@@ -105,19 +106,18 @@ class _GuestScreenState extends State<GuestScreen> {
                   child: Loading(),
                 )
               else if (recommendationProvider.error != null)
-                SliverFillRemaining(
-                  hasScrollBody: true,
-                  child: Center(
-                    child: Text(
-                      recommendationProvider.error!,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                )
-              else if (recs.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
-                  child: Center(child: Text('Không có địa điểm phù hợp')),
+                  child: Loading(),
+                )
+              else if (recs.isEmpty)
+                // const SliverFillRemaining(
+                //   hasScrollBody: false,
+                //   child: Center(child: Text('Không có địa điểm phù hợp')),
+                // )
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Loading(),
                 )
               else
                 SliverPadding(

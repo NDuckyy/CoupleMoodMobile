@@ -39,6 +39,9 @@ class PostDetailProvider extends ChangeNotifier {
   final Map<int, int> repliesPage = {};
   final Map<int, bool> repliesHasMore = {};
 
+  bool isSubmittingComment = false;
+  String? commentError;
+
   /// ==============================
   /// INIT
   /// ==============================
@@ -181,62 +184,70 @@ class PostDetailProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> createComment({required String content, int? parentId}) async {
-    if (post == null) return;
+  Future<bool> createComment({required String content, int? parentId}) async {
+    if (post == null) return false;
 
     try {
+      isSubmittingComment = true;
+      commentError = null;
+      notifyListeners();
+
       final res = await PostService.createComment(
         postId: post!.id,
         content: content,
         parentId: parentId,
       );
 
-      if (res.code == 200 && res.data != null) {
-        final newComment = res.data!;
-
-        if (parentId == null) {
-          /// LEVEL 1
-          comments.insert(0, newComment);
-          postProvider.increaseCommentCount(post!.id);
-        } else {
-          /// Tìm comment đang reply
-          final replyingComment = _findCommentById(parentId);
-
-          if (replyingComment == null) return;
-
-          /// Nếu reply vào level 3 -> phải insert vào cha của nó
-          final int insertParentId =
-              replyingComment.level >= 3 && replyingComment.parentId != null
-              ? replyingComment.parentId!
-              : parentId;
-
-          replies[insertParentId] ??= [];
-          replies[insertParentId]!.insert(0, newComment);
-
-          expandedComments.add(insertParentId);
-        }
-
-        notifyListeners();
+      if (res.code != 200 || res.data == null) {
+        throw res.message ?? "Gửi bình luận thất bại";
       }
+
+      final newComment = res.data!;
+
+      if (parentId == null) {
+        comments.insert(0, newComment);
+        postProvider.increaseCommentCount(post!.id);
+      } else {
+        final replyingComment = _findCommentById(parentId);
+        if (replyingComment == null) return false;
+
+        final int insertParentId =
+            replyingComment.level >= 3 && replyingComment.parentId != null
+            ? replyingComment.parentId!
+            : parentId;
+
+        replies[insertParentId] ??= [];
+        replies[insertParentId]!.insert(0, newComment);
+
+        expandedComments.add(insertParentId);
+      }
+
+      return true;
     } catch (e) {
-      debugPrint(e.toString());
+      commentError = e.toString();
+      return false;
+    } finally {
+      isSubmittingComment = false;
+      notifyListeners();
     }
   }
 
-  Future<void> editComment({
+  Future<bool> editComment({
     required int commentId,
     required String newContent,
   }) async {
     final target = _findCommentById(commentId);
-    if (target == null) return;
+    if (target == null) return false;
 
     final oldContent = target.content;
 
-    /// Optimistic update
-    _updateCommentContent(commentId, newContent);
-    notifyListeners();
-
     try {
+      commentError = null;
+
+      /// Optimistic update
+      _updateCommentContent(commentId, newContent);
+      notifyListeners();
+
       final res = await PostService.updateComment(
         commentId: commentId,
         content: newContent,
@@ -245,10 +256,18 @@ class PostDetailProvider extends ChangeNotifier {
       if (res.code != 200) {
         _updateCommentContent(commentId, oldContent);
         notifyListeners();
+
+        throw res.message ?? "Cập nhật bình luận thất bại";
       }
+
+      return true;
     } catch (e) {
+      /// rollback nếu lỗi
       _updateCommentContent(commentId, oldContent);
       notifyListeners();
+
+      commentError = e.toString();
+      return false;
     }
   }
 

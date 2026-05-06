@@ -44,26 +44,32 @@ class UserCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            /// 🔥 BACKGROUND IMAGE
+            ///  BACKGROUND IMAGE
             Positioned.fill(
-              child: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                  ? Image.network(
-                      user.avatarUrl!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.person, size: 80),
-                        );
-                      },
-                    )
-                  : Container(
-                      color: Colors.grey[300],
-                      child: const Icon(Icons.person, size: 80),
-                    ),
+              child: Container(
+                color: Colors.grey[300],
+                child: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+                    ? Image.network(
+                        user.avatarUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(
+                            child: Icon(Icons.person, size: 80),
+                          );
+                        },
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                      )
+                    : const Center(child: Icon(Icons.person, size: 80)),
+              ),
             ),
 
-            /// 🔥 DARK GRADIENT (CHO TEXT RÕ)
+            ///  DARK GRADIENT (CHO TEXT RÕ)
             Positioned.fill(
               child: Container(
                 decoration: const BoxDecoration(
@@ -80,7 +86,7 @@ class UserCard extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 INFO BOTTOM
+            ///  INFO BOTTOM
             Positioned(
               left: 16,
               right: 16,
@@ -90,7 +96,7 @@ class UserCard extends StatelessWidget {
                 children: [
                   /// NAME
                   Text(
-                    user.fullName,
+                    "${user.fullName}${user.age != null && user.age! > 0 ? ", ${user.age}" : ""}",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -100,27 +106,64 @@ class UserCard extends StatelessWidget {
 
                   const SizedBox(height: 6),
 
-                  /// STATUS
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: getStatusColor().withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      getStatusText(),
+                  if (user.jobTitle != null && user.jobTitle!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      user.jobTitle!,
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
+                        fontSize: 14,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                  ],
 
+                  if (user.city != null && user.city!.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      user.city!,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                  ],
+
+                  if (user.personalityResultCode != null &&
+                      user.personalityResultCode!.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      "Tính cách: ${user.personalityResultCode}",
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 10),
+
+                  /// STATUS
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 10,
+                  //     vertical: 4,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: getStatusColor().withOpacity(0.9),
+                  //     borderRadius: BorderRadius.circular(12),
+                  //   ),
+                  //   child: Text(
+                  //     getStatusText(),
+                  //     style: const TextStyle(
+                  //       color: Colors.white,
+                  //       fontSize: 12,
+                  //       fontWeight: FontWeight.w600,
+                  //     ),
+                  //   ),
+                  // ),
+
+                  // const SizedBox(height: 10),
 
                   /// BIO
                   Text(

@@ -18,16 +18,18 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    Future.microtask(() async {
       if (!mounted) return;
-      context.read<TestProvider>().fetchTestHistory();
+      final provider = context.read<TestProvider>();
+      await provider.fetchTestHistory();
+      await provider.getMyPersonalityType();
     });
   }
 
   void _navigateToTestResult(int testId, String status) async {
     final testProvider = context.read<TestProvider>();
     await testProvider.fetchTestResult(testId);
-    if(status == "IN_PROGRESS") {
+    if (status == "IN_PROGRESS") {
       if (!mounted) return;
       showMsg(context, "Bài test chưa có kết quả", false);
       return;
@@ -41,19 +43,28 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
     return DateFormat('dd/MM/yyyy HH:mm').format(dt);
   }
 
+  Future<void> _refreshHistory() async {
+    final provider = context.read<TestProvider>();
+    await provider.fetchTestHistory();
+    await provider.getMyPersonalityType();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TestProvider>();
     final data = provider.testHistoryPagination;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: const Color(0xFFF7F0FF),
       appBar: AppBar(
-        title: const Text("Lịch sử bài test"),
-        backgroundColor: Colors.white,
+        title: const Text(
+          "Lịch sử bài kiểm tra tính cách",
+          style: TextStyle(fontSize: 18),
+        ),
+        backgroundColor: const Color(0xFFFDFDFD),
       ),
       body: RefreshIndicator(
-        onRefresh: () => context.read<TestProvider>().fetchTestHistory(),
+        onRefresh: () => _refreshHistory(),
         child: provider.isLoading && data == null
             ? const Center(child: CircularProgressIndicator())
             : ListView(
@@ -77,7 +88,8 @@ class _TestHistoryScreenState extends State<TestHistoryScreen> {
                         padding: const EdgeInsets.only(bottom: 12),
                         child: TestHistoryCard(
                           item: item,
-                          onTap: () => _navigateToTestResult(item.id, item.status),
+                          onTap: () =>
+                              _navigateToTestResult(item.id, item.status),
                         ),
                       ),
                     ),

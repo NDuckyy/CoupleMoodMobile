@@ -1,14 +1,22 @@
+import 'package:intl/intl.dart';
+
 String formatBudget(double? min, double? max) {
+  final formatter = NumberFormat("#,###", "vi_VN");
+
+  String format(double value) {
+    return "${formatter.format(value)}đ";
+  }
+
   if (min != null && max != null) {
-    return "${min.toInt()}k - ${max.toInt()}k";
+    return "${format(min)} - ${format(max)}";
   }
   if (min != null) {
-    return "Từ ${min.toInt()}k";
+    return "Từ ${format(min)}";
   }
   if (max != null) {
-    return "Tối đa ${max.toInt()}k";
+    return "Tối đa ${format(max)}";
   }
-  return "Không rõ";
+  return "Chưa xác định";
 }
 
 String formatLocation(String? city, String? district) {

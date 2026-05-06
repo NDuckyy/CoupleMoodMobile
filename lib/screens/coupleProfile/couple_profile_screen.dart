@@ -22,7 +22,13 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<CoupleProvider>().fetchCoupleProfile();
+      final provider = context.read<CoupleProvider>();
+
+      await Future.wait([
+        provider.fetchCoupleProfile(),
+        provider.fetchPersonalityDescriptions(),
+        provider.fetchMoodDescriptions(),
+      ]);
     });
   }
 
@@ -102,12 +108,21 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                       : Column(
                           children: [
                             const SizedBox(height: 10),
-                            Text(
-                              couple.coupleName ?? "Cặp đôi chưa đặt tên",
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                              ),
+                              child: Text(
+                                couple.coupleName ?? "Cặp đôi chưa đặt tên",
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                  height: 1.2,
+                                ),
                               ),
                             ),
 
@@ -135,29 +150,35 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                             const SizedBox(height: 16),
 
                             /// Names
-                            RichText(
-                              text: TextSpan(
-                                style: const TextStyle(fontSize: 18),
-                                children: [
-                                  TextSpan(
-                                    text: couple.member1Name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF8093F1),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: RichText(
+                                textAlign: TextAlign.center,
+                                text: TextSpan(
+                                  style: const TextStyle(fontSize: 18),
+                                  children: [
+                                    TextSpan(
+                                      text: couple.member1Name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF8093F1),
+                                      ),
                                     ),
-                                  ),
-                                  const TextSpan(
-                                    text: "  &  ",
-                                    style: TextStyle(color: Colors.black54),
-                                  ),
-                                  TextSpan(
-                                    text: couple.member2Name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFFB388EB),
+                                    const TextSpan(
+                                      text: "  &  ",
+                                      style: TextStyle(color: Colors.black54),
                                     ),
-                                  ),
-                                ],
+                                    TextSpan(
+                                      text: couple.member2Name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFFB388EB),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
 
@@ -190,6 +211,8 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                       true
                                   ? couple.couplePersonalityTypeDescription!
                                   : "Hãy hoàn thành bài trắc nghiệm tính cách để khám phá tính cách cặp đôi của bạn",
+                              tagsDescription:
+                                  coupleProvider.personalityDescriptions ?? [],
                             ),
 
                             const SizedBox(height: 16),
@@ -208,6 +231,8 @@ class _CoupleProfilePageState extends State<CoupleProfilePage> {
                                       true
                                   ? couple.coupleMoodTypeDescription!
                                   : "Hãy chia sẻ cảm xúc hàng ngày để khám phá mood cặp đôi của bạn",
+                              tagsDescription:
+                                  coupleProvider.moodDescriptions ?? [],
                             ),
 
                             const SizedBox(height: 30),

@@ -104,8 +104,8 @@ class _DatePlanItemScreenState extends State<DatePlanItemScreen> {
     await provider.createAIPlanItems(
       AiDatePlanItemRequest(
         query: finalQuery,
-        plannedStartAt: provider.datePlanInfo!.data!.plannedStartAt.toUtc(),
-        plannedEndAt: provider.datePlanInfo!.data!.plannedEndAt.toUtc(),
+        plannedStartAt: provider.datePlanInfo!.data!.plannedStartAt.subtract(const Duration(hours: 7)),
+        plannedEndAt: provider.datePlanInfo!.data!.plannedEndAt.subtract(const Duration(hours: 7)),
         durationMode: provider.datePlanInfo!.data!.durationMode ?? 'SAME_DAY',
         latitude: positionProvider.latitude ?? 10.762622,
         longitude: positionProvider.longitude ?? 106.6948,

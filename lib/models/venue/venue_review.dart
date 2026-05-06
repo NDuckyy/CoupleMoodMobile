@@ -22,6 +22,11 @@ class VenueReview {
   final bool isOwner;
   final VenueReviewReply? reviewReply;
 
+  final int? coupleMoodTypeId;
+
+  final String? venueName;
+  final List<String> venueCoverImage;
+
   VenueReview({
     required this.id,
     required this.venueId,
@@ -39,6 +44,9 @@ class VenueReview {
     this.isMatched,
     required this.isOwner,
     this.reviewReply,
+    this.coupleMoodTypeId,
+    this.venueName,
+    this.venueCoverImage = const [],
   });
 
   factory VenueReview.fromJson(Map<String, dynamic> json) {
@@ -70,6 +78,13 @@ class VenueReview {
       reviewReply: json['reviewReply'] != null
           ? VenueReviewReply.fromJson(json['reviewReply'])
           : null,
+      coupleMoodTypeId: json['coupleMoodTypeId'],
+      venueName: json['venueName'],
+      venueCoverImage:
+          (json['venueCoverImage'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
     );
   }
 }

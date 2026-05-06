@@ -41,33 +41,33 @@ class BuildStatCard extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatItem(
-                icon: Icons.favorite,
-                color: const Color(0xFFF7AEF8),
-                label: "Kỷ niệm",
-                value: parsedDate != null
-                    ? formatter.format(parsedDate)
-                    : "Chưa câp nhật",
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: _buildStatItem(
+                    icon: Icons.favorite,
+                    color: const Color(0xFFF7AEF8),
+                    label: "Kỷ niệm",
+                    value: parsedDate != null
+                        ? formatter.format(parsedDate)
+                        : "Chưa cập nhật",
+                  ),
+                ),
               ),
 
               _divider(),
 
-              _buildStatItem(
-                icon: Icons.workspace_premium,
-                color: const Color(0xFFB388EB),
-                label: "Couple point",
-                value: "$totalPoints",
-              ),
-
-              _divider(),
-
-              _buildStatItem(
-                icon: Icons.flash_on,
-                color: const Color(0xFF72DDF7),
-                label: "Điểm tương tác",
-                value: "$interactionPoints",
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: _buildStatItem(
+                    icon: Icons.workspace_premium,
+                    color: const Color(0xFFB388EB),
+                    label: "Điểm cặp đôi",
+                    value: "$totalPoints",
+                  ),
+                ),
               ),
             ],
           ),
@@ -81,9 +81,12 @@ class BuildStatCard extends StatelessWidget {
                 icon: Icons.attach_money_outlined,
                 color: Colors.green,
                 label: "Ngân sách",
-                value: budgetMin != null && budgetMax != null
+                value:
+                    budgetMin != null &&
+                        budgetMax != null &&
+                        (budgetMin! > 0 || budgetMax! > 0)
                     ? "${CurrencyUtils.formatVND(budgetMin!)} - ${CurrencyUtils.formatVND(budgetMax!)}"
-                    : "Chưa cập nhật ngân sách",
+                    : "Chưa cập nhật",
               ),
             ],
           ),
@@ -117,6 +120,9 @@ Widget _buildStatItem({
       Text(
         value ?? "-",
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+        maxLines: 1,
       ),
       Text(label, style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
     ],

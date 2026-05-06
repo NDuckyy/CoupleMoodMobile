@@ -5,6 +5,7 @@ import 'package:couple_mood_mobile/models/reset_password_request.dart';
 import 'package:couple_mood_mobile/models/session.dart';
 import 'package:couple_mood_mobile/utils/session_storage.dart';
 import 'package:flutter/widgets.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'api_client.dart';
 import 'package:couple_mood_mobile/services/notification_service.dart';
 
@@ -21,8 +22,10 @@ class AuthService {
 
     final accessToken = data['accessToken']?.toString() ?? '';
     final refreshToken = data['refreshToken']?.toString() ?? '';
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    if (accessToken.isEmpty || refreshToken.isEmpty) {
+    if (accessToken.isEmpty || refreshToken.isEmpty || role != 'MEMBER') {
       throw Exception('Thiếu token từ server');
     }
     final session = Session(
@@ -71,8 +74,10 @@ class AuthService {
 
     final accessToken = data['accessToken']?.toString() ?? '';
     final refreshToken = data['refreshToken']?.toString() ?? '';
+    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final role = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
 
-    if (accessToken.isEmpty || refreshToken.isEmpty) {
+    if (accessToken.isEmpty || refreshToken.isEmpty || role != 'MEMBER') {
       throw Exception('Thiếu token từ server');
     }
 
@@ -138,5 +143,42 @@ class AuthService {
       debugPrint(e.toString());
       throw Exception('Lỗi khi đổi mật khẩu: $e');
     }
+  }
+
+  // sao BE tận 2 api verify
+  // static Future<ApiResponse<void>> verifyOtp(
+  //   String email,
+  //   String otpCode,
+  // ) async {
+  //   final res = await ApiClient.request(
+  //     '/Auth/verify-otp',
+  //     method: HttpMethod.post,
+  //     data: {"email": email, "otpCode": otpCode},
+  //   );
+
+  //   return ApiResponse<void>.fromJson(res, (json) {});
+  // }
+
+  static Future<ApiResponse<void>> sendRegistrationOtp(String email) async {
+    final res = await ApiClient.request(
+      '/Auth/send-registration-otp',
+      method: HttpMethod.post,
+      data: {"email": email},
+    );
+
+    return ApiResponse<void>.fromJson(res, (json) {});
+  }
+
+  static Future<ApiResponse<void>> verifyRegistrationOtp(
+    String email,
+    String otpCode,
+  ) async {
+    final res = await ApiClient.request(
+      '/Auth/verify-registration-otp',
+      method: HttpMethod.post,
+      data: {"email": email, "otpCode": otpCode},
+    );
+
+    return ApiResponse<void>.fromJson(res, (json) {});
   }
 }

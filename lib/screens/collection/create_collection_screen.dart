@@ -3,10 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../providers/collection/collection_provider.dart';
 import '../../utils/upload_util.dart';
-
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 
 class CreateCollectionScreen extends StatefulWidget {
@@ -18,7 +16,6 @@ class CreateCollectionScreen extends StatefulWidget {
 
 class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
   final _formKey = GlobalKey<FormState>();
-
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
 
@@ -38,11 +35,8 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
       source: ImageSource.gallery,
       imageQuality: 85,
     );
-
     if (picked != null) {
-      setState(() {
-        _selectedImage = File(picked.path);
-      });
+      setState(() => _selectedImage = File(picked.path));
     }
   }
 
@@ -53,7 +47,6 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
 
     try {
       String imageUrl = "";
-
       if (_selectedImage != null) {
         imageUrl = await UploadUtil.uploadImage(_selectedImage!);
       }
@@ -77,11 +70,12 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
     return GestureDetector(
       onTap: _pickImage,
       child: Container(
-        height: 180,
+        height: 200,
         width: double.infinity,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           color: Colors.grey[200],
+          border: Border.all(color: Colors.grey.shade300),
         ),
         child: _selectedImage != null
             ? ClipRRect(
@@ -92,9 +86,16 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add_a_photo, size: 40),
-                    SizedBox(height: 8),
-                    Text("Thêm ảnh bìa"),
+                    Icon(Icons.add_a_photo, size: 48, color: Colors.grey),
+                    SizedBox(height: 12),
+                    Text(
+                      "Thêm ảnh bìa",
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    Text(
+                      "Nhấn để chọn từ thư viện",
+                      style: TextStyle(fontSize: 13, color: Colors.grey),
+                    ),
                   ],
                 ),
               ),
@@ -114,70 +115,118 @@ class _CreateCollectionScreenState extends State<CreateCollectionScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildImagePicker(),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
 
-              const Text("Tên bộ sưu tập *"),
+              // Tên bộ sưu tập
+              _buildLabel("Tên bộ sưu tập", isRequired: true),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "Vui lòng nhập tên";
-                  }
-                  return null;
-                },
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? "Vui lòng nhập tên"
+                    : null,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Ví dụ: Chuyến đi chơi của chúng ta",
+                ),
               ),
+              const SizedBox(height: 20),
 
-              const SizedBox(height: 16),
-
-              const Text("Mô tả"),
+              // Mô tả
+              _buildLabel("Mô tả"),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _descController,
-                maxLines: 3,
-                decoration: const InputDecoration(border: OutlineInputBorder()),
+                maxLines: 4,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: "Mô tả ngắn về bộ sưu tập...",
+                ),
               ),
+              const SizedBox(height: 24),
 
-              const SizedBox(height: 16),
-
-              const Text("Trạng thái"),
+              // Trạng thái
+              _buildLabel("Trạng thái"),
+              const SizedBox(height: 8),
               Row(
                 children: [
-                  Radio<String>(
-                    value: "PRIVATE",
-                    groupValue: _status,
-                    onChanged: (value) => setState(() => _status = value!),
-                  ),
-                  const Text("Riêng tư"),
-                  Radio<String>(
-                    value: "PUBLIC",
-                    groupValue: _status,
-                    onChanged: (value) => setState(() => _status = value!),
-                  ),
-                  const Text("Công khai"),
+                  Expanded(child: _buildRadioOption("Riêng tư", "PRIVATE")),
+                  Expanded(child: _buildRadioOption("Công khai", "PUBLIC")),
                 ],
               ),
 
-              const SizedBox(height: 24),
-
+              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
+                height: 52, // tăng nhẹ chiều cao cho sang hơn
                 child: ElevatedButton(
                   onPressed: _isSubmitting ? null : _submit,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(
+                      0xFFEE6C9F,
+                    ), // ← Màu chính Couple Mood
+                    foregroundColor: Colors.white,
+                    elevation: 2, // bóng nhẹ
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12), // bo góc mềm mại
+                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                   child: _isSubmitting
                       ? const SizedBox(
-                          height: 22,
-                          width: 22,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          height: 24,
+                          width: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            color: Colors.white,
+                          ),
                         )
-                      : const Text("Tạo bộ sưu tập"),
+                      : const Text(
+                          "Tạo bộ sưu tập",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLabel(String text, {bool isRequired = false}) {
+    return RichText(
+      text: TextSpan(
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Colors.black87,
+        ),
+        children: [
+          TextSpan(text: text),
+          if (isRequired)
+            const TextSpan(
+              text: " *",
+              style: TextStyle(color: Colors.red),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRadioOption(String title, String value) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: value,
+          groupValue: _status,
+          onChanged: (newValue) => setState(() => _status = newValue!),
+        ),
+        Text(title),
+      ],
     );
   }
 }
