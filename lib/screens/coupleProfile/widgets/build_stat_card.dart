@@ -81,9 +81,12 @@ class BuildStatCard extends StatelessWidget {
                 icon: Icons.attach_money_outlined,
                 color: Colors.green,
                 label: "Ngân sách",
-                value: budgetMin != null && budgetMax != null
+                value:
+                    budgetMin != null &&
+                        budgetMax != null &&
+                        (budgetMin! > 0 || budgetMax! > 0)
                     ? "${CurrencyUtils.formatVND(budgetMin!)} - ${CurrencyUtils.formatVND(budgetMax!)}"
-                    : "Chưa cập nhật ngân sách",
+                    : "Chưa cập nhật",
               ),
             ],
           ),
