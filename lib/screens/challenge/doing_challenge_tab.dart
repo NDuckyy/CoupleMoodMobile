@@ -32,64 +32,68 @@ class DoingChallengesTab extends StatelessWidget {
 
         return RefreshIndicator(
           onRefresh: provider.loadChallenges,
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: list.isEmpty
-                ? [emptyText("Bạn chưa tham gia thử thách nào")]
-                : list.map((c) {
-                    final isCheckin = c.triggerEvent == "CHECKIN";
-                    final isCompleted = c.status == "COMPLETED";
+          child: Container(
+            color: const Color(0xFFF7F0FF),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: list.isEmpty
+                  ? [emptyText("Bạn chưa tham gia thử thách nào")]
+                  : list.map((c) {
+                      final isCheckin = c.triggerEvent == "CHECKIN";
+                      final isCompleted = c.status == "COMPLETED";
 
-                    return AnimatedChallengeItem(
-                      key: ValueKey("doing_${c.id}"),
-                      onAction: (!isCheckin && !isCompleted)
-                          ? () async {
-                              final success = await provider.leaveChallenge(
-                                c.id,
-                              );
+                      return AnimatedChallengeItem(
+                        key: ValueKey("doing_${c.id}"),
+                        onAction: (!isCheckin && !isCompleted)
+                            ? () async {
+                                final success = await provider.leaveChallenge(
+                                  c.id,
+                                );
 
-                              if (success && context.mounted) {
-                                showMsg(context, "Đã rời thử thách", true);
+                                if (success && context.mounted) {
+                                  showMsg(context, "Đã rời thử thách", true);
+                                }
+                                return success;
                               }
-                              return success;
-                            }
-                          : null,
-                      builder: (trigger) {
-                        return ChallengeCard(
-                          title: c.title,
-                          description: c.description,
-                          reward: c.rewardPoints,
-                          current: c.currentProgress,
-                          target: c.targetProgress,
-                          progressText: c.progressText,
-                          completed: isCompleted,
-                          triggerEvent: c.triggerEvent,
-                          onLeave: (!isCheckin && !isCompleted)
-                              ? trigger
-                              : null,
-                          onTap: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChangeNotifierProvider(
-                                  create: (_) => ChallengeDetailProvider(),
-                                  child: ChallengeDetailScreen(
-                                    coupleChallenge: c,
+                            : null,
+                        builder: (trigger) {
+                          return ChallengeCard(
+                            title: c.title,
+                            description: c.description,
+                            reward: c.rewardPoints,
+                            current: c.currentProgress,
+                            target: c.targetProgress,
+                            progressText: c.progressText,
+                            completed: isCompleted,
+                            triggerEvent: c.triggerEvent,
+                            isInProgress: !isCompleted,
+                            onLeave: (!isCheckin && !isCompleted)
+                                ? trigger
+                                : null,
+                            onTap: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChangeNotifierProvider(
+                                    create: (_) => ChallengeDetailProvider(),
+                                    child: ChallengeDetailScreen(
+                                      coupleChallenge: c,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
 
-                            if (result == true && context.mounted) {
-                              context
-                                  .read<ChallengeProvider>()
-                                  .loadChallenges();
-                            }
-                          },
-                        );
-                      },
-                    );
-                  }).toList(),
+                              if (result == true && context.mounted) {
+                                context
+                                    .read<ChallengeProvider>()
+                                    .loadChallenges();
+                              }
+                            },
+                          );
+                        },
+                      );
+                    }).toList(),
+            ),
           ),
         );
       },

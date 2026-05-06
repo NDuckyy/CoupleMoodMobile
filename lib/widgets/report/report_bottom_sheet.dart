@@ -38,20 +38,27 @@ class _ReportBottomSheetState extends State<ReportBottomSheet> {
 
     final filteredTypes = provider.reportTypes.where((type) {
       final isVoucherType = type.typeName.contains("VOUCHER");
+      final isMemberType = type.typeName == "MEMBER";
 
       if (isVoucherReport) {
-        return isVoucherType; // chỉ voucher
+        return isVoucherType;
+      } else if (widget.targetType == ReportTargetType.user) {
+        return isMemberType;
       } else {
-        return !isVoucherType; // loại voucher ra
+        return !isVoucherType && !isMemberType;
       }
     }).toList();
 
-    if (!_autoSelected && isVoucherReport && filteredTypes.isNotEmpty) {
-      final voucherType = filteredTypes.first;
+    final isUserReport = widget.targetType == ReportTargetType.user;
+
+    if (!_autoSelected &&
+        (isVoucherReport || isUserReport) &&
+        filteredTypes.isNotEmpty) {
+      final autoType = filteredTypes.first;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
-          selectedTypeId = voucherType.id;
+          selectedTypeId = autoType.id;
           _autoSelected = true;
         });
       });

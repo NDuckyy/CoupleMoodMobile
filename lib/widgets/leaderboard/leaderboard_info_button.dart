@@ -41,7 +41,7 @@ class LeaderboardInfoButton extends StatelessWidget {
                 const SizedBox(height: 12),
                 const Text(
                   "🏆 Mỗi thử thách hoàn thành sẽ mang lại một lượng điểm nhất định.\n\n"
-                  "🛒 Điểm tích lũy có thể dùng để mua phụ kiện trang trí trong Shop.\n\n"
+                  "🛒 Điểm tích lũy có thể dùng để mua phụ kiện trang trí trong cửa hàng.\n\n"
                   "🎁 Cặp đôi đứng Top 1 bảng xếp hạng vào cuối tháng sẽ nhận được khung avatar đặc biệt.",
                   style: TextStyle(fontSize: 14, height: 1.5),
                 ),

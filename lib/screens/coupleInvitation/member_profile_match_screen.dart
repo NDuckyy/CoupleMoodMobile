@@ -1,9 +1,11 @@
 import 'package:couple_mood_mobile/models/coupleInvitation/member_response.dart';
+import 'package:couple_mood_mobile/models/report/report_target_type.dart';
 import 'package:couple_mood_mobile/providers/couple_invitation_provider.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/dialog/invite_dialog.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/info_chip.dart';
 import 'package:couple_mood_mobile/screens/coupleInvitation/widget/member_profile/profile_section_card.dart';
 import 'package:couple_mood_mobile/utils/profile_utils.dart';
+import 'package:couple_mood_mobile/widgets/report/report_bottom_sheet.dart';
 import 'package:couple_mood_mobile/widgets/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -83,14 +85,29 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
               child: Column(
                 children: [
                   /// BACK BUTTON
+                  /// BACK BUTTON
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: _iconButton(
-                        icon: Icons.arrow_back,
-                        onTap: () => context.pop(),
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _iconButton(
+                          icon: Icons.arrow_back,
+                          onTap: () => context.pop(),
+                        ),
+
+                        /// ✅ REPORT BUTTON
+                        _iconButton(
+                          icon: Icons.flag_outlined,
+                          onTap: () {
+                            showReportBottomSheet(
+                              context: context,
+                              targetId: widget.userId,
+                              targetType: ReportTargetType.user,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
 
@@ -194,7 +211,8 @@ class _MemberProfileMatchScreenState extends State<MemberProfileMatchScreen> {
                         children: [
                           if (profile.jobTitle != null)
                             Text("💼 ${profile.jobTitle}"),
-                          if (profile.educationLevel != null && profile.educationLevel!.isNotEmpty)
+                          if (profile.educationLevel != null &&
+                              profile.educationLevel!.isNotEmpty)
                             Text("🎓 ${profile.educationLevel}"),
                         ],
                       ),

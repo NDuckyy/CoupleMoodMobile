@@ -270,6 +270,36 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
     );
   }
 
+  void _showReportPost() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.flag, color: Colors.red),
+                title: const Text(
+                  "Báo cáo bài viết",
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  showReportBottomSheet(
+                    context: context,
+                    targetId: widget.postId,
+                    targetType: ReportTargetType.post,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -319,11 +349,16 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
             },
           ),
           actions: [
-            if (post.isOwner)
-              IconButton(
-                icon: const Icon(Icons.more_vert),
-                onPressed: _showPostOptions,
-              ),
+            IconButton(
+              icon: const Icon(Icons.more_vert),
+              onPressed: () {
+                if (post.isOwner) {
+                  _showPostOptions();
+                } else {
+                  _showReportPost();
+                }
+              },
+            ),
           ],
         ),
         body: Column(

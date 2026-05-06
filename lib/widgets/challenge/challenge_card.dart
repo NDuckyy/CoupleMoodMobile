@@ -17,6 +17,7 @@ class ChallengeCard extends StatelessWidget {
   final VoidCallback? onClaimReward;
   final bool rewardClaimed;
   final String? triggerEvent;
+  final bool isInProgress;
 
   const ChallengeCard({
     super.key,
@@ -33,6 +34,7 @@ class ChallengeCard extends StatelessWidget {
     this.onClaimReward,
     this.onTap,
     this.triggerEvent,
+    this.isInProgress = false,
   });
 
   /// Discover challenge
@@ -63,6 +65,7 @@ class ChallengeCard extends StatelessWidget {
       current: c.currentProgress,
       target: c.targetProgress,
       progressText: c.progressText,
+      isInProgress: true,
       onTap: onTap,
     );
   }
@@ -99,6 +102,8 @@ class ChallengeCard extends StatelessWidget {
           ],
           border: completed
               ? Border.all(color: Colors.green.shade300, width: 1.5)
+              : isInProgress
+              ? Border.all(color: Colors.blue.shade300, width: 1.5)
               : null,
         ),
         child: ClipRRect(

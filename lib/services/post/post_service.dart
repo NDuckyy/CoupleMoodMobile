@@ -128,7 +128,7 @@ class PostService {
       data: {"content": content, "parentId": parentId},
     );
 
-    /// ❗ FAIL → KHÔNG parse model
+    ///  FAIL → KHÔNG parse model
     if (res['code'] != 200) {
       return ApiResponse<CommentModel?>(
         code: res['code'] as int? ?? 400,
@@ -137,7 +137,7 @@ class PostService {
       );
     }
 
-    /// ✅ SUCCESS mới parse
+    ///  SUCCESS mới parse
     return ApiResponse.fromJson(res, (json) => CommentModel.fromJson(json));
   }
 

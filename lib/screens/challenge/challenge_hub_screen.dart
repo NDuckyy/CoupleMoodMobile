@@ -56,13 +56,16 @@ class _ChallengeHubScreenState extends State<ChallengeHubScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: const [
-          DiscoverChallengesTab(),
-          DoingChallengesTab(),
-          CompletedChallengesTab(),
-        ],
+      body: Container(
+        color: const Color(0xFFF7F7F7),
+        child: TabBarView(
+          controller: _tabController,
+          children: const [
+            DiscoverChallengesTab(),
+            DoingChallengesTab(),
+            CompletedChallengesTab(),
+          ],
+        ),
       ),
     );
   }
