@@ -28,7 +28,7 @@ class _TransactionsTabState extends State<TransactionsTab> {
       case 'VND':
         return 'đ';
       case 'POINTS':
-        return ' xu';
+        return ' điểm';
       default:
         return '';
     }
