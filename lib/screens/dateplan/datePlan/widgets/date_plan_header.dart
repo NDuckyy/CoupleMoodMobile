@@ -4,7 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class DatePlanHeader extends StatelessWidget {
-  const DatePlanHeader({super.key});
+  final VoidCallback? onCreate;
+  const DatePlanHeader({super.key, this.onCreate});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class DatePlanHeader extends StatelessWidget {
 
                 if (created == true) {
                   if (!context.mounted) return;
-                  context.read<DatePlanProvider>().fetchDatePlans(page: 1);
+                  onCreate?.call();
                 }
               },
             ),

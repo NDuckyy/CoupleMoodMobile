@@ -253,15 +253,7 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
             if (recommendationProvider.isLoading && recs.isEmpty)
               const SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recommendationProvider.error != null)
-              SliverFillRemaining(
-                hasScrollBody: false,
-                child: Center(
-                  child: Text(
-                    recommendationProvider.error!,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              )
+              SliverFillRemaining(hasScrollBody: false, child: Loading())
             else if (recs.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
@@ -284,7 +276,12 @@ class _ListLocationScreenState extends State<ListLocationScreen> {
                   itemBuilder: (context, index) {
                     if (index < recs.length) {
                       final r = recs[index];
-                      return VenueCardGrid(r: r, maxline: 2, lat2: recommendationProvider.latitude, lon2: recommendationProvider.longitude);
+                      return VenueCardGrid(
+                        r: r,
+                        maxline: 2,
+                        lat2: recommendationProvider.latitude,
+                        lon2: recommendationProvider.longitude,
+                      );
                     } else {
                       return const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

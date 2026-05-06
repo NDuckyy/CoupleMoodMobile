@@ -85,7 +85,7 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
         final min = CurrencyUtils.parseVND(budgetMinController.text);
         final max = CurrencyUtils.parseVND(budgetMaxController.text);
 
-        if (min > maxCurrency || max! > maxCurrency) {
+        if (min > maxCurrency || max > maxCurrency) {
           showMsg(
             context,
             "Ngân sách không được vượt quá ${CurrencyUtils.formatVND(maxCurrency)}",
@@ -100,11 +100,11 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
             ? null
             : bodyFormatter.format(anniversaryDate!),
         budgetMin: budgetMinController.text.isEmpty
-            ? null
+            ? 0
             : CurrencyUtils.parseVND(budgetMinController.text),
 
         budgetMax: budgetMaxController.text.isEmpty
-            ? null
+            ? 0
             : CurrencyUtils.parseVND(budgetMaxController.text),
       );
 
@@ -225,7 +225,7 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                                           v,
                                         );
 
-                                        if (amount <= 0) {
+                                        if (amount < 0) {
                                           return "Sai số";
                                         }
 
@@ -315,7 +315,7 @@ class _EditCoupleProfilePageState extends State<EditCoupleProfilePage> {
                                           v,
                                         );
 
-                                        if (amount <= 0) {
+                                        if (amount < 0) {
                                           return "Sai số";
                                         }
 
