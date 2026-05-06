@@ -69,7 +69,7 @@ class UserCard extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 DARK GRADIENT (CHO TEXT RÕ)
+            ///  DARK GRADIENT (CHO TEXT RÕ)
             Positioned.fill(
               child: Container(
                 decoration: const BoxDecoration(
@@ -86,7 +86,7 @@ class UserCard extends StatelessWidget {
               ),
             ),
 
-            /// 🔥 INFO BOTTOM
+            ///  INFO BOTTOM
             Positioned(
               left: 16,
               right: 16,

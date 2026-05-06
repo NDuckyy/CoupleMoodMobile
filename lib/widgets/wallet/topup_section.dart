@@ -127,6 +127,9 @@ class _TopupSectionState extends State<TopupSection> {
               if (amount < 1000) {
                 return "Tối thiểu 1.000đ";
               }
+              if (amount > 100000000) {
+                return "Tối đa 100.000.000đ";
+              }
               return null;
             },
           ),
