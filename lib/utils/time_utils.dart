@@ -1,7 +1,8 @@
 import 'package:intl/intl.dart';
 
 String timeAgo(DateTime dateTime) {
-  final difference = DateTime.now().difference(dateTime);
+  final local = dateTime.isUtc ? dateTime.toLocal() : dateTime;
+  final difference = DateTime.now().difference(local);
 
   if (difference.inMinutes < 1) return "Vừa xong";
   if (difference.inMinutes < 60) return "${difference.inMinutes} phút trước";
@@ -9,12 +10,12 @@ String timeAgo(DateTime dateTime) {
   return "${difference.inDays} ngày trước";
 }
 
-//  FORMAT DATE VN
 String formatDateVN(DateTime dateTime) {
-  return DateFormat('dd/MM/yyyy').format(dateTime);
+  final local = dateTime.isUtc ? dateTime.toLocal() : dateTime;
+  return DateFormat('dd/MM/yyyy').format(local);
 }
 
-//  FORMAT DATE + TIME VN
 String formatDateTimeVN(DateTime dateTime) {
-  return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
+  final local = dateTime.isUtc ? dateTime.toLocal() : dateTime;
+  return DateFormat('dd/MM/yyyy HH:mm').format(local);
 }
