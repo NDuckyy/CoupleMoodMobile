@@ -48,6 +48,8 @@ class AdvertisementProvider extends ChangeNotifier {
       final popups = response.data ?? [];
       if (popups.isNotEmpty) {
         popup = popups.first;
+      } else {
+        popup = null;
       }
     } catch (e) {
       error = e.toString().replaceFirst('Exception: ', '');
